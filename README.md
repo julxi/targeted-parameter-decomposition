@@ -1,7 +1,5 @@
 **This repository contains the code accompanying the paper "Targeted Recovery of Weight-Space Mechanisms From Neural Networks" (Vigouroux and Sharkey, 2026). Example configurations for targeted decomposition can be found in [`spd/experiments/lm/targeted_decomposition/`](spd/experiments/lm/targeted_decomposition/), and analysis scripts can be found in [`spd/scripts/validation/`](spd/scripts/validation/). It is a fork of the [SPD](https://github.com/goodfire-ai/spd) repository, which implements the framework introduced in [Stochastic Parameter Decomposition](https://arxiv.org/abs/2506.20790).**
 
-Weights and Bias [report](https://wandb.ai/goodfire/spd-tms/reports/SPD-paper-report--VmlldzoxMzE3NzU0MQ) accompanying the paper.
-
 # SPD - Stochastic Parameter Decomposition
 
 ## Installation
