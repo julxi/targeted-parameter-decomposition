@@ -1,0 +1,15 @@
+# H100 machine config for `spd-vast --config h100`.
+# For the big LM experiments. H100 supply on vast.ai is thin (often only a handful of
+# single-GPU offers), so the ceilings here are deliberately loose - check what exists with
+# `spd-vast --list_offers --config h100` before relying on it.
+# Other variants: H100_PCIE (slower interconnect), H100_NVL (93GB).
+
+gpu_name: H100_SXM
+max_price: 8.0
+min_gpu_ram: 79
+disk: 100
+image: pytorch/pytorch:2.8.0-cuda12.8-cudnn9-devel
+min_reliability: 0.98
+min_cuda: 12.8
+sort: dph_total
+n_offers: 20

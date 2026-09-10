@@ -1,0 +1,34 @@
+# Machine selection for `spd-vast` (see VastConfig in spd/scripts/run_vast.py).
+# Every field can be overridden for a single launch with the matching CLI flag,
+# e.g. `spd-vast tms_5-2 --gpu_name A100_SXM4`.
+
+# vast.ai GPU name, spaces as underscores. Browse with `spd-vast --list_offers`.
+gpu_name: RTX_4090
+
+# Maximum total price in $/hour, including storage.
+max_price: 1.0
+
+# Minimum GPU memory in GB. Note vast.ai filters this in GB but reports it in MB.
+min_gpu_ram: 20
+
+# Disk to rent in GB. Needs room for the repo, the uv venv (torch is several GB)
+# and checkpoints.
+disk: 60
+
+# Docker image. Must be CUDA >= 12.8 to match the torch wheels in uv.lock.
+image: pytorch/pytorch:2.8.0-cuda12.8-cudnn9-devel
+
+# Minimum host reliability. Low-reliability hosts drop runs mid-training.
+min_reliability: 0.98
+
+# Minimum CUDA version the host supports.
+min_cuda: 12.8
+
+# Sort order; the first offer is the one rented.
+#   dlperf_per_dphtotal-  best deep-learning performance per dollar
+#   dph_total             cheapest first
+#   reliability-          most reliable first
+sort: dlperf_per_dphtotal-
+
+# How many offers to fetch and show.
+n_offers: 20

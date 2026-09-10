@@ -55,6 +55,7 @@ dev = [
 [project.scripts]
 spd-run = "spd.scripts.run_cli:cli"
 spd-local = "spd.scripts.run_local:cli"
+spd-vast = "spd.scripts.run_vast:cli"
 spd-pretrain = "spd.pretrain.scripts.run_slurm:cli"
 spd-clustering = "spd.clustering.scripts.run_pipeline:cli"
 spd-cluster-harvest = "spd.clustering.scripts.run_harvest:cli"

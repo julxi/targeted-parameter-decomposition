@@ -221,6 +221,7 @@ Each experiment (`spd/experiments/{tms,resid_mlp,lm}/`) contains:
 |---------|-------------|-------------|
 | `spd-run` | `spd/scripts/run.py` | SLURM-based experiment runner |
 | `spd-local` | `spd/scripts/run_local.py` | Local experiment runner |
+| `spd-vast` | `spd/scripts/run_vast.py` | vast.ai rented-GPU experiment runner |
 | `spd-harvest` | `spd/harvest/scripts/run_slurm_cli.py` | Submit harvest SLURM job |
 | `spd-autointerp` | `spd/autointerp/scripts/run_slurm_cli.py` | Submit autointerp SLURM job |
 | `spd-attributions` | `spd/dataset_attributions/scripts/run_slurm_cli.py` | Submit dataset attribution SLURM job |
@@ -291,6 +292,37 @@ spd-local tms_5-2 --dp 4    # Run on 4 GPUs (single node DDP)
 ```
 
 This runs experiments directly without SLURM, git snapshots, or W&B views/reports.
+
+### Running Experiments on vast.ai (`spd-vast`)
+
+For rented GPUs on the vast.ai marketplace, use `spd-vast` (requires the `vastai` CLI and an API
+key in `~/.config/vastai/vast_api_key`):
+
+```bash
+spd-vast --list_offers                       # browse matching offers, rent nothing
+spd-vast tms_5-2                             # rent, sync, train, stream logs
+spd-vast tms_5-2 --config h100               # use spd/scripts/vast_h100_config.yaml
+spd-vast tms_5-2 --gpu_name A100_SXM4        # one-off override of a config field
+spd-vast tms_5-2 --mode provision            # rent + sync only, then `ssh vastai`
+spd-vast tms_5-2 --destroy_on_exit           # destroy the instance when training ends
+```
+
+Machine selection (GPU, price ceiling, disk, image, reliability floor, sort order) lives in
+git-tracked YAML configs in `spd/scripts/`, validated by `VastConfig` in `spd/scripts/run_vast.py`:
+
+- `vast_config.yaml` — the default (RTX 4090)
+- `vast_h100_config.yaml` — H100, used via `--config h100`
+
+Add more as `vast_<name>_config.yaml` and select with `--config <name>`; `--config` also accepts a
+filename in `spd/scripts/` or an explicit path. `--gpu_name`, `--max_price`, `--min_gpu_ram`,
+`--disk` and `--image` override individual fields for a single launch.
+
+It searches offers, rents one, writes an ssh stanza to `~/.ssh/config.d/vastai.conf` (host alias
+`vastai`), rsyncs the working tree (respecting `.gitignore`) to `/root/spd`, then `uv sync`s and
+runs the experiment. WandB credentials are passed as container env vars, since `.env` is gitignored
+and therefore not rsynced. `sync_checkpoints_to_wandb` is forced on because the instance's disk does
+not survive destruction — W&B is the only durable output. Single GPU, one experiment per launch; no
+sweeps.
 
 ### Web App for Visualization
 
