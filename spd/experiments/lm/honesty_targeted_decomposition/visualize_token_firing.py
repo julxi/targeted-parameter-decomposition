@@ -5,15 +5,15 @@ import json
 
 import numpy as np
 import torch
+from transformers import AutoTokenizer
 
 from spd.models.component_model import ComponentModel
 from spd.utils.general_utils import resolve_class
 from spd.utils.module_utils import expand_module_patterns
 from spd.utils.run_utils import parse_config
-from transformers import AutoTokenizer
 
 
-def build_component_model(config_path: str, device: str):
+def build_component_model(config_path: str, checkpoint_path: str, device: str):
     config = parse_config(config_path, None)
     pretrained_model_class = resolve_class(config.pretrained_model_class)
     # torch_dtype + device_map set directly in from_pretrained (not a separate
@@ -35,6 +35,9 @@ def build_component_model(config_path: str, device: str):
         pretrained_model_output_attr=config.pretrained_model_output_attr,
     )
     component_model.to(device)
+    component_model.load_component_state_dict(
+        torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+    )
     component_model.eval()
     return component_model, config
 
@@ -125,10 +128,7 @@ def main():
     args = ap.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    component_model, config = build_component_model(args.config, device)
-    state_dict = torch.load(args.checkpoint, map_location="cpu")
-    component_model.load_state_dict(state_dict)
-    component_model.eval()
+    component_model, config = build_component_model(args.config, args.checkpoint, device)
 
     tokenizer = AutoTokenizer.from_pretrained(config.tokenizer_name)
     ci_fn_dtype = next(component_model.ci_fn.parameters()).dtype

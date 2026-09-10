@@ -23,7 +23,6 @@ from pathlib import Path
 import numpy as np
 import torch
 from transformers import AutoTokenizer
-
 from visualize_token_firing import (
     build_component_model,
     load_bare_examples,
@@ -53,10 +52,7 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    component_model, config = build_component_model(args.config, device)
-    state_dict = torch.load(args.checkpoint, map_location="cpu")
-    component_model.load_state_dict(state_dict)
-    component_model.eval()
+    component_model, config = build_component_model(args.config, args.checkpoint, device)
 
     tokenizer = AutoTokenizer.from_pretrained(config.tokenizer_name)
     ci_fn_dtype = next(component_model.ci_fn.parameters()).dtype

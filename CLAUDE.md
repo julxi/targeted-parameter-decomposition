@@ -505,7 +505,11 @@ model = ComponentModel.from_pretrained("/path/to/checkpoint.pt")
 - WandB: `wandb:entity/project/run_id` or `wandb:entity/project/runs/run_id`
 - Local: Direct path to checkpoint file (config must be in same directory as `final_config.yaml`)
 
-Downloaded runs are cached in `SPD_OUT_DIR/runs/<project>-<run_id>/`.
+Downloaded runs are cached in `SPD_OUT_DIR/runs/<project>-<run_id>/`. A run trained on this machine
+is read straight from its output dir (`SPD_OUT_DIR/spd/<run_id>/`) without downloading anything.
+
+Checkpoints contain only the learned weights (`_components.*` and `ci_fn.*`); the frozen target model
+is reconstructed from the `pretrained_model_*` fields of `final_config.yaml` on load.
 
 ### Cluster Usage Guidelines
 

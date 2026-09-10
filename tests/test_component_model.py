@@ -119,6 +119,71 @@ def test_correct_parameters_require_grad():
             assert not target_module.weight.requires_grad
 
 
+def _make_component_model(target_model: SimpleTestModel) -> ComponentModel:
+    target_model.requires_grad_(False)
+    return ComponentModel(
+        target_model=target_model,
+        module_path_info=[
+            ModulePathInfo(module_path="linear1", C=4),
+            ModulePathInfo(module_path="embedding", C=6),
+        ],
+        ci_config=LayerwiseCiConfig(fn_type="mlp", hidden_dims=[4]),
+        pretrained_model_output_attr=None,
+        sigmoid_type="leaky_hard",
+    )
+
+
+def test_component_state_dict_excludes_target_model():
+    cm = _make_component_model(SimpleTestModel())
+
+    learned = cm.component_state_dict()
+    assert learned
+    assert learned.keys() == {k for k in cm.state_dict() if not k.startswith("target_model.")}
+    assert any(k.startswith("target_model.") for k in cm.state_dict()), "sanity check"
+
+
+def test_load_component_state_dict_keeps_own_target_weights():
+    torch.manual_seed(0)
+    target = SimpleTestModel()
+    cm = _make_component_model(target)
+    torch.manual_seed(1)
+    other_target = SimpleTestModel()
+    cm_other = _make_component_model(other_target)
+
+    assert not torch.allclose(target.linear1.weight, other_target.linear1.weight), (
+        "sanity check: targets must differ"
+    )
+
+    cm_other.load_component_state_dict(cm.component_state_dict())
+
+    for k, v in cm.component_state_dict().items():
+        torch.testing.assert_close(cm_other.component_state_dict()[k], v)
+    assert not torch.allclose(target.linear1.weight, other_target.linear1.weight)
+
+
+def test_load_component_state_dict_ignores_target_model_keys():
+    """Checkpoints written before target weights were excluded still load."""
+    cm = _make_component_model(SimpleTestModel())
+    cm_loaded = _make_component_model(SimpleTestModel())
+
+    cm_loaded.load_component_state_dict(cm.state_dict())
+
+    for k, v in cm.component_state_dict().items():
+        torch.testing.assert_close(cm_loaded.component_state_dict()[k], v)
+
+
+def test_load_component_state_dict_rejects_wrong_keys():
+    cm = _make_component_model(SimpleTestModel())
+
+    with_extra = cm.component_state_dict() | {"_components.linear1.bogus": torch.zeros(1)}
+    with pytest.raises(AssertionError, match="unexpected keys"):
+        cm.load_component_state_dict(with_extra)
+
+    without_ci = {k: v for k, v in cm.component_state_dict().items() if not k.startswith("ci_fn.")}
+    with pytest.raises(AssertionError, match="missing learned weights"):
+        cm.load_component_state_dict(without_ci)
+
+
 def test_from_run_info():
     target_model = SimpleTestModel()
 
@@ -181,7 +246,7 @@ def test_from_run_info():
             sigmoid_type=config.sigmoid_type,
         )
 
-        save_file(cm.state_dict(), comp_model_dir / "model.pth")
+        save_file(cm.component_state_dict(), comp_model_dir / "model.pth")
         save_file(config.model_dump(mode="json"), comp_model_dir / "final_config.yaml")
 
         cm_run_info = SPDRunInfo.from_path(comp_model_dir / "model.pth")

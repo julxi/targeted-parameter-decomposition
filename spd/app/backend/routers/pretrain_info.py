@@ -17,7 +17,7 @@ from spd.app.backend.utils import log_errors
 from spd.configs import Config
 from spd.log import logger
 from spd.settings import SPD_OUT_DIR
-from spd.utils.wandb_utils import download_wandb_file, fetch_wandb_run_dir, parse_wandb_run_path
+from spd.utils.wandb_utils import download_wandb_file, parse_wandb_run_path, wandb_run_cache_dir
 
 router = APIRouter(prefix="/api/pretrain_info", tags=["pretrain_info"])
 
@@ -50,14 +50,13 @@ def _load_spd_config_lightweight(wandb_path: str) -> Config:
     entity, project, run_id = parse_wandb_run_path(wandb_path)
 
     # Check local cache first
-    run_dir = SPD_OUT_DIR / "runs" / f"{project}-{run_id}"
+    run_dir = wandb_run_cache_dir(project, run_id)
     config_path = run_dir / "final_config.yaml"
 
     if not config_path.exists():
         logger.info(f"[pretrain_info] Downloading config for {entity}/{project}/{run_id}")
         api = wandb.Api()
         run = api.run(f"{entity}/{project}/{run_id}")
-        run_dir = fetch_wandb_run_dir(run_id)
         config_path = download_wandb_file(run, run_dir, "final_config.yaml")
 
     with open(config_path) as f:

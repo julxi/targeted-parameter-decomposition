@@ -64,15 +64,17 @@ def extract_run_id(model_path: str) -> str:
 
 
 def resolve_run_dir(model_path: str) -> Path:
-    from spd.utils.wandb_utils import parse_wandb_run_path
+    from spd.utils.run_utils import spd_run_out_dir
+    from spd.utils.wandb_utils import parse_wandb_run_path, wandb_run_cache_dir
 
     try:
         _entity, project, run_id = parse_wandb_run_path(str(model_path))
-        run_dir = SPD_OUT_DIR / "runs" / f"{project}-{run_id}"
-        assert run_dir.exists(), f"Run dir not found: {run_dir}"
-        return run_dir
     except ValueError:
         return Path(model_path).parent
+    candidates = [spd_run_out_dir(run_id), wandb_run_cache_dir(project, run_id)]
+    run_dir = next((d for d in candidates if (d / "final_config.yaml").exists()), None)
+    assert run_dir is not None, f"Run dir not found in any of {candidates}"
+    return run_dir
 
 
 def load_component_uv(

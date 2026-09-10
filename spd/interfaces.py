@@ -9,14 +9,14 @@ import yaml
 from wandb.apis.public import Run
 
 from spd.log import logger
-from spd.settings import SPD_OUT_DIR
 from spd.spd_types import ModelPath
 from spd.utils.general_utils import fetch_latest_local_checkpoint
+from spd.utils.run_utils import spd_run_out_dir
 from spd.utils.wandb_utils import (
     download_wandb_file,
     fetch_latest_wandb_checkpoint,
-    fetch_wandb_run_dir,
     parse_wandb_run_path,
+    wandb_run_cache_dir,
 )
 
 
@@ -77,14 +77,15 @@ class RunInfo[T]:
             # Direct path to checkpoint file
             file_paths = cls._resolve_from_checkpoint_path(Path(path))
         else:
-            # Wandb path - check cache first
-            run_dir = SPD_OUT_DIR / "runs" / f"{project}-{run_id}"
-            if run_dir.exists():
-                logger.info(f"Loading run from {run_dir}")
-                file_paths = cls._resolve_from_run_dir(run_dir)
+            # Wandb path - check the local output dir of a run trained here, then the download cache
+            probe_dirs = [spd_run_out_dir(run_id), wandb_run_cache_dir(project, run_id)]
+            cached = next((d for d in probe_dirs if (d / cls.config_filename).exists()), None)
+            if cached is not None:
+                logger.info(f"Loading run from {cached}")
+                file_paths = cls._resolve_from_run_dir(cached)
             else:
                 logger.info(f"Downloading run from wandb: {entity}/{project}/{run_id}")
-                file_paths = cls._download_from_wandb(f"{entity}/{project}/{run_id}")
+                file_paths = cls._download_from_wandb(entity, project, run_id)
 
         with open(file_paths["config"]) as f:
             config = cls.config_class(**yaml.safe_load(f))
@@ -116,6 +117,9 @@ class RunInfo[T]:
                 "Must set either checkpoint_filename or checkpoint_prefix"
             )
             checkpoint = fetch_latest_local_checkpoint(run_dir, prefix=cls.checkpoint_prefix)
+        assert checkpoint.exists(), (
+            f"Incomplete run dir {run_dir}: {checkpoint.name} missing. Delete it to re-download."
+        )
         return {
             "config": run_dir / cls.config_filename,
             "checkpoint": checkpoint,
@@ -123,11 +127,11 @@ class RunInfo[T]:
         }
 
     @classmethod
-    def _download_from_wandb(cls, wandb_path: str) -> dict[str, Path]:
+    def _download_from_wandb(cls, entity: str, project: str, run_id: str) -> dict[str, Path]:
         """Download files from wandb and return local paths."""
         api = wandb.Api()
-        run: Run = api.run(wandb_path)
-        run_dir = fetch_wandb_run_dir(run.id)
+        run: Run = api.run(f"{entity}/{project}/{run_id}")
+        run_dir = wandb_run_cache_dir(project, run_id)
 
         checkpoint = fetch_latest_wandb_checkpoint(
             run, prefix=cls.checkpoint_prefix if cls.checkpoint_prefix else None

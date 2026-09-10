@@ -43,7 +43,6 @@ from spd.losses import compute_losses
 from spd.metrics import faithfulness_loss
 from spd.models.component_model import ComponentModel, OutputWithCache
 from spd.persistent_pgd import PersistentPGDState
-from spd.settings import SPD_OUT_DIR
 from spd.utils.component_utils import apply_ci_scaled_weight_decay, calc_ci_l_zero
 from spd.utils.distributed_utils import (
     avg_metrics_across_ranks,
@@ -62,7 +61,7 @@ from spd.utils.general_utils import (
 from spd.utils.git_utils import repo_current_commit_hash, repo_is_clean
 from spd.utils.logging_utils import get_grad_norms_dict, local_log
 from spd.utils.module_utils import expand_module_patterns
-from spd.utils.run_utils import generate_run_id, save_file
+from spd.utils.run_utils import generate_run_id, save_file, spd_run_out_dir
 from spd.utils.wandb_utils import init_wandb, try_wandb
 
 
@@ -512,8 +511,8 @@ def optimize(
         ) and is_main_process():
             assert out_dir is not None
             # Save the state dict of the underlying module (not DDP wrapper)
-            save_file(component_model.state_dict(), out_dir / f"model_{step}.pth")
-            logger.info(f"Saved model, optimizer, and out_dir to {out_dir}")
+            save_file(component_model.component_state_dict(), out_dir / f"model_{step}.pth")
+            logger.info(f"Saved model to {out_dir / f'model_{step}.pth'}")
             if config.wandb_project and config.sync_checkpoints_to_wandb:
                 try_wandb(
                     wandb.save,
@@ -604,7 +603,7 @@ def run_experiment(
     """
     if is_main_process():
         run_id = run_id or generate_run_id("spd")
-        out_dir = SPD_OUT_DIR / "spd" / run_id
+        out_dir = spd_run_out_dir(run_id)
         out_dir.mkdir(parents=True, exist_ok=True)
 
         logger.info(f"Run ID: {run_id}")

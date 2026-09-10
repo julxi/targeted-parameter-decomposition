@@ -15,7 +15,7 @@ from wandb.apis.public import File, Run
 from spd.base_config import BaseConfig
 from spd.log import logger
 from spd.registry import EXPERIMENT_REGISTRY
-from spd.settings import DEFAULT_PROJECT_NAME, REPO_ROOT
+from spd.settings import DEFAULT_PROJECT_NAME, REPO_ROOT, SPD_OUT_DIR
 from spd.utils.general_utils import fetch_latest_checkpoint_name
 
 WORKSPACE_TEMPLATES = {
@@ -274,33 +274,11 @@ def fetch_latest_wandb_checkpoint(run: Run, prefix: str | None = None) -> File:
     return latest_checkpoint_remote
 
 
-def fetch_wandb_run_dir(run_id: str) -> Path:
-    """Find or create a directory in the W&B cache for a given run.
-
-    We first check if we already have a directory with the suffix "run_id" (if we created the run
-    ourselves, a directory of the name "run-<timestamp>-<run_id>" should exist). If not, we create a
-    new wandb_run_dir.
-    """
-    # Default to REPO_ROOT/wandb
-    base_cache_dir = REPO_ROOT / "wandb"
-    base_cache_dir.mkdir(parents=True, exist_ok=True)
-
-    # Set default wandb_run_dir
-    wandb_run_dir = base_cache_dir / run_id / "files"
-
-    # Check if we already have a directory with the suffix "run_id"
-    presaved_run_dirs = [
-        d for d in base_cache_dir.iterdir() if d.is_dir() and d.name.endswith(run_id)
-    ]
-    # If there is more than one dir, just ignore the presaved dirs and use the new wandb_run_dir
-    if presaved_run_dirs and len(presaved_run_dirs) == 1:
-        presaved_file_path = presaved_run_dirs[0] / "files"
-        if presaved_file_path.exists():
-            # Found a cached run directory, use it
-            wandb_run_dir = presaved_file_path
-
-    wandb_run_dir.mkdir(parents=True, exist_ok=True)
-    return wandb_run_dir
+def wandb_run_cache_dir(project: str, run_id: str) -> Path:
+    """Local cache directory for files downloaded from a W&B run."""
+    run_dir = SPD_OUT_DIR / "runs" / f"{project}-{run_id}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    return run_dir
 
 
 def download_wandb_file(run: Run, wandb_run_dir: Path, file_name: str) -> Path:

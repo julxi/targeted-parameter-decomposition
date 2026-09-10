@@ -335,6 +335,11 @@ def generate_run_id(run_type: RunType) -> str:
     return f"{type_abbr}-{secrets.token_hex(4)}"
 
 
+def spd_run_out_dir(run_id: str) -> Path:
+    """Where `optimize` writes a run's config, checkpoints and figures."""
+    return SPD_OUT_DIR / "spd" / run_id
+
+
 def parse_config(config_path: Path | str | None, config_json: str | None) -> Config:
     """Parse a Config from either a file path or a JSON string. Exactly one must be provided."""
     assert (config_path is not None) != (config_json is not None), (

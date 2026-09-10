@@ -562,6 +562,29 @@ class ComponentModel(LoadableModule):
             for handle in handles:
                 handle.remove()
 
+    def component_state_dict(self) -> dict[str, Tensor]:
+        """State dict of the learned weights only, excluding the frozen target model.
+
+        `from_run_info` reconstructs the target model from the config, so target weights in a
+        checkpoint are redundant; for LM runs they are almost the whole file.
+        """
+        learned = {k: v for k, v in self.state_dict().items() if not k.startswith("target_model.")}
+        unknown = [k for k in learned if not k.startswith(("_components.", "ci_fn."))]
+        assert not unknown, f"Unrecognised non-target keys in ComponentModel state dict: {unknown}"
+        return learned
+
+    def load_component_state_dict(self, state_dict: dict[str, Tensor]) -> None:
+        """Load learned weights, ignoring `target_model.*` keys from older checkpoints."""
+        learned = {k: v for k, v in state_dict.items() if not k.startswith("target_model.")}
+        incompatible = self.load_state_dict(learned, strict=False)
+        assert not incompatible.unexpected_keys, (
+            f"Checkpoint has unexpected keys: {incompatible.unexpected_keys}"
+        )
+        missing_learned = [
+            k for k in incompatible.missing_keys if not k.startswith("target_model.")
+        ]
+        assert not missing_learned, f"Checkpoint is missing learned weights: {missing_learned}"
+
     @classmethod
     @override
     def from_run_info(cls, run_info: RunInfo[Config]) -> "ComponentModel":
@@ -621,7 +644,7 @@ class ComponentModel(LoadableModule):
 
         _validate_checkpoint_ci_config_compatibility(comp_model_weights, config.ci_config)
 
-        comp_model.load_state_dict(comp_model_weights)
+        comp_model.load_component_state_dict(comp_model_weights)
         return comp_model
 
     @classmethod
