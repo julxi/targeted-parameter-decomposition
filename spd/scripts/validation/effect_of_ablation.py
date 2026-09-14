@@ -123,7 +123,7 @@ def _make_decoder(tokenizer: PreTrainedTokenizer) -> Callable[[int], str]:
     def decode(tid: int) -> str:
         s = cache.get(tid)
         if s is None:
-            s = escape_tsv_value(tokenizer.decode([tid]))  # pyright: ignore[reportAttributeAccessIssue]
+            s = escape_tsv_value(tokenizer.decode([tid]))
             cache[tid] = s
         return s
 

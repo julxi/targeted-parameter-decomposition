@@ -598,6 +598,7 @@ def plot_wv_subspace_overlap(
     # 1. Collect post-RMSNorm activations
     task_config = config.task_config
     assert isinstance(task_config, LMTaskConfig)
+    assert task_config.dataset_name is not None
     dataset_config = DatasetConfig(
         name=task_config.dataset_name,
         hf_tokenizer_path=config.tokenizer_name,

@@ -19,7 +19,6 @@ from transformers import AutoTokenizer
 from spd.data import DatasetConfig, create_data_loader
 from spd.pretrain.run_info import PretrainRunInfo
 
-
 DEFAULT_CONFIG = "spd/experiments/lm/pile_llama_simple_mlp-4L-targeted-css.yaml"
 
 
@@ -74,7 +73,7 @@ def main() -> None:
 
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
-    decode = tokenizer.decode  # pyright: ignore[reportAttributeAccessIssue]
+    decode = tokenizer.decode
 
     # Load dataset
     print("Loading CSS dataset...")
@@ -119,7 +118,7 @@ def main() -> None:
         # Find hits
         hit_batch, hit_pos = torch.where(next_token_probs > args.prob_thr)
 
-        for b, pos in zip(hit_batch.tolist(), hit_pos.tolist()):
+        for b, pos in zip(hit_batch.tolist(), hit_pos.tolist(), strict=True):
             # pos is the index into the shifted sequence: predicting token at position pos+1
             # Context is tokens 0..pos (inclusive)
             context_ids = input_ids[b, : pos + 1].tolist()
@@ -138,7 +137,7 @@ def main() -> None:
 
     # Write TSV
     print(f"Writing {len(rows)} rows to {args.output}")
-    print(f"  ({len(rows)}/{n_total_positions} positions = {len(rows)/n_total_positions:.1%})")
+    print(f"  ({len(rows)}/{n_total_positions} positions = {len(rows) / n_total_positions:.1%})")
     with open(args.output, "w", newline="") as f:
         writer = csv.writer(f, delimiter="\t")
         writer.writerow(["context", "context_short", "next_token", "prob"])

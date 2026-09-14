@@ -368,7 +368,7 @@ def main(config_path_or_obj: Path | str | Config | None = None) -> None:
         )
         # Save tokenizer to output_dir alongside configs and upload to W&B if enabled
         tokenizer_file = output_dir / "tokenizer.json"
-        train_tokenizer.save_pretrained(str(output_dir))  # pyright: ignore[reportAttributeAccessIssue]
+        train_tokenizer.save_pretrained(str(output_dir))
         log0(f"Saved tokenizer to {output_dir}")
         if config.wandb_project is not None and master_process:
             wandb.save(str(tokenizer_file), policy="now", base_path=output_dir)
@@ -416,7 +416,7 @@ def main(config_path_or_obj: Path | str | Config | None = None) -> None:
         if config.sample_every > 0 and (step % config.sample_every == 0 or last_step):
             model.eval()
             # Get EOS token ID - HuggingFace tokenizers have eos_token_id attribute
-            eos_id = train_tokenizer.eos_token_id  # pyright: ignore[reportAttributeAccessIssue]
+            eos_id = train_tokenizer.eos_token_id
             start_ids = [eos_id] if eos_id is not None else [0]
             xg = torch.tensor(start_ids, dtype=torch.long, device=device)[None, ...]
             max_new_tokens = 32
@@ -427,10 +427,10 @@ def main(config_path_or_obj: Path | str | Config | None = None) -> None:
             )
             if master_process:
                 log0("---------------")
-                log0(train_tokenizer.decode(yg[0].tolist()))  # pyright: ignore[reportAttributeAccessIssue]
+                log0(train_tokenizer.decode(yg[0].tolist()))
                 log0("---------------")
                 if config.wandb_project is not None and master_process:
-                    decoded = train_tokenizer.decode(yg[0].tolist())  # pyright: ignore[reportAttributeAccessIssue]
+                    decoded = train_tokenizer.decode(yg[0].tolist())
                     generations.append([step, decoded])
                     log_generations(step, generations)
 

@@ -31,8 +31,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-_KL_FLOOR = 1e-12
-
 import fire
 from tqdm import tqdm
 from transformers import AutoTokenizer
@@ -48,6 +46,7 @@ from spd.spd_types import ModelPath
 
 ComponentKey = tuple[int, str, int]  # (layer, matrix, component)
 MatrixKey = tuple[int, str]
+_KL_FLOOR = 1e-12
 
 
 @dataclass

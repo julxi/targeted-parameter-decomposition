@@ -151,7 +151,7 @@ def scale_active_components(
 
     prompt_texts = load_prompts(config, prompts_override=prompts)
     tokenizer = AutoTokenizer.from_pretrained(config.tokenizer_name)
-    encoded: Any = tokenizer(prompt_texts)  # pyright: ignore[reportCallIssue]
+    encoded: Any = tokenizer(prompt_texts)
     last_pos = [len(ids) - 1 for ids in encoded["input_ids"]]
 
     assert min_factor > 0 and max_factor >= min_factor and n_factors >= 1, (

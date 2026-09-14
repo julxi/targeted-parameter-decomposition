@@ -434,6 +434,7 @@ def generate_with_ablation(
 
     task_config = config.task_config
     assert isinstance(task_config, LMTaskConfig)
+    assert task_config.dataset_name is not None
     dataset_config = DatasetConfig(
         name=task_config.dataset_name,
         hf_tokenizer_path=config.tokenizer_name,
@@ -448,7 +449,7 @@ def generate_with_ablation(
         dataset_config=dataset_config, batch_size=1, buffer_size=1000
     )
     encode = tokenizer.encode
-    decode_tok = tokenizer.decode  # pyright: ignore[reportAttributeAccessIssue]
+    decode_tok = tokenizer.decode
 
     out_dir = SCRIPT_DIR / "out" / run_id / "generations"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -492,10 +493,7 @@ def generate_with_ablation(
         # Crafted prompts: use full text, ablate at last token
         if include_crafted:
             for idx, (text, desc) in enumerate(CRAFTED_PROMPTS):
-                token_ids = encode(text)
-                ids_list: list[int] = (
-                    token_ids if isinstance(token_ids, list) else token_ids.ids  # pyright: ignore[reportAttributeAccessIssue]
-                )
+                ids_list: list[int] = encode(text)
                 ids_tensor = torch.tensor([ids_list], device=device)
                 run_sample(ids_tensor, ids_tensor.shape[1] - 1, f"Crafted: {desc}")
                 if (idx + 1) % 10 == 0:

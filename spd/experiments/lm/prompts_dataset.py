@@ -54,9 +54,9 @@ def load_prompts_dataset(
 
     # Set pad_token_id if not set (common for GPT-style tokenizers)
     if getattr(tokenizer, "pad_token_id", None) is None:
-        tokenizer.pad_token_id = tokenizer.eos_token_id  # pyright: ignore[reportAttributeAccessIssue]
+        tokenizer.pad_token_id = tokenizer.eos_token_id
 
-    encoded: Any = tokenizer(prompts)  # pyright: ignore[reportCallIssue]
+    encoded: Any = tokenizer(prompts)
     lengths = [len(ids) for ids in encoded["input_ids"]]
     too_long = [(i, length) for i, length in enumerate(lengths) if length > max_seq_len]
     if too_long:
@@ -67,7 +67,7 @@ def load_prompts_dataset(
         )
 
     # Pad to max_seq_len
-    pad_token_id = tokenizer.pad_token_id  # pyright: ignore[reportAttributeAccessIssue]
+    pad_token_id = tokenizer.pad_token_id
     input_ids = [ids + [pad_token_id] * (max_seq_len - len(ids)) for ids in encoded["input_ids"]]
     dataset = Dataset.from_dict({"input_ids": input_ids})
     dataset = dataset.with_format("torch")

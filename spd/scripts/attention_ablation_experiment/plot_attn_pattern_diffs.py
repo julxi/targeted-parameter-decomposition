@@ -86,6 +86,7 @@ def plot_attn_pattern_diffs(
     seq_len = target_model.config.n_ctx
     task_config = config.task_config
     assert isinstance(task_config, LMTaskConfig)
+    assert task_config.dataset_name is not None
     dataset_config = DatasetConfig(
         name=task_config.dataset_name,
         hf_tokenizer_path=config.tokenizer_name,
@@ -115,7 +116,7 @@ def plot_attn_pattern_diffs(
 
     sample_t_values: list[int] = []
     sample_token_labels: list[list[str]] = []
-    decode = tokenizer.decode  # pyright: ignore[reportAttributeAccessIssue]
+    decode = tokenizer.decode
 
     with torch.no_grad():
         for i, batch_data in enumerate(loader):
@@ -135,7 +136,7 @@ def plot_attn_pattern_diffs(
                 for o in range(max_offset_show + 1):
                     pos = t - o
                     if pos >= 0:
-                        tok_str = decode(input_ids[0, pos].item()).replace("\n", "\\n")
+                        tok_str = decode(int(input_ids[0, pos].item())).replace("\n", "\\n")
                     else:
                         tok_str = ""
                     labels.append(tok_str)

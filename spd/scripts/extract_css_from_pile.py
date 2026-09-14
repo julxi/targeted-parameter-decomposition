@@ -105,7 +105,7 @@ def process_and_upload(
         shard_buf = []
 
     for text in docs:
-        tokens: list[int] = tokenizer.encode(text)  # pyright: ignore[reportAssignmentType]
+        tokens: list[int] = tokenizer.encode(text)
         buf.extend(tokens)
         while len(buf) >= seq_len:
             shard_buf.append(buf[:seq_len])

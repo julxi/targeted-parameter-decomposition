@@ -80,7 +80,7 @@ def _read_mean_activations(
 
 
 def _single_token_id(tokenizer: PreTrainedTokenizer, text: str, label: str) -> int:
-    encoded: Any = tokenizer(text, add_special_tokens=False)  # pyright: ignore[reportCallIssue]
+    encoded: Any = tokenizer(text, add_special_tokens=False)
     ids: list[int] = encoded["input_ids"]
     assert len(ids) == 1, f"{label} {text!r} must tokenize to exactly one token, got {ids}"
     return ids[0]
@@ -182,7 +182,7 @@ def _make_decoder(tokenizer: PreTrainedTokenizer) -> Callable[[int], str]:
     def decode(tid: int) -> str:
         s = cache.get(tid)
         if s is None:
-            s = escape_tsv_value(tokenizer.decode([tid]))  # pyright: ignore[reportAttributeAccessIssue]
+            s = escape_tsv_value(tokenizer.decode([tid]))
             cache[tid] = s
         return s
 

@@ -170,7 +170,7 @@ def _write_sequences(
                     "token_ids": example.token_ids,
                     "firings": example.firings,
                     "activations": example.activations,
-                    "text": tokenizer.decode(example.token_ids),  # pyright: ignore[reportAttributeAccessIssue]
+                    "text": tokenizer.decode(example.token_ids),
                 }
                 f.write(json.dumps(record) + "\n")
                 n_written += 1

@@ -17,13 +17,16 @@ Usage:
         --summary \
         --out-dir analysis_capitals/capitals_false
 """
+
 import argparse
 from pathlib import Path
 
 import numpy as np
 import torch
 from transformers import AutoTokenizer
-from visualize_token_firing import (
+
+from spd.configs import LMTaskConfig
+from spd.experiments.lm.honesty_targeted_decomposition.visualize_token_firing import (
     build_component_model,
     load_bare_examples,
     render_example_html,
@@ -40,8 +43,12 @@ def main():
     ap.add_argument("--config", required=True)
     ap.add_argument("--checkpoint", required=True)
     ap.add_argument("--contrast-jsonl", required=True)
-    ap.add_argument("--layer-components", nargs="+", required=True,
-                     help="One or more LAYER:comp1,comp2,... specs")
+    ap.add_argument(
+        "--layer-components",
+        nargs="+",
+        required=True,
+        help="One or more LAYER:comp1,comp2,... specs",
+    )
     ap.add_argument("--n-examples", type=int, default=10)
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--out-dir", required=True)
@@ -55,13 +62,17 @@ def main():
     component_model, config = build_component_model(args.config, args.checkpoint, device)
 
     tokenizer = AutoTokenizer.from_pretrained(config.tokenizer_name)
+    task_config = config.task_config
+    assert isinstance(task_config, LMTaskConfig)
     ci_fn_dtype = next(component_model.ci_fn.parameters()).dtype
 
     all_examples = load_bare_examples(args.contrast_jsonl, n_examples=None)
     display_examples = all_examples[: 2 * args.n_examples] if args.n_examples else all_examples
-    print(f"Loaded {len(all_examples)} total examples "
-          f"({len(all_examples) // 2} unique questions x true/false); "
-          f"rendering {len(display_examples)} to HTML per layer")
+    print(
+        f"Loaded {len(all_examples)} total examples "
+        f"({len(all_examples) // 2} unique questions x true/false); "
+        f"rendering {len(display_examples)} to HTML per layer"
+    )
 
     layers = list(layer_components.keys())
     per_layer_examples = {layer: {c: [] for c in layer_components[layer]} for layer in layers}
@@ -75,15 +86,21 @@ def main():
                 ex["messages"], tokenize=False, add_generation_prompt=True
             )
             full_text = prompt + ex["completion"]
-            enc = tokenizer(full_text, return_tensors="pt", truncation=True,
-                             max_length=config.task_config.max_seq_len)
+            enc = tokenizer(
+                full_text,
+                return_tensors="pt",
+                truncation=True,
+                max_length=task_config.max_seq_len,
+            )
             input_ids = enc["input_ids"].to(device)
             token_strs = tokenizer.convert_ids_to_tokens(enc["input_ids"][0])
             token_strs = [t.replace("Ġ", " ").replace("▁", " ") for t in token_strs]
 
             out = component_model(input_ids, cache_type="input")
             pre_weight_acts = {k: v.to(ci_fn_dtype) for k, v in out.cache.items()}
-            ci_outputs = component_model.calc_causal_importances(pre_weight_acts, sampling=config.sampling)
+            ci_outputs = component_model.calc_causal_importances(
+                pre_weight_acts, sampling=config.sampling
+            )
 
             answer_pos = len(token_strs) - 1
             if token_strs[answer_pos].strip() in {".", ",", "!", "?"}:
@@ -104,14 +121,22 @@ def main():
         if args.summary:
             print(f"\n=== {layer}: quantitative summary, true vs. false ===")
             for c in components:
-                true_vals = np.array([v for label, v in per_layer_summary[layer][c] if label == "true"])
-                false_vals = np.array([v for label, v in per_layer_summary[layer][c] if label == "false"])
+                true_vals = np.array(
+                    [v for label, v in per_layer_summary[layer][c] if label == "true"]
+                )
+                false_vals = np.array(
+                    [v for label, v in per_layer_summary[layer][c] if label == "false"]
+                )
                 threshold = 0.01
-                frac_true = float((true_vals > threshold).mean()) if len(true_vals) else float("nan")
-                frac_false = float((false_vals > threshold).mean()) if len(false_vals) else float("nan")
+                frac_true = (
+                    float((true_vals > threshold).mean()) if len(true_vals) else float("nan")
+                )
+                frac_false = (
+                    float((false_vals > threshold).mean()) if len(false_vals) else float("nan")
+                )
                 print(
-                    f"  component {c}: true mean={true_vals.mean():.4f} (>{threshold}: {frac_true*100:.0f}%) "
-                    f"| false mean={false_vals.mean():.4f} (>{threshold}: {frac_false*100:.0f}%) "
+                    f"  component {c}: true mean={true_vals.mean():.4f} (>{threshold}: {frac_true * 100:.0f}%) "
+                    f"| false mean={false_vals.mean():.4f} (>{threshold}: {frac_false * 100:.0f}%) "
                     f"| n={len(true_vals)} pairs"
                 )
 
@@ -134,7 +159,7 @@ def main():
                 rendered = render_example_html(token_strs, vals, vmax)
                 html_parts.append(
                     f'<div class="example"><span class="label" style="color:{label_color}">'
-                    f'[{label}]</span>{rendered}</div>'
+                    f"[{label}]</span>{rendered}</div>"
                 )
         html_parts.append("</body></html>")
 

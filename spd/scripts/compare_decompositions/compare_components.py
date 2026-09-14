@@ -114,7 +114,7 @@ def plot_component_heatmaps(
     return fig
 
 
-@torch.no_grad()
+@torch.no_grad()  # pyright: ignore[reportUntypedFunctionDecorator]
 def main(
     wandb_path_a: str,
     wandb_path_b: str,
@@ -135,7 +135,9 @@ def main(
     print(f"Run B: {decomp_b.label}")
 
     tokenizer = get_tokenizer(decomp_a)
-    tokens = tokenizer(prompt, return_tensors="pt")["input_ids"].to(device)
+    input_ids = tokenizer(prompt, return_tensors="pt")["input_ids"]
+    assert isinstance(input_ids, torch.Tensor)
+    tokens = input_ids.to(device)
     token_strs = [tokenizer.decode(t) for t in tokens[0]]
     print(f"Prompt: {prompt!r}  (tokens: {tokens.shape[1]})")
 

@@ -17,6 +17,7 @@ from matplotlib.figure import Figure
 from torch import Tensor
 from transformers import AutoTokenizer, PreTrainedTokenizerBase
 
+from spd.configs import SamplingType
 from spd.models.component_model import CIOutputs, ComponentModel, SPDRunInfo
 from spd.models.components import LinearComponents
 
@@ -64,11 +65,11 @@ def get_tokenizer(decomp: DecompositionInfo) -> PreTrainedTokenizerBase:
     return AutoTokenizer.from_pretrained(tokenizer_name)
 
 
-@torch.no_grad()
+@torch.no_grad()  # pyright: ignore[reportUntypedFunctionDecorator]
 def compute_ci(
     model: ComponentModel,
     tokens: Tensor,
-    sampling: str = "deterministic",
+    sampling: SamplingType,
 ) -> dict[str, Float[Tensor, "... C"]]:
     out = model(tokens, cache_type="input")
     ci: CIOutputs = model.calc_causal_importances(
@@ -129,7 +130,13 @@ def get_attn_info(model: ComponentModel) -> tuple[int, int, int]:
             and hasattr(module, "n_key_value_heads")
             and hasattr(module, "head_dim")
         ):
-            return module.n_head, module.n_key_value_heads, module.head_dim
+            n_heads = module.n_head
+            n_kv_heads = module.n_key_value_heads
+            d_head = module.head_dim
+            assert isinstance(n_heads, int)
+            assert isinstance(n_kv_heads, int)
+            assert isinstance(d_head, int)
+            return n_heads, n_kv_heads, d_head
     raise ValueError("Could not find attention module with n_head/n_key_value_heads/head_dim")
 
 

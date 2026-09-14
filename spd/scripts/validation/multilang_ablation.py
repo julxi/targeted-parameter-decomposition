@@ -178,7 +178,7 @@ def _iter_tokens(lang: str, tokenizer: PreTrainedTokenizer) -> Iterator[int]:
         text = preprocess(row[content_field])
         if not text:
             continue
-        encoded: Any = tokenizer(text, add_special_tokens=False)  # pyright: ignore[reportCallIssue]
+        encoded: Any = tokenizer(text, add_special_tokens=False)
         ids: list[int] = encoded["input_ids"]
         if ids:
             yield from ids
@@ -212,7 +212,7 @@ def _make_decoder(tokenizer: PreTrainedTokenizer) -> Callable[[int], str]:
     def decode(tid: int) -> str:
         s = cache.get(tid)
         if s is None:
-            s = escape_tsv_value(tokenizer.decode([tid]))  # pyright: ignore[reportAttributeAccessIssue]
+            s = escape_tsv_value(tokenizer.decode([tid]))
             cache[tid] = s
         return s
 

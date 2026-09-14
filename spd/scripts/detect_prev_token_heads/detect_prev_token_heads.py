@@ -165,6 +165,7 @@ def detect_prev_token_heads(wandb_path: ModelPath, n_batches: int = N_BATCHES) -
 
     task_config = config.task_config
     assert isinstance(task_config, LMTaskConfig)
+    assert task_config.dataset_name is not None
     dataset_config = DatasetConfig(
         name=task_config.dataset_name,
         hf_tokenizer_path=config.tokenizer_name,

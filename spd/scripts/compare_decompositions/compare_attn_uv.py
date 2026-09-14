@@ -32,7 +32,7 @@ from spd.scripts.compare_decompositions.utils import (
 )
 
 
-@torch.no_grad()
+@torch.no_grad()  # pyright: ignore[reportUntypedFunctionDecorator]
 def main(
     wandb_path_a: str,
     wandb_path_b: str,
@@ -58,7 +58,9 @@ def main(
     print(f"n_heads={n_heads}, n_kv_heads={n_kv_heads}, d_head={d_head}")
 
     # Compute CI & find active components per position
-    tokens = tokenizer(prompt, return_tensors="pt")["input_ids"].to(device)
+    input_ids = tokenizer(prompt, return_tensors="pt")["input_ids"]
+    assert isinstance(input_ids, torch.Tensor)
+    tokens = input_ids.to(device)
     token_strs = [tokenizer.decode(t) for t in tokens[0]]
     print(f"Prompt: {prompt!r}  (tokens: {tokens.shape[1]})")
     print(f"Tokens: {token_strs}")

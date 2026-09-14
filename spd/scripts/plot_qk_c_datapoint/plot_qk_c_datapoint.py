@@ -373,6 +373,7 @@ def plot_qk_c_datapoint(
     # Load dataset
     task_config = config.task_config
     assert isinstance(task_config, LMTaskConfig)
+    assert task_config.dataset_name is not None
     seq_len = target_model.config.n_ctx
     dataset_config = DatasetConfig(
         name=task_config.dataset_name,
@@ -404,7 +405,7 @@ def plot_qk_c_datapoint(
 
     for sample_idx, query_pos in zip(sample_indices, query_positions, strict=True):
         input_ids = samples[sample_idx].to(device)
-        token_strs = [tokenizer.decode(t) for t in input_ids[0]]  # pyright: ignore[reportAttributeAccessIssue]
+        token_strs = [tokenizer.decode(t) for t in input_ids[0]]
         assert query_pos < input_ids.shape[1], (
             f"query_pos {query_pos} >= seq_len {input_ids.shape[1]} for sample {sample_idx}"
         )

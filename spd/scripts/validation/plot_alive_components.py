@@ -46,9 +46,7 @@ def plot_alive_components(
     spd_model = spd_model.to(device)
 
     task_config = resolve_task_config(config, use_nontarget=False, prompts_override=prompts)
-    assert is_prompt_task(task_config), (
-        "plot_alive_components only supports prompts-based LM tasks"
-    )
+    assert is_prompt_task(task_config), "plot_alive_components only supports prompts-based LM tasks"
     assert config.tokenizer_name is not None, "config.tokenizer_name is required"
 
     loader = build_lm_loader(task_config, config)
@@ -84,7 +82,7 @@ def plot_alive_components(
     for prompt_idx in range(n_prompts):
         for pos in range(seq_len):
             token_id = input_ids[prompt_idx, pos].item()
-            token_str = tokenizer.decode([token_id])  # pyright: ignore[reportAttributeAccessIssue]
+            token_str = tokenizer.decode([token_id])
             y_labels.append(f"{pos}: {token_str}")
 
     n_y = n_prompts * seq_len
@@ -191,8 +189,14 @@ def plot_alive_components(
         ax_pos = ax.get_position()
         label_y = ax_pos.y0 + ax_pos.height / 2
         fig.text(
-            label_x, label_y, f"Layer {layer}",
-            fontsize=10, fontweight="bold", ha="center", va="center", rotation=90,
+            label_x,
+            label_y,
+            f"Layer {layer}",
+            fontsize=10,
+            fontweight="bold",
+            ha="center",
+            va="center",
+            rotation=90,
         )
 
     cbar_x = (margin_left + sum(col_widths.values()) + gap_x * (n_cols - 1) + 0.3) / fig_width

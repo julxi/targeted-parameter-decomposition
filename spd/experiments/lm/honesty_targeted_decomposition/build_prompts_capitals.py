@@ -16,6 +16,7 @@ Produces:
     prompts_bare_capitals/capitals_false.txt
     prompts_bare_capitals/capitals_combined.txt
 """
+
 import argparse
 import json
 from pathlib import Path
@@ -34,31 +35,30 @@ def main():
     true_lines, false_lines = [], []
     skipped = 0
 
-    for line in open(args.jsonl):
-        p = json.loads(line)
-        if p["question"] in seen_questions:
-            continue
-        seen_questions.add(p["question"])
+    with open(args.jsonl) as f:
+        for line in f:
+            p = json.loads(line)
+            if p["question"] in seen_questions:
+                continue
+            seen_questions.add(p["question"])
 
-        if p["correct_answer"] not in p["fact_sentence"]:
-            skipped += 1
-            continue
-        false_sentence = p["fact_sentence"].replace(p["correct_answer"], p["wrong_answer"])
-        if p["wrong_answer"] not in false_sentence:
-            skipped += 1
-            continue
+            if p["correct_answer"] not in p["fact_sentence"]:
+                skipped += 1
+                continue
+            false_sentence = p["fact_sentence"].replace(p["correct_answer"], p["wrong_answer"])
+            if p["wrong_answer"] not in false_sentence:
+                skipped += 1
+                continue
 
-        true_lines.append(p["fact_sentence"])
-        false_lines.append(false_sentence)
+            true_lines.append(p["fact_sentence"])
+            false_lines.append(false_sentence)
 
     if skipped:
         print(f"Skipped {skipped} malformed question(s)")
 
     (out_dir / "capitals_true.txt").write_text("\n".join(true_lines) + "\n")
     (out_dir / "capitals_false.txt").write_text("\n".join(false_lines) + "\n")
-    (out_dir / "capitals_combined.txt").write_text(
-        "\n".join(true_lines + false_lines) + "\n"
-    )
+    (out_dir / "capitals_combined.txt").write_text("\n".join(true_lines + false_lines) + "\n")
 
     print(f"Wrote {len(true_lines)} true + {len(false_lines)} false bare statements to {out_dir}/")
     print("Sample true:", true_lines[0])

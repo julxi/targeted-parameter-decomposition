@@ -257,10 +257,10 @@ def resolve_task(
         f"found {len(matches)}"
     )
 
-    prompt_encoded: Any = tokenizer(prompt_text)  # pyright: ignore[reportCallIssue]
+    prompt_encoded: Any = tokenizer(prompt_text)
     prompt_ids: list[int] = prompt_encoded["input_ids"]
 
-    target_encoded: Any = tokenizer(target_text, add_special_tokens=False)  # pyright: ignore[reportCallIssue]
+    target_encoded: Any = tokenizer(target_text, add_special_tokens=False)
     target_ids: list[int] = target_encoded["input_ids"]
     assert len(target_ids) == 1, (
         f"Task {name}: target {target_text!r} must tokenize to exactly one token, got {target_ids}"

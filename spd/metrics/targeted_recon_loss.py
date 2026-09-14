@@ -221,8 +221,7 @@ class NontargetReconLoss(Metric):
 
                 threshold = self.run_config.ci_alive_threshold
                 batch_l0 = sum(
-                    calc_ci_l_zero(layer_ci, threshold)
-                    for layer_ci in ci.lower_leaky.values()
+                    calc_ci_l_zero(layer_ci, threshold) for layer_ci in ci.lower_leaky.values()
                 )
                 total_l0_sum += batch_l0
 
@@ -249,9 +248,7 @@ class NontargetReconLoss(Metric):
             n = all_reduce(n_examples[k], op=ReduceOp.SUM)
             out[k] = s / n
 
-        avg_l0 = all_reduce(
-            torch.tensor(total_l0_sum, device=self.device), op=ReduceOp.SUM
-        )
+        avg_l0 = all_reduce(torch.tensor(total_l0_sum, device=self.device), op=ReduceOp.SUM)
         avg_l0_count = all_reduce(
             torch.tensor(self.n_nontarget_batches, device=self.device), op=ReduceOp.SUM
         )

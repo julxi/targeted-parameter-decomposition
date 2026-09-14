@@ -190,7 +190,7 @@ class PretrainRunInfo:
                 eos_token="[EOS]",
                 bos_token=None,
             )
-            return tokenizer.backend_tokenizer  # pyright: ignore[reportAttributeAccessIssue]
+            return tokenizer.backend_tokenizer
 
         # Next, prefer tokenizer.json adjacent to outputs (downloaded from wandb or local)
         if self.tokenizer_path is not None and self.tokenizer_path.exists():

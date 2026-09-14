@@ -110,7 +110,7 @@ def plot_matrix_heatmaps(
             y_in = row_y_top[row_idx] - h_in  # top-align within row
 
             ax = fig.add_axes(
-                [x_in / fig_width, y_in / fig_height, w_in / fig_width, h_in / fig_height]
+                (x_in / fig_width, y_in / fig_height, w_in / fig_width, h_in / fig_height)
             )
             sim_np = sim.cpu().numpy()
             im = ax.imshow(sim_np, cmap="RdBu_r", vmin=-1, vmax=1, aspect="equal")
@@ -135,9 +135,7 @@ def plot_matrix_heatmaps(
     rdbu = plt.get_cmap("RdBu_r")
     color_a = rdbu(0.95)  # red
     color_b = rdbu(0.05)  # blue
-    max_norm = max(
-        norm for pos in sorted_positions for _, _, norm in pos_norms[pos]
-    )
+    max_norm = max(norm for pos in sorted_positions for _, _, norm in pos_norms[pos])
     norm_ylim = max_norm * 1.2
 
     for col_idx, pos in enumerate(sorted_positions):
@@ -148,7 +146,7 @@ def plot_matrix_heatmaps(
         y_in = norm_row_y_top - NORM_ROW_HEIGHT
 
         ax = fig.add_axes(
-            [x_in / fig_width, y_in / fig_height, col_w / fig_width, NORM_ROW_HEIGHT / fig_height]
+            (x_in / fig_width, y_in / fig_height, col_w / fig_width, NORM_ROW_HEIGHT / fig_height)
         )
         bar_x = np.arange(n_bars)
         bar_labels = [f"{label}:{idx}" for label, idx, _ in entries]
@@ -191,18 +189,18 @@ def plot_matrix_heatmaps(
     cbar_x = col_x[-1] + col_nb[-1] * TILE_SIZE + CBAR_GAP
     cbar_bottom = row_y_top[-1] - row_height
     cbar_ax = fig.add_axes(
-        [
+        (
             cbar_x / fig_width,
             cbar_bottom / fig_height,
             CBAR_WIDTH / fig_width,
             heatmap_height / fig_height,
-        ]
+        )
     )
     fig.colorbar(im, cax=cbar_ax, label="Cosine Similarity")
     return fig
 
 
-@torch.no_grad()
+@torch.no_grad()  # pyright: ignore[reportUntypedFunctionDecorator]
 def main(
     wandb_path_a: str,
     wandb_path_b: str,
@@ -223,7 +221,9 @@ def main(
     print(f"Run B: {decomp_b.label}")
 
     tokenizer = get_tokenizer(decomp_a)
-    tokens = tokenizer(prompt, return_tensors="pt")["input_ids"].to(device)
+    input_ids = tokenizer(prompt, return_tensors="pt")["input_ids"]
+    assert isinstance(input_ids, torch.Tensor)
+    tokens = input_ids.to(device)
     token_strs = [tokenizer.decode(t) for t in tokens[0]]
     print(f"Prompt: {prompt!r}  (tokens: {tokens.shape[1]})")
 
@@ -283,9 +283,9 @@ def main(
 
             # Norms: sorted by label then component index
             entries: list[tuple[str, int, float]] = []
-            for i, (u, v) in zip(indices_a, uv_a):
+            for i, (u, v) in zip(indices_a, uv_a, strict=True):
                 entries.append((decomp_a.label, i, u.norm().item() * v.norm().item()))
-            for i, (u, v) in zip(indices_b, uv_b):
+            for i, (u, v) in zip(indices_b, uv_b, strict=True):
                 entries.append((decomp_b.label, i, u.norm().item() * v.norm().item()))
             entries.sort(key=lambda e: (e[0], e[1]))
             pos_norms[pos] = entries

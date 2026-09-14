@@ -18,13 +18,19 @@ Usage:
         --top-k 8 \
         --out top_components_capitals_true.json
 """
+
 import argparse
 import json
 
 import numpy as np
 import torch
 from transformers import AutoTokenizer
-from visualize_token_firing import build_component_model, load_bare_examples
+
+from spd.configs import LMTaskConfig
+from spd.experiments.lm.honesty_targeted_decomposition.visualize_token_firing import (
+    build_component_model,
+    load_bare_examples,
+)
 
 
 def main():
@@ -42,6 +48,8 @@ def main():
     component_model, config = build_component_model(args.config, args.checkpoint, device)
 
     tokenizer = AutoTokenizer.from_pretrained(config.tokenizer_name)
+    task_config = config.task_config
+    assert isinstance(task_config, LMTaskConfig)
     ci_fn_dtype = next(component_model.ci_fn.parameters()).dtype
 
     examples = load_bare_examples(args.contrast_jsonl, n_examples=None)
@@ -57,7 +65,10 @@ def main():
             )
             full_text = prompt + ex["completion"]
             enc = tokenizer(
-                full_text, return_tensors="pt", truncation=True, max_length=config.task_config.max_seq_len
+                full_text,
+                return_tensors="pt",
+                truncation=True,
+                max_length=task_config.max_seq_len,
             )
             input_ids = enc["input_ids"].to(device)
             token_strs = tokenizer.convert_ids_to_tokens(enc["input_ids"][0])
@@ -65,7 +76,9 @@ def main():
 
             out = component_model(input_ids, cache_type="input")
             pre_weight_acts = {k: v.to(ci_fn_dtype) for k, v in out.cache.items()}
-            ci_outputs = component_model.calc_causal_importances(pre_weight_acts, sampling=config.sampling)
+            ci_outputs = component_model.calc_causal_importances(
+                pre_weight_acts, sampling=config.sampling
+            )
 
             answer_pos = len(token_strs) - 1
             if token_strs[answer_pos].strip() in {".", ",", "!", "?"}:

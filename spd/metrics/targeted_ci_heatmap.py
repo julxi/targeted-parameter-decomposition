@@ -199,7 +199,7 @@ class TargetedCIHeatmap(Metric):
         assert self.run_config.tokenizer_name is not None
         tokenizer = AutoTokenizer.from_pretrained(self.run_config.tokenizer_name)
         if getattr(tokenizer, "pad_token_id", None) is None:
-            tokenizer.pad_token_id = tokenizer.eos_token_id  # pyright: ignore[reportAttributeAccessIssue]
+            tokenizer.pad_token_id = tokenizer.eos_token_id
         return tokenizer
 
     def _tokens_to_labels(self, tokens: Tensor) -> list[str]:

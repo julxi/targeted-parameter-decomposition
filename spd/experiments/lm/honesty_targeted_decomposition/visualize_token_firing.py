@@ -1,12 +1,13 @@
-
 import argparse
 import html
 import json
+from typing import Any
 
 import numpy as np
 import torch
 from transformers import AutoTokenizer
 
+from spd.configs import LMTaskConfig
 from spd.models.component_model import ComponentModel
 from spd.utils.general_utils import resolve_class
 from spd.utils.module_utils import expand_module_patterns
@@ -16,11 +17,14 @@ from spd.utils.run_utils import parse_config
 def build_component_model(config_path: str, checkpoint_path: str, device: str):
     config = parse_config(config_path, None)
     pretrained_model_class = resolve_class(config.pretrained_model_class)
+    assert hasattr(pretrained_model_class, "from_pretrained"), (
+        f"Model class {pretrained_model_class} should have a `from_pretrained` method"
+    )
     # torch_dtype + device_map set directly in from_pretrained (not a separate
     # .to(device) call afterward) -- avoids both an accidental fp32 default
     # (Qwen2.5-7B in fp32 needs ~28GB, won't fit regardless of what else is
     # running) and the transient memory spike from loading fully then moving.
-    target_model = pretrained_model_class.from_pretrained(
+    target_model = pretrained_model_class.from_pretrained(  # pyright: ignore[reportAttributeAccessIssue]
         config.pretrained_model_name, torch_dtype=torch.bfloat16, device_map=device
     )
     target_model.eval()
@@ -42,7 +46,7 @@ def build_component_model(config_path: str, checkpoint_path: str, device: str):
     return component_model, config
 
 
-def load_bare_examples(jsonl_path, n_examples):
+def load_bare_examples(jsonl_path: str, n_examples: int | None) -> list[dict[str, Any]]:
     """Build NO-SYSTEM-PROMPT examples: just user question + true/false answer.
     Uses each pair's own question/correct_answer/wrong_answer fields, works
     for both the capitals schema and the non-country probe schema.
@@ -55,40 +59,47 @@ def load_bare_examples(jsonl_path, n_examples):
     examples = []
     seen_questions = set()
     skipped = 0
-    for line in open(jsonl_path):
-        p = json.loads(line)
-        if p["question"] in seen_questions:
-            continue
-        seen_questions.add(p["question"])
+    with open(jsonl_path) as f:
+        for line in f:
+            p = json.loads(line)
+            if p["question"] in seen_questions:
+                continue
+            seen_questions.add(p["question"])
 
-        if p["correct_answer"] not in p["fact_sentence"]:
-            print(f"  [skip] correct_answer {p['correct_answer']!r} not found in "
-                  f"fact_sentence {p['fact_sentence']!r} -- skipping this question")
-            skipped += 1
-            continue
+            if p["correct_answer"] not in p["fact_sentence"]:
+                print(
+                    f"  [skip] correct_answer {p['correct_answer']!r} not found in "
+                    f"fact_sentence {p['fact_sentence']!r} -- skipping this question"
+                )
+                skipped += 1
+                continue
 
-        false_sentence = p["fact_sentence"].replace(p["correct_answer"], p["wrong_answer"])
-        if p["wrong_answer"] not in false_sentence:
-            print(f"  [skip] replace() didn't produce expected wrong_answer for "
-                  f"{p['question']!r} -- skipping")
-            skipped += 1
-            continue
+            false_sentence = p["fact_sentence"].replace(p["correct_answer"], p["wrong_answer"])
+            if p["wrong_answer"] not in false_sentence:
+                print(
+                    f"  [skip] replace() didn't produce expected wrong_answer for "
+                    f"{p['question']!r} -- skipping"
+                )
+                skipped += 1
+                continue
 
-        messages = [{"role": "user", "content": p["question"]}]
-        true_completion = f" {p['fact_sentence']}"
-        false_completion = f" {false_sentence}"
+            messages = [{"role": "user", "content": p["question"]}]
+            true_completion = f" {p['fact_sentence']}"
+            false_completion = f" {false_sentence}"
 
-        examples.append({"messages": messages, "completion": true_completion, "label": "true"})
-        examples.append({"messages": messages, "completion": false_completion, "label": "false"})
-        if n_examples is not None and len(examples) >= 2 * n_examples:
-            break
+            examples.append({"messages": messages, "completion": true_completion, "label": "true"})
+            examples.append(
+                {"messages": messages, "completion": false_completion, "label": "false"}
+            )
+            if n_examples is not None and len(examples) >= 2 * n_examples:
+                break
 
     if skipped:
         print(f"Skipped {skipped} malformed question(s) during construction.")
     return examples
 
 
-def color_for_value(v, vmax):
+def color_for_value(v: float, vmax: float) -> str:
     t = min(max(v / vmax, 0.0), 1.0) if vmax > 0 else 0.0
     r = 255
     g = int(255 * (1 - t))
@@ -96,7 +107,7 @@ def color_for_value(v, vmax):
     return f"rgb({r},{g},{b})"
 
 
-def render_example_html(tokens, ci_values, vmax):
+def render_example_html(tokens: list[str], ci_values: list[float], vmax: float) -> str:
     spans = []
     for tok, val in zip(tokens, ci_values, strict=True):
         color = color_for_value(val, vmax)
@@ -115,15 +126,22 @@ def main():
     ap.add_argument("--contrast-jsonl", required=True)
     ap.add_argument("--layer", required=True)
     ap.add_argument("--components", type=int, nargs="+", required=True)
-    ap.add_argument("--n-examples", type=int, default=10,
-                     help="Number of PAIRS (true + false each) -- deduped by question first. "
-                          "This caps the HTML output only; --summary always uses the full "
-                          "deduped set regardless of this value.")
-    ap.add_argument("--summary", action="store_true",
-                     help="Also compute the last-answer-token CI value for EVERY example "
-                          "(not just the ones rendered to HTML) and report, per component, "
-                          "how cleanly true vs. false completions separate -- the quantitative "
-                          "version of eyeballing the HTML.")
+    ap.add_argument(
+        "--n-examples",
+        type=int,
+        default=10,
+        help="Number of PAIRS (true + false each) -- deduped by question first. "
+        "This caps the HTML output only; --summary always uses the full "
+        "deduped set regardless of this value.",
+    )
+    ap.add_argument(
+        "--summary",
+        action="store_true",
+        help="Also compute the last-answer-token CI value for EVERY example "
+        "(not just the ones rendered to HTML) and report, per component, "
+        "how cleanly true vs. false completions separate -- the quantitative "
+        "version of eyeballing the HTML.",
+    )
     ap.add_argument("--out", default="token_firing_bare.html")
     args = ap.parse_args()
 
@@ -131,15 +149,19 @@ def main():
     component_model, config = build_component_model(args.config, args.checkpoint, device)
 
     tokenizer = AutoTokenizer.from_pretrained(config.tokenizer_name)
+    task_config = config.task_config
+    assert isinstance(task_config, LMTaskConfig)
     ci_fn_dtype = next(component_model.ci_fn.parameters()).dtype
 
     # Full deduped set for the summary; HTML rendering below still respects
     # --n-examples via load_bare_examples' own cap for display purposes.
     all_examples = load_bare_examples(args.contrast_jsonl, n_examples=None)
     display_examples = all_examples[: 2 * args.n_examples] if args.n_examples else all_examples
-    print(f"Loaded {len(all_examples)} total examples "
-          f"({len(all_examples) // 2} unique questions x true/false); "
-          f"rendering {len(display_examples)} to HTML")
+    print(
+        f"Loaded {len(all_examples)} total examples "
+        f"({len(all_examples) // 2} unique questions x true/false); "
+        f"rendering {len(display_examples)} to HTML"
+    )
 
     per_component_examples = {c: [] for c in args.components}
     all_values_by_component = {c: [] for c in args.components}
@@ -155,18 +177,26 @@ def main():
             full_text = prompt + ex["completion"]
             enc_full = tokenizer(full_text, return_tensors="pt")
             n_tokens = enc_full["input_ids"].shape[1]
-            if n_tokens > config.task_config.max_seq_len:
-                print(f"  [warn] example truncated: {n_tokens} tokens > "
-                      f"max_seq_len={config.task_config.max_seq_len} -- {ex['messages'][0]['content']!r}")
-            enc = tokenizer(full_text, return_tensors="pt", truncation=True,
-                             max_length=config.task_config.max_seq_len)
+            if n_tokens > task_config.max_seq_len:
+                print(
+                    f"  [warn] example truncated: {n_tokens} tokens > "
+                    f"max_seq_len={task_config.max_seq_len} -- {ex['messages'][0]['content']!r}"
+                )
+            enc = tokenizer(
+                full_text,
+                return_tensors="pt",
+                truncation=True,
+                max_length=task_config.max_seq_len,
+            )
             input_ids = enc["input_ids"].to(device)
             token_strs = tokenizer.convert_ids_to_tokens(enc["input_ids"][0])
             token_strs = [t.replace("\u0120", " ").replace("\u2581", " ") for t in token_strs]
 
             out = component_model(input_ids, cache_type="input")
             pre_weight_acts = {k: v.to(ci_fn_dtype) for k, v in out.cache.items()}
-            ci_outputs = component_model.calc_causal_importances(pre_weight_acts, sampling=config.sampling)
+            ci_outputs = component_model.calc_causal_importances(
+                pre_weight_acts, sampling=config.sampling
+            )
 
             layer_ci = ci_outputs.lower_leaky[args.layer][0].cpu().numpy()  # [seq_len, C]
             # "answer token" position: last token if not pure punctuation,
@@ -190,12 +220,16 @@ def main():
             true_arr = np.array(true_vals)
             false_arr = np.array(false_vals)
             threshold = 0.01
-            frac_true_above = float((true_arr > threshold).mean()) if len(true_arr) else float("nan")
-            frac_false_above = float((false_arr > threshold).mean()) if len(false_arr) else float("nan")
+            frac_true_above = (
+                float((true_arr > threshold).mean()) if len(true_arr) else float("nan")
+            )
+            frac_false_above = (
+                float((false_arr > threshold).mean()) if len(false_arr) else float("nan")
+            )
             print(
                 f"component {c}: true mean={true_arr.mean():.4f} (>{threshold}: "
-                f"{frac_true_above*100:.0f}%) | false mean={false_arr.mean():.4f} "
-                f"(>{threshold}: {frac_false_above*100:.0f}%) | n={len(true_vals)} pairs"
+                f"{frac_true_above * 100:.0f}%) | false mean={false_arr.mean():.4f} "
+                f"(>{threshold}: {frac_false_above * 100:.0f}%) | n={len(true_vals)} pairs"
             )
 
     html_parts = [
@@ -218,7 +252,7 @@ def main():
             rendered = render_example_html(token_strs, vals, vmax)
             html_parts.append(
                 f'<div class="example"><span class="label" style="color:{label_color}">'
-                f'[{label}]</span>{rendered}</div>'
+                f"[{label}]</span>{rendered}</div>"
             )
 
     html_parts.append("</body></html>")

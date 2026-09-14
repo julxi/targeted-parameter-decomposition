@@ -203,6 +203,7 @@ async def request_component_interpretation(
         )
 
     task_config = runtime_cast(LMTaskConfig, loaded.config.task_config)
+    assert task_config.dataset_name is not None
 
     model_metadata = ModelMetadata(
         n_blocks=loaded.topology.n_blocks,

@@ -134,8 +134,8 @@ def _report_alerts(
         f"predicts one of the target tokens:"
     )
     for hit in sorted(hits.values(), key=lambda h: (h.prompt, h.pos)):
-        ctx = tokenizer.decode(hit.context_token_ids)  # pyright: ignore[reportAttributeAccessIssue]
-        orig_tok = tokenizer.decode([hit.orig_pred])  # pyright: ignore[reportAttributeAccessIssue]
+        ctx = tokenizer.decode(hit.context_token_ids)
+        orig_tok = tokenizer.decode([hit.orig_pred])
         in_excluded = " [in-excluded-prompt]" if hit.prompt in excluded else ""
         print(
             f"[nontarget-hit] task={hit.task_name} prompt={hit.prompt} pos={hit.pos} "
