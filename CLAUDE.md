@@ -47,7 +47,17 @@ The codebase supports three experimental domains: TMS (Toy Model of Superpositio
 
 ## Research Papers
 
-This repository implements methods from two key research papers on parameter decomposition:
+This repository implements methods from three research papers on parameter decomposition:
+
+**Targeted Recovery of Weight-Space Mechanisms From Neural Networks (tPD)**
+
+- [`papers/Targeted_Recovery_of_Weight_Space_Mechanisms/tpd_paper.md`](papers/Targeted_Recovery_of_Weight_Space_Mechanisms/tpd_paper.md)
+- This repository is the code accompanying this paper (Vigouroux and Sharkey, 2026; arXiv:2607.13047).
+- Introduces targeted parameter decomposition (tPD): decomposing only the mechanisms that process a chosen
+  subset of inputs, with a high-rank catch-all `delta` component absorbing everything else.
+- Describes the two-stream (target/non-target) training setup implemented in `spd/run_spd.py` and `spd/losses.py`,
+  plus the CSS-only submodel and numpy/pandas editing case studies.
+- The primary reference for the targeted decomposition features described below.
 
 **Stochastic Parameter Decomposition (SPD)**
 
@@ -64,6 +74,18 @@ This repository implements methods from two key research papers on parameter dec
 - It introduced the concept of linear parameter decomposition.
 - Contains theoretical foundations, broader context, and high-level conceptual insights of parameter decomposition methods.
 - Useful for understanding the conceptual framework and motivation behind SPD
+
+**Background reading (not implemented here):**
+
+**The Quantization Model of Neural Scaling**
+
+- [`papers/Quantization_Model_of_Neural_Scaling/qm_paper.md`](papers/Quantization_Model_of_Neural_Scaling/qm_paper.md)
+- Michaud, Liu, Girit & Tegmark (NeurIPS 2023; arXiv:2303.13506). Not implemented in this repo.
+- Argues that networks learn a discrete, enumerable set of modules ("quanta") in order of use
+  frequency, and that a Zipfian frequency distribution over them yields power-law scaling.
+- Relevant background for parameter decomposition: it motivates why networks should decompose into
+  a countable set of mechanisms at all, and its QDG (gradient-clustering) method is an early
+  attempt at automatically enumerating them.
 
 ## Development Commands
 
