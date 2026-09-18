@@ -342,16 +342,22 @@ Add more as `vast_<name>_config.yaml` and select with `--config <name>`; `--conf
 filename in `spd/scripts/` or an explicit path. `--gpu_name`, `--max_price`, `--min_gpu_ram`,
 `--disk` and `--image` override individual fields for a single launch.
 
-It searches offers, rents one, waits for sshd to accept the key, writes an ssh stanza to
-`~/.ssh/config.d/vastai.conf` (host alias `vastai`), rsyncs the working tree (respecting
-`.gitignore`) to `/root/spd`, then `uv sync`s and runs the experiment. The sync is timed against
+It searches offers, rents one, attaches your public key to the instance, waits for sshd to accept
+it, writes an ssh stanza to `~/.ssh/config.d/vastai.conf` (host alias `vastai`), rsyncs the working
+tree (respecting `.gitignore`) to `/root/spd`, then `uv sync`s and runs the experiment.
+
+The key defaults to `~/.ssh/id_rsa`; set `SPD_VAST_SSH_KEY` in `.env` to use another one. Only the
+matching `.pub` is read, and its contents are what `vastai attach ssh` sends. Attaching is explicit
+because vast.ai's entrypoint is supposed to install account-level keys itself and on some hosts
+does so late or not at all; a host that rejects the key often accepts it minutes later, so the
+wait polls through `Permission denied` and re-attaches once halfway through its timeout. The sync is timed against
 `max_sync_minutes` and aborts the launch if it overruns: hosts vary wildly in how fast they
 reach PyPI, and a bad one spends tens of minutes on the multi-GB torch and CUDA wheels. An
 instance whose `actual_status` goes `missing` is failed immediately rather than waited on -
 such a host never installs your ssh key, so its rejections look misleadingly like a key problem. With `--mode provision` the experiment name is optional: omit it to rent a
 bare machine, and the printed command sets up `uv` and the venv without starting a run. WandB
 credentials are passed as container env vars, since `.env` is gitignored
-and therefore not rsynced. `sync_checkpoints_to_wandb` is forced on because the instance's disk does
+and therefore not rsynced (`SPD_VAST_SSH_KEY` lives in that same `.env`). `sync_checkpoints_to_wandb` is forced on because the instance's disk does
 not survive destruction — W&B is the only durable output. Single GPU, one experiment per launch; no
 sweeps.
 

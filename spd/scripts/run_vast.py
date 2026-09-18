@@ -1,8 +1,9 @@
 """SPD experiment runner for rented vast.ai GPUs.
 
 vast.ai is a GPU marketplace, not a job service: this script searches offers, rents a machine,
-writes an ssh config stanza for it, rsyncs the working tree over, and starts training. Checkpoints
-are synced to WandB because the machine (and its disk) disappear when the instance is destroyed.
+attaches an ssh key to it, writes an ssh config stanza, rsyncs the working tree over, and starts
+training. Checkpoints are synced to WandB because the machine (and its disk) disappear when the
+instance is destroyed.
 """
 
 import json
@@ -43,7 +44,7 @@ class ExperimentLaunch(NamedTuple):
 DEFAULT_VAST_CONFIG = "vast_config.yaml"
 SSH_HOST_ALIAS = "vastai"
 SSH_CONFIG_PATH = Path.home() / ".ssh/config.d/vastai.conf"
-SSH_IDENTITY_FILE = Path.home() / ".ssh/id_rsa"
+DEFAULT_SSH_IDENTITY_FILE = Path.home() / ".ssh/id_rsa"
 REMOTE_REPO_DIR = "/root/spd"
 REMOTE_OUT_DIR = "/root/spd_out"
 REMOTE_LOG = f"{REMOTE_REPO_DIR}/train.log"
@@ -161,6 +162,7 @@ def main(
         "experiment is required unless --list_offers or --mode provision is passed"
     )
     assert not (destroy_on_exit and mode != "run"), "destroy_on_exit requires mode='run'"
+    identity_file = _ssh_identity_file()
 
     run_id = generate_run_id("spd")
     launch = _build_launch(experiment, run_id, project) if experiment is not None else None
@@ -197,10 +199,11 @@ def main(
     logger.info(f"Created instance {instance_id}, waiting for it to boot")
     try:
         _wait_until_running(instance_id)
+        _attach_ssh_key(instance_id, identity_file)
         host, port = _ssh_host_port(instance_id)
-        _write_ssh_config(host, port, run_id, instance_id)
+        _write_ssh_config(host, port, run_id, instance_id, identity_file)
         logger.info(f"Wrote {SSH_CONFIG_PATH} - connect with `ssh {SSH_HOST_ALIAS}`")
-        _wait_until_ssh_ready(instance_id)
+        _wait_until_ssh_ready(instance_id, identity_file)
         _install_remote_env(env_vars)
         _rsync_repo()
         _sync_dependencies(vast_config.max_sync_minutes, instance_id)
@@ -477,6 +480,38 @@ def _wait_until_running(instance_id: int) -> None:
     )
 
 
+def _ssh_identity_file() -> Path:
+    """The private key ssh authenticates to rented machines with.
+
+    The path is machine-specific but not secret, so it lives in the gitignored `.env` rather than
+    the git-tracked vast config, where every collaborator would rewrite the line.
+    """
+    configured = dotenv_values(REPO_ROOT / ".env").get("SPD_VAST_SSH_KEY") or os.getenv(
+        "SPD_VAST_SSH_KEY"
+    )
+    key = Path(configured).expanduser() if configured else DEFAULT_SSH_IDENTITY_FILE
+    assert key.exists(), f"ssh key not found: {key}. Set SPD_VAST_SSH_KEY in .env."
+    return key
+
+
+def _public_key_path(identity_file: Path) -> Path:
+    """OpenSSH appends `.pub` to the whole filename, so `vast.key` pairs with `vast.key.pub`."""
+    return identity_file.with_name(identity_file.name + ".pub")
+
+
+def _attach_ssh_key(instance_id: int, identity_file: Path) -> None:
+    """Push our public key to the instance through vast.ai's control plane.
+
+    vast.ai's entrypoint copies account-level keys into authorized_keys at container start, but on
+    some hosts that is slow or never happens, and there is no way in to fix it by hand: `vastai
+    execute` is restricted to ls/rm/du and cannot write a file. Attaching is idempotent, so it runs
+    on every rental rather than only on the ones that turn out to need it.
+    """
+    public_key = _public_key_path(identity_file)
+    assert public_key.exists(), f"public key not found: {public_key}"
+    _vastai(["attach", "ssh", str(instance_id), public_key.read_text().strip()], raw=False)
+
+
 def _ssh_host_port(instance_id: int) -> tuple[str, int]:
     """Parse `vastai ssh-url`, which reports the right host/port for direct or proxied ssh."""
     ssh_url = _vastai(["ssh-url", str(instance_id)], raw=False).strip()
@@ -486,7 +521,9 @@ def _ssh_host_port(instance_id: int) -> tuple[str, int]:
     return host, int(port)
 
 
-def _write_ssh_config(host: str, port: int, run_id: str, instance_id: int) -> None:
+def _write_ssh_config(
+    host: str, port: int, run_id: str, instance_id: int, identity_file: Path
+) -> None:
     """Write the `vastai` ssh host stanza, picked up by the Include in ~/.ssh/config.
 
     Host keys are not checked because every rental is a fresh machine, often reusing an
@@ -499,28 +536,40 @@ def _write_ssh_config(host: str, port: int, run_id: str, instance_id: int) -> No
         f"Host {SSH_HOST_ALIAS}\n"
         f"    HostName {host}\n"
         f"    User root\n"
-        f"    IdentityFile {SSH_IDENTITY_FILE}\n"
+        f"    IdentityFile {identity_file}\n"
         f"    Port {port}\n"
         f"    StrictHostKeyChecking no\n"
         f"    UserKnownHostsFile /dev/null\n"
     )
 
 
-def _wait_until_ssh_ready(instance_id: int) -> None:
-    """Poll until sshd accepts our key.
+def _wait_until_ssh_ready(instance_id: int, identity_file: Path) -> None:
+    """Poll until sshd accepts our key, re-attaching it once halfway through.
 
     `actual_status == "running"` only means the container started: vast.ai's entrypoint installs
-    authorized_keys a few seconds later, and connections made before that are closed mid-auth.
+    authorized_keys a few seconds later, and connections made before that are closed mid-auth. A
+    host that rejects the key is not a lost cause either - the same key is often accepted minutes
+    later - so the loop keeps polling through "Permission denied" and re-attaches once in case the
+    entrypoint overwrote authorized_keys after we first attached.
     """
     logger.info("Waiting for ssh to accept our key")
     deadline = time.time() + SSH_READY_TIMEOUT_S
+    reattach_at = time.time() + SSH_READY_TIMEOUT_S / 2
+    reattached = False
+    last_error = "<no probe ran>"
     while time.time() < deadline:
         probe = subprocess.run(
             ["ssh", "-o", "ConnectTimeout=10", "-o", "BatchMode=yes", SSH_HOST_ALIAS, "true"],
             capture_output=True,
+            text=True,
         )
         if probe.returncode == 0:
             return
+        last_error = probe.stderr.strip() or f"exit code {probe.returncode}, no stderr"
+        if not reattached and time.time() >= reattach_at:
+            logger.info(f"ssh still failing ({last_error}) - re-attaching the key")
+            _attach_ssh_key(instance_id, identity_file)
+            reattached = True
         time.sleep(SSH_POLL_INTERVAL_S)
     status = _vastai(["show", "instance", str(instance_id)])["actual_status"]
     assert status not in DEAD_STATUSES, (
@@ -531,8 +580,11 @@ def _wait_until_ssh_ready(instance_id: int) -> None:
     )
     raise TimeoutError(
         f"ssh to {SSH_HOST_ALIAS} still failing after {SSH_READY_TIMEOUT_S}s while instance "
-        f"{instance_id} reports '{status}'. Check that the key in {SSH_IDENTITY_FILE} matches one "
-        f"registered with `vastai show ssh-keys`."
+        f"{instance_id} reports '{status}'.\n"
+        f"Last ssh error: {last_error}\n"
+        f"'Permission denied (publickey)' means sshd is up but never took the key in "
+        f"{identity_file}; a refused or timed out connection means the direct port mapping never "
+        f"came up. Read the entrypoint's own account with: vastai logs {instance_id}"
     )
 
 
