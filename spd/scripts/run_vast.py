@@ -254,14 +254,16 @@ def _build_config(config_path: Path, project: str) -> Config:
 
 
 def _build_sync_script() -> str:
-    """Install uv and build the venv. Run once by `_sync_dependencies`, not by every command."""
+    """Build the venv. Run once by `_sync_dependencies`, not by every command.
+
+    The image is expected to ship uv; vast.ai's CUDA images do, and installing our own would mask
+    an image that is not the one we think we rented.
+    """
     return "\n".join(
         [
             "set -euo pipefail",
             f"cd {REMOTE_REPO_DIR}",
-            'export PATH="$HOME/.local/bin:$PATH"',
-            "command -v uv >/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh",
-            'export PATH="$HOME/.local/bin:$PATH"',
+            "command -v uv >/dev/null || { echo 'uv is not installed in this image' >&2; exit 1; }",
             "uv sync --no-dev --link-mode copy",
         ]
     )
