@@ -14,7 +14,7 @@ import time
 from datetime import datetime
 from netrc import netrc
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, NamedTuple
 
 import fire
 from dotenv import dotenv_values
@@ -31,6 +31,15 @@ from spd.utils.wandb_utils import get_wandb_entity, get_wandb_run_url
 
 Mode = Literal["run", "detached", "provision"]
 
+
+class ExperimentLaunch(NamedTuple):
+    """The experiment to run on the rented machine, absent when provisioning a bare one."""
+
+    experiment: str
+    remote_script: str
+    wandb_url: str
+
+
 DEFAULT_VAST_CONFIG = "vast_config.yaml"
 SSH_HOST_ALIAS = "vastai"
 SSH_CONFIG_PATH = Path.home() / ".ssh/config.d/vastai.conf"
@@ -38,8 +47,16 @@ SSH_IDENTITY_FILE = Path.home() / ".ssh/id_rsa"
 REMOTE_REPO_DIR = "/root/spd"
 REMOTE_OUT_DIR = "/root/spd_out"
 REMOTE_LOG = f"{REMOTE_REPO_DIR}/train.log"
+REMOTE_ENV_FILE = "/etc/profile.d/spd_env.sh"
 READY_TIMEOUT_S = 900
 POLL_INTERVAL_S = 10
+SSH_READY_TIMEOUT_S = 300
+SSH_POLL_INTERVAL_S = 5
+# GNU coreutils `timeout` reports this when it kills the command it wrapped.
+TIMEOUT_EXIT = 124
+# vast.ai reports these when the host has dropped off its control plane. It keeps claiming
+# intended_status "running", but the container never finishes provisioning.
+DEAD_STATUSES = frozenset({"missing", "exited"})
 
 
 class VastConfig(BaseConfig):
@@ -69,6 +86,11 @@ class VastConfig(BaseConfig):
         "for best performance per dollar, 'dph_total' for cheapest)"
     )
     n_offers: int = Field(description="How many offers to fetch and show")
+    max_sync_minutes: float = Field(
+        description="How long `uv sync` may take on the rented machine before the host is "
+        "rejected. It pulls several GB of torch and CUDA wheels, and hosts with a poor route to "
+        "PyPI stall here for tens of minutes before training starts"
+    )
 
 
 def main(
@@ -92,7 +114,8 @@ def main(
     default). The flags below override individual config fields for one-off launches.
 
     Args:
-        experiment: Experiment name from registry (e.g. 'tms_5-2'). Not needed with --list_offers.
+        experiment: Experiment name from registry (e.g. 'tms_5-2'). Omit it with --list_offers,
+            or with --mode provision to rent a bare machine to work on over ssh.
         config: Machine config: a short name ('h100' -> spd/scripts/vast_h100_config.yaml), a
             filename in spd/scripts, or a path.
         mode: 'run' streams training until it exits, 'detached' starts it and returns,
@@ -114,6 +137,7 @@ def main(
         spd-vast tms_5-2 --config h100                  # spd/scripts/vast_h100_config.yaml
         spd-vast tms_5-2 --gpu_name A100_SXM4           # one-off override
         spd-vast tms_5-2 --mode provision               # rent + sync, then `ssh vastai`
+        spd-vast --mode provision                       # rent a bare machine, no experiment
         spd-vast tms_5-2 --destroy_on_exit              # stop paying when training ends
     """
     assert shutil.which("vastai"), "vastai CLI not found. Install it with `pip install vastai`."
@@ -133,33 +157,14 @@ def main(
         _print_offers(_search_offers(vast_config), vast_config.sort, vast_config.disk)
         return
 
-    assert experiment is not None, "experiment is required unless --list_offers is passed"
-    assert experiment in EXPERIMENT_REGISTRY, (
-        f"Unknown experiment '{experiment}'. Available: {', '.join(sorted(EXPERIMENT_REGISTRY))}"
+    assert experiment is not None or mode == "provision", (
+        "experiment is required unless --list_offers or --mode provision is passed"
     )
     assert not (destroy_on_exit and mode != "run"), "destroy_on_exit requires mode='run'"
 
-    exp_config = EXPERIMENT_REGISTRY[experiment]
     run_id = generate_run_id("spd")
-    launch_id = f"vast-{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    wandb_url = get_wandb_run_url(project, run_id)
-
-    job = TrainingJob(
-        experiment=experiment,
-        script_path=exp_config.decomp_script,
-        config=_build_config(REPO_ROOT / exp_config.config_path, project),
-        run_id=run_id,
-    )
-    train_command = get_command(
-        launch_id=launch_id,
-        job=job,
-        job_idx=0,
-        n_gpus=1,
-        sweep_params=None,
-        snapshot_branch="",
-        is_array=False,
-    ).command
-    remote_script = _build_remote_script(train_command)
+    launch = _build_launch(experiment, run_id, project) if experiment is not None else None
+    label = f"spd-{launch.experiment if launch else 'provision'}-{run_id}"
 
     if offer_id is None:
         offers = _search_offers(vast_config)
@@ -171,19 +176,19 @@ def main(
         )
 
     env_vars = _forwarded_env_vars()
-    create_args = _create_instance_args(offer_id, vast_config, experiment, run_id, env_vars)
+    create_args = _create_instance_args(offer_id, vast_config, label, env_vars)
 
     if dry_run:
         redacted_args = _create_instance_args(
-            offer_id, vast_config, experiment, run_id, dict.fromkeys(env_vars, "<redacted>")
+            offer_id, vast_config, label, dict.fromkeys(env_vars, "<redacted>")
         )
         logger.section("Dry run - nothing rented")
         logger.values(
             {
                 "create": shlex.join(["vastai", *redacted_args]),
                 "rsync": shlex.join(_rsync_args()),
-                "remote command": remote_script,
-                "wandb": wandb_url,
+                "remote command": launch.remote_script if launch else _build_sync_script(),
+                "wandb": launch.wandb_url if launch else "-",
             }
         )
         return
@@ -195,26 +200,35 @@ def main(
         host, port = _ssh_host_port(instance_id)
         _write_ssh_config(host, port, run_id, instance_id)
         logger.info(f"Wrote {SSH_CONFIG_PATH} - connect with `ssh {SSH_HOST_ALIAS}`")
+        _wait_until_ssh_ready(instance_id)
+        _install_remote_env(env_vars)
         _rsync_repo()
+        _sync_dependencies(vast_config.max_sync_minutes, instance_id)
 
-        _log_summary(instance_id, run_id, wandb_url, mode)
+        _log_summary(instance_id, run_id, launch, mode)
 
         match mode:
             case "provision":
-                logger.values(
-                    {"start training with": f"ssh {SSH_HOST_ALIAS}, then: {remote_script}"}
+                next_step = (
+                    f"ssh {SSH_HOST_ALIAS}, then: {launch.remote_script}"
+                    if launch
+                    else f"ssh {SSH_HOST_ALIAS}, then: cd {REMOTE_REPO_DIR} "
+                    f"&& source .venv/bin/activate"
                 )
+                logger.values({"next step": next_step})
             case "detached":
+                assert launch is not None
                 _ssh(
-                    f"setsid nohup bash -lc {shlex.quote(remote_script)} "
+                    f"setsid nohup bash -lc {shlex.quote(launch.remote_script)} "
                     f"> {REMOTE_LOG} 2>&1 < /dev/null & echo started"
                 )
                 logger.info(
                     f"Training started. Follow with: ssh {SSH_HOST_ALIAS} tail -f {REMOTE_LOG}"
                 )
             case "run":
+                assert launch is not None
                 exit_code = _ssh_streaming(
-                    f"set -o pipefail; bash -lc {shlex.quote(remote_script)} 2>&1 "
+                    f"set -o pipefail; bash -lc {shlex.quote(launch.remote_script)} 2>&1 "
                     f"| tee {REMOTE_LOG}"
                 )
                 logger.info(f"Training exited with code {exit_code}")
@@ -236,20 +250,58 @@ def _build_config(config_path: Path, project: str) -> Config:
     return Config(**config_dict)
 
 
+def _build_sync_script() -> str:
+    """Install uv and build the venv. Run once by `_sync_dependencies`, not by every command."""
+    return "\n".join(
+        [
+            "set -euo pipefail",
+            f"cd {REMOTE_REPO_DIR}",
+            'export PATH="$HOME/.local/bin:$PATH"',
+            "command -v uv >/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh",
+            'export PATH="$HOME/.local/bin:$PATH"',
+            "uv sync --no-dev --link-mode copy",
+        ]
+    )
+
+
 def _build_remote_script(train_command: str) -> str:
-    """Install uv, sync dependencies and run training, all inside the synced repo."""
+    """Enter the synced repo and its already-built venv, then run training."""
     return "\n".join(
         [
             "set -euo pipefail",
             f"cd {REMOTE_REPO_DIR}",
             f"export SPD_OUT_DIR={REMOTE_OUT_DIR}",
-            'export PATH="$HOME/.local/bin:$PATH"',
-            "command -v uv >/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh",
-            'export PATH="$HOME/.local/bin:$PATH"',
-            "uv sync --no-dev --link-mode copy -q",
             "source .venv/bin/activate",
             train_command,
         ]
+    )
+
+
+def _build_launch(experiment: str, run_id: str, project: str) -> ExperimentLaunch:
+    """Resolve a registry experiment into the command to run on the rented machine."""
+    assert experiment in EXPERIMENT_REGISTRY, (
+        f"Unknown experiment '{experiment}'. Available: {', '.join(sorted(EXPERIMENT_REGISTRY))}"
+    )
+    exp_config = EXPERIMENT_REGISTRY[experiment]
+    job = TrainingJob(
+        experiment=experiment,
+        script_path=exp_config.decomp_script,
+        config=_build_config(REPO_ROOT / exp_config.config_path, project),
+        run_id=run_id,
+    )
+    train_command = get_command(
+        launch_id=f"vast-{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+        job=job,
+        job_idx=0,
+        n_gpus=1,
+        sweep_params=None,
+        snapshot_branch="",
+        is_array=False,
+    ).command
+    return ExperimentLaunch(
+        experiment=experiment,
+        remote_script=_build_remote_script(train_command),
+        wandb_url=get_wandb_run_url(project, run_id),
     )
 
 
@@ -285,7 +337,9 @@ def _load_vast_config(config: str, overrides: dict[str, Any]) -> VastConfig:
     given = {k: v for k, v in overrides.items() if v is not None}
     if given:
         logger.info(f"Overriding {config_path.name}: {given}")
-    return vast_config.model_copy(update=given)
+    # Rebuild rather than model_copy(update=...), which skips validation and would let a
+    # mistyped flag (e.g. an offer id passed to --gpu_name) through into the offer search.
+    return VastConfig(**{**vast_config.model_dump(), **given})
 
 
 def _search_offers(config: VastConfig) -> list[Any]:
@@ -374,8 +428,7 @@ def _netrc_wandb_key() -> str | None:
 def _create_instance_args(
     offer_id: int,
     config: VastConfig,
-    experiment: str,
-    run_id: str,
+    label: str,
     env_vars: dict[str, str],
 ) -> list[str]:
     env_arg = " ".join(f"-e {k}={v}" for k, v in env_vars.items())
@@ -390,7 +443,7 @@ def _create_instance_args(
         "--ssh",
         "--direct",
         "--label",
-        f"spd-{experiment}-{run_id}",
+        label,
         "--cancel-unavail",
         "--env",
         env_arg,
@@ -410,6 +463,12 @@ def _wait_until_running(instance_id: int) -> None:
         status = instance["actual_status"]
         if status == "running":
             return
+        assert status not in DEAD_STATUSES, (
+            f"Instance {instance_id} is '{status}' "
+            f"({instance.get('status_msg') or 'no message'}). The host has dropped off vast.ai's "
+            f"control plane and will never install your ssh key, however healthy the control "
+            f"plane claims it is. Destroy it with: vastai destroy instance {instance_id}"
+        )
         logger.info(f"Instance status: {status} ({instance.get('status_msg') or 'no message'})")
         time.sleep(POLL_INTERVAL_S)
     raise TimeoutError(
@@ -447,13 +506,91 @@ def _write_ssh_config(host: str, port: int, run_id: str, instance_id: int) -> No
     )
 
 
+def _wait_until_ssh_ready(instance_id: int) -> None:
+    """Poll until sshd accepts our key.
+
+    `actual_status == "running"` only means the container started: vast.ai's entrypoint installs
+    authorized_keys a few seconds later, and connections made before that are closed mid-auth.
+    """
+    logger.info("Waiting for ssh to accept our key")
+    deadline = time.time() + SSH_READY_TIMEOUT_S
+    while time.time() < deadline:
+        probe = subprocess.run(
+            ["ssh", "-o", "ConnectTimeout=10", "-o", "BatchMode=yes", SSH_HOST_ALIAS, "true"],
+            capture_output=True,
+        )
+        if probe.returncode == 0:
+            return
+        time.sleep(SSH_POLL_INTERVAL_S)
+    status = _vastai(["show", "instance", str(instance_id)])["actual_status"]
+    assert status not in DEAD_STATUSES, (
+        f"Instance {instance_id} went '{status}' while we waited for ssh. The host dropped off "
+        f"vast.ai's control plane after reporting itself running, so it never installed your key - "
+        f"the rejection is the host's fault, not your key's. Destroy it with: "
+        f"vastai destroy instance {instance_id}"
+    )
+    raise TimeoutError(
+        f"ssh to {SSH_HOST_ALIAS} still failing after {SSH_READY_TIMEOUT_S}s while instance "
+        f"{instance_id} reports '{status}'. Check that the key in {SSH_IDENTITY_FILE} matches one "
+        f"registered with `vastai show ssh-keys`."
+    )
+
+
+def _sync_dependencies(max_sync_minutes: float, instance_id: int) -> None:
+    """Build the venv on the rented machine, rejecting the host if it takes too long.
+
+    `uv sync` downloads several GB of torch and CUDA wheels, and how fast that goes depends on the
+    host's route to PyPI - which an offer's self-reported `inet_down` does not predict, and which a
+    generic speed test measures the wrong path for. Timing the real sync is the direct check, and
+    `timeout` runs remotely so a host that blows the budget is left with nothing still running.
+    """
+    budget_s = int(max_sync_minutes * 60)
+    command = f"timeout {budget_s} bash -lc {shlex.quote(_build_sync_script())}"
+    logger.info(f"Syncing dependencies (budget {max_sync_minutes} min)")
+    start = time.time()
+    returncode = subprocess.run(["ssh", SSH_HOST_ALIAS, command], check=False).returncode
+    elapsed_min = (time.time() - start) / 60
+    assert returncode != TIMEOUT_EXIT, (
+        f"`uv sync` was still running after max_sync_minutes={max_sync_minutes}. This host's route "
+        f"to PyPI is too slow to be worth training on. Destroy it with: vastai destroy instance "
+        f"{instance_id}, then launch again to land on a different host (or raise max_sync_minutes "
+        f"to accept this one)."
+    )
+    assert returncode == 0, f"`uv sync` failed on the rented machine with exit {returncode}"
+    logger.info(f"Dependencies synced in {elapsed_min:.1f} min")
+
+
+def _install_remote_env(env_vars: dict[str, str]) -> None:
+    """Put the container's env vars somewhere ssh sessions can see them.
+
+    vast.ai passes `--env` to the container, so PID 1 has the WandB credentials, but sshd starts
+    sessions that do not inherit docker's environment. Everything this script runs goes over ssh as
+    a login shell, so without this the training run finds no credentials and W&B drops to an
+    interactive login prompt that nothing is there to answer.
+    """
+    exports = "\n".join(f"export {name}={shlex.quote(value)}" for name, value in env_vars.items())
+    script = f"umask 077 && cat > {REMOTE_ENV_FILE} <<'SPD_ENV'\n{exports}\nSPD_ENV"
+    subprocess.run(["ssh", SSH_HOST_ALIAS, script], check=True)
+    logger.info(f"Wrote credentials to {REMOTE_ENV_FILE} for ssh sessions")
+
+
 def _rsync_args() -> list[str]:
+    """Sync the working tree, `.git` included.
+
+    Every target-model training script stamps its run via `ExecutionStamp.create`, which shells out
+    to `git`. Without the repo those scripts die on `git status --porcelain` before training starts,
+    and the run loses its branch and commit provenance.
+
+    Ownership is deliberately not preserved: `-a` would carry our local uid across, and the
+    container runs as root, so git would then refuse the repo as having dubious ownership.
+    """
     return [
         "rsync",
         "-az",
+        "--no-owner",
+        "--no-group",
         "--delete",
         "--filter=:- .gitignore",
-        "--exclude=.git",
         "--exclude=.venv",
         f"{REPO_ROOT}/",
         f"{SSH_HOST_ALIAS}:{REMOTE_REPO_DIR}/",
@@ -475,16 +612,19 @@ def _ssh_streaming(remote_command: str) -> int:
     return subprocess.run(["ssh", SSH_HOST_ALIAS, remote_command], check=False).returncode
 
 
-def _log_summary(instance_id: int, run_id: str, wandb_url: str, mode: Mode) -> None:
+def _log_summary(
+    instance_id: int, run_id: str, launch: ExperimentLaunch | None, mode: Mode
+) -> None:
     logger.section("vast.ai instance ready")
     logger.values(
         {
             "instance": instance_id,
             "mode": mode,
             "run_id": run_id,
+            "experiment": launch.experiment if launch else "-",
             "ssh": f"ssh {SSH_HOST_ALIAS}",
             "logs": f"vastai logs {instance_id}",
-            "wandb": wandb_url,
+            "wandb": launch.wandb_url if launch else "-",
             "destroy": f"vastai destroy instance {instance_id}",
         }
     )

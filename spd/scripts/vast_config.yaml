@@ -16,10 +16,11 @@ min_gpu_ram: 20
 disk: 60
 
 # Docker image. Must be CUDA >= 12.8 to match the torch wheels in uv.lock.
-image: pytorch/pytorch:2.8.0-cuda12.8-cudnn9-devel
+image: vastai/base-image:cuda-12.8.1-auto
+#pytorch/pytorch:2.8.0-cuda12.8-cudnn9-devel
 
 # Minimum host reliability. Low-reliability hosts drop runs mid-training.
-min_reliability: 0.98
+min_reliability: 0.95
 
 # Minimum CUDA version the host supports.
 min_cuda: 12.8
@@ -32,3 +33,9 @@ sort: dlperf_per_dphtotal-
 
 # How many offers to fetch and show.
 n_offers: 20
+
+# How long `uv sync` may take on the rented machine before the host is rejected. It pulls several
+# GB of torch and CUDA wheels, so hosts with a poor route to PyPI stall here for tens of minutes.
+# An offer's advertised inet_down does not predict this - it is self-reported, and a generic speed
+# test measures a different path than PyPI's CDN.
+max_sync_minutes: 10.0

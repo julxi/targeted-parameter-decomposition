@@ -217,7 +217,8 @@ Each experiment (`spd/experiments/{tms,resid_mlp,lm}/`) contains:
 │   │   ├── tms/                     # Toy Model of Superposition
 │   │   ├── resid_mlp/               # Residual MLP
 │   │   ├── lm/                      # Language models
-│   │   └── ih/                      # Induction heads
+│   │   ├── ih/                      # Induction heads
+│   │   └── rotgrid/                 # Rotating 4x3 grid-world navigation
 │   ├── metrics/                     # Metrics - both for use as losses and as eval metrics
 │   ├── models/
 │   │   ├── component_model.py       # ComponentModel, SPDRunInfo, from_pretrained()
@@ -326,11 +327,13 @@ spd-vast tms_5-2                             # rent, sync, train, stream logs
 spd-vast tms_5-2 --config h100               # use spd/scripts/vast_h100_config.yaml
 spd-vast tms_5-2 --gpu_name A100_SXM4        # one-off override of a config field
 spd-vast tms_5-2 --mode provision            # rent + sync only, then `ssh vastai`
+spd-vast --mode provision                    # rent a bare machine, no experiment needed
 spd-vast tms_5-2 --destroy_on_exit           # destroy the instance when training ends
 ```
 
-Machine selection (GPU, price ceiling, disk, image, reliability floor, sort order) lives in
-git-tracked YAML configs in `spd/scripts/`, validated by `VastConfig` in `spd/scripts/run_vast.py`:
+Machine selection (GPU, price ceiling, disk, image, reliability floor, sort order) and the
+`max_sync_minutes` budget live in git-tracked YAML configs in `spd/scripts/`, validated by
+`VastConfig` in `spd/scripts/run_vast.py`:
 
 - `vast_config.yaml` — the default (RTX 4090)
 - `vast_h100_config.yaml` — H100, used via `--config h100`
@@ -339,9 +342,15 @@ Add more as `vast_<name>_config.yaml` and select with `--config <name>`; `--conf
 filename in `spd/scripts/` or an explicit path. `--gpu_name`, `--max_price`, `--min_gpu_ram`,
 `--disk` and `--image` override individual fields for a single launch.
 
-It searches offers, rents one, writes an ssh stanza to `~/.ssh/config.d/vastai.conf` (host alias
-`vastai`), rsyncs the working tree (respecting `.gitignore`) to `/root/spd`, then `uv sync`s and
-runs the experiment. WandB credentials are passed as container env vars, since `.env` is gitignored
+It searches offers, rents one, waits for sshd to accept the key, writes an ssh stanza to
+`~/.ssh/config.d/vastai.conf` (host alias `vastai`), rsyncs the working tree (respecting
+`.gitignore`) to `/root/spd`, then `uv sync`s and runs the experiment. The sync is timed against
+`max_sync_minutes` and aborts the launch if it overruns: hosts vary wildly in how fast they
+reach PyPI, and a bad one spends tens of minutes on the multi-GB torch and CUDA wheels. An
+instance whose `actual_status` goes `missing` is failed immediately rather than waited on -
+such a host never installs your ssh key, so its rejections look misleadingly like a key problem. With `--mode provision` the experiment name is optional: omit it to rent a
+bare machine, and the printed command sets up `uv` and the venv without starting a run. WandB
+credentials are passed as container env vars, since `.env` is gitignored
 and therefore not rsynced. `sync_checkpoints_to_wandb` is forced on because the instance's disk does
 not survive destruction — W&B is the only durable output. Single GPU, one experiment per launch; no
 sweeps.

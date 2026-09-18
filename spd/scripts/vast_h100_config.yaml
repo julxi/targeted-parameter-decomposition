@@ -13,3 +13,4 @@ min_reliability: 0.98
 min_cuda: 12.8
 sort: dph_total
 n_offers: 20
+max_sync_minutes: 10.0
