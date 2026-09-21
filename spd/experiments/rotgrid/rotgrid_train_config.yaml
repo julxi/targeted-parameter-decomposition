@@ -1,0 +1,28 @@
+# RotGrid (rotating 4x3 grid-world) target-model training.
+# The SPD decomposition of the resulting model is configured in rotgrid_config.yaml.
+wandb_project: rotgrid
+
+rotgrid_model_config:
+  seq_len: 256
+  d_model: 24
+  n_heads: 4
+  n_layers: 3
+  ff_fanout: 4
+  use_ff: true
+  use_pos_encoding: true
+  use_layer_norm: true
+
+steps: 10_000
+batch_size: 256
+# A rollout costs the same for 256 or 16384 sequences, so amortise it over many steps.
+steps_per_rollout: 32
+lr: 1e-3
+lr_warmup: 500
+lr_schedule: cosine
+weight_decay: 0.01
+grad_clip: 1.0
+seed: 0
+
+eval_freq: 100
+eval_batch_size: 64
+attention_maps_n_steps: 4

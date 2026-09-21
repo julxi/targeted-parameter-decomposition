@@ -47,15 +47,18 @@ class RotGridDataset(
         tokens[:, 0] = game.NEW
         legal_at[:, 0] = self.legal_mask[state]
 
+        keys = torch.rand(batch_size, self.seq_len, game.N_TOKENS, device=self.device)
+        any_illegal = torch.zeros((), dtype=torch.bool, device=self.device)
+
         for position in range(1, self.seq_len):
             # Uniform over the legal tokens: random keys everywhere, illegal ones pushed below all
             # legal ones, take the argmax.
-            keys = torch.rand(batch_size, game.N_TOKENS, device=self.device)
-            action = keys.masked_fill(~legal_at[:, position - 1], -1.0).argmax(dim=-1)
+            action = keys[:, position].masked_fill(~legal_at[:, position - 1], -1.0).argmax(dim=-1)
             tokens[:, position] = action
 
             state = self.next_state[state, action]
-            assert (state != game.ILLEGAL_TRANSITION).all(), "sampled an illegal transition"
+            any_illegal |= (state == game.ILLEGAL_TRANSITION).any()
             legal_at[:, position] = self.legal_mask[state]
 
+        assert not any_illegal.item(), "sampled an illegal transition"
         return tokens, legal_at

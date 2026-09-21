@@ -1,5 +1,6 @@
 """Train a RotGridTransformer on uniform random walks over the rotating grid-world."""
 
+from collections.abc import Iterator
 from functools import partial
 from pathlib import Path
 
@@ -14,14 +15,14 @@ from tqdm import tqdm, trange
 
 # The learning-rate schedules are generic.
 from spd.experiments.ih.train_ih import constant_lr, cosine_decay_lr, linear_lr, warmup_lr
-from spd.experiments.rotgrid.configs import RotGridModelConfig, RotGridTrainConfig
+from spd.experiments.rotgrid.configs import RotGridTrainConfig
 from spd.experiments.rotgrid.dataset import RotGridDataset
 from spd.experiments.rotgrid.model import RotGridTransformer
 from spd.log import logger
-from spd.utils.data_utils import DatasetGeneratedDataLoader
 from spd.utils.distributed_utils import get_device
 from spd.utils.general_utils import set_seed
-from spd.utils.run_utils import ExecutionStamp, read_noneable_str, save_file
+from spd.utils.run_utils import ExecutionStamp, save_file
+from spd.utils.wandb_utils import init_wandb
 
 
 def evaluate(
@@ -60,9 +61,23 @@ def evaluate(
     }
 
 
+def batch_iterator(
+    dataset: RotGridDataset, batch_size: int, steps_per_rollout: int
+) -> Iterator[torch.Tensor]:
+    """Yield training batches, rolling out `steps_per_rollout` of them per call.
+
+    A rollout walks the automaton one position at a time, so its cost is set by the sequence length
+    and is flat in the number of sequences: 256 and 16384 sequences both take ~39ms on an RTX 4090.
+    Generating many batches at once therefore divides the data cost per step by `steps_per_rollout`.
+    """
+    while True:
+        tokens, _ = dataset.generate_batch(batch_size * steps_per_rollout)
+        yield from tokens.split(batch_size)
+
+
 def train(
     model: RotGridTransformer,
-    dataloader: DatasetGeneratedDataLoader[tuple[torch.Tensor, torch.Tensor]],
+    batches: Iterator[torch.Tensor],
     dataset: RotGridDataset,
     config: RotGridTrainConfig,
     log_wandb: bool,
@@ -88,12 +103,12 @@ def train(
         lr=config.lr,
         weight_decay=config.weight_decay,
         betas=(0.9, 0.95),
+        fused=next(model.parameters()).is_cuda,
     )
     losses: list[float] = []
     loss_steps: list[int] = []
-    max_grad_norm_since_eval = 0.0
+    max_grad_norm_since_eval = torch.zeros((), device=next(model.parameters()).device)
 
-    data_iter = iter(dataloader)
     with trange(config.steps, ncols=0) as t:
         for step in t:
             step_lr = config.lr * lr_schedule_fn(step, config.steps)
@@ -101,51 +116,53 @@ def train(
                 group["lr"] = step_lr
             opt.zero_grad(set_to_none=True)
 
-            tokens, _ = next(data_iter)
+            tokens = next(batches)
             logits = model(tokens)
             loss = F.cross_entropy(logits[:, :-1].flatten(0, 1), tokens[:, 1:].flatten())
             loss.backward()
-            grad_norm = clip_grad_norm_(model.parameters(), config.grad_clip).item()
+            grad_norm = clip_grad_norm_(model.parameters(), config.grad_clip)
             opt.step()
 
-            max_grad_norm_since_eval = max(max_grad_norm_since_eval, grad_norm)
-            t.set_postfix(loss=loss.item(), lr=step_lr, grad_norm=grad_norm)
+            max_grad_norm_since_eval = torch.maximum(max_grad_norm_since_eval, grad_norm)
 
             if step % config.eval_freq == 0 or step + 1 == config.steps:
+                step_loss = loss.item()
+                max_grad_norm = max_grad_norm_since_eval.item()
                 metrics = evaluate(model, dataset, config.eval_batch_size)
                 loss_steps.append(step)
-                losses.append(loss.item())
+                losses.append(step_loss)
+                t.set_postfix(loss=step_loss, lr=step_lr, grad_norm=max_grad_norm)
                 tqdm.write(
-                    f"Step {step} loss {loss.item():.4f} "
+                    f"Step {step} loss {step_loss:.4f} "
                     f"kl {metrics['kl_to_optimal']:.4f} "
                     f"illegal {metrics['illegal_prob_mass']:.5f}"
                 )
                 if log_wandb:
                     wandb.log(
                         {
-                            "loss": loss.item(),
+                            "loss": step_loss,
                             "lr": step_lr,
-                            "max_grad_norm": max_grad_norm_since_eval,
+                            "max_grad_norm": max_grad_norm,
                             **metrics,
                         },
                         step=step,
                     )
-                max_grad_norm_since_eval = 0.0
+                max_grad_norm_since_eval.zero_()
 
     return losses, loss_steps
 
 
-def get_model_and_dataloader(
+def get_model_and_batches(
     config: RotGridTrainConfig, device: str
-) -> tuple[
-    RotGridTransformer,
-    DatasetGeneratedDataLoader[tuple[torch.Tensor, torch.Tensor]],
-    RotGridDataset,
-]:
+) -> tuple[RotGridTransformer, Iterator[torch.Tensor], RotGridDataset]:
     model = RotGridTransformer(config.rotgrid_model_config).to(device)
     dataset = RotGridDataset(seq_len=config.rotgrid_model_config.seq_len, device=device)
-    dataloader = DatasetGeneratedDataLoader(dataset, batch_size=config.batch_size, shuffle=False)
-    return model, dataloader, dataset
+    batches = batch_iterator(
+        dataset=dataset,
+        batch_size=config.batch_size,
+        steps_per_rollout=config.steps_per_rollout,
+    )
+    return model, batches, dataset
 
 
 def plot_loss_curve(
@@ -210,7 +227,7 @@ def log_figures_to_wandb(out_dir: Path) -> None:
 
 
 def run_train(config: RotGridTrainConfig, device: str) -> Path:
-    model, dataloader, dataset = get_model_and_dataloader(config, device)
+    model, batches, dataset = get_model_and_batches(config, device)
     model_config = config.rotgrid_model_config
 
     execution_stamp = ExecutionStamp.create(run_type="train", create_snapshot=False)
@@ -225,9 +242,10 @@ def run_train(config: RotGridTrainConfig, device: str) -> Path:
             f"_heads{model_config.n_heads}_seq{model_config.seq_len}"
             f"_steps{config.steps}_batch{config.batch_size}_lr{config.lr}"
         )
-        wandb.init(
-            id=execution_stamp.run_id,
+        init_wandb(
+            config=config,
             project=config.wandb_project,
+            run_id=execution_stamp.run_id,
             name=run_name,
             tags=[f"rotgrid_{model_config.n_layers}L"],
         )
@@ -239,7 +257,7 @@ def run_train(config: RotGridTrainConfig, device: str) -> Path:
     logger.info(f"Saved config to {config_path}")
 
     losses, loss_steps = train(
-        model=model, dataloader=dataloader, dataset=dataset, config=config, log_wandb=log_wandb
+        model=model, batches=batches, dataset=dataset, config=config, log_wandb=log_wandb
     )
 
     final_metrics = evaluate(model, dataset, config.eval_batch_size)
@@ -270,42 +288,8 @@ def run_train(config: RotGridTrainConfig, device: str) -> Path:
     return out_dir
 
 
-def main(
-    n_layers: int,
-    d_model: int,
-    n_heads: int,
-    steps: int,
-    wandb_project: str,
-    seq_len: int = 256,
-    batch_size: int = 256,
-    lr: float = 1e-3,
-    grad_clip: float = 1.0,
-    seed: int = 0,
-) -> None:
-    config = RotGridTrainConfig(
-        wandb_project=read_noneable_str(wandb_project),
-        rotgrid_model_config=RotGridModelConfig(
-            seq_len=seq_len,
-            d_model=d_model,
-            n_heads=n_heads,
-            n_layers=n_layers,
-            ff_fanout=4,
-            use_ff=True,
-            use_pos_encoding=True,
-            use_layer_norm=True,
-        ),
-        steps=steps,
-        batch_size=batch_size,
-        lr=lr,
-        lr_warmup=500,
-        weight_decay=0.01,
-        grad_clip=grad_clip,
-        lr_schedule="cosine",
-        seed=seed,
-        eval_freq=100,
-        eval_batch_size=64,
-        attention_maps_n_steps=4,
-    )
+def main(config_path: str) -> None:
+    config = RotGridTrainConfig.from_file(config_path)
     set_seed(config.seed)
     run_train(config=config, device=get_device())
 

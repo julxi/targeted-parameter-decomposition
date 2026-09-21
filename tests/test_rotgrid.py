@@ -8,7 +8,7 @@ from spd.experiments.rotgrid import game
 from spd.experiments.rotgrid.configs import RotGridModelConfig, RotGridTrainConfig
 from spd.experiments.rotgrid.dataset import RotGridDataset
 from spd.experiments.rotgrid.model import RotGridTransformer
-from spd.experiments.rotgrid.train_rotgrid import evaluate, get_model_and_dataloader, train
+from spd.experiments.rotgrid.train_rotgrid import evaluate, get_model_and_batches, train
 
 A_CELL = (0, 0)
 B_CELL = (0, 2)
@@ -198,6 +198,7 @@ def tiny_train_config() -> RotGridTrainConfig:
         eval_freq=2,
         eval_batch_size=4,
         attention_maps_n_steps=1,
+        steps_per_rollout=4,
     )
 
 
@@ -209,9 +210,9 @@ def test_forward_returns_logits_over_the_five_tokens():
 
 def test_train_happy_path():
     config = tiny_train_config()
-    model, dataloader, dataset = get_model_and_dataloader(config, device="cpu")
+    model, batches, dataset = get_model_and_batches(config, device="cpu")
     losses, loss_steps = train(
-        model=model, dataloader=dataloader, dataset=dataset, config=config, log_wandb=False
+        model=model, batches=batches, dataset=dataset, config=config, log_wandb=False
     )
     assert len(losses) == len(loss_steps)
     assert all(loss > 0 for loss in losses)
@@ -219,7 +220,7 @@ def test_train_happy_path():
 
 def test_evaluate_reports_the_entropy_floor_and_a_nonnegative_kl():
     config = tiny_train_config()
-    model, _, dataset = get_model_and_dataloader(config, device="cpu")
+    model, _, dataset = get_model_and_batches(config, device="cpu")
     metrics = evaluate(model, dataset, batch_size=64)
 
     assert metrics["kl_to_optimal"] >= 0.0
@@ -257,7 +258,7 @@ def test_checkpoint_round_trip(tmp_path: Path):
 def test_gradient_clipping_bounds_the_update():
     """Clipping is what keeps a rare large gradient from knocking the model off its solution."""
     config = tiny_train_config()
-    model, _, dataset = get_model_and_dataloader(config, device="cpu")
+    model, _, dataset = get_model_and_batches(config, device="cpu")
 
     tokens, _ = dataset.generate_batch(16)
     # Blow the logits up so the backward pass produces a large gradient.

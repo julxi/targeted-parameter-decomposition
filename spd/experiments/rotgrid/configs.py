@@ -14,7 +14,6 @@ class RotGridModelConfig(BaseConfig):
     use_ff: bool
     use_pos_encoding: bool
     use_layer_norm: bool
-    device: str = "cpu"
 
 
 class RotGridTrainConfig(BaseConfig):
@@ -22,6 +21,7 @@ class RotGridTrainConfig(BaseConfig):
     rotgrid_model_config: RotGridModelConfig
     steps: PositiveInt
     batch_size: PositiveInt
+    steps_per_rollout: PositiveInt
     lr: float
     lr_warmup: int | float
     weight_decay: float
