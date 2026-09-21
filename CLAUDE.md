@@ -38,6 +38,7 @@ The codebase supports three experimental domains: TMS (Toy Model of Superpositio
 - **Language Models**:
   - `ss_llama_simple`, `ss_llama_simple-1L`, `ss_llama_simple-2L` - Simple Stories Llama variants
   - `ss_llama_simple_mlp`, `ss_llama_simple_mlp-1L`, `ss_llama_simple_mlp-2L` - Llama MLP-only variants
+  - `ss_llama_simple_mlp-2L-wide`, `ss_llama_simple_mlp-2L-wide_global_reverse` - 2-layer Llama variants with larger per-module `C` (and attention projections decomposed alongside the MLPs); the second swaps the layerwise CI function for a global reverse-residual one
   - `ss_gpt2`, `ss_gpt2_simple`, `ss_gpt2_simple_noln` - Simple Stories GPT-2 variants
   - `ss_gpt2_simple-1L`, `ss_gpt2_simple-2L` - GPT-2 simple layer variants
   - `pile_llama_simple_mlp-2L`, `pile_llama_simple_mlp-4L`, `pile_llama_simple_mlp-12L` - Pile Llama MLP-only variants
