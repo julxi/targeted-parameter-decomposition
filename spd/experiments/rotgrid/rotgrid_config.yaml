@@ -1,0 +1,73 @@
+# RotGrid (rotating 4x3 grid-world), attention out_proj only
+# --- WandB ---
+wandb_project: spd
+# null derives the name from the hyperparameters below; set a string to override it.
+wandb_run_name: null
+wandb_run_name_prefix: ""
+
+# --- General ---
+seed: 0
+n_mask_samples: 1
+ci_config:
+  mode: layerwise
+  fn_type: vector_mlp
+  hidden_dims: [32]
+sigmoid_type: "leaky_hard"
+module_info:
+  - module_pattern: "blocks.*.attn.out_proj"
+    C: 50
+identity_module_info: null
+use_delta_component: true
+
+loss_metric_configs:
+  - classname: "ImportanceMinimalityLoss"
+    coeff: 10
+    pnorm: 1.0
+    beta: 0
+  - classname: "StochasticReconLoss"
+    coeff: 1.0
+  - classname: "StochasticReconLayerwiseLoss"
+    coeff: 1.0
+output_loss_type: kl
+
+# --- Training ---
+batch_size: 128
+eval_batch_size: 128
+steps: 5_000
+lr_schedule:
+  start_val: 1e-3
+  fn_type: cosine
+  warmup_pct: 0.0
+  final_val_frac: 0.0
+
+# --- Faithfulness Warmup ---
+faithfulness_warmup_steps: 200
+faithfulness_warmup_lr: 0.01
+faithfulness_warmup_weight_decay: 0.1
+
+# --- Logging & Saving ---
+train_log_freq: 100
+eval_freq: 1000
+n_eval_steps: 100
+slow_eval_freq: 1_000
+save_freq: null
+ci_alive_threshold: 0.1
+eval_metric_configs:
+  - classname: "CI_L0"
+    groups: null
+  - classname: "CIHistograms"
+    n_batches_accum: 5
+  - classname: "ComponentActivationDensity"
+  - classname: "CIMeanPerComponent"
+  - classname: "StochasticHiddenActsReconLoss"
+
+# --- Pretrained model info ---
+pretrained_model_class: "spd.experiments.rotgrid.model.RotGridTransformer"
+pretrained_model_path: "wandb:bitt-j-personal/rotgrid/runs/t-22ae8d8d"
+pretrained_model_output_attr: null
+
+# --- Task Specific ---
+task_config:
+  task_name: rotgrid
+  # A rollout costs the same for 128 or 4096 sequences, so amortise it over many steps.
+  steps_per_rollout: 32

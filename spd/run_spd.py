@@ -37,6 +37,7 @@ from spd.configs import (
 from spd.data import loop_dataloader
 from spd.eval import evaluate, evaluate_multibatch_pgd
 from spd.experiments.lm.prompts_dataset import StaticBatchLoader
+from spd.experiments.rotgrid.dataset import RotGridRolloutLoader
 from spd.identity_insertion import insert_identity_operations_
 from spd.log import logger
 from spd.losses import compute_losses
@@ -122,6 +123,7 @@ LoaderType = (
     | DataLoader[tuple[Float[Tensor, "..."], Float[Tensor, "..."]]]
     | DataLoader[Any]
     | StaticBatchLoader
+    | RotGridRolloutLoader
 )
 
 
@@ -145,7 +147,7 @@ def optimize(
     def create_pgd_data_iter() -> (
         Iterator[Int[Tensor, "..."]] | Iterator[tuple[Float[Tensor, "..."], Float[Tensor, "..."]]]
     ):
-        if isinstance(train_loader, StaticBatchLoader):
+        if isinstance(train_loader, StaticBatchLoader | RotGridRolloutLoader):
             return iter(train_loader)
         assert hasattr(train_loader, "generator") and train_loader.generator is not None
         train_loader.generator.manual_seed(config.seed)
@@ -302,6 +304,7 @@ def optimize(
             group["lr"] = step_lr
 
         frac = step / config.steps
+        is_log_step = step % config.train_log_freq == 0
         active_ppgd_configs = [c for c in persistent_pgd_configs if frac >= c.start_frac]
 
         for ppgd_cfg in active_ppgd_configs:
@@ -424,16 +427,17 @@ def optimize(
                 batch_log_data[f"train/nontarget/loss/{loss_cfg.classname}"] = loss_val.item()
             batch_log_data["train/nontarget/loss/total"] = nontarget_total_loss.item()
             nontarget_total_loss.backward()
-            for layer_name, layer_ci in nontarget_ci.lower_leaky.items():
-                l0_val = calc_ci_l_zero(layer_ci, config.ci_alive_threshold)
-                batch_log_data[f"train/nontarget/l0/{layer_name}"] = l0_val
-
-        for layer_name, layer_ci in ci.lower_leaky.items():
-            l0_val = calc_ci_l_zero(layer_ci, config.ci_alive_threshold)
-            batch_log_data[f"train/l0/{layer_name}"] = l0_val
+            if is_log_step:
+                for layer_name, layer_ci in nontarget_ci.lower_leaky.items():
+                    l0_val = calc_ci_l_zero(layer_ci, config.ci_alive_threshold)
+                    batch_log_data[f"train/nontarget/l0/{layer_name}"] = l0_val
 
         # --- Train Logging --- #
-        if step % config.train_log_freq == 0:
+        if is_log_step:
+            for layer_name, layer_ci in ci.lower_leaky.items():
+                l0_val = calc_ci_l_zero(layer_ci, config.ci_alive_threshold)
+                batch_log_data[f"train/l0/{layer_name}"] = l0_val
+
             avg_metrics = avg_metrics_across_ranks(batch_log_data, device=device)
             batch_log_data = cast(defaultdict[str, float], avg_metrics)
 

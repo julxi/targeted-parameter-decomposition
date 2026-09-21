@@ -267,6 +267,14 @@ class IHTaskConfig(BaseConfig):
     )
 
 
+class RotGridTaskConfig(BaseConfig):
+    task_name: Literal["rotgrid"]
+    steps_per_rollout: PositiveInt = Field(
+        ...,
+        description="Number of batches to draw from each rollout of the grid-world automaton",
+    )
+
+
 class CompletenessTaskConfig(BaseConfig):
     task_name: Literal["completeness"]
 
@@ -807,7 +815,12 @@ EvalOnlyMetricConfigType = (
 MetricConfigType = LossMetricConfigType | EvalOnlyMetricConfigType
 
 TaskConfig = (
-    TMSTaskConfig | ResidMLPTaskConfig | LMTaskConfig | IHTaskConfig | CompletenessTaskConfig
+    TMSTaskConfig
+    | ResidMLPTaskConfig
+    | LMTaskConfig
+    | IHTaskConfig
+    | RotGridTaskConfig
+    | CompletenessTaskConfig
 )
 
 SamplingType = Literal["continuous", "binomial"]

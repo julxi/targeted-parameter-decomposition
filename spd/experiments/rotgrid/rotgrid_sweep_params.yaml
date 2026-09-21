@@ -1,0 +1,8 @@
+# Grid for spd/experiments/rotgrid/rotgrid_sweep.py. Every swept leaf is a {values: [...]} list,
+# and the full cartesian product is run. Entries of a discriminated list such as
+# `loss_metric_configs` are identified by their `classname`, not by their position.
+loss_metric_configs:
+  - classname: ImportanceMinimalityLoss
+    # Written as decimals because YAML reads bare `3e-2` as a string, not a float.
+    coeff:
+      values: [0.03, 0.01, 0.003, 0.001]

@@ -1,5 +1,7 @@
 """Uniform random walks over the rotating grid-world."""
 
+from collections.abc import Iterator
+
 import torch
 from jaxtyping import Bool, Int
 from torch import Tensor
@@ -62,3 +64,23 @@ class RotGridDataset(
 
         assert not any_illegal.item(), "sampled an illegal transition"
         return tokens, legal_at
+
+
+class RotGridRolloutLoader:
+    """Yields token batches forever, amortising each rollout over `steps_per_rollout` batches.
+
+    A rollout walks the automaton one position at a time, so its cost is set by the sequence length
+    and is flat in the number of sequences. Drawing many batches from one rollout therefore divides
+    the data cost per step by `steps_per_rollout`. SPD only consumes the tokens, so the legal-token
+    masks are dropped here.
+    """
+
+    def __init__(self, dataset: RotGridDataset, batch_size: int, steps_per_rollout: int):
+        self.dataset = dataset
+        self.batch_size = batch_size
+        self.steps_per_rollout = steps_per_rollout
+
+    def __iter__(self) -> Iterator[Int[Tensor, "batch seq_len"]]:
+        while True:
+            tokens, _ = self.dataset.generate_batch(self.batch_size * self.steps_per_rollout)
+            yield from tokens.split(self.batch_size)

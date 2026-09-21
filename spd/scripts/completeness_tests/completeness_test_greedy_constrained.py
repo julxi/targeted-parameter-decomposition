@@ -45,7 +45,7 @@ def detect_model_type(config: Config) -> Literal["toy", "lm", "completeness"]:
             return "completeness"
         case "lm":
             return "lm"
-        case "tms" | "resid_mlp" | "ih":
+        case "tms" | "resid_mlp" | "ih" | "rotgrid":
             return "toy"
 
 
