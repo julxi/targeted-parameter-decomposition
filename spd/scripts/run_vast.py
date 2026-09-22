@@ -195,7 +195,7 @@ def main(
         )
         return
 
-    instance_id = _create_instance(create_args)
+    instance_id = _create_instance(create_args, offer_id)
     logger.info(f"Created instance {instance_id}, waiting for it to boot")
     try:
         _wait_until_running(instance_id)
@@ -310,11 +310,25 @@ def _build_launch(experiment: str, run_id: str, project: str) -> ExperimentLaunc
     )
 
 
-def _vastai(args: list[str], raw: bool = True) -> Any:
-    """Run a vastai CLI command, parsing its JSON output when raw."""
+def _vastai(args: list[str], raw: bool = True, failure_hint: str | None = None) -> Any:
+    """Run a vastai CLI command, parsing its JSON output when raw.
+
+    Under `--raw` the CLI reports an API failure by printing a JSON error object to stderr and
+    exiting 0 with an empty stdout, so empty stdout means the command failed rather than that it
+    found nothing. `failure_hint` is appended to the error for commands with a likely cause.
+
+    Only the leading tokens of a failed command are reported, because `create instance` carries
+    the WandB key in its `--env` argument.
+    """
     cmd = ["vastai", *args, "--raw"] if raw else ["vastai", *args]
     result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-    return json.loads(result.stdout) if raw else result.stdout
+    if not raw:
+        return result.stdout
+    stdout = result.stdout.strip()
+    redacted_command = shlex.join(["vastai", *args[:3]])
+    failure = f"`{redacted_command}` failed: {result.stderr.strip() or 'no error message'}"
+    assert stdout, f"{failure}\n{failure_hint}" if failure_hint else failure
+    return json.loads(stdout)
 
 
 def _resolve_config_path(config: str) -> Path:
@@ -455,9 +469,10 @@ def _create_instance_args(
     ]
 
 
-def _create_instance(create_args: list[str]) -> int:
-    result = _vastai(create_args)
-    assert result["success"], f"Failed to create instance: {result}"
+def _create_instance(create_args: list[str], offer_id: int) -> int:
+    stale_offer_hint = f"Offer {offer_id} seems to be stale. Nothing was rented."
+    result = _vastai(create_args, failure_hint=stale_offer_hint)
+    assert result["success"], f"Failed to create instance: {result}\n{stale_offer_hint}"
     return int(result["new_contract"])
 
 
