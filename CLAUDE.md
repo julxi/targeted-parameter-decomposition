@@ -345,7 +345,15 @@ filename in `spd/scripts/` or an explicit path. `--gpu_name`, `--max_price`, `--
 
 It searches offers, rents one, attaches your public key to the instance, waits for sshd to accept
 it, writes an ssh stanza to `~/.ssh/config.d/vastai.conf` (host alias `vastai`), rsyncs the working
-tree (respecting `.gitignore`) to `/root/spd`, then `uv sync`s and runs the experiment.
+tree (respecting `.gitignore`, and skipping `papers/`) to `/root/spd`, then `uv sync`s and runs the
+experiment. The rsync prints a running progress total; routes to far-away hosts can crawl at tens
+of KB/s. The skipped `papers/` files are marked skip-worktree in the remote checkout, so git still
+reports the tree as clean and runs keep their commit hash.
+
+Renting walks down the search results rather than insisting on the top one. vast.ai's offer index
+lags the marketplace, so the best-ranked ask is regularly already rented; `--cancel-unavail` makes
+that a `no_such_ask` error instead of a stopped instance, and the next offer is tried. Every other
+create failure is raised. `--offer_id` pins one ask and fails if it has been taken.
 
 The key defaults to `~/.ssh/id_rsa`; set `SPD_VAST_SSH_KEY` in `.env` to use another one. Only the
 matching `.pub` is read, and its contents are what `vastai attach ssh` sends. Attaching is explicit

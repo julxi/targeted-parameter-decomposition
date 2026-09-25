@@ -58,6 +58,10 @@ TIMEOUT_EXIT = 124
 # vast.ai reports these when the host has dropped off its control plane. It keeps claiming
 # intended_status "running", but the container never finishes provisioning.
 DEAD_STATUSES = frozenset({"missing", "exited"})
+# vast.ai's error for an ask that has already been rented by someone else.
+TAKEN_OFFER_ERROR = "no_such_ask"
+# Tracked, but not needed to train, so not worth the upload.
+UNSYNCED_REPO_DIR = "papers"
 
 
 class VastConfig(BaseConfig):
@@ -168,21 +172,13 @@ def main(
     launch = _build_launch(experiment, run_id, project) if experiment is not None else None
     label = f"spd-{launch.experiment if launch else 'provision'}-{run_id}"
 
-    if offer_id is None:
-        offers = _search_offers(vast_config)
-        offer = offers[0]
-        offer_id = int(offer["id"])
-        logger.info(
-            f"Selected offer {offer_id}: {offer['gpu_name']} at ${offer['dph_total']:.3f}/hr "
-            f"in {offer['geolocation']} (reliability {offer['reliability']:.4f})"
-        )
-
     env_vars = _forwarded_env_vars()
-    create_args = _create_instance_args(offer_id, vast_config, label, env_vars)
+    offers = _search_offers(vast_config) if offer_id is None else []
 
     if dry_run:
+        previewed_offer_id = offer_id if offer_id is not None else int(offers[0]["id"])
         redacted_args = _create_instance_args(
-            offer_id, vast_config, label, dict.fromkeys(env_vars, "<redacted>")
+            previewed_offer_id, vast_config, label, dict.fromkeys(env_vars, "<redacted>")
         )
         logger.section("Dry run - nothing rented")
         logger.values(
@@ -195,7 +191,13 @@ def main(
         )
         return
 
-    instance_id = _create_instance(create_args, offer_id)
+    if offer_id is None:
+        instance_id = _rent_first_available(offers, vast_config, label, env_vars)
+    else:
+        instance_id = _create_instance(
+            _create_instance_args(offer_id, vast_config, label, env_vars)
+        )
+        assert instance_id is not None, f"Offer {offer_id} is no longer on the market."
     logger.info(f"Created instance {instance_id}, waiting for it to boot")
     try:
         _wait_until_running(instance_id)
@@ -310,15 +312,13 @@ def _build_launch(experiment: str, run_id: str, project: str) -> ExperimentLaunc
     )
 
 
-def _vastai(args: list[str], raw: bool = True, failure_hint: str | None = None) -> Any:
+def _vastai(args: list[str], raw: bool = True) -> Any:
     """Run a vastai CLI command, parsing its JSON output when raw.
 
     Under `--raw` the CLI reports an API failure by printing a JSON error object to stderr and
     exiting 0 with an empty stdout, so empty stdout means the command failed rather than that it
-    found nothing. `failure_hint` is appended to the error for commands with a likely cause.
-
-    Only the leading tokens of a failed command are reported, because `create instance` carries
-    the WandB key in its `--env` argument.
+    found nothing. Only the leading tokens of a failed command are reported, to keep any
+    credentials passed in later arguments out of the error.
     """
     cmd = ["vastai", *args, "--raw"] if raw else ["vastai", *args]
     result = subprocess.run(cmd, check=True, capture_output=True, text=True)
@@ -326,8 +326,7 @@ def _vastai(args: list[str], raw: bool = True, failure_hint: str | None = None) 
         return result.stdout
     stdout = result.stdout.strip()
     redacted_command = shlex.join(["vastai", *args[:3]])
-    failure = f"`{redacted_command}` failed: {result.stderr.strip() or 'no error message'}"
-    assert stdout, f"{failure}\n{failure_hint}" if failure_hint else failure
+    assert stdout, f"`{redacted_command}` failed: {result.stderr.strip() or 'no error message'}"
     return json.loads(stdout)
 
 
@@ -469,17 +468,73 @@ def _create_instance_args(
     ]
 
 
-def _create_instance(create_args: list[str], offer_id: int) -> int:
-    stale_offer_hint = f"Offer {offer_id} seems to be stale. Nothing was rented."
-    result = _vastai(create_args, failure_hint=stale_offer_hint)
-    assert result["success"], f"Failed to create instance: {result}\n{stale_offer_hint}"
-    return int(result["new_contract"])
+def _rent_first_available(
+    offers: list[Any], config: VastConfig, label: str, env_vars: dict[str, str]
+) -> int:
+    """Rent the best offer still on the market, walking down the search order.
+
+    vast.ai's offer search serves asks that someone else has already rented, so the top offer is
+    regularly gone by the time we ask for it. Only a taken offer moves us on to the next one; any
+    other create failure is ours and is raised.
+    """
+    for offer in offers:
+        offer_id = int(offer["id"])
+        logger.info(
+            f"Renting offer {offer_id}: {offer['gpu_name']} at ${offer['dph_total']:.3f}/hr "
+            f"in {offer['geolocation']} (reliability {offer['reliability']:.4f})"
+        )
+        instance_id = _create_instance(_create_instance_args(offer_id, config, label, env_vars))
+        if instance_id is not None:
+            return instance_id
+        logger.info(f"Offer {offer_id} was taken before we got it, trying the next one")
+    raise AssertionError(
+        f"All {len(offers)} matching offers were taken before we could rent one. Launch again - "
+        f"the search index lags the marketplace by minutes, so a fresh search lists different asks."
+    )
+
+
+def _create_instance(create_args: list[str]) -> int | None:
+    """Rent an offer, returning None if it was already taken. Nothing is rented on failure.
+
+    `--cancel-unavail` makes vast.ai reject a taken ask outright instead of parking a stopped
+    instance on us, and it reports that as `no_such_ask`. This does not go through `_vastai`
+    because a taken ask is an expected outcome here rather than an error to report, and because
+    the command carries the WandB key in its `--env` argument.
+    """
+    result = subprocess.run(
+        ["vastai", *create_args, "--raw"], check=True, capture_output=True, text=True
+    )
+    stdout = result.stdout.strip()
+    if not stdout:
+        stderr = result.stderr.strip()
+        assert TAKEN_OFFER_ERROR in stderr, (
+            f"`vastai create instance` failed: {stderr or 'no error message'}"
+        )
+        return None
+    created = json.loads(stdout)
+    assert created["success"], f"Failed to create instance: {created}"
+    return int(created["new_contract"])
+
+
+def _show_instance(instance_id: int) -> dict[str, Any]:
+    """Look an instance up, failing loudly if it has vanished.
+
+    An instance whose host drops it stops existing rather than reporting a dead status, and
+    `show instance` answers for it with `{"instances": null}` instead of the flat instance dict.
+    """
+    shown = _vastai(["show", "instance", str(instance_id)])
+    assert "actual_status" in shown, (
+        f"Instance {instance_id} no longer exists ({shown}). Its host dropped it, which vast.ai "
+        f"reports by forgetting the rental rather than by marking it dead. Launch again to land "
+        f"on a different host."
+    )
+    return shown
 
 
 def _wait_until_running(instance_id: int) -> None:
     deadline = time.time() + READY_TIMEOUT_S
     while time.time() < deadline:
-        instance = _vastai(["show", "instance", str(instance_id)])
+        instance = _show_instance(instance_id)
         status = instance["actual_status"]
         if status == "running":
             return
@@ -588,7 +643,7 @@ def _wait_until_ssh_ready(instance_id: int, identity_file: Path) -> None:
             _attach_ssh_key(instance_id, identity_file)
             reattached = True
         time.sleep(SSH_POLL_INTERVAL_S)
-    status = _vastai(["show", "instance", str(instance_id)])["actual_status"]
+    status = _show_instance(instance_id)["actual_status"]
     assert status not in DEAD_STATUSES, (
         f"Instance {instance_id} went '{status}' while we waited for ssh. The host dropped off "
         f"vast.ai's control plane after reporting itself running, so it never installed your key - "
@@ -652,6 +707,10 @@ def _rsync_args() -> list[str]:
 
     Ownership is deliberately not preserved: `-a` would carry our local uid across, and the
     container runs as root, so git would then refuse the repo as having dubious ownership.
+
+    `papers/` is left out: it is a fifth of the upload, mostly figures, and nothing on the rented
+    machine reads it. `--info=progress2` prints one running total, since a slow route to the host
+    otherwise looks like a hang.
     """
     return [
         "rsync",
@@ -659,8 +718,10 @@ def _rsync_args() -> list[str]:
         "--no-owner",
         "--no-group",
         "--delete",
+        "--info=progress2",
         "--filter=:- .gitignore",
         "--exclude=.venv",
+        f"--exclude=/{UNSYNCED_REPO_DIR}/",
         f"{REPO_ROOT}/",
         f"{SSH_HOST_ALIAS}:{REMOTE_REPO_DIR}/",
     ]
@@ -670,6 +731,20 @@ def _rsync_repo() -> None:
     args = _rsync_args()
     logger.info(f"Syncing working tree: {shlex.join(args)}")
     subprocess.run(args, check=True)
+    _hide_unsynced_dir_from_git()
+
+
+def _hide_unsynced_dir_from_git() -> None:
+    """Mark the tracked files we did not sync as skip-worktree in the remote checkout.
+
+    Otherwise git sees them as deleted, `repo_is_clean()` fails, and every run is stamped as having
+    uncommitted changes with no commit hash. The rsync overwrites `.git/index` with our local one,
+    so this has to run again after every sync.
+    """
+    _ssh(
+        f"cd {REMOTE_REPO_DIR} && git ls-files -z -- {UNSYNCED_REPO_DIR} "
+        f"| git update-index -z --skip-worktree --stdin"
+    )
 
 
 def _ssh(remote_command: str) -> None:
