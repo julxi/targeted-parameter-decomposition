@@ -88,6 +88,18 @@ This repository implements methods from three research papers on parameter decom
   a countable set of mechanisms at all, and its QDG (gradient-clustering) method is an early
   attempt at automatically enumerating them.
 
+**Representation Engineering: A Top-Down Approach to AI Transparency (RepE)**
+
+- [`papers/Representation_Engineering/repe_paper.md`](papers/Representation_Engineering/repe_paper.md)
+- Zou et al. (arXiv:2310.01405). Not implemented in this repo.
+- Top-down counterpart to mechanistic interpretability: reads and steers high-level concepts
+  (honesty, utility, power-seeking, emotion, bias, memorization) as linear directions in activation
+  space, via Linear Artificial Tomography (PCA over contrastive activation differences), contrast
+  vectors and LoRRA (LoRA adapters trained toward target representations).
+- Relevant background for the honesty/lying targeted decompositions: its honesty extraction,
+  lie-detection and TruthfulQA experiments are activation-space baselines for mechanisms that tPD
+  looks for in weight space.
+
 ## Development Commands
 
 **Setup:**
