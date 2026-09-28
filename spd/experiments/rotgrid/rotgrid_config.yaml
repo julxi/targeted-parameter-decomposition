@@ -33,7 +33,7 @@ output_loss_type: kl
 # --- Training ---
 batch_size: 128
 eval_batch_size: 128
-steps: 5_000
+steps: 25_000 
 lr_schedule:
   start_val: 1e-3
   fn_type: cosine
