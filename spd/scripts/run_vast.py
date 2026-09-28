@@ -30,7 +30,7 @@ from spd.utils.compute_utils import TrainingJob, get_command
 from spd.utils.run_utils import generate_run_id
 from spd.utils.wandb_utils import get_wandb_entity, get_wandb_run_url
 
-Mode = Literal["run", "detached", "provision"]
+Mode = Literal["run", "detached", "provision", "sync"]
 
 
 class ExperimentLaunch(NamedTuple):
@@ -124,7 +124,9 @@ def main(
         config: Machine config: a short name ('h100' -> spd/scripts/vast_h100_config.yaml), a
             filename in spd/scripts, or a path.
         mode: 'run' streams training until it exits, 'detached' starts it and returns,
-            'provision' only rents + syncs and leaves the run for you to start over ssh.
+            'provision' only rents + syncs and leaves the run for you to start over ssh,
+            'sync' re-rsyncs the working tree to the instance behind the `vastai` ssh alias
+            without renting anything (dependencies are not re-synced).
         gpu_name: Override the config's gpu_name.
         max_price: Override the config's max_price.
         min_gpu_ram: Override the config's min_gpu_ram.
@@ -143,8 +145,21 @@ def main(
         spd-vast tms_5-2 --gpu_name A100_SXM4           # one-off override
         spd-vast tms_5-2 --mode provision               # rent + sync, then `ssh vastai`
         spd-vast --mode provision                       # rent a bare machine, no experiment
+        spd-vast --mode sync                            # push local edits to the last instance
         spd-vast tms_5-2 --destroy_on_exit              # stop paying when training ends
     """
+    if mode == "sync":
+        assert experiment is None, "--mode sync only syncs the working tree, it takes no experiment"
+        assert SSH_CONFIG_PATH.exists(), (
+            f"{SSH_CONFIG_PATH} not found - rent an instance first with --mode provision"
+        )
+        if dry_run:
+            logger.values({"rsync": shlex.join(_rsync_args())})
+            return
+        _rsync_repo()
+        logger.info(f"Synced working tree to {SSH_HOST_ALIAS}:{REMOTE_REPO_DIR}")
+        return
+
     assert shutil.which("vastai"), "vastai CLI not found. Install it with `pip install vastai`."
 
     vast_config = _load_vast_config(

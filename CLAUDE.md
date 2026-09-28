@@ -329,6 +329,7 @@ spd-vast tms_5-2 --config h100               # use spd/scripts/vast_h100_config.
 spd-vast tms_5-2 --gpu_name A100_SXM4        # one-off override of a config field
 spd-vast tms_5-2 --mode provision            # rent + sync only, then `ssh vastai`
 spd-vast --mode provision                    # rent a bare machine, no experiment needed
+spd-vast --mode sync                         # re-rsync the working tree to the last instance
 spd-vast tms_5-2 --destroy_on_exit           # destroy the instance when training ends
 ```
 
@@ -366,7 +367,10 @@ instance whose `actual_status` goes `missing` is failed immediately rather than 
 such a host never installs your ssh key, so its rejections look misleadingly like a key problem. The
 image must ship `uv`; vast.ai's CUDA images do, and the sync fails loudly rather than installing its
 own. With `--mode provision` the experiment name is optional: omit it to rent a
-bare machine, and the printed command builds the venv without starting a run. WandB
+bare machine, and the printed command builds the venv without starting a run. `--mode sync` rents nothing: it
+re-rsyncs the working tree to whichever instance the `vastai` alias points at (the most recent
+launch) and redoes the `papers/` skip-worktree marking, but does not re-run `uv sync`, so run
+that over ssh yourself if dependencies changed. WandB
 credentials are passed as container env vars, since `.env` is gitignored
 and therefore not rsynced (`SPD_VAST_SSH_KEY` lives in that same `.env`). `sync_checkpoints_to_wandb` is forced on because the instance's disk does
 not survive destruction — W&B is the only durable output. Single GPU, one experiment per launch; no
