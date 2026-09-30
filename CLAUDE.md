@@ -427,6 +427,12 @@ entries of a discriminated list such as `loss_metric_configs` are keyed by `clas
 by position, and the full cartesian product is run. All configs are validated before the first run
 starts. Write coefficients as decimals — YAML reads a bare `3e-2` as a string.
 
+To compare the finished decompositions in the `bitt-j-personal/spd` W&B project, run
+`python spd/experiments/rotgrid/analysis/rank_rotgrid_decompositions.py`. It scores every run on
+causal faithfulness, cross-seed reproducibility, alignment with the automaton's ground-truth state
+and parsimony, caches per-run results and writes `runs.tsv`, `configs.tsv` and `components.tsv` to
+`SPD_OUT_DIR/rotgrid_analysis/`, then prints a ranked table of configs.
+
 Two RotGrid-specific behaviours:
 
 - **`task_config.steps_per_rollout`** amortises the automaton rollout over that many batches. A
