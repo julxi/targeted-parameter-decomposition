@@ -22,7 +22,13 @@ from spd.models.components import WeightDeltaAndMask, make_mask_infos
 from spd.routing import AllLayersRouter
 from spd.utils.component_utils import calc_ci_l_zero, calc_stochastic_component_mask_info
 from spd.utils.distributed_utils import all_reduce
-from spd.utils.general_utils import calc_sum_recon_loss_lm, extract_batch_data
+from spd.utils.general_utils import (
+    PositionMask,
+    calc_sum_recon_loss_lm_at_positions,
+    extract_batch_data,
+    extract_position_mask,
+    select_positions,
+)
 
 
 def _compute_recon_losses(
@@ -35,8 +41,10 @@ def _compute_recon_losses(
     sampling: SamplingType,
     rounding_threshold: float,
     force_delta: float,
+    position_mask: PositionMask | None,
 ) -> dict[str, tuple[Float[Tensor, ""], int]]:
-    """Compute reconstruction losses under 4 masking strategies.
+    """Compute reconstruction losses under 4 masking strategies, over the positions selected by
+    `position_mask` (all if None).
 
     Returns {key: (sum_loss, n_examples)} for: rounded, CImasked, stochastic, delta_only.
     """
@@ -56,9 +64,9 @@ def _compute_recon_losses(
         mask_infos: dict[str, Any],
     ) -> tuple[Float[Tensor, ""], int]:
         out = model(batch, mask_infos=mask_infos)
-        loss = calc_sum_recon_loss_lm(pred=out, target=target_out, loss_type=output_loss_type)
-        n = out.shape.numel() if output_loss_type == "mse" else out.shape[:-1].numel()
-        return loss, n
+        return calc_sum_recon_loss_lm_at_positions(
+            pred=out, target=target_out, loss_type=output_loss_type, position_mask=position_mask
+        )
 
     results: dict[str, tuple[Float[Tensor, ""], int]] = {}
 
@@ -133,6 +141,7 @@ class TargetReconLoss(Metric):
         target_out: Float[Tensor, "... vocab"],
         ci: CIOutputs,
         weight_deltas: dict[str, Float[Tensor, "d_out d_in"]],
+        position_mask: PositionMask | None,
         **_: Any,
     ) -> None:
         with torch.no_grad():
@@ -146,6 +155,7 @@ class TargetReconLoss(Metric):
                 sampling=self.sampling,
                 rounding_threshold=self.rounding_threshold,
                 force_delta=0.0,
+                position_mask=position_mask,
             )
         for k in self._keys:
             sum_loss, n = results[k]
@@ -210,6 +220,9 @@ class NontargetReconLoss(Metric):
         for _ in range(self.n_nontarget_batches):
             batch_raw = next(self.nontarget_eval_iterator)
             batch = extract_batch_data(batch_raw).to(self.device)
+            position_mask = extract_position_mask(batch_raw)
+            if position_mask is not None:
+                position_mask = position_mask.to(self.device)
 
             with torch.no_grad():
                 target_output: OutputWithCache = self.model(batch, cache_type="input")
@@ -221,7 +234,8 @@ class NontargetReconLoss(Metric):
 
                 threshold = self.run_config.ci_alive_threshold
                 batch_l0 = sum(
-                    calc_ci_l_zero(layer_ci, threshold) for layer_ci in ci.lower_leaky.values()
+                    calc_ci_l_zero(select_positions(layer_ci, position_mask), threshold)
+                    for layer_ci in ci.lower_leaky.values()
                 )
                 total_l0_sum += batch_l0
 
@@ -235,6 +249,7 @@ class NontargetReconLoss(Metric):
                     sampling=self.run_config.sampling,
                     rounding_threshold=self.rounding_threshold,
                     force_delta=1.0,
+                    position_mask=position_mask,
                 )
 
             for k in keys:

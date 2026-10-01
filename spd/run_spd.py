@@ -36,7 +36,7 @@ from spd.configs import (
 )
 from spd.data import loop_dataloader
 from spd.eval import evaluate, evaluate_multibatch_pgd
-from spd.experiments.lm.prompts_dataset import StaticBatchLoader
+from spd.experiments.lm.prompts_dataset import PositionMaskedLoader, StaticBatchLoader
 from spd.experiments.rotgrid.dataset import RotGridRolloutLoader
 from spd.identity_insertion import insert_identity_operations_
 from spd.log import logger
@@ -56,8 +56,10 @@ from spd.utils.general_utils import (
     bf16_autocast,
     dict_safe_update_,
     extract_batch_data,
+    extract_position_mask,
     get_scheduled_value,
     save_pre_run_info,
+    select_positions,
 )
 from spd.utils.git_utils import repo_current_commit_hash, repo_is_clean
 from spd.utils.logging_utils import get_grad_norms_dict, local_log
@@ -123,6 +125,7 @@ LoaderType = (
     | DataLoader[tuple[Float[Tensor, "..."], Float[Tensor, "..."]]]
     | DataLoader[Any]
     | StaticBatchLoader
+    | PositionMaskedLoader
     | RotGridRolloutLoader
 )
 
@@ -149,6 +152,9 @@ def optimize(
     ):
         if isinstance(train_loader, StaticBatchLoader | RotGridRolloutLoader):
             return iter(train_loader)
+        assert not isinstance(train_loader, PositionMaskedLoader), (
+            "Multibatch PGD does not support loss_positions"
+        )
         assert hasattr(train_loader, "generator") and train_loader.generator is not None
         train_loader.generator.manual_seed(config.seed)
         return iter(train_loader)
@@ -314,7 +320,11 @@ def optimize(
 
         batch_log_data: defaultdict[str, float] = defaultdict(float)
 
-        batch = extract_batch_data(next(train_iterator)).to(device, non_blocking=True)
+        batch_raw = next(train_iterator)
+        batch = extract_batch_data(batch_raw).to(device, non_blocking=True)
+        position_mask = extract_position_mask(batch_raw)
+        if position_mask is not None:
+            position_mask = position_mask.to(device, non_blocking=True)
 
         with bf16_autocast(enabled=config.autocast_bf16):
             # NOTE: we need to call the wrapped_model at least once each step in order
@@ -331,6 +341,7 @@ def optimize(
 
             if config.component_weight_decay > 0 and config.component_weight_decay_scaled_by_ci:
                 for layer_name, layer_ci in ci.lower_leaky.items():
+                    layer_ci = select_positions(layer_ci, position_mask)
                     mb_max = layer_ci.detach().amax(dim=tuple(range(layer_ci.ndim - 1)))
                     if layer_name in step_max_ci:
                         step_max_ci[layer_name] = torch.maximum(step_max_ci[layer_name], mb_max)
@@ -344,6 +355,7 @@ def optimize(
                     target_out=target_model_output.output,
                     ci=ci.lower_leaky,
                     weight_deltas=weight_deltas if config.use_delta_component else None,
+                    position_mask=position_mask,
                 )
 
             losses = compute_losses(
@@ -359,6 +371,7 @@ def optimize(
                 n_mask_samples=config.n_mask_samples,
                 ppgd_states=ppgd_states,
                 output_loss_type=config.output_loss_type,
+                position_mask=position_mask,
             )
 
         total_loss = torch.tensor(0.0, device=device)
@@ -382,9 +395,11 @@ def optimize(
         # --- Nontarget training --- #
         if nontarget_train_iterator is not None:
             assert nontarget_loss_configs is not None
-            nontarget_batch = extract_batch_data(next(nontarget_train_iterator)).to(
-                device, non_blocking=True
-            )
+            nontarget_batch_raw = next(nontarget_train_iterator)
+            nontarget_batch = extract_batch_data(nontarget_batch_raw).to(device, non_blocking=True)
+            nontarget_position_mask = extract_position_mask(nontarget_batch_raw)
+            if nontarget_position_mask is not None:
+                nontarget_position_mask = nontarget_position_mask.to(device, non_blocking=True)
             # Recompute weight_deltas with a fresh graph (target backward freed the original)
             weight_deltas_recomputed = component_model.calc_weight_deltas()
             with bf16_autocast(enabled=config.autocast_bf16):
@@ -399,6 +414,7 @@ def optimize(
 
                 if config.component_weight_decay > 0 and config.component_weight_decay_scaled_by_ci:
                     for layer_name, layer_ci in nontarget_ci.lower_leaky.items():
+                        layer_ci = select_positions(layer_ci, nontarget_position_mask)
                         mb_max = layer_ci.detach().amax(dim=tuple(range(layer_ci.ndim - 1)))
                         if layer_name in step_max_ci:
                             step_max_ci[layer_name] = torch.maximum(step_max_ci[layer_name], mb_max)
@@ -418,6 +434,7 @@ def optimize(
                     n_mask_samples=config.n_mask_samples,
                     ppgd_states=ppgd_states,
                     output_loss_type=config.output_loss_type,
+                    position_mask=nontarget_position_mask,
                     force_delta=1.0,
                 )
             nontarget_total_loss = torch.tensor(0.0, device=device)
@@ -429,13 +446,18 @@ def optimize(
             nontarget_total_loss.backward()
             if is_log_step:
                 for layer_name, layer_ci in nontarget_ci.lower_leaky.items():
-                    l0_val = calc_ci_l_zero(layer_ci, config.ci_alive_threshold)
+                    l0_val = calc_ci_l_zero(
+                        select_positions(layer_ci, nontarget_position_mask),
+                        config.ci_alive_threshold,
+                    )
                     batch_log_data[f"train/nontarget/l0/{layer_name}"] = l0_val
 
         # --- Train Logging --- #
         if is_log_step:
             for layer_name, layer_ci in ci.lower_leaky.items():
-                l0_val = calc_ci_l_zero(layer_ci, config.ci_alive_threshold)
+                l0_val = calc_ci_l_zero(
+                    select_positions(layer_ci, position_mask), config.ci_alive_threshold
+                )
                 batch_log_data[f"train/l0/{layer_name}"] = l0_val
 
             avg_metrics = avg_metrics_across_ranks(batch_log_data, device=device)

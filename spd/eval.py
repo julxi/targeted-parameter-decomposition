@@ -10,6 +10,7 @@ from torch.types import Number
 from wandb.plot.custom_chart import CustomChart
 
 from spd.configs import (
+    POSITION_MASK_SUPPORTED_METRIC_CONFIGS,
     CEandKLLossesConfig,
     CI_L0Config,
     CIHiddenActsReconLossConfig,
@@ -86,7 +87,11 @@ from spd.models.component_model import ComponentModel, OutputWithCache
 from spd.persistent_pgd import PersistentPGDState
 from spd.routing import AllLayersRouter, get_subset_router
 from spd.utils.distributed_utils import avg_metrics_across_ranks, is_distributed
-from spd.utils.general_utils import dict_safe_update_, extract_batch_data
+from spd.utils.general_utils import (
+    dict_safe_update_,
+    extract_batch_data,
+    extract_position_mask,
+)
 
 MetricOutType = dict[str, str | Number | Image.Image | CustomChart]
 DistMetricOutType = dict[str, str | float | Image.Image | CustomChart]
@@ -459,6 +464,15 @@ def evaluate(
     for _ in range(n_eval_steps):
         batch_raw = next(eval_iterator)
         batch = extract_batch_data(batch_raw).to(device)
+        position_mask = extract_position_mask(batch_raw)
+        if position_mask is not None:
+            position_mask = position_mask.to(device)
+            unsupported = [
+                cfg.classname
+                for cfg in eval_metric_configs
+                if not isinstance(cfg, POSITION_MASK_SUPPORTED_METRIC_CONFIGS)
+            ]
+            assert not unsupported, f"{unsupported} do not support a position mask"
 
         target_output: OutputWithCache = model(batch, cache_type="input")
         ci = model.calc_causal_importances(
@@ -475,6 +489,7 @@ def evaluate(
                 ci=ci,
                 current_frac_of_training=current_frac_of_training,
                 weight_deltas=weight_deltas,
+                position_mask=position_mask,
             )
 
     outputs: MetricOutType = {}

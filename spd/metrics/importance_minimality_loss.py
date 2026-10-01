@@ -8,6 +8,7 @@ from torch.distributed import ReduceOp
 from spd.metrics.base import Metric
 from spd.models.component_model import CIOutputs, ComponentModel
 from spd.utils.distributed_utils import all_reduce, get_distributed_state
+from spd.utils.general_utils import PositionMask, select_positions
 
 
 def _get_linear_annealed_p(
@@ -235,10 +236,13 @@ class ImportanceMinimalityLoss(Metric):
         *,
         ci: CIOutputs,
         current_frac_of_training: float,
+        position_mask: PositionMask | None,
         **_: Any,
     ) -> None:
         per_component_sums, n_examples = _importance_minimality_loss_update(
-            ci_upper_leaky=ci.upper_leaky,
+            ci_upper_leaky={
+                k: select_positions(v, position_mask) for k, v in ci.upper_leaky.items()
+            },
             pnorm=self.pnorm,
             eps=self.eps,
             current_frac_of_training=current_frac_of_training,

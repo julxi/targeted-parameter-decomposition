@@ -10,6 +10,7 @@ from spd.metrics.base import Metric
 from spd.models.component_model import CIOutputs, ComponentModel
 from spd.utils.component_utils import calc_ci_l_zero
 from spd.utils.distributed_utils import all_reduce
+from spd.utils.general_utils import PositionMask, select_positions
 
 
 class CI_L0(Metric):
@@ -38,10 +39,10 @@ class CI_L0(Metric):
         self.l0_values = defaultdict[str, list[float]](list)
 
     @override
-    def update(self, *, ci: CIOutputs, **_: Any) -> None:
+    def update(self, *, ci: CIOutputs, position_mask: PositionMask | None, **_: Any) -> None:
         group_sums = defaultdict(float) if self.groups else {}
         for layer_name, layer_ci in ci.lower_leaky.items():
-            l0_val = calc_ci_l_zero(layer_ci, self.l0_threshold)
+            l0_val = calc_ci_l_zero(select_positions(layer_ci, position_mask), self.l0_threshold)
             self.l0_values[layer_name].append(l0_val)
 
             if self.groups:

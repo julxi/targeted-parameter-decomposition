@@ -14,7 +14,12 @@ from spd.metrics.base import Metric
 from spd.models.component_model import CIOutputs, ComponentModel, OutputWithCache
 from spd.plotting import plot_mean_component_cis_both_scales
 from spd.utils.distributed_utils import all_reduce
-from spd.utils.general_utils import extract_batch_data
+from spd.utils.general_utils import (
+    PositionMask,
+    extract_batch_data,
+    extract_position_mask,
+    select_positions,
+)
 
 
 class CIMeanPerComponent(Metric):
@@ -46,8 +51,9 @@ class CIMeanPerComponent(Metric):
         }
 
     @override
-    def update(self, *, ci: CIOutputs, **_: Any) -> None:
+    def update(self, *, ci: CIOutputs, position_mask: PositionMask | None, **_: Any) -> None:
         for module_name, ci_vals in ci.lower_leaky.items():
+            ci_vals = select_positions(ci_vals, position_mask)
             n_leading_dims = ci_vals.ndim - 1
             n_examples = ci_vals.shape[:n_leading_dims].numel()
 
@@ -72,6 +78,9 @@ class CIMeanPerComponent(Metric):
         for _ in range(self.n_nontarget_batches):
             batch_raw = next(self.nontarget_eval_iterator)
             batch = extract_batch_data(batch_raw).to(device)
+            position_mask = extract_position_mask(batch_raw)
+            if position_mask is not None:
+                position_mask = position_mask.to(device)
 
             with torch.no_grad():
                 output: OutputWithCache = self.model(batch, cache_type="input")
@@ -82,6 +91,7 @@ class CIMeanPerComponent(Metric):
                 )
 
             for module_name, ci_vals in ci.lower_leaky.items():
+                ci_vals = select_positions(ci_vals, position_mask)
                 n_leading_dims = ci_vals.ndim - 1
                 n_examples = ci_vals.shape[:n_leading_dims].numel()
                 examples_seen[module_name] += n_examples

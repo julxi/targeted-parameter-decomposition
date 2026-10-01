@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import wandb
-from jaxtyping import Float
+from jaxtyping import Bool, Float
 from pydantic import BaseModel
 from pydantic.v1.utils import deep_update
 from torch import Tensor
@@ -206,6 +206,31 @@ def extract_batch_data(
     return tensor
 
 
+PositionMask = Bool[Tensor, "batch pos"]
+POSITION_MASK_KEY = "position_mask"
+
+
+def extract_position_mask(
+    batch_item: dict[str, Any] | tuple[Tensor, "..."] | Tensor,
+) -> PositionMask | None:
+    """The batch's mask of positions that contribute to losses; None means every position does."""
+    if isinstance(batch_item, dict) and POSITION_MASK_KEY in batch_item:
+        return batch_item[POSITION_MASK_KEY]
+    return None
+
+
+def select_positions(
+    x: Float[Tensor, "..."], position_mask: PositionMask | None
+) -> Float[Tensor, "..."]:
+    """x[position_mask] (flattening the masked leading dims into one), or x if the mask is None."""
+    if position_mask is None:
+        return x
+    assert x.shape[: position_mask.ndim] == position_mask.shape, (
+        f"position_mask {tuple(position_mask.shape)} does not match leading dims of {tuple(x.shape)}"
+    )
+    return x[position_mask]
+
+
 def calc_kl_divergence_lm(
     pred: Float[Tensor, "... vocab"],
     target: Float[Tensor, "... vocab"],
@@ -235,6 +260,20 @@ def calc_sum_recon_loss_lm(
             p = torch.softmax(target, dim=-1)
             loss = F.kl_div(log_q, p, reduction="sum")
     return loss
+
+
+def calc_sum_recon_loss_lm_at_positions(
+    pred: Float[Tensor, "... vocab"],
+    target: Float[Tensor, "... vocab"],
+    loss_type: Literal["mse", "kl"],
+    position_mask: PositionMask | None,
+) -> tuple[Float[Tensor, ""], int]:
+    """Summed recon loss over the selected positions, and the number of examples summed over."""
+    pred = select_positions(pred, position_mask)
+    target = select_positions(target, position_mask)
+    loss = calc_sum_recon_loss_lm(pred=pred, target=target, loss_type=loss_type)
+    n_examples = pred.shape.numel() if loss_type == "mse" else pred.shape[:-1].numel()
+    return loss, n_examples
 
 
 def runtime_cast[T](type_: type[T], obj: Any) -> T:

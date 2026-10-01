@@ -13,7 +13,11 @@ from spd.models.component_model import ComponentModel, OutputWithCache
 from spd.models.components import ComponentsMaskInfo, RoutingMasks, make_mask_infos
 from spd.routing import Router
 from spd.utils.distributed_utils import all_reduce, broadcast_tensor
-from spd.utils.general_utils import calc_sum_recon_loss_lm, extract_batch_data
+from spd.utils.general_utils import (
+    PositionMask,
+    calc_sum_recon_loss_lm_at_positions,
+    extract_batch_data,
+)
 
 
 def _init_adv_sources(
@@ -115,6 +119,7 @@ def pgd_masked_recon_loss_update(
     router: Router,
     pgd_config: PGDConfig,
     force_delta: float | None = None,
+    position_mask: PositionMask | None = None,
 ) -> tuple[Float[Tensor, ""], int]:
     """Central implementation of PGD masked reconstruction loss.
 
@@ -137,6 +142,7 @@ def pgd_masked_recon_loss_update(
         target_out=target_out,
         output_loss_type=output_loss_type,
         batch_dims=batch_dims,
+        position_mask=position_mask,
         force_delta=force_delta,
     )
 
@@ -229,6 +235,7 @@ def _forward_with_adv_sources(
     target_out: Float[Tensor, "... vocab"],
     output_loss_type: Literal["mse", "kl"],
     batch_dims: tuple[int, ...],
+    position_mask: PositionMask | None,
     force_delta: float | None = None,
 ):
     mask_infos = _construct_mask_infos_from_adv_sources(
@@ -242,10 +249,8 @@ def _forward_with_adv_sources(
     )
     out = model(batch, mask_infos=mask_infos)
 
-    sum_loss = calc_sum_recon_loss_lm(pred=out, target=target_out, loss_type=output_loss_type)
-
-    n_examples = (
-        target_out.shape.numel() if output_loss_type == "mse" else target_out.shape[:-1].numel()
+    sum_loss, n_examples = calc_sum_recon_loss_lm_at_positions(
+        pred=out, target=target_out, loss_type=output_loss_type, position_mask=position_mask
     )
 
     return sum_loss, n_examples
@@ -309,6 +314,7 @@ def _multibatch_pgd_fwd_bwd(
             target_out=target_model_output.output,
             output_loss_type=output_loss_type,
             batch_dims=batch_dims,
+            position_mask=None,
             force_delta=force_delta,
         )
 

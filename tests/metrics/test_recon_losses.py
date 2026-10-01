@@ -208,7 +208,7 @@ def test_per_module_recon_metric_keys() -> None:
     ci = model.calc_causal_importances(pre_weight_acts=target_output.cache, sampling="continuous")
 
     metric = CIHiddenActsReconLoss(model=model, device="cpu")
-    metric.update(batch=batch, ci=ci)
+    metric.update(batch=batch, ci=ci, position_mask=None)
     result = metric.compute()
 
     assert set(result.keys()) == {

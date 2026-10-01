@@ -11,7 +11,11 @@ from spd.models.component_model import CIOutputs, ComponentModel
 from spd.routing import Router, get_subset_router
 from spd.utils.component_utils import calc_stochastic_component_mask_info
 from spd.utils.distributed_utils import all_reduce
-from spd.utils.general_utils import calc_sum_recon_loss_lm, get_obj_device
+from spd.utils.general_utils import (
+    PositionMask,
+    calc_sum_recon_loss_lm_at_positions,
+    get_obj_device,
+)
 
 
 def _stochastic_recon_subset_loss_update(
@@ -24,6 +28,7 @@ def _stochastic_recon_subset_loss_update(
     ci: dict[str, Float[Tensor, "... C"]],
     weight_deltas: dict[str, Float[Tensor, "d_out d_in"]] | None,
     router: Router,
+    position_mask: PositionMask | None,
     force_delta: float | None = None,
 ) -> tuple[Float[Tensor, ""], int]:
     assert ci, "Empty ci"
@@ -44,9 +49,10 @@ def _stochastic_recon_subset_loss_update(
 
     for stoch_mask_infos in stoch_mask_infos_list:
         out = model(batch, mask_infos=stoch_mask_infos)
-        loss_type = output_loss_type
-        loss = calc_sum_recon_loss_lm(pred=out, target=target_out, loss_type=loss_type)
-        n_examples += out.shape.numel() if loss_type == "mse" else out.shape[:-1].numel()
+        loss, n = calc_sum_recon_loss_lm_at_positions(
+            pred=out, target=target_out, loss_type=output_loss_type, position_mask=position_mask
+        )
+        n_examples += n
         sum_loss += loss
 
     return sum_loss, n_examples
@@ -69,6 +75,7 @@ def stochastic_recon_subset_loss(
     weight_deltas: dict[str, Float[Tensor, "d_out d_in"]] | None,
     routing: SubsetRoutingType,
     force_delta: float | None = None,
+    position_mask: PositionMask | None = None,
 ) -> Float[Tensor, ""]:
     sum_loss, n_examples = _stochastic_recon_subset_loss_update(
         model=model,
@@ -80,6 +87,7 @@ def stochastic_recon_subset_loss(
         ci=ci,
         weight_deltas=weight_deltas,
         router=get_subset_router(routing, batch.device),
+        position_mask=position_mask,
         force_delta=force_delta,
     )
     return _stochastic_recon_subset_loss_compute(sum_loss, n_examples)
@@ -117,6 +125,7 @@ class StochasticReconSubsetLoss(Metric):
         target_out: Float[Tensor, "... vocab"],
         ci: CIOutputs,
         weight_deltas: dict[str, Float[Tensor, "d_out d_in"]],
+        position_mask: PositionMask | None,
         **_: Any,
     ) -> None:
         sum_loss, n_examples = _stochastic_recon_subset_loss_update(
@@ -129,6 +138,7 @@ class StochasticReconSubsetLoss(Metric):
             ci=ci.lower_leaky,
             weight_deltas=weight_deltas if self.use_delta_component else None,
             router=self.router,
+            position_mask=position_mask,
         )
         self.sum_loss += sum_loss
         self.n_examples += n_examples

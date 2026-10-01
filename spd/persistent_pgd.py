@@ -31,7 +31,11 @@ from spd.models.component_model import ComponentModel
 from spd.models.components import ComponentsMaskInfo, RoutingMasks, make_mask_infos
 from spd.routing import AllLayersRouter, Router, get_subset_router
 from spd.utils.distributed_utils import all_reduce, broadcast_tensor
-from spd.utils.general_utils import calc_sum_recon_loss_lm, get_scheduled_value
+from spd.utils.general_utils import (
+    PositionMask,
+    calc_sum_recon_loss_lm_at_positions,
+    get_scheduled_value,
+)
 
 PPGDSources = dict[str, Float[Tensor, " source_c"]]
 
@@ -217,6 +221,7 @@ class PersistentPGDState:
         target_out: Float[Tensor, "... vocab"],
         ci: dict[str, Float[Tensor, "... C"]],
         weight_deltas: dict[str, Float[Tensor, "d_out d_in"]] | None,
+        position_mask: PositionMask | None,
     ) -> None:
         """Run extra PGD steps to refine adversarial sources before the final loss computation.
 
@@ -224,7 +229,9 @@ class PersistentPGDState:
         When n_warmup_steps=0 (default), this is a no-op.
         """
         for _ in range(self._n_warmup_steps):
-            loss = self.compute_recon_loss(model, batch, target_out, ci, weight_deltas)
+            loss = self.compute_recon_loss(
+                model, batch, target_out, ci, weight_deltas, position_mask=position_mask
+            )
             grads = self.get_grads(loss, retain_graph=False)
             self.step(grads)
 
@@ -235,8 +242,12 @@ class PersistentPGDState:
         target_out: Float[Tensor, "... vocab"],
         ci: dict[str, Float[Tensor, "... C"]],
         weight_deltas: dict[str, Float[Tensor, "d_out d_in"]] | None,
+        position_mask: PositionMask | None = None,
     ) -> Float[Tensor, ""]:
-        """Pure forward pass that returns the PPGD reconstruction loss. No source mutation."""
+        """Pure forward pass that returns the PPGD reconstruction loss. No source mutation.
+
+        Only positions selected by `position_mask` contribute (all if None).
+        """
         batch_dims = next(iter(ci.values())).shape[:-1]
         routing_masks = self._router.get_masks(
             module_names=model.target_module_paths, mask_shape=batch_dims
@@ -251,6 +262,7 @@ class PersistentPGDState:
             ci=ci,
             weight_deltas=weight_deltas,
             routing_masks=routing_masks,
+            position_mask=position_mask,
             force_delta=self._force_delta,
         )
         return sum_loss / n_examples
@@ -340,6 +352,7 @@ def _compute_ppgd_recon_loss(
     ci: dict[str, Float[Tensor, "... C"]],
     weight_deltas: dict[str, Float[Tensor, "d_out d_in"]] | None,
     routing_masks: RoutingMasks,
+    position_mask: PositionMask | None,
     force_delta: float | None = None,
 ) -> tuple[Float[Tensor, ""], int]:
     assert ci, "Empty ci"
@@ -349,7 +362,6 @@ def _compute_ppgd_recon_loss(
         ci, weight_deltas, ppgd_sources, routing_masks, batch_dims, force_delta
     )
     out = model(batch, mask_infos=mask_infos)
-    loss = calc_sum_recon_loss_lm(pred=out, target=target_out, loss_type=output_loss_type)
-    n_examples = out.shape.numel() if output_loss_type == "mse" else out.shape[:-1].numel()
-
-    return loss, n_examples
+    return calc_sum_recon_loss_lm_at_positions(
+        pred=out, target=target_out, loss_type=output_loss_type, position_mask=position_mask
+    )

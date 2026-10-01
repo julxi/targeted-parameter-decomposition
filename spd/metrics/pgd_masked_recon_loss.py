@@ -11,6 +11,7 @@ from spd.metrics.pgd_utils import pgd_masked_recon_loss_update
 from spd.models.component_model import CIOutputs, ComponentModel
 from spd.routing import AllLayersRouter
 from spd.utils.distributed_utils import all_reduce
+from spd.utils.general_utils import PositionMask
 
 
 def pgd_recon_loss(
@@ -23,6 +24,7 @@ def pgd_recon_loss(
     weight_deltas: dict[str, Float[Tensor, "d_out d_in"]] | None,
     pgd_config: PGDConfig,
     force_delta: float | None = None,
+    position_mask: PositionMask | None = None,
 ) -> Float[Tensor, ""]:
     sum_loss, n_examples = pgd_masked_recon_loss_update(
         model=model,
@@ -34,6 +36,7 @@ def pgd_recon_loss(
         router=AllLayersRouter(),
         pgd_config=pgd_config,
         force_delta=force_delta,
+        position_mask=position_mask,
     )
     return sum_loss / n_examples
 
@@ -67,6 +70,7 @@ class PGDReconLoss(Metric):
         target_out: Float[Tensor, "... vocab"],
         ci: CIOutputs,
         weight_deltas: dict[str, Float[Tensor, "d_out d_in"]] | None,
+        position_mask: PositionMask | None,
         **_: Any,
     ) -> None:
         sum_loss, n_examples = pgd_masked_recon_loss_update(
@@ -78,6 +82,7 @@ class PGDReconLoss(Metric):
             output_loss_type=self.output_loss_type,
             router=AllLayersRouter(),
             pgd_config=self.pgd_config,
+            position_mask=position_mask,
         )
         self.sum_loss += sum_loss
         self.n_examples += n_examples

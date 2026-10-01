@@ -12,10 +12,36 @@ from transformers import AutoTokenizer
 
 from spd.configs import Config, LMTaskConfig, ResidMLPTaskConfig, TMSTaskConfig
 from spd.data import DatasetConfig, create_data_loader
+from spd.experiments.lm.prepared_datasets import load_prepared_datasets
+from spd.experiments.lm.prompts_dataset import (
+    build_position_mask,
+    load_prompts_dataset,
+    read_prompts_file,
+)
 from spd.metrics.base import Metric
 from spd.models.component_model import CIOutputs, ComponentModel
 from spd.plotting import plot_targeted_ci_heatmaps
-from spd.utils.general_utils import extract_batch_data
+from spd.utils.general_utils import (
+    POSITION_MASK_KEY,
+    PositionMask,
+    extract_batch_data,
+    extract_position_mask,
+)
+
+
+def _select_rows(
+    cis: dict[str, Float[Tensor, "batch pos C"]],
+    labels: list[str],
+    position_mask: PositionMask | None,
+) -> tuple[dict[str, Float[Tensor, "n C"]], list[str]]:
+    """Keep only the (batch, pos) rows selected by position_mask (all if None)."""
+    if position_mask is None:
+        return cis, labels
+    position_mask = position_mask.cpu()
+    keep = position_mask.flatten().tolist()
+    assert len(keep) == len(labels)
+    selected_labels = [label for label, k in zip(labels, keep, strict=True) if k]
+    return {name: vals[position_mask] for name, vals in cis.items()}, selected_labels
 
 
 class TargetedCIHeatmap(Metric):
@@ -24,7 +50,8 @@ class TargetedCIHeatmap(Metric):
     Generates controlled target inputs for visualization and fetches nontarget
     data from the nontarget_eval_iterator.
 
-    For LM: Target inputs are the prompts from the prompts_file.
+    For LM: Target inputs are the prompts from the prompts_file, or the first n_nontarget_examples
+    test texts of the prepared datasets. Only positions selected by loss_positions are shown.
     For TMS/ResidMLP: Target inputs have one row per active_index (single feature active).
     """
 
@@ -83,26 +110,38 @@ class TargetedCIHeatmap(Metric):
 
         match task_config:
             case LMTaskConfig():
-                batch, labels = self._generate_lm_target_batch(task_config)
+                batch, position_mask = self._generate_lm_target_batch(task_config)
+                labels = self._tokens_to_labels(batch)
             case TMSTaskConfig() | ResidMLPTaskConfig():
                 batch, labels = self._generate_toy_model_target_batch(task_config)
+                position_mask = None
             case _:
                 raise ValueError(f"Unsupported task config type: {type(task_config)}")
 
         cis = self._compute_cis_from_batch(batch)
-        return cis, labels
+        return _select_rows(cis, labels, position_mask)
 
     def _compute_nontarget_cis(self) -> tuple[dict[str, Float[Tensor, "... C"]], list[str]]:
         collected_batches: list[Tensor] = []
+        collected_masks: list[PositionMask] = []
         n_collected = 0
 
         while n_collected < self.n_nontarget_examples:
             batch_raw = next(self.nontarget_eval_iterator)
             batch = extract_batch_data(batch_raw).to(self.device)
             collected_batches.append(batch)
+            position_mask = extract_position_mask(batch_raw)
+            if position_mask is not None:
+                collected_masks.append(position_mask)
             n_collected += batch.shape[0]
 
+        assert len(collected_masks) in (0, len(collected_batches))
         batch = torch.cat(collected_batches, dim=0)[: self.n_nontarget_examples]
+        position_mask = (
+            torch.cat(collected_masks, dim=0)[: self.n_nontarget_examples]
+            if collected_masks
+            else None
+        )
         cis = self._compute_cis_from_batch(batch)
 
         task_config = self.run_config.task_config
@@ -111,39 +150,35 @@ class TargetedCIHeatmap(Metric):
         else:
             labels = self._tensor_to_labels(batch)
 
-        return cis, labels
+        return _select_rows(cis, labels, position_mask)
 
     # --- Target data generation ---
 
-    def _generate_lm_target_batch(self, task_config: LMTaskConfig) -> tuple[Tensor, list[str]]:
+    def _generate_lm_target_batch(
+        self, task_config: LMTaskConfig
+    ) -> tuple[Tensor, PositionMask | None]:
         if task_config.prompts_file is not None:
-            tokens = self._load_target_from_prompts_file(task_config)
-        else:
-            assert task_config.dataset_name is not None, (
-                "LM targeted mode requires prompts_file or dataset_name in task_config"
-            )
-            tokens = self._load_target_from_dataset(task_config)
-
-        labels = self._tokens_to_labels(tokens)
-        return tokens, labels
-
-    def _load_target_from_prompts_file(self, task_config: LMTaskConfig) -> Tensor:
-        assert task_config.prompts_file is not None
-        prompts_path = Path(task_config.prompts_file)
-        assert prompts_path.exists(), f"Prompts file not found: {prompts_path}"
-
-        tokenizer = self._get_tokenizer()
-        prompts = prompts_path.read_text().strip().split("\n")
-        prompts = [p.strip() for p in prompts if p.strip()]
-
-        encoded = tokenizer(
-            prompts,
-            padding="max_length",
-            truncation=True,
-            max_length=task_config.max_seq_len,
-            return_tensors="pt",
+            prompts = read_prompts_file(Path(task_config.prompts_file))
+            return self._tokenize_prompts(prompts, task_config)
+        if task_config.prepared_datasets is not None:
+            prompts = load_prepared_datasets(task_config.prepared_datasets, "test")
+            return self._tokenize_prompts(prompts[: self.n_nontarget_examples], task_config)
+        assert task_config.dataset_name is not None, (
+            "LM targeted mode requires prompts_file, prepared_datasets or dataset_name"
         )
-        return encoded["input_ids"]
+        tokens = self._load_target_from_dataset(task_config)
+        batch_size, seq_len = tokens.shape
+        n_tokens = torch.full((batch_size,), seq_len)
+        return tokens, build_position_mask(n_tokens, seq_len, task_config.loss_positions)
+
+    def _tokenize_prompts(
+        self, prompts: list[str], task_config: LMTaskConfig
+    ) -> tuple[Tensor, PositionMask | None]:
+        dataset = load_prompts_dataset(
+            prompts, self._get_tokenizer(), task_config.max_seq_len, task_config.loss_positions
+        )
+        batch = dataset[:]
+        return batch["input_ids"], batch.get(POSITION_MASK_KEY)
 
     def _load_target_from_dataset(self, task_config: LMTaskConfig) -> Tensor:
         """Load a batch of target examples from a HuggingFace dataset."""

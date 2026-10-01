@@ -13,6 +13,7 @@ from spd.models.components import ComponentsMaskInfo, make_mask_infos
 from spd.routing import AllLayersRouter
 from spd.utils.component_utils import calc_stochastic_component_mask_info
 from spd.utils.distributed_utils import all_reduce
+from spd.utils.general_utils import PositionMask, select_positions
 
 PerModuleMSE = dict[str, tuple[Float[Tensor, ""], int]]
 
@@ -22,16 +23,20 @@ def calc_hidden_acts_mse(
     batch: Int[Tensor, "..."] | Float[Tensor, "..."],
     mask_infos: dict[str, ComponentsMaskInfo],
     target_acts: dict[str, Float[Tensor, "..."]],
+    position_mask: PositionMask | None = None,
 ) -> tuple[PerModuleMSE, Float[Tensor, "..."]]:
-    """Forward with mask_infos and compute per-module MSE against target output activations.
+    """Forward with mask_infos and compute per-module MSE against target output activations, over
+    the positions selected by `position_mask` (all if None).
 
     Returns the per-module MSE dict and the component model's output tensor.
     """
     result = model(batch, mask_infos=mask_infos, cache_type="output")
     per_module: PerModuleMSE = {}
-    for layer_name, target in target_acts.items():
+    for layer_name, target_all_positions in target_acts.items():
         assert layer_name in result.cache, f"{layer_name} not in comp_cache"
-        mse = F.mse_loss(result.cache[layer_name], target, reduction="sum")
+        target = select_positions(target_all_positions, position_mask)
+        pred = select_positions(result.cache[layer_name], position_mask)
+        mse = F.mse_loss(pred, target, reduction="sum")
         per_module[layer_name] = (mse, target.numel())
     return per_module, result.output
 
@@ -207,6 +212,7 @@ class CIHiddenActsReconLoss(Metric):
         *,
         batch: Int[Tensor, "..."] | Float[Tensor, "..."],
         ci: CIOutputs,
+        position_mask: PositionMask | None,
         **_: Any,
     ) -> None:
         target_acts = self.model(batch, cache_type="output").cache
@@ -216,6 +222,7 @@ class CIHiddenActsReconLoss(Metric):
             batch=batch,
             mask_infos=mask_infos,
             target_acts=target_acts,
+            position_mask=position_mask,
         )
         for key, (mse, n) in per_module.items():
             if key not in self.per_module_sum_mse:

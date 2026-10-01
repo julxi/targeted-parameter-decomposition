@@ -4,6 +4,7 @@ from jaxtyping import Float, Int
 from torch import Tensor
 
 from spd.configs import (
+    POSITION_MASK_SUPPORTED_METRIC_CONFIGS,
     CIMaskedReconLayerwiseLossConfig,
     CIMaskedReconLossConfig,
     CIMaskedReconSubsetLossConfig,
@@ -39,6 +40,7 @@ from spd.metrics import (
 )
 from spd.models.component_model import CIOutputs, ComponentModel
 from spd.persistent_pgd import PersistentPGDState
+from spd.utils.general_utils import PositionMask, select_positions
 
 
 def compute_losses(
@@ -56,19 +58,28 @@ def compute_losses(
         PersistentPGDReconLossConfig | PersistentPGDReconSubsetLossConfig, PersistentPGDState
     ],
     output_loss_type: Literal["mse", "kl"],
+    position_mask: PositionMask | None,
     force_delta: float | None = None,
 ) -> dict[LossMetricConfigType, Float[Tensor, ""]]:
-    """Compute losses for each config and return a dict mapping config to loss tensor."""
+    """Compute losses for each config and return a dict mapping config to loss tensor.
+
+    Only positions selected by `position_mask` contribute to the losses (all if None).
+    """
     losses: dict[LossMetricConfigType, Float[Tensor, ""]] = {}
 
     for cfg in loss_metric_configs:
         assert cfg.coeff is not None, "All loss metric configs must have a coeff"
+        assert position_mask is None or isinstance(cfg, POSITION_MASK_SUPPORTED_METRIC_CONFIGS), (
+            f"{cfg.classname} does not support a position mask"
+        )
         match cfg:
             case FaithfulnessLossConfig():
                 loss = faithfulness_loss(weight_deltas=weight_deltas)
             case ImportanceMinimalityLossConfig():
                 loss = importance_minimality_loss(
-                    ci_upper_leaky=ci.upper_leaky,
+                    ci_upper_leaky={
+                        k: select_positions(v, position_mask) for k, v in ci.upper_leaky.items()
+                    },
                     current_frac_of_training=current_frac_of_training,
                     pnorm=cfg.pnorm,
                     beta=cfg.beta,
@@ -87,6 +98,7 @@ def compute_losses(
                     output_loss_type=output_loss_type,
                     batch=batch,
                     target_out=target_out,
+                    position_mask=position_mask,
                 )
             case CIMaskedReconSubsetLossConfig():
                 loss = ci_masked_recon_subset_loss(
@@ -155,6 +167,7 @@ def compute_losses(
                     weight_deltas=weight_deltas if use_delta_component else None,
                     routing=cfg.routing,
                     force_delta=force_delta,
+                    position_mask=position_mask,
                 )
             case PGDReconLossConfig():
                 loss = pgd_recon_loss(
@@ -166,6 +179,7 @@ def compute_losses(
                     weight_deltas=weight_deltas if use_delta_component else None,
                     pgd_config=cfg,
                     force_delta=force_delta,
+                    position_mask=position_mask,
                 )
             case PGDReconSubsetLossConfig():
                 loss = pgd_recon_subset_loss(
@@ -208,6 +222,7 @@ def compute_losses(
                     target_out=target_out,
                     ci=ci.lower_leaky,
                     weight_deltas=weight_deltas if use_delta_component else None,
+                    position_mask=position_mask,
                 )
 
         losses[cfg] = loss

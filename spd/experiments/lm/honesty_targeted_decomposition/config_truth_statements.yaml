@@ -1,0 +1,169 @@
+# Qwen2.5-7B-Instruct — targeted decomposition on Truth-is-Universal statements
+# (Bürger et al. 2024, https://github.com/sciai-lab/Truth_is_Universal).
+#
+# Model, module_info, losses and optimisation are carried over from config_capitals_true.yaml.
+#
+# Target data (task_config.prepared_datasets): any of the data/tiu/<file>_<true|false>/<version>
+# dirs, see data/README.md. Files: cities, sp_en_trans, element_symb, animal_class (each also as
+# neg_<file>), larger_than, smaller_than. All tiu datasets of one version share a train/test split
+# by subject (city, Spanish word, element, animal, number pair). Training concatenates the train
+# splits; eval metrics use the held-out test splits.
+#
+# task_config.loss_positions / nontarget_task_config.loss_positions choose which positions count in
+# every training loss and eval metric; the others are dropped:
+#   {type: all}             every position, padding included
+#   {type: tokens}          every non-padding position
+#   {type: last_k, k: 2}    the last k non-padding positions ('Japan' + '.' in
+#                           'The city of Niigata is in Japan.')
+
+# --- WandB ---
+wandb_project: spd
+wandb_run_name: null
+wandb_run_name_prefix: ""
+sync_checkpoints_to_wandb: false
+label: "tiu_true_statements"
+
+# --- General ---
+seed: 0
+n_mask_samples: 1
+ci_config:
+  mode: global
+  fn_type: global_shared_mlp
+  hidden_dims: [512]
+sampling: continuous
+sigmoid_type: leaky_hard
+module_info:
+  - module_pattern: model.layers.15.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.16.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.17.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.18.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.19.mlp.down_proj
+    C: 96
+identity_module_info: null
+use_delta_component: true
+
+# --- Loss config ---
+loss_metric_configs:
+  - classname: ImportanceMinimalityLoss
+    coeff: 1.0e-3
+    pnorm: 2.0
+    beta: 0.2
+    p_anneal_start_frac: 0.0
+    p_anneal_final_p: 1.0
+    p_anneal_end_frac: 1.0
+    eps: 1.0e-12
+    coeff_warmup_frac: 0.2
+    coeff_peak_multiplier: 4.0
+    coeff_anneal_start_frac: 0.2
+    coeff_anneal_end_frac: 1.0
+  - classname: StochasticReconSubsetLoss
+    coeff: 1
+    routing:
+      type: uniform_k_subset
+  - classname: PersistentPGDReconLoss
+    coeff: 0.5
+    optimizer:
+      type: adam
+      beta1: 0.5
+      beta2: 0.99
+      eps: 1.0e-08
+      lr_schedule:
+        start_val: 0.01
+        warmup_pct: 0.025
+        final_val_frac: 0.1
+        fn_type: cosine
+    scope:
+      type: per_batch_per_position
+    use_sigmoid_parameterization: false
+    n_warmup_steps: 2
+    start_frac: 0.8
+output_loss_type: kl
+
+# --- Training ---
+lr_schedule:
+  start_val: 5e-4
+  warmup_pct: 0.0
+  final_val_frac: 0.1
+  fn_type: cosine
+steps: 10_000
+batch_size: 4
+eval_batch_size: 4
+grad_clip_norm_components: 0.01
+grad_clip_norm_ci_fns: null
+component_weight_decay: 0.1
+autocast_bf16: true
+
+# --- Faithfulness Warmup ---
+faithfulness_warmup_steps: 0
+
+# --- Logging & Saving ---
+train_log_freq: 100
+eval_freq: 1000
+slow_eval_freq: 4000
+n_eval_steps: 8  # 8 x eval_batch_size held-out statements per eval
+slow_eval_on_first_step: true
+save_freq: 2000
+ci_alive_threshold: 0.01
+
+# --- Eval Metrics ---
+eval_metric_configs:
+  - classname: CI_L0
+    groups:
+      total:
+        - "*"
+  - classname: PGDReconLoss
+    init: random
+    step_size: 0.1
+    n_steps: 20
+    mask_scope: shared_across_batch
+  - classname: TargetReconLoss
+    rounding_threshold: 0.01
+  - classname: NontargetReconLoss
+    rounding_threshold: 0.01
+    n_nontarget_batches: 10
+  - classname: TargetedCIHeatmap
+    n_nontarget_examples: 16
+  - classname: WeightMagnitude
+  - classname: UnmaskedReconLoss
+  - classname: CIMeanPerComponent
+  - classname: CIHiddenActsReconLoss
+
+# --- Pretrained model info ---
+pretrained_model_class: transformers.AutoModelForCausalLM
+pretrained_model_path: null
+pretrained_model_name: Qwen/Qwen2.5-7B-Instruct
+pretrained_model_output_attr: logits
+tokenizer_name: Qwen/Qwen2.5-7B-Instruct
+
+# --- Task Specific (target data) ---
+task_config:
+  task_name: lm
+  max_seq_len: 24  # longest statement is 20 Qwen tokens (neg_cities)
+  prepared_datasets:
+    - data/tiu/cities_true/v1
+    - data/tiu/sp_en_trans_true/v1
+    - data/tiu/element_symb_true/v1
+    - data/tiu/animal_class_true/v1
+  loss_positions:
+    type: tokens
+
+# --- Targeted Decomposition (nontarget data: general text) ---
+nontarget_task_config:
+  task_name: lm
+  dataset_name: monology/pile-uncopyrighted
+  max_seq_len: 64
+  column_name: text
+  is_tokenized: false
+  streaming: true
+  train_data_split: train
+  eval_data_split: train
+  dataset_seed: 0
+  loss_positions:
+    type: all
+nontarget_batch_size: 4
+nontarget_eval_batch_size: 4
+nontarget_impmin_coeff_ratio: 2

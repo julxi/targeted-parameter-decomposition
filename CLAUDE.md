@@ -160,7 +160,9 @@ Targeted decomposition decomposes a model using narrow "target" inputs (e.g., sp
 - Config fields: `nontarget_task_config`, `nontarget_batch_size`, `nontarget_eval_batch_size`, `nontarget_impmin_coeff_ratio` on `Config`
 - For TMS/ResidMLP: `active_indices` on `TMSTaskConfig`/`ResidMLPTaskConfig` restricts which features can be active
 - For LM: `prompts_file` on `LMTaskConfig` loads target data from a text file (one prompt per line)
-- Implementation: `spd/run_spd.py` (nontarget training loop), `spd/losses.py` (`force_delta` param), `spd/experiments/lm/prompts_dataset.py` (prompts loading)
+- For LM: `prepared_datasets` on `LMTaskConfig` lists git-tracked, versioned, pre-split datasets under `data/` (e.g. `data/tiu/cities_true/v1`, Truth-is-Universal statements). Train splits are concatenated for training, test splits for eval; split files are verified against their `manifest.yaml` hashes. Layout, manifest fields and the immutable-version rule: `data/README.md`. Example: `spd/experiments/lm/honesty_targeted_decomposition/config_truth_statements.yaml`
+- For LM: `loss_positions` on `LMTaskConfig` (`all` = default incl. padding, `tokens` = non-padding, `last_k`) picks the positions that count in every loss and eval metric; the others are dropped. Batches then carry a `position_mask`; only the metrics in `POSITION_MASK_SUPPORTED_METRIC_CONFIGS` (`spd/configs.py`) accept one, and the config is rejected otherwise
+- Implementation: `spd/run_spd.py` (nontarget training loop), `spd/losses.py` (`force_delta`, `position_mask` params), `spd/experiments/lm/prompts_dataset.py` (prompt tokenization, padding, position masks), `spd/experiments/lm/prepared_datasets.py` (prepared dataset loading)
 
 **Experiment Structure:**
 
@@ -213,6 +215,7 @@ Each experiment (`spd/experiments/{tms,resid_mlp,lm}/`) contains:
 
 ```
 <repo-root>/
+├── data/                            # Prepared, versioned datasets + their build scripts (see data/README.md)
 ├── papers/                          # Research papers (SPD, APD)
 ├── scripts/                         # Standalone utility scripts
 ├── tests/                           # Test suite

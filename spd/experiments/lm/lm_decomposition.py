@@ -5,13 +5,19 @@ from pathlib import Path
 import fire
 
 from spd.configs import (
+    AllPositions,
     LMTaskConfig,
     PersistentPGDReconLossConfig,
     PersistentPGDReconSubsetLossConfig,
     RepeatAcrossBatchScope,
 )
 from spd.data import DatasetConfig, create_data_loader
-from spd.experiments.lm.prompts_dataset import create_prompts_data_loader
+from spd.experiments.lm.prepared_datasets import load_prepared_datasets
+from spd.experiments.lm.prompts_dataset import (
+    PositionMaskedLoader,
+    create_prompts_data_loader,
+    read_prompts_file,
+)
 from spd.log import logger
 from spd.pretrain.run_info import PretrainRunInfo
 from spd.run_spd import LoaderType, run_experiment
@@ -37,23 +43,32 @@ def _create_lm_loaders(
 ) -> tuple[LoaderType, LoaderType]:
     """Create train and eval loaders from an LMTaskConfig.
 
-    Supports both dataset-based loading (dataset_name) and prompts-file-based loading
-    (prompts_file).
+    Supports dataset-based loading (dataset_name), prompts-file-based loading (prompts_file; train
+    and eval use the same prompts) and prepared datasets under data/ (prepared_datasets; train on
+    their train splits, eval on their held-out test splits).
     """
-    if task_config.prompts_file is not None:
+    if task_config.prompts_file is not None or task_config.prepared_datasets is not None:
         assert tokenizer_name is not None
+        if task_config.prepared_datasets is not None:
+            train_prompts = load_prepared_datasets(task_config.prepared_datasets, "train")
+            eval_prompts = load_prepared_datasets(task_config.prepared_datasets, "test")
+        else:
+            assert task_config.prompts_file is not None
+            train_prompts = eval_prompts = read_prompts_file(Path(task_config.prompts_file))
         train_loader, _ = create_prompts_data_loader(
-            prompts_file=Path(task_config.prompts_file),
+            prompts=train_prompts,
             tokenizer_name=tokenizer_name,
             max_seq_len=task_config.max_seq_len,
+            loss_positions=task_config.loss_positions,
             batch_size=train_batch_size,
             dist_state=dist_state,
             seed=seed,
         )
         eval_loader, _ = create_prompts_data_loader(
-            prompts_file=Path(task_config.prompts_file),
+            prompts=eval_prompts,
             tokenizer_name=tokenizer_name,
             max_seq_len=task_config.max_seq_len,
+            loss_positions=task_config.loss_positions,
             batch_size=eval_batch_size,
             dist_state=dist_state,
             seed=seed + 1,
@@ -61,7 +76,7 @@ def _create_lm_loaders(
         return train_loader, eval_loader
 
     assert task_config.dataset_name is not None, (
-        "Either dataset_name or prompts_file must be set in LMTaskConfig"
+        "One of dataset_name, prompts_file and prepared_datasets must be set in LMTaskConfig"
     )
     train_data_config = DatasetConfig(
         name=task_config.dataset_name,
@@ -100,7 +115,12 @@ def _create_lm_loaders(
         global_seed=seed + 1,
         dist_state=dist_state,
     )
-    return train_loader, eval_loader
+    if isinstance(task_config.loss_positions, AllPositions):
+        return train_loader, eval_loader
+    return (
+        PositionMaskedLoader(train_loader, task_config.loss_positions),
+        PositionMaskedLoader(eval_loader, task_config.loss_positions),
+    )
 
 
 @with_distributed_cleanup

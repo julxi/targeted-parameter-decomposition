@@ -18,6 +18,7 @@ from spd.experiments.completeness.models import CompletenessTargetRunInfo, CopyT
 from spd.experiments.lm.prompts_dataset import (
     StaticBatchLoader,
     create_prompts_data_loader,
+    read_prompts_file,
 )
 from spd.experiments.resid_mlp.models import ResidMLP, ResidMLPTargetRunInfo
 from spd.experiments.resid_mlp.resid_mlp_dataset import ResidMLPDataset
@@ -142,13 +143,13 @@ def build_lm_loader(
     assert config.tokenizer_name is not None, "LM tasks need config.tokenizer_name"
 
     if task_config.prompts_file is not None:
-        prompts_file = Path(task_config.prompts_file).expanduser()
-        n_prompts = sum(1 for ln in prompts_file.read_text().splitlines() if ln.strip())
+        prompts = read_prompts_file(Path(task_config.prompts_file).expanduser())
         loader, _ = create_prompts_data_loader(
-            prompts_file=prompts_file,
+            prompts=prompts,
             tokenizer_name=config.tokenizer_name,
             max_seq_len=task_config.max_seq_len,
-            batch_size=n_prompts,
+            loss_positions=task_config.loss_positions,
+            batch_size=len(prompts),
         )
         return loader
 

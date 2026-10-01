@@ -279,6 +279,29 @@ class CompletenessTaskConfig(BaseConfig):
     task_name: Literal["completeness"]
 
 
+class AllPositions(BaseConfig):
+    """Every position contributes to the losses, padding included."""
+
+    type: Literal["all"] = "all"
+
+
+class TokenPositions(BaseConfig):
+    """Every non-padding position contributes to the losses."""
+
+    type: Literal["tokens"]
+
+
+class LastKPositions(BaseConfig):
+    """The last `k` non-padding positions of each sequence contribute to the losses."""
+
+    type: Literal["last_k"]
+    k: PositiveInt
+
+
+LossPositions = Annotated[
+    AllPositions | TokenPositions | LastKPositions, Field(discriminator="type")
+]
+
 class LMTaskConfig(BaseConfig):
     task_name: Literal["lm"] = Field(
         default="lm",
@@ -300,6 +323,18 @@ class LMTaskConfig(BaseConfig):
         default=None,
         description="Path to text file with prompts (one per line). If set, uses this as "
         "target data instead of dataset_name. Prompts are tokenized and padded to max_seq_len.",
+    )
+    prepared_datasets: list[str] | None = Field(
+        default=None,
+        min_length=1,
+        description="Prepared dataset version dirs under data/ (e.g. data/tiu/cities_true/v1). "
+        "Their train splits are concatenated for training, their test splits for eval. Texts are "
+        "tokenized and padded to max_seq_len.",
+    )
+    loss_positions: LossPositions = Field(
+        default=AllPositions(),
+        description="Which sequence positions contribute to training losses and eval metrics. "
+        "Positions outside the selection are dropped from every loss.",
     )
     column_name: str = Field(
         default="story",
@@ -333,11 +368,13 @@ class LMTaskConfig(BaseConfig):
 
     @model_validator(mode="after")
     def _validate_data_source(self) -> "LMTaskConfig":
-        assert self.dataset_name is not None or self.prompts_file is not None, (
-            "Either dataset_name or prompts_file must be set in LMTaskConfig"
+        n_sources = sum(
+            source is not None
+            for source in (self.dataset_name, self.prompts_file, self.prepared_datasets)
         )
-        assert self.dataset_name is None or self.prompts_file is None, (
-            "dataset_name and prompts_file are mutually exclusive in LMTaskConfig"
+        assert n_sources == 1, (
+            "Exactly one of dataset_name, prompts_file and prepared_datasets must be set in "
+            "LMTaskConfig"
         )
         return self
 
@@ -814,6 +851,23 @@ EvalOnlyMetricConfigType = (
 )
 MetricConfigType = LossMetricConfigType | EvalOnlyMetricConfigType
 
+POSITION_MASK_SUPPORTED_METRIC_CONFIGS = (
+    FaithfulnessLossConfig
+    | ImportanceMinimalityLossConfig
+    | UnmaskedReconLossConfig
+    | StochasticReconSubsetLossConfig
+    | PGDReconLossConfig
+    | PersistentPGDReconLossConfig
+    | PersistentPGDReconSubsetLossConfig
+    | CIHiddenActsReconLossConfig
+    | CI_L0Config
+    | CIMeanPerComponentConfig
+    | NontargetReconLossConfig
+    | TargetedCIHeatmapConfig
+    | TargetReconLossConfig
+    | WeightMagnitudeConfig
+)
+
 TaskConfig = (
     TMSTaskConfig
     | ResidMLPTaskConfig
@@ -1238,5 +1292,18 @@ class Config(BaseConfig):
             assert not any(
                 isinstance(cfg, FaithfulnessLossConfig) for cfg in self.loss_metric_configs
             ), "FaithfulnessLoss is incompatible with targeted decomposition"
+
+        restricts_positions = any(
+            isinstance(task_config, LMTaskConfig)
+            and not isinstance(task_config.loss_positions, AllPositions)
+            for task_config in (self.task_config, self.nontarget_task_config)
+        )
+        if restricts_positions:
+            unsupported = [
+                cfg.classname
+                for cfg in [*self.loss_metric_configs, *self.eval_metric_configs]
+                if not isinstance(cfg, POSITION_MASK_SUPPORTED_METRIC_CONFIGS)
+            ]
+            assert not unsupported, f"{unsupported} do not support loss_positions other than 'all'"
 
         return self

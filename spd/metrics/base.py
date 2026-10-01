@@ -10,6 +10,7 @@ from jaxtyping import Float, Int
 from torch import Tensor
 
 from spd.models.component_model import CIOutputs
+from spd.utils.general_utils import PositionMask
 
 
 class Metric(Protocol):
@@ -27,8 +28,10 @@ class Metric(Protocol):
         ci: CIOutputs,
         current_frac_of_training: float,
         weight_deltas: dict[str, Float[Tensor, "... C"]],
+        position_mask: PositionMask | None,
     ) -> None:
-        """Update metric state with a batch of data."""
+        """Update metric state with a batch of data, counting only the positions selected by
+        `position_mask` (all if None)."""
         ...
 
     def compute(self) -> Any:
