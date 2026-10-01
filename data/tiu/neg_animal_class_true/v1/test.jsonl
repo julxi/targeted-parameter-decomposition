@@ -1,0 +1,19 @@
+{"text": "The aardvark is not a fish.", "label": true, "subject": "aardvark", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 6}
+{"text": "The bee is not a bird.", "label": true, "subject": "bee", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 9}
+{"text": "The rabbit is not a bird.", "label": true, "subject": "rabbit", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 39}
+{"text": "The rat is not a bird.", "label": true, "subject": "rat", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 41}
+{"text": "The manta ray is not a mammal.", "label": true, "subject": "manta ray", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 46}
+{"text": "The cow is not a bird.", "label": true, "subject": "cow", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 50}
+{"text": "The salmon is not a reptile.", "label": true, "subject": "salmon", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 51}
+{"text": "The gecko is not a crustacean.", "label": true, "subject": "gecko", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 80}
+{"text": "The whale is not a fish.", "label": true, "subject": "whale", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 96}
+{"text": "The seagull is not a mammal.", "label": true, "subject": "seagull", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 97}
+{"text": "The dog is not a bird.", "label": true, "subject": "dog", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 118}
+{"text": "The hamster is not a fish.", "label": true, "subject": "hamster", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 120}
+{"text": "The iguana is not a bird.", "label": true, "subject": "iguana", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 122}
+{"text": "The jellyfish is not a mammal.", "label": true, "subject": "jellyfish", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 125}
+{"text": "The chicken is not a mammal.", "label": true, "subject": "chicken", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 126}
+{"text": "The hedgehog is not a bird.", "label": true, "subject": "hedgehog", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 137}
+{"text": "The skunk is not a reptile.", "label": true, "subject": "skunk", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 157}
+{"text": "The tapir is not a bird.", "label": true, "subject": "tapir", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 160}
+{"text": "The pigeon is not a mammal.", "label": true, "subject": "pigeon", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 161}

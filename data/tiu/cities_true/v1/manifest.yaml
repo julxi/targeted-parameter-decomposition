@@ -1,0 +1,33 @@
+name: tiu/cities_true
+version: v1
+format: text
+description: True statements from Truth-is-Universal datasets/cities.csv, split train/test
+  by city.
+source:
+  reference: 'Bürger, Hamprecht & Nadler (2024). Truth is Universal: Robust Detection
+    of Lies in LLMs. NeurIPS 2024. arXiv:2407.12831'
+  url: https://github.com/sciai-lab/Truth_is_Universal
+  commit: 605ef00514415deb4806969a172f6e13e0798df7
+  file: datasets/cities.csv
+  file_sha256: f2560a0c1758c69935b50125111b574b71896bb75930dd87b1d8c973c1fa086e
+  license: MIT (Copyright (c) 2024 Scientific AI)
+build:
+  script: data/tiu/build_tiu.py
+  script_sha256: 84b48d42aaf153a1eb6acee4f0db15228e4ffd4e581eb5d1ca8aeaa5d47de8c3
+  repo_commit: c774a4f995241b2298d66dc43a54130671c007ee
+  built_at: '2026-10-01T12:20:53+00:00'
+  params:
+    label: true
+    test_frac: 0.2
+    split_seed: 0
+    split_by: city
+  dropped_duplicate_statements: 0
+splits:
+  train:
+    file: train.jsonl
+    n_records: 582
+    sha256: 3d0b44342a40b7401823b5fdb62b3066fbdbc0fe498c6eaaa406a7e8fcabdcd2
+  test:
+    file: test.jsonl
+    n_records: 166
+    sha256: 027bcaa089bfb778165c2b7c4d1ee4c2f1235d3b9a64c1a47ed41ca866634dfb
