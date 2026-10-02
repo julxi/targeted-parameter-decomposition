@@ -8,8 +8,6 @@ each other?"
 Uses residual-based storage for scalability:
 - Component targets: stored directly
 - Output targets: stored as attributions to output residual, computed on-the-fly at query time
-
-See CLAUDE.md in this directory for usage instructions.
 """
 
 import itertools

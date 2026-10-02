@@ -1,3 +1,5 @@
+> **Legacy reference, being phased out** (formerly this directory's `CLAUDE.md`, renamed 26-10-02 so it is no longer auto-loaded; see `convos/julian/26-10-02_epistemic_memory_setup_SUMMARY.md`). Not read by default: consult it only when a task needs a fact about this subpackage that the `convos/` memory files don't cover. **Every claim in it is `[assumed]`** — check it against the code before relying on it, and record the checked fact in the topic LOG/SUMMARY where it was used. Correct wrong content in place.
+
 # Harvest Module
 
 Offline GPU pipeline that collects component statistics in a single pass over training data. Produces data consumed by the autointerp module (`spd/autointerp/`) and the app (`spd/app/`).

@@ -1,3 +1,5 @@
+> **Legacy reference, being phased out** (formerly this directory's `CLAUDE.md`, renamed 26-10-02 so it is no longer auto-loaded; see `convos/julian/26-10-02_epistemic_memory_setup_SUMMARY.md`). Not read by default: consult it only when a task needs a fact about this subpackage that the `convos/` memory files don't cover. **Every claim in it is `[assumed]`** — check it against the code before relying on it, and record the checked fact in the topic LOG/SUMMARY where it was used. Correct wrong content in place.
+
 # Investigation Module
 
 Launch a Claude Code agent to investigate a specific research question about an SPD model decomposition.
@@ -16,7 +18,7 @@ For parallel investigations, run the command multiple times with different promp
 ```
 spd/investigate/
 ├── __init__.py           # Public exports
-├── CLAUDE.md             # This file
+├── REFERENCE.md          # This file
 ├── schemas.py            # Pydantic models for outputs (BehaviorExplanation, InvestigationEvent)
 ├── agent_prompt.py       # System prompt template with model info injection
 └── scripts/

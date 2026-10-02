@@ -181,3 +181,8 @@ cython_debug/
 *.schema.json
 
 .claude/worktrees
+
+# Epistemic Memory: private per-user records — never committed (see CLAUDE.md §Privacy).
+# The trailing-slash form matches the real directory, the bare form the worktree symlink.
+convos/*/private/
+convos/*/private
