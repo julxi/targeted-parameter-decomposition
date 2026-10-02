@@ -140,6 +140,6 @@ value = config.key
 
 - To view github issues and PRs, use the github cli (e.g. `gh issue view 28` or `gh pr view 30`).
 - When making PRs, use the github template defined in `.github/pull_request_template.md`.
-- Agents commit only when explicitly asked (rule in CLAUDE.md §"API keys and git"). When asked: ALWAYS ensure you are on the correct branch and do not use `git add .` to add all unstaged files. Instead, add only the individual files you changed, don't commit all files.
-- Use branch names `refactor/X` or `feature/Y` or `fix/Z`.
+- Agents commit only when explicitly asked (rule in CLAUDE.md §"API keys and git"). When asked: commit to the current branch (agents don't create their own branches; rule in CLAUDE.md §"API keys and git") and do not use `git add .` to add all unstaged files. Instead, add only the individual files you changed, don't commit all files.
+- When the user wants a new branch, use branch names `refactor/X` or `feature/Y` or `fix/Z`.
 - NEVER use `--no-verify` to skip pre-commit hooks. They are there for a good reason. If pre-commit hooks fail, you MUST fix the underlying problem.

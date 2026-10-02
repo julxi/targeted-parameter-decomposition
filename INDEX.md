@@ -16,7 +16,7 @@ Currently a team of one. If more people join, add a bullet per member here; agen
 
 Current goal: train a tPD (targeted parameter decomposition) of a Qwen model [decided: `convos/julian/26-10-02_epistemic_memory_setup_LOG.md`, entry *setup implemented*]. Details will be recorded in upcoming topics.
 
-Active branch: `feature/truth-statements-tpd` — targeted decomposition on Truth-is-Universal true/false statements (prepared datasets under `data/tiu/`, config `spd/experiments/lm/honesty_targeted_decomposition/config_truth_statements.yaml`).
+Active branch: `main` (all feature branches are merged into it as of 26-10-02). Current work: targeted decomposition on Truth-is-Universal true/false statements (prepared datasets under `data/tiu/`, config `spd/experiments/lm/honesty_targeted_decomposition/config_truth_statements.yaml`).
 
 ## Maintenance
 

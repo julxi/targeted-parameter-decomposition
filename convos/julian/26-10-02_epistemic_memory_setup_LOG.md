@@ -137,3 +137,17 @@ C: (transcribed from chat) yes
 26-10-02, Claude Opus 5.5 — *no-pointers rule added to CLAUDE.md*
 
 Added to the legacy-reference bullet in root CLAUDE.md (§ reading list at the top): "Do not add or keep pointers to the legacy references in code or active docs: when you find one that sends readers there as the authority, remove it (don't repoint it) and record the fact where it belongs." The FEEDBACK.md entry is marked as adopted.
+
+---
+
+C: (transcribed from chat) I would like you to add a rule: agents work on the current branch and don't just create own ones. They can ask if the user would rather push the changes to a new/different branch, but only if it has a real benefit.
+
+---
+
+26-10-02, Claude Opus 5.5 — *current-branch rule added*
+
+Added to root CLAUDE.md §"API keys and git": agents make their changes on the checked-out branch and do not create or switch to their own branches (worktrees included). They may ask whether the user wants a new or different branch only when that has a concrete benefit, and must name the benefit.
+
+Aligned `docs/CODING.md` §GitHub: "ALWAYS ensure you are on the correct branch" now says to commit to the current branch, and the branch-naming convention (`refactor/X`, `feature/Y`, `fix/Z`) now applies when the user wants a new branch.
+
+No conflict with the optional worktree mode in CLAUDE.md: that describes how the user may organise topics, so the user creates those branches, not an agent. [concluded]
