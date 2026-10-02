@@ -32,4 +32,5 @@ All discussions live in `convos/{user}/`. **When starting a new topic, add a row
 
 | Date | User | Topic | Status | SUMMARY | LOG |
 |------|------|-------|--------|---------|-----|
+| 26-10-02 | julian | Prepared datasets (tiu data, generators under `spd/`) | tiu generator moved into `spd/`; tiu data deleted, Julian rebuilds v1 after committing the move | [SUMMARY](convos/julian/26-10-02_prepared_datasets_SUMMARY.md) | [LOG](convos/julian/26-10-02_prepared_datasets_LOG.md) |
 | 26-10-02 | julian | Epistemic Memory setup | Setup complete; awaiting diff review and commit | [SUMMARY](convos/julian/26-10-02_epistemic_memory_setup_SUMMARY.md) | [LOG](convos/julian/26-10-02_epistemic_memory_setup_LOG.md) |

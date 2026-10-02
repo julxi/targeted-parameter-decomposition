@@ -15,12 +15,15 @@ The train splits of all listed datasets are concatenated for training, the test 
 ## Layout
 
 ```
-data/<family>/build_<family>.py        # generator, committed alongside its outputs
 data/<family>/<dataset>/<version>/
     manifest.yaml                      # provenance, build params, split hashes
     train.jsonl
     test.jsonl
 ```
+
+This folder holds data only. Generators are code and live in the `spd` package, next to the
+experiment that uses the data (all code in this project lives under `spd/`). Each manifest's
+`build.script` gives the generator's path.
 
 - **Versions are immutable.** `v1`, `v2`, ... are never edited after being committed; changing the
   data means building a new version. Loading verifies every split file against the `sha256` in its
@@ -44,7 +47,7 @@ source:                     # where the data comes from
   file_sha256: <hash of the upstream file as downloaded>
   license: <license>
 build:
-  script: data/<family>/build_<family>.py
+  script: <generator path under spd/>
   script_sha256: <hash of the generator at build time>
   repo_commit: <this repo's HEAD at build time>
   built_at: <UTC timestamp>
@@ -64,4 +67,5 @@ splits:
 ## Families
 
 - `tiu/`: true/false statements from Truth-is-Universal (Bürger et al., NeurIPS 2024), one dataset
-  per (upstream file, label), split by subject. Build with `python data/tiu/build_tiu.py --version vN`.
+  per (upstream file, label), split by subject. Build with
+  `python spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py --version vN`.

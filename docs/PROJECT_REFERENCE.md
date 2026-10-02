@@ -219,7 +219,7 @@ Each experiment (`spd/experiments/{tms,resid_mlp,lm}/`) contains:
 
 ```
 <repo-root>/
-├── data/                            # Prepared, versioned datasets + their build scripts (see data/README.md)
+├── data/                            # Prepared, versioned datasets; their generators live under spd/ (see data/README.md)
 ├── papers/                          # Research papers (SPD, APD)
 ├── scripts/                         # Standalone utility scripts
 ├── tests/                           # Test suite

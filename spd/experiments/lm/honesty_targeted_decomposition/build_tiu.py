@@ -2,13 +2,15 @@
 
 Writes one dataset per (upstream file, label) to `data/tiu/<file>_<true|false>/<version>/`, e.g.
 `data/tiu/cities_true/v1/` and `data/tiu/neg_cities_false/v1/`. Each holds `train.jsonl`,
-`test.jsonl` and `manifest.yaml` (see data/README.md).
+`test.jsonl` and `manifest.yaml` (see data/README.md). This script lives in the `spd` package, not
+next to its outputs, because the project keeps all code under `spd/`; each manifest's `build.script`
+records the script's path.
 
 All datasets of one build share a train/test split by subject (the city, the Spanish word, the
 element, the animal, or the unordered number pair): every statement about a subject, whether true,
 false or negated, lands in the same split.
 
-    python data/tiu/build_tiu.py --version v1
+    python spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py --version v1
 
 An existing version is never overwritten; build a new version instead.
 """
@@ -27,6 +29,8 @@ import fire
 import pandas as pd
 import yaml
 
+from spd.settings import REPO_ROOT
+
 UPSTREAM_URL = "https://github.com/sciai-lab/Truth_is_Universal"
 UPSTREAM_COMMIT = "605ef00514415deb4806969a172f6e13e0798df7"
 RAW_URL = f"https://raw.githubusercontent.com/sciai-lab/Truth_is_Universal/{UPSTREAM_COMMIT}"
@@ -36,8 +40,8 @@ REFERENCE = (
 )
 LICENSE = "MIT (Copyright (c) 2024 Scientific AI)"
 
-OUT_ROOT = Path(__file__).parent
-REPO_ROOT = OUT_ROOT.parent.parent
+OUT_ROOT = REPO_ROOT / "data" / "tiu"
+SCRIPT_PATH = Path(__file__).resolve()
 
 # upstream file -> subject namespace (files sharing a namespace share the split of each subject)
 UPSTREAM_FILES = {
@@ -114,7 +118,7 @@ def _write_jsonl(path: Path, records: list[dict[str, Any]]) -> str:
 
 def main(version: str, test_frac: float = 0.2, split_seed: int = 0) -> None:
     assert re.fullmatch(r"v\d+", version), f"version must look like v1, v2, ...; got {version!r}"
-    script_sha256 = _sha256(Path(__file__).read_bytes())
+    script_sha256 = _sha256(SCRIPT_PATH.read_bytes())
     built_at = datetime.now(UTC).isoformat(timespec="seconds")
 
     for upstream_file, namespace in UPSTREAM_FILES.items():
@@ -132,7 +136,7 @@ def main(version: str, test_frac: float = 0.2, split_seed: int = 0) -> None:
 
             splits: dict[str, list[dict[str, Any]]] = {"train": [], "test": []}
             for subject, record in _records(
-                df[df["label"] == int(label)], namespace, upstream_file
+                df.loc[df["label"] == int(label)], namespace, upstream_file
             ):
                 split = "test" if _is_test(namespace, subject, test_frac, split_seed) else "train"
                 splits[split].append(record)
@@ -164,7 +168,7 @@ def main(version: str, test_frac: float = 0.2, split_seed: int = 0) -> None:
                     "license": LICENSE,
                 },
                 "build": {
-                    "script": "data/tiu/build_tiu.py",
+                    "script": str(SCRIPT_PATH.relative_to(REPO_ROOT)),
                     "script_sha256": script_sha256,
                     "repo_commit": _git_commit(),
                     "built_at": built_at,

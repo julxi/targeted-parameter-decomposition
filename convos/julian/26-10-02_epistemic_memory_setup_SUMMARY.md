@@ -16,3 +16,5 @@ Decisions (verbatim answers and comments in the LOG):
 - **Private records:** gitignore patterns added; no private folder created (not requested).
 - **Supporting files kept:** FEEDBACK.md and FUTURE_WORK.md stay, because rules in CLAUDE.md and `docs/CODING.md` depend on them [decided]. `docs/HOW_TO_USE.md` and `docs/procedures/multi_agent_debate.md` are kept too [assumed: the agent read Julian's "keep them" as covering these as well].
 - **Provenance of `docs/CODING.md`:** the LOG answer under Julian's comment asking for this overview has a section-by-section table. In short: the general sections are the template's, §Project Structure was rewritten for this repo, and §Additional instructions holds the old repo's coding rules.
+
+- See also: [convos/julian/26-10-02_prepared_datasets_SUMMARY.md] — applies the `docs/CODING.md` rule that code lives in the `spd/` package: the tiu data generator moved out of `data/`.
