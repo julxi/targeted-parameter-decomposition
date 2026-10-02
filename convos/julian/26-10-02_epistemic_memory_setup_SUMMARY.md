@@ -1,6 +1,6 @@
 # SUMMARY: Epistemic Memory setup
 
-**Last updated:** 26-10-02 (all review questions resolved; awaiting Julian's diff review and commit)
+**Last updated:** 26-10-02 (all review questions resolved; setup committed in `6e7e1a4`)
 
 Julian asked to set up the [Epistemic Memory](https://github.com/FlorianDietz/EpistemicMemory) conventions in this repository, which already had a large root `CLAUDE.md` and a public README for the paper code. Goal: Epistemic Memory becomes the only memory system of the project [decided].
 

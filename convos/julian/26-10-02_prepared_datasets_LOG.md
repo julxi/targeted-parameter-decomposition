@@ -42,3 +42,25 @@ I deleted `data/tiu/` again, which removes all 60 generated files (20 datasets �
 Until the data is rebuilt, `config_truth_statements.yaml` fails at load time, because its `data/tiu/*/v1` dirs are missing. The generator also refuses to write into an existing version dir, so the deletion is needed for the rebuild anyway.
 
 Rebuild after committing: `python spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py --version v1`
+
+---
+
+26-10-02, Claude Opus 5.5 — *post-commit rebuild verified*
+
+Julian committed the move (`85aa0bd` "moved data generation script": the script moved, the old data deleted, docs updated), ran the generator, and committed the result (`8ab6fda` "generated tiu dataset", 60 files). I checked both commits [verified: 26-10-02]:
+
+- All 20 manifests record `repo_commit: 85aa0bd…`, the commit that contains `spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py`. Their `script_sha256` (`9bea8d…`) equals the sha256 of the committed script. The provenance caveat from the entry *generator moved into spd, tiu v1 rebuilt* is resolved.
+- `git diff 4c8f58c HEAD -- data/tiu`, restricted to data files: in each of the 20 manifests, only `script`, `script_sha256`, `repo_commit` and `built_at` changed. All 40 split files match the sha256 values saved before the first deletion.
+- `load_prepared_datasets` over all 20 `data/tiu/*/v1` dirs: 6560 train and 1794 test texts, all hash checks pass.
+
+The topic is complete. Uncommitted at this point: this entry, the SUMMARY and INDEX updates, the earlier LOG entry *tiu data deleted, to be rebuilt after commit*, and a FEEDBACK.md entry. The FEEDBACK entry: I rebuilt before the script was committed, which created the provenance gap; I should have suggested commit-then-build from the start.
+
+---
+
+C: (transcribed from chat) Delete it
+
+---
+
+26-10-02, Claude Opus 5.5 — *FEEDBACK entry removed*
+
+The entry *post-commit rebuild verified* above mentions a FEEDBACK.md entry ("ran the generator before the moved script was committed"). Julian asked what the policy for FEEDBACK.md is, given how specific the entry was. My answer in chat: no agent reads FEEDBACK.md by default. It is missing from CLAUDE.md's reading order and from every procedure file, and is read only in a feedback review that Julian has to start. An entry therefore changes nothing until a review turns it into a rule. One script's build order is not worth that. A general version (agents don't commit, but data generators and training runs, e.g. `git_commit` in `spd/run_spd.py`, record the commit as provenance) was offered. Julian chose deletion [decided: "Delete it", transcribed above], and I removed the entry. The lesson stays in this topic's SUMMARY.

@@ -1,6 +1,6 @@
 # SUMMARY: Prepared datasets (Truth-is-Universal data under data/tiu/)
 
-**Last updated:** 26-10-02 (generator moved into `spd/`; tiu data deleted, Julian rebuilds v1 after committing the move)
+**Last updated:** 26-10-02 (done: generator moved into `spd/` in `85aa0bd`, tiu v1 rebuilt and committed in `8ab6fda`, verified)
 
 **What exists.** `data/` holds git-tracked, versioned, pre-split datasets for LM decompositions. A config lists them under `task_config.prepared_datasets`; training concatenates their train splits, and eval uses their test splits. Loader: `spd/experiments/lm/prepared_datasets.py` (checks every split file against the sha256 in its manifest). Layout and manifest fields: `data/README.md`. The infrastructure and the tiu v1 data predate this topic (commits `c774a4f`, `a68389e`, made without a LOG).
 
@@ -16,6 +16,6 @@ The one family so far is `data/tiu/`: 20 datasets from the Truth-is-Universal st
 
 Build: `python spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py --version vN` (refuses to overwrite an existing version).
 
-**tiu v1 is currently deleted, pending a rebuild** [decided: Julian, safe because no training had used it yet]. A trial rebuild from the moved script produced split files byte-identical to the previously committed v1; only the manifests' `build` fields changed [verified: sha256 of all 40 split files compared, 26-10-02]. That rebuild was deleted again so Julian can rebuild after committing the moved script; the manifests' `repo_commit` will then point to a commit that contains it [decided]. Until then, `config_truth_statements.yaml` cannot load its data. After the rebuild, `git diff` should show changes only in the manifests' `build` blocks.
+**tiu v1 was rebuilt from the moved script** [decided: Julian, safe because no training had used it yet]. Julian committed the script first (`85aa0bd`), then built and committed the data (`8ab6fda`), so every manifest's `repo_commit` points to a commit that contains the generator, and `script_sha256` matches it. Compared with the old v1, the split files are byte-identical; only the manifests' `script`, `script_sha256`, `repo_commit` and `built_at` changed [verified: sha256 of all 40 split files and `git diff 4c8f58c HEAD`, 26-10-02]. Lesson for future rebuilds: commit the generator before building, so `repo_commit` contains it.
 
 - See also: [convos/julian/26-10-02_epistemic_memory_setup_SUMMARY.md] — set up the memory system and the coding rules (`docs/CODING.md`: the project is a single `spd/` package) that prompted this move.
