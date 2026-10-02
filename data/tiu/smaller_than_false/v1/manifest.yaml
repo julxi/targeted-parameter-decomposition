@@ -1,0 +1,33 @@
+name: tiu/smaller_than_false
+version: v1
+format: text
+description: False statements from Truth-is-Universal datasets/smaller_than.csv, split
+  train/test by number_pair.
+source:
+  reference: 'Bürger, Hamprecht & Nadler (2024). Truth is Universal: Robust Detection
+    of Lies in LLMs. NeurIPS 2024. arXiv:2407.12831'
+  url: https://github.com/sciai-lab/Truth_is_Universal
+  commit: 605ef00514415deb4806969a172f6e13e0798df7
+  file: datasets/smaller_than.csv
+  file_sha256: ee6b7cf668d7e0fb3f49a84ca8d510cb7e484ae029ef86ed238362e26ef61a44
+  license: MIT (Copyright (c) 2024 Scientific AI)
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py
+  script_sha256: 9bea8dab2d5cdb518b265901842fcba59c1e0c3d608e6d7f5a729c81eb58579e
+  repo_commit: 85aa0bdb0e413f860e66e1b906480dc59272c9c5
+  built_at: '2026-10-02T10:31:04+00:00'
+  params:
+    label: false
+    test_frac: 0.2
+    split_seed: 0
+    split_by: number_pair
+  dropped_duplicate_statements: 0
+splits:
+  train:
+    file: train.jsonl
+    n_records: 786
+    sha256: 146bfcfc547f072c47ca417c51d3df4e139af1fb22e2c5b5a74481b3e2c7691d
+  test:
+    file: test.jsonl
+    n_records: 204
+    sha256: 2b1adbab1eb968c2c819bd63bfa4598041e0f4c093cfbea27c94a135a499c7a7

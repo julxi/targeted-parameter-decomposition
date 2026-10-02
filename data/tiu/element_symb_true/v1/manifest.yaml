@@ -1,0 +1,33 @@
+name: tiu/element_symb_true
+version: v1
+format: text
+description: True statements from Truth-is-Universal datasets/element_symb.csv, split
+  train/test by element.
+source:
+  reference: 'Bürger, Hamprecht & Nadler (2024). Truth is Universal: Robust Detection
+    of Lies in LLMs. NeurIPS 2024. arXiv:2407.12831'
+  url: https://github.com/sciai-lab/Truth_is_Universal
+  commit: 605ef00514415deb4806969a172f6e13e0798df7
+  file: datasets/element_symb.csv
+  file_sha256: 2aa8da5696a1f0f0c4630b7a75949cf47e81254728be13c0f4e835ed6129a5a6
+  license: MIT (Copyright (c) 2024 Scientific AI)
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py
+  script_sha256: 9bea8dab2d5cdb518b265901842fcba59c1e0c3d608e6d7f5a729c81eb58579e
+  repo_commit: 85aa0bdb0e413f860e66e1b906480dc59272c9c5
+  built_at: '2026-10-02T10:31:04+00:00'
+  params:
+    label: true
+    test_frac: 0.2
+    split_seed: 0
+    split_by: element
+  dropped_duplicate_statements: 0
+splits:
+  train:
+    file: train.jsonl
+    n_records: 65
+    sha256: a933837e3f587bb3a719d64b9f964216a8039baa13357e6164188a7bc5a9b4c7
+  test:
+    file: test.jsonl
+    n_records: 28
+    sha256: 710c719febdf780bf8a16ef1f45143b449ce0101da3a11d001c39c69779460bd

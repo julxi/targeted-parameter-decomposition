@@ -1,0 +1,33 @@
+name: tiu/neg_element_symb_false
+version: v1
+format: text
+description: False statements from Truth-is-Universal datasets/neg_element_symb.csv,
+  split train/test by element.
+source:
+  reference: 'Bürger, Hamprecht & Nadler (2024). Truth is Universal: Robust Detection
+    of Lies in LLMs. NeurIPS 2024. arXiv:2407.12831'
+  url: https://github.com/sciai-lab/Truth_is_Universal
+  commit: 605ef00514415deb4806969a172f6e13e0798df7
+  file: datasets/neg_element_symb.csv
+  file_sha256: 8ee4b64b38fe1e43fb0e794d5acf914f9af4f8a9a99f3df187bfd84f429ffa78
+  license: MIT (Copyright (c) 2024 Scientific AI)
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py
+  script_sha256: 9bea8dab2d5cdb518b265901842fcba59c1e0c3d608e6d7f5a729c81eb58579e
+  repo_commit: 85aa0bdb0e413f860e66e1b906480dc59272c9c5
+  built_at: '2026-10-02T10:31:04+00:00'
+  params:
+    label: false
+    test_frac: 0.2
+    split_seed: 0
+    split_by: element
+  dropped_duplicate_statements: 0
+splits:
+  train:
+    file: train.jsonl
+    n_records: 65
+    sha256: 515908e657a7fe5acd03c6b971f76284918a8d06ffe5cbf61d200b8290d3cc82
+  test:
+    file: test.jsonl
+    n_records: 28
+    sha256: 1a862a709e65bd3d3091d1148e96ab0ec76f4f28225d161490b6e1f0f9793679

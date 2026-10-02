@@ -1,0 +1,32 @@
+{"text": "The Spanish word 'uno' means 'one'.", "label": true, "subject": "uno", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 1}
+{"text": "The Spanish word 'y' means 'and'.", "label": true, "subject": "y", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 8}
+{"text": "The Spanish word 'grande' means 'large'.", "label": true, "subject": "grande", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 22}
+{"text": "The Spanish word 'tierra' means 'land'.", "label": true, "subject": "tierra", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 23}
+{"text": "The Spanish word 'bueno' means 'good'.", "label": true, "subject": "bueno", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 39}
+{"text": "The Spanish word 'pensar' means 'to think'.", "label": true, "subject": "pensar", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 43}
+{"text": "The Spanish word 'todo' means 'all'.", "label": true, "subject": "todo", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 50}
+{"text": "The Spanish word 'cosa' means 'thing'.", "label": true, "subject": "cosa", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 56}
+{"text": "The Spanish word 'primero' means 'first'.", "label": true, "subject": "primero", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 63}
+{"text": "The Spanish word 'cabeza' means 'head'.", "label": true, "subject": "cabeza", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 67}
+{"text": "The Spanish word 'crecer' means 'to grow'.", "label": true, "subject": "crecer", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 70}
+{"text": "The Spanish word 'ciudad' means 'city'.", "label": true, "subject": "ciudad", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 77}
+{"text": "The Spanish word 'dibujar' means 'to draw'.", "label": true, "subject": "dibujar", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 82}
+{"text": "The Spanish word 'vida' means 'life'.", "label": true, "subject": "vida", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 87}
+{"text": "The Spanish word 'norte' means 'north'.", "label": true, "subject": "norte", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 88}
+{"text": "The Spanish word 'comer' means 'to eat'.", "label": true, "subject": "comer", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 92}
+{"text": "The Spanish word 'multiplicar' means 'to multiply'.", "label": true, "subject": "multiplicar", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 136}
+{"text": "The Spanish word 'fuerza' means 'force'.", "label": true, "subject": "fuerza", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 139}
+{"text": "The Spanish word 'isla' means 'island'.", "label": true, "subject": "isla", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 143}
+{"text": "The Spanish word 'estrella' means 'star'.", "label": true, "subject": "estrella", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 161}
+{"text": "The Spanish word 'belleza' means 'beauty'.", "label": true, "subject": "belleza", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 162}
+{"text": "The Spanish word 'hielo' means 'ice'.", "label": true, "subject": "hielo", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 189}
+{"text": "The Spanish word 'boca' means 'mouth'.", "label": true, "subject": "boca", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 211}
+{"text": "The Spanish word 'diccionario' means 'dictionary'.", "label": true, "subject": "diccionario", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 226}
+{"text": "The Spanish word 'piedra' means 'stone'.", "label": true, "subject": "piedra", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 232}
+{"text": "The Spanish word 'tercero' means 'third'.", "label": true, "subject": "tercero", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 243}
+{"text": "The Spanish word 'estudiante' means 'student'.", "label": true, "subject": "estudiante", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 265}
+{"text": "The Spanish word 'mujer' means 'woman'.", "label": true, "subject": "mujer", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 272}
+{"text": "The Spanish word 'vecino' means 'neighbor'.", "label": true, "subject": "vecino", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 276}
+{"text": "The Spanish word 'delgado' means 'thin'.", "label": true, "subject": "delgado", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 282}
+{"text": "The Spanish word 'rosa' means 'rose'.", "label": true, "subject": "rosa", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 286}
+{"text": "The Spanish word 'hola' means 'hello'.", "label": true, "subject": "hola", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 352}
