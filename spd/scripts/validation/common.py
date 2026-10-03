@@ -79,7 +79,11 @@ def resolve_task_config(
 
     if split_override is not None:
         task_config = task_config.model_copy(
-            update={"eval_data_split": split_override, "prompts_file": None}
+            update={
+                "eval_data_split": split_override,
+                "eval_data_files": None,
+                "prompts_file": None,
+            }
         )
     return task_config
 
@@ -158,6 +162,7 @@ def build_lm_loader(
         name=task_config.dataset_name,
         hf_tokenizer_path=config.tokenizer_name,
         split=task_config.eval_data_split,
+        data_files=task_config.eval_data_files,
         n_ctx=task_config.max_seq_len,
         is_tokenized=task_config.is_tokenized,
         streaming=task_config.streaming,

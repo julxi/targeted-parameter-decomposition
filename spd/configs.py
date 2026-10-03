@@ -302,6 +302,7 @@ LossPositions = Annotated[
     AllPositions | TokenPositions | LastKPositions, Field(discriminator="type")
 ]
 
+
 class LMTaskConfig(BaseConfig):
     task_name: Literal["lm"] = Field(
         default="lm",
@@ -334,7 +335,8 @@ class LMTaskConfig(BaseConfig):
     loss_positions: LossPositions = Field(
         default=AllPositions(),
         description="Which sequence positions contribute to training losses and eval metrics. "
-        "Positions outside the selection are dropped from every loss.",
+        "Positions outside the selection are dropped from every loss, and masked forward passes "
+        "run them on the original weights (no component substitution).",
     )
     column_name: str = Field(
         default="story",
@@ -347,6 +349,12 @@ class LMTaskConfig(BaseConfig):
     eval_data_split: str = Field(
         default="test",
         description="Name of the dataset split used for evaluation",
+    )
+    eval_data_files: str | None = Field(
+        default=None,
+        description="File(s) in the dataset repo that make up `eval_data_split`, for an eval split "
+        "the repo's default layout doesn't expose (e.g. 'val.jsonl.zst' of "
+        "monology/pile-uncopyrighted, whose only default split is 'train'). None: the default layout.",
     )
     shuffle_each_epoch: bool = Field(
         default=True,

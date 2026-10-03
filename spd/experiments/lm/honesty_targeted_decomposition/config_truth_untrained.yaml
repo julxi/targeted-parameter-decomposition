@@ -1,27 +1,23 @@
-# Qwen2.5-7B-Instruct — targeted decomposition on Truth-is-Universal statements
-# (Bürger et al. 2024, https://github.com/sciai-lab/Truth_is_Universal).
+# Qwen2.5-7B-Instruct — UNTRAINED decomposition baseline for the Truth-is-Universal tPD arms
+# (config_truth_all_tokens.yaml, config_truth_last_token.yaml, config_truth_padded.yaml).
 #
-# Model, module_info, losses and optimisation are carried over from config_capitals_true.yaml.
+# `steps: 0` makes the run save the freshly initialised decomposition as model_0.pth and stop: no
+# training, no evals. Purpose: check whether the CI functions already carry truth information
+# without any training, i.e. whether probes on CI values can detect statement truth just because
+# the CI network is a (random) nonlinear readout of the MLP activations, which are known to encode
+# truth. Probe results on trained arms are then read relative to this.
 #
-# Target data (task_config.prepared_datasets): any of the data/tiu/<file>_<true|false>/<version>
-# dirs, see data/README.md. Files: cities, sp_en_trans, element_symb, animal_class (each also as
-# neg_<file>), larger_than, smaller_than. All tiu datasets of one version share a train/test split
-# by subject (city, Spanish word, element, animal, number pair). Training concatenates the train
-# splits; eval metrics use the held-out test splits.
-#
-# task_config.loss_positions / nontarget_task_config.loss_positions choose which positions count in
-# every training loss and eval metric; the others are dropped:
-#   {type: all}             every position, padding included
-#   {type: tokens}          every non-padding position
-#   {type: last_k, k: 2}    the last k non-padding positions ('Japan' + '.' in
-#                           'The city of Niigata is in Japan.')
+# It is a copy of config_truth_all_tokens.yaml with only `steps` and `label` changed. Keeping the
+# seed, model, module_info and ci_config the same as the arms makes this exactly their starting
+# point, but the baseline's purpose doesn't depend on that. Training-only settings (losses, lr,
+# eval/save frequencies, loss_positions) have no effect at 0 steps.
 
 # --- WandB ---
 wandb_project: spd
 wandb_run_name: null
 wandb_run_name_prefix: ""
-sync_checkpoints_to_wandb: false
-label: "tiu_true_statements"
+sync_checkpoints_to_wandb: true
+label: "tiu_untrained"
 
 # --- General ---
 seed: 0
@@ -89,9 +85,9 @@ lr_schedule:
   warmup_pct: 0.0
   final_val_frac: 0.1
   fn_type: cosine
-steps: 10_000
-batch_size: 4
-eval_batch_size: 4
+steps: 0  # save the initial decomposition and stop
+batch_size: 16
+eval_batch_size: 16
 grad_clip_norm_components: 0.01
 grad_clip_norm_ci_fns: null
 component_weight_decay: 0.1
@@ -102,11 +98,13 @@ faithfulness_warmup_steps: 0
 
 # --- Logging & Saving ---
 train_log_freq: 100
-eval_freq: 1000
-slow_eval_freq: 4000
-n_eval_steps: 8  # 8 x eval_batch_size held-out statements per eval
+eval_freq: 500
+slow_eval_freq: 2500
+# 16 x eval_batch_size = 256 held-out statements per eval; 32 statements were too noisy to
+# compare runs.
+n_eval_steps: 16
 slow_eval_on_first_step: true
-save_freq: 2000
+save_freq: 1000
 ci_alive_threshold: 0.01
 
 # --- Eval Metrics ---
@@ -144,10 +142,26 @@ task_config:
   task_name: lm
   max_seq_len: 24  # longest statement is 20 Qwen tokens (neg_cities)
   prepared_datasets:
-    - data/tiu/cities_true/v1
-    - data/tiu/sp_en_trans_true/v1
-    - data/tiu/element_symb_true/v1
+    - data/tiu/animal_class_false/v1
     - data/tiu/animal_class_true/v1
+    - data/tiu/cities_false/v1
+    - data/tiu/cities_true/v1
+    - data/tiu/element_symb_false/v1
+    - data/tiu/element_symb_true/v1
+    - data/tiu/larger_than_false/v1
+    - data/tiu/larger_than_true/v1
+    - data/tiu/neg_animal_class_false/v1
+    - data/tiu/neg_animal_class_true/v1
+    - data/tiu/neg_cities_false/v1
+    - data/tiu/neg_cities_true/v1
+    - data/tiu/neg_element_symb_false/v1
+    - data/tiu/neg_element_symb_true/v1
+    - data/tiu/neg_sp_en_trans_false/v1
+    - data/tiu/neg_sp_en_trans_true/v1
+    - data/tiu/smaller_than_false/v1
+    - data/tiu/smaller_than_true/v1
+    - data/tiu/sp_en_trans_false/v1
+    - data/tiu/sp_en_trans_true/v1
   loss_positions:
     type: tokens
 
@@ -160,10 +174,11 @@ nontarget_task_config:
   is_tokenized: false
   streaming: true
   train_data_split: train
-  eval_data_split: train
+  eval_data_split: validation
+  eval_data_files: val.jsonl.zst
   dataset_seed: 0
   loss_positions:
     type: all
-nontarget_batch_size: 4
-nontarget_eval_batch_size: 4
+nontarget_batch_size: 16
+nontarget_eval_batch_size: 16  # x n_nontarget_batches 10 x 64 tokens = 10,240 Pile tokens
 nontarget_impmin_coeff_ratio: 2

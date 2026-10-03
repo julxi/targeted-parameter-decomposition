@@ -772,6 +772,35 @@ def make_mask_infos(
     return result
 
 
+def route_only_selected_positions(
+    mask_infos: dict[str, ComponentsMaskInfo], position_mask: Bool[Tensor, "batch pos"] | None
+) -> dict[str, ComponentsMaskInfo]:
+    """Restrict component routing to the loss positions; every other position runs on the original
+    weights. None (all positions selected) leaves the routing unchanged.
+
+    Intentionally the original model, not the masked decomposition, at unselected positions: with
+    e.g. `last_k` loss positions, the decomposition should only have to reproduce the computation
+    at the selected positions, not also everything earlier positions pass forward via attention.
+    """
+    if position_mask is None:
+        return mask_infos
+    result: dict[str, ComponentsMaskInfo] = {}
+    for name, info in mask_infos.items():
+        routing_mask = (
+            position_mask if info.routing_mask == "all" else info.routing_mask & position_mask
+        )
+        assert routing_mask.shape == position_mask.shape, (
+            f"routing mask {tuple(routing_mask.shape)} vs position mask "
+            f"{tuple(position_mask.shape)} for {name}"
+        )
+        result[name] = ComponentsMaskInfo(
+            component_mask=info.component_mask,
+            routing_mask=routing_mask,
+            weight_delta_and_mask=info.weight_delta_and_mask,
+        )
+    return result
+
+
 class LayerwiseCiFnWrapper(nn.Module):
     """Wraps a dict of per-layer CI functions with a unified interface.
 

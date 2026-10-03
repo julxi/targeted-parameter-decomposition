@@ -299,6 +299,20 @@ def optimize(
         nontarget_train_iterator = loop_dataloader(nontarget_train_loader)
         nontarget_eval_iterator = loop_dataloader(nontarget_eval_loader)
 
+    if config.steps == 0:
+        # A 0-step run only saves the freshly initialised decomposition (model_0.pth): the untrained
+        # baseline that analyses of trained runs with the same seed and components compare against.
+        # Returning before the loop also avoids its step / config.steps fractions.
+        if is_main_process():
+            assert out_dir is not None
+            save_file(component_model.component_state_dict(), out_dir / "model_0.pth")
+            logger.info(f"Saved untrained model to {out_dir / 'model_0.pth'}")
+            if config.wandb_project and config.sync_checkpoints_to_wandb:
+                try_wandb(
+                    wandb.save, str(out_dir / "model_0.pth"), base_path=str(out_dir), policy="now"
+                )
+        return
+
     for step in tqdm(range(config.steps + 1), ncols=0, disable=not is_main_process()):
         optimizer.zero_grad()
         step_max_ci: dict[str, Tensor] = {}

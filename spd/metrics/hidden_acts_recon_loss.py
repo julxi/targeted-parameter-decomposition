@@ -9,7 +9,11 @@ from torch.distributed import ReduceOp
 from spd.configs import SamplingType
 from spd.metrics.base import Metric
 from spd.models.component_model import CIOutputs, ComponentModel
-from spd.models.components import ComponentsMaskInfo, make_mask_infos
+from spd.models.components import (
+    ComponentsMaskInfo,
+    make_mask_infos,
+    route_only_selected_positions,
+)
 from spd.routing import AllLayersRouter
 from spd.utils.component_utils import calc_stochastic_component_mask_info
 from spd.utils.distributed_utils import all_reduce
@@ -30,7 +34,11 @@ def calc_hidden_acts_mse(
 
     Returns the per-module MSE dict and the component model's output tensor.
     """
-    result = model(batch, mask_infos=mask_infos, cache_type="output")
+    result = model(
+        batch,
+        mask_infos=route_only_selected_positions(mask_infos, position_mask),
+        cache_type="output",
+    )
     per_module: PerModuleMSE = {}
     for layer_name, target_all_positions in target_acts.items():
         assert layer_name in result.cache, f"{layer_name} not in comp_cache"

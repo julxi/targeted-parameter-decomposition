@@ -16,7 +16,7 @@ from spd.metrics.hidden_acts_recon_loss import (
 )
 from spd.metrics.ppgd_eval_losses import PPGDReconEval
 from spd.models.component_model import CIOutputs, ComponentModel
-from spd.models.components import make_mask_infos
+from spd.models.components import make_mask_infos, route_only_selected_positions
 from spd.persistent_pgd import PPGDSources, get_ppgd_mask_infos
 from tests.metrics.fixtures import (
     OneLayerLinearModel,
@@ -319,3 +319,22 @@ def test_ppgd_recon_eval_manual_calculation() -> None:
     assert torch.allclose(fc1_mse, expected_fc1_mse, rtol=1e-5)
     fc2_mse, _ = per_module["fc2"]
     assert torch.allclose(fc2_mse, expected_fc2_mse, rtol=1e-5)
+
+
+def test_route_only_selected_positions_uses_original_weights_elsewhere() -> None:
+    """Positions outside the position mask run on the original weights; selected positions run on
+    the (here fully ablated) components."""
+    torch.manual_seed(0)
+    fc_weight = torch.randn(3, 2)
+    model = make_one_layer_component_model(weight=fc_weight, C=2)
+
+    batch = torch.randn(2, 4, 2)
+    position_mask = torch.tensor([[False, False, True, True], [False, True, False, False]])
+    zero_masks = make_mask_infos({"fc": torch.zeros(2, 4, 2)})
+
+    out = model(batch, mask_infos=route_only_selected_positions(zero_masks, position_mask))
+
+    original = batch @ fc_weight.T
+    assert torch.allclose(out[~position_mask], original[~position_mask])
+    assert torch.allclose(out[position_mask], torch.zeros_like(out[position_mask]))
+    assert route_only_selected_positions(zero_masks, None) is zero_masks

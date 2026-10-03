@@ -187,6 +187,7 @@ class TargetedCIHeatmap(Metric):
             name=task_config.dataset_name,
             hf_tokenizer_path=self.run_config.tokenizer_name,
             split=task_config.eval_data_split,
+            data_files=task_config.eval_data_files,
             n_ctx=task_config.max_seq_len,
             is_tokenized=task_config.is_tokenized,
             streaming=task_config.streaming,

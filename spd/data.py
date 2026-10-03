@@ -26,6 +26,10 @@ class DatasetConfig(BaseConfig):
     n_ctx: int
     """Must be model n_ctx + 1 to provide room for next-token label indexing."""
     seed: int | None = None
+    data_files: str | None = None
+    """File(s) in the dataset repo to read `split` from, overriding the repo's default split layout.
+    For splits the layout doesn't expose, e.g. 'val.jsonl.zst' of monology/pile-uncopyrighted,
+    whose only default split is 'train'."""
     column_name: str
     """The name of the column in the dataset that contains the data (tokenized or non-tokenized).
     Typically 'input_ids' for datasets stored with e2e_sae/scripts/upload_hf_dataset.py, or "tokens"
@@ -185,6 +189,11 @@ def create_data_loader(
 
     dataset = load_dataset(
         dataset_config.name,
+        data_files=(
+            {dataset_config.split: dataset_config.data_files}
+            if dataset_config.data_files is not None
+            else None
+        ),
         streaming=dataset_config.streaming,
         split=dataset_config.split,
         trust_remote_code=False,

@@ -8,6 +8,7 @@ from torch.distributed import ReduceOp
 from spd.configs import SamplingType, SubsetRoutingType
 from spd.metrics.base import Metric
 from spd.models.component_model import CIOutputs, ComponentModel
+from spd.models.components import route_only_selected_positions
 from spd.routing import Router, get_subset_router
 from spd.utils.component_utils import calc_stochastic_component_mask_info
 from spd.utils.distributed_utils import all_reduce
@@ -48,7 +49,9 @@ def _stochastic_recon_subset_loss_update(
     ]
 
     for stoch_mask_infos in stoch_mask_infos_list:
-        out = model(batch, mask_infos=stoch_mask_infos)
+        out = model(
+            batch, mask_infos=route_only_selected_positions(stoch_mask_infos, position_mask)
+        )
         loss, n = calc_sum_recon_loss_lm_at_positions(
             pred=out, target=target_out, loss_type=output_loss_type, position_mask=position_mask
         )

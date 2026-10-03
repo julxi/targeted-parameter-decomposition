@@ -10,7 +10,12 @@ from torch.distributed import ReduceOp
 from spd.configs import PGDConfig, PGDInitStrategy, PGDMultiBatchConfig, SamplingType
 from spd.log import logger
 from spd.models.component_model import ComponentModel, OutputWithCache
-from spd.models.components import ComponentsMaskInfo, RoutingMasks, make_mask_infos
+from spd.models.components import (
+    ComponentsMaskInfo,
+    RoutingMasks,
+    make_mask_infos,
+    route_only_selected_positions,
+)
 from spd.routing import Router
 from spd.utils.distributed_utils import all_reduce, broadcast_tensor
 from spd.utils.general_utils import (
@@ -247,7 +252,7 @@ def _forward_with_adv_sources(
         force_delta=force_delta,
         device=batch.device,
     )
-    out = model(batch, mask_infos=mask_infos)
+    out = model(batch, mask_infos=route_only_selected_positions(mask_infos, position_mask))
 
     sum_loss, n_examples = calc_sum_recon_loss_lm_at_positions(
         pred=out, target=target_out, loss_type=output_loss_type, position_mask=position_mask

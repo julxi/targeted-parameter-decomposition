@@ -28,7 +28,12 @@ from spd.configs import (
     SingleSourceScope,
 )
 from spd.models.component_model import ComponentModel
-from spd.models.components import ComponentsMaskInfo, RoutingMasks, make_mask_infos
+from spd.models.components import (
+    ComponentsMaskInfo,
+    RoutingMasks,
+    make_mask_infos,
+    route_only_selected_positions,
+)
 from spd.routing import AllLayersRouter, Router, get_subset_router
 from spd.utils.distributed_utils import all_reduce, broadcast_tensor
 from spd.utils.general_utils import (
@@ -361,7 +366,7 @@ def _compute_ppgd_recon_loss(
     mask_infos = get_ppgd_mask_infos(
         ci, weight_deltas, ppgd_sources, routing_masks, batch_dims, force_delta
     )
-    out = model(batch, mask_infos=mask_infos)
+    out = model(batch, mask_infos=route_only_selected_positions(mask_infos, position_mask))
     return calc_sum_recon_loss_lm_at_positions(
         pred=out, target=target_out, loss_type=output_loss_type, position_mask=position_mask
     )

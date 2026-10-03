@@ -18,7 +18,11 @@ if TYPE_CHECKING:
 from spd.configs import SamplingType
 from spd.metrics.base import Metric
 from spd.models.component_model import CIOutputs, ComponentModel, OutputWithCache
-from spd.models.components import WeightDeltaAndMask, make_mask_infos
+from spd.models.components import (
+    WeightDeltaAndMask,
+    make_mask_infos,
+    route_only_selected_positions,
+)
 from spd.routing import AllLayersRouter
 from spd.utils.component_utils import calc_ci_l_zero, calc_stochastic_component_mask_info
 from spd.utils.distributed_utils import all_reduce
@@ -63,7 +67,7 @@ def _compute_recon_losses(
     def _forward_loss(
         mask_infos: dict[str, Any],
     ) -> tuple[Float[Tensor, ""], int]:
-        out = model(batch, mask_infos=mask_infos)
+        out = model(batch, mask_infos=route_only_selected_positions(mask_infos, position_mask))
         return calc_sum_recon_loss_lm_at_positions(
             pred=out, target=target_out, loss_type=output_loss_type, position_mask=position_mask
         )

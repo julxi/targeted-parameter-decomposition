@@ -7,7 +7,7 @@ from torch.distributed import ReduceOp
 
 from spd.metrics.base import Metric
 from spd.models.component_model import ComponentModel
-from spd.models.components import make_mask_infos
+from spd.models.components import make_mask_infos, route_only_selected_positions
 from spd.utils.distributed_utils import all_reduce
 from spd.utils.general_utils import PositionMask, calc_sum_recon_loss_lm_at_positions
 
@@ -26,7 +26,7 @@ def _unmasked_recon_loss_update(
             for module_path in model.target_module_paths
         }
     )
-    out = model(batch, mask_infos=all_ones_mask_infos)
+    out = model(batch, mask_infos=route_only_selected_positions(all_ones_mask_infos, position_mask))
     return calc_sum_recon_loss_lm_at_positions(
         pred=out, target=target_out, loss_type=output_loss_type, position_mask=position_mask
     )

@@ -6,6 +6,8 @@ Read this in full before writing code or running an experiment in this project. 
 
 This repository is a single Python package (`spd/`) installed in editable mode into the project-local `.venv` (`make install-dev`). Facts about layout, entry points, experiments and data flow belong in the topic LOG/SUMMARY files. Until a fact has been recorded there, the legacy references (`docs/PROJECT_REFERENCE.md`, subpackage `REFERENCE.md` files) may be consulted under the rules in CLAUDE.md: their claims are `[assumed]`.
 
+**No artifacts in `convos/`** [decided: Julian, `convos/julian/26-10-02_training_run_LOG.md`, *clean-up options*]: `convos/` holds only the Markdown records (LOG, SUMMARY, DRAFT, …), which may state results and numbers. Run outputs (metrics, configs, progress logs, figures) and one-off experiment scripts go outside the repository, into a topic folder under the local output directory `~/spd_out/` (`SPD_OUT_DIR`), e.g. `~/spd_out/26-10-02_training_run/`; figures stay on WandB. The records name that path, so a reader on this machine can find the source of a number.
+
 **If `.env` is missing or keys don't work**: ask the user to provide it. Do not proceed with hardcoded keys. Expected keys are listed in `.env.example`.
 
 ## User Interaction for Coding Projects
@@ -47,6 +49,18 @@ Structure hints:
 - For high volume, aggregate with counts, and keep a few raw examples per bucket so correctness can still be checked by eye.
 - Log the score next to each fuzzy match and sort by it — errors cluster near the threshold.
 - Log a stable id linking each output back to its input, so a suspicious aggregate is traceable to a concrete case.
+
+## Running jobs on a rented vast.ai GPU
+
+Lessons from avoidable restarts and lost time (26-10-02/03; details in `convos/julian/26-10-02_training_run_LOG.md`). Rent with `spd-vast --mode provision --config h100`; it writes the ssh alias `vastai`.
+
+- **Check the GPU's power limit after renting:** `ssh vastai nvidia-smi --query-gpu=power.limit --format=csv`. H100 offers come with 500–700 W limits. At 500 W the GPU throttled to ~1 GHz and batch-16 training ran 40% slower than at ~600 W. `spd-vast` doesn't filter on this yet (FUTURE_WORK.md).
+- **Launch from a login shell:** `ssh vastai 'bash -lc "<cmd>"'`. `spd-vast` puts the WandB key in `/etc/profile.d/spd_env.sh`, which plain `ssh vastai '<cmd>'` does not read, so WandB runs fail with "No API key configured".
+- **Detach long jobs:** `setsid nohup <script> > <log> 2>&1 < /dev/null &`, and call ssh with `-n` and its output redirected. Otherwise the local ssh call can hang until the remote job ends.
+- **Kill by a bracket pattern or PID:** `pkill -f "run_trials[.]sh"`. A plain `pkill -f run_trials.sh` inside `ssh vastai '...'` matches its own command line and kills the ssh session, so the rest of the command never runs.
+- **Don't set `HF_HUB_OFFLINE=1`:** the LM decomposition still calls the Hugging Face API after loading cached weights and crashes in offline mode.
+- **Wall times are only comparable on the same machine.** Compare speed with per-step times measured on one instance, not with clock times from different rentals.
+- **Before the instance is destroyed:** checkpoints of runs with `sync_checkpoints_to_wandb: true` are on WandB; copy runs without WandB and any metrics/logs you need to `~/spd_out/<topic>/` (not `convos/`, see above).
 
 ## Additional instructions
 
@@ -134,7 +148,7 @@ value = config.key
 - Don't add legacy fallbacks or migration code - just change it and let old data be manually migrated if needed.
 - Delete unused code.
 - If an argument is always x, strongly consider removing as an argument and just inlining
-- **Record structural changes in the topic LOG/SUMMARY** (changed code structure, added/removed files, modified key interfaces). If the change makes a legacy reference wrong (`docs/PROJECT_REFERENCE.md`, or a subpackage `REFERENCE.md` such as `spd/harvest/REFERENCE.md`), correct it in place.
+- **Record structural changes in the topic LOG/SUMMARY** (changed code structure, added/removed files, modified key interfaces). If the change makes a legacy reference wrong (`docs/PROJECT_REFERENCE.md`, or a subpackage `REFERENCE.md` such as `spd/harvest/REFERENCE.md`), don't update it: mark the passage `OUTDATED (<date>): <reason>` with a pointer to the LOG/SUMMARY that records the current fact. The legacy references receive no new information.
 
 #### GitHub
 
