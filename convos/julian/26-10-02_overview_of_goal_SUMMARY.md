@@ -105,3 +105,4 @@ The arm configs inherit these settings.
 
 - See also: [convos/julian/26-10-02_prepared_datasets_SUMMARY.md] — the tiu (Truth-is-Universal) datasets and `build_tiu.py` that the arm configs target.
 - See also: [convos/julian/26-10-02_training_run_SUMMARY.md] — the 7B training runs of the arms designed here.
+- See also: [convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md] — probe test accuracies of the finished decompositions; runs on the laptop CPU.

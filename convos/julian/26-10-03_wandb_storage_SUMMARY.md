@@ -52,3 +52,4 @@ The topic also started a convention [decided: Julian, this LOG's opening and a t
 - Re-check `entity.storageBytes` after a few hours. Expected ~1.55 GB. If a ~3.6 GB excess persists a day later: *Manage storage* page (`https://wandb.ai/account-settings/bitt-j-personal/usage/manage/`), then WandB support.
 
 - See also: [convos/julian/26-10-02_training_run_SUMMARY.md] — the runs whose checkpoints fill the storage, and the tuning verdict that makes them disposable.
+- See also: [convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md] — probe test accuracies of the finished decompositions; runs on the laptop CPU.

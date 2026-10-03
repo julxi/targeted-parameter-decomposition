@@ -1096,6 +1096,16 @@ class Config(BaseConfig):
         default=None,
         description="Name of the attribute on the forward output that contains logits or activations",
     )
+    # Defaults to float32 so configs written before the field existed load as they trained
+    # (transformers 4.x loads fp32 when no dtype is given). bfloat16 avoids autocast re-casting the
+    # frozen weights on every forward pass: autocast caches casts only for weights that require
+    # grad. Components and CI functions stay fp32 either way.
+    pretrained_model_dtype: Literal["float32", "bfloat16"] = Field(
+        default="float32",
+        description="dtype in which a Hugging Face (transformers.*) pretrained model is "
+        "loaded. bfloat16 requires autocast_bf16, since non-autocast fp32 inputs would hit bf16 "
+        "weights.",
+    )
     tokenizer_name: str | None = Field(
         default=None,
         description="Name or path of the tokenizer to use when loading an LM",
@@ -1268,6 +1278,11 @@ class Config(BaseConfig):
 
     @model_validator(mode="after")
     def validate_model(self) -> Self:
+        if self.pretrained_model_dtype == "bfloat16":
+            assert self.autocast_bf16, "pretrained_model_dtype bfloat16 requires autocast_bf16"
+            assert self.pretrained_model_class.startswith("transformers."), (
+                "pretrained_model_dtype is only honoured for Hugging Face models"
+            )
         assert self.slow_eval_freq % self.eval_freq == 0, (
             "slow_eval_freq must be a multiple of eval_freq"
         )

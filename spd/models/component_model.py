@@ -608,7 +608,10 @@ class ComponentModel(LoadableModule):
                     )
                 target_model = model_class.from_run_info(pretrain_run_info)  # pyright: ignore[reportAttributeAccessIssue]
             else:
-                target_model = model_class.from_pretrained(config.pretrained_model_name)  # pyright: ignore[reportAttributeAccessIssue]
+                target_model = model_class.from_pretrained(  # pyright: ignore[reportAttributeAccessIssue]
+                    config.pretrained_model_name,
+                    dtype=getattr(torch, config.pretrained_model_dtype),
+                )
         else:
             assert issubclass(model_class, LoadableModule), (
                 f"Model class {model_class} should be a subclass of LoadableModule which "

@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import fire
+import torch
 
 from spd.configs import (
     AllPositions,
@@ -167,6 +168,7 @@ def main(
         target_model = ensure_cached_and_call(
             pretrained_model_class.from_pretrained,  # pyright: ignore[reportAttributeAccessIssue]
             config.pretrained_model_name,
+            dtype=getattr(torch, config.pretrained_model_dtype),
         )
     target_model.eval()
 

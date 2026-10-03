@@ -1,6 +1,6 @@
 # SUMMARY: Training runs (tPD on Qwen2.5-7B, Truth-is-Universal arms)
 
-**Last updated:** 26-10-03 (stopped after E3; verdict ratified and applied to all arm configs; artifacts moved to `~/spd_out/`; no instance running)
+**Last updated:** 26-10-03 (bf16 loading of the frozen model implemented in the test-accuracy topic; stopped after E3; verdict applied to all arm configs; no instance running)
 
 Continues `convos/julian/26-10-02_overview_of_goal_SUMMARY.md`, which designed the experiment:
 - tPD (targeted parameter decomposition) on Qwen2.5-7B-Instruct, target = Truth-is-Universal statements;
@@ -63,7 +63,7 @@ PPGD (the persistent adversarial phase, last 20% of steps) adds 150–200 ms per
 
 - E4a: LR 1e-3 with LR warmup at batch 16 / 5k: keep the target gain without the Pile cost?
 - E4b: batch 32, 2,500 steps: further speedup.
-- **bf16 loading of the frozen model** (code change, not made). The model is loaded in fp32 (transformers 4.57.3 default; checkpoint is bf16). Benchmark: bf16 saves 10–20% per pass and halves the memory [verified: benchmark 26-10-02]. Components, deltas and optimizer would stay fp32.
+- **bf16 loading of the frozen model: done 26-10-03** [decided: Julian] in `convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md`. New config field `pretrained_model_dtype`, set to `bfloat16` in all tiu arm configs; runs up to e3b loaded fp32. Benchmark: bf16 saves 10–20% per pass and halves the memory [verified: benchmark 26-10-02].
 - **Transfer to the other arms (E5, proposed):** the arms differ only in `loss_positions` (all-tokens ~10 trained positions per statement, last-token 1, padded 24 with >50% padding). Per-step cost, the bf16 speedup and the eval settings transfer [concluded: same model, batch, sequence length]. The batch/LR verdicts may not, because the last-token arm's loss averages over 16 positions per batch-16 step instead of ~160 [assumed]. Proposed tests (~1.5–2 h of an uncapped H100):
   - last-token arm: batch 16 / 5k vs batch 4 / 10k;
   - optionally last-token batch 32 / 2.5k;
@@ -84,10 +84,11 @@ PPGD (the persistent adversarial phase, last 20% of steps) adds 150–200 ms per
 ## Open questions to Julian
 
 1. E5: tune the last-token arm (batch 16 / 5k vs batch 4 / 10k, optionally batch 32 / 2.5k) and a padded-arm sanity run, ~1.5–2 h of an uncapped H100.
-2. bf16 loading of the frozen model (code change): proposal pending.
+2. bf16 loading of the frozen model: decided and implemented 26-10-03 (see the test-accuracy topic).
 3. Commit: Julian commits personally [decided: `C:` comment in the LOG, *clean-up options*].
 
 The full list of open issues (including the analysis script, the untrained baseline run and the end-of-statement confound) is in the LOG, answer to "Are there any other open issues?".
 
 - See also: [convos/julian/26-10-03_wandb_storage_SUMMARY.md] — WandB 5 GB cap: these runs' checkpoints fill it; arm configs now save the final checkpoint only, tuning runs don't sync checkpoints.
 - See also: [convos/julian/26-10-02_overview_of_goal_SUMMARY.md] — experiment design, the code changes the runs depend on, and tPD background.
+- See also: [convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md] — probe test accuracies of the finished decompositions; runs on the laptop CPU.

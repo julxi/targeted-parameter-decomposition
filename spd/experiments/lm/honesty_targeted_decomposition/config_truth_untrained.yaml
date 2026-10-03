@@ -134,6 +134,9 @@ eval_metric_configs:
 pretrained_model_class: transformers.AutoModelForCausalLM
 pretrained_model_path: null
 pretrained_model_name: Qwen/Qwen2.5-7B-Instruct
+# bf16 = the checkpoint's own dtype; matmuls run in bf16 under autocast anyway. Runs before 26-10-03
+# loaded fp32 (only the residual stream between matmuls differs).
+pretrained_model_dtype: bfloat16
 pretrained_model_output_attr: logits
 tokenizer_name: Qwen/Qwen2.5-7B-Instruct
 
