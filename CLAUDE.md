@@ -58,6 +58,8 @@ Besides `C:` comments, users also write directly into LOGs without any prefix: t
 
 **Conversation index:** INDEX.md holds the index of all discussions. When starting a new topic, add a row.
 
+**Topic starts from a file:** a user may start a topic by writing a file in their folder and pointing you at it. They may name it `{date}_{topic}_LOG.md` themselves; then keep the name. If the name doesn't fit that pattern (e.g. `convos/julian/new_topic.md`), rename it with `git mv` (plain `mv` if untracked) to `{date}_{topic}_LOG.md`, using the start date and a topic name you choose. Either way, the user's text stays verbatim at the top as the LOG's opening request. Then append your entry and create the SUMMARY and the INDEX.md row as for any new topic.
+
 **Every `_LOG.md` gets a paired SUMMARY, even short ones** — consistency lets agents rely on the pair. Exception: procedure-generated artifacts (DEBATE_LOG transcripts, code-review reports, DRAFT files) don't need their own SUMMARY; the topic's SUMMARY covers them.
 
 ### Format examples

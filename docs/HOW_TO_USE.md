@@ -4,7 +4,7 @@ This guide covers the daily workflow. The agent-facing rules live in [CLAUDE.md]
 
 ## The basic loop
 
-1. **Start a topic.** Open your agent (e.g. Claude Code) and describe what you want, or write your request at the top of a new file `convos/{you}/{date}_{topic}_LOG.md` and point the agent at it. The agent creates the LOG/SUMMARY pair and adds the topic to the conversation index in `INDEX.md`.
+1. **Start a topic.** Open your agent (e.g. Claude Code) and describe what you want, or write your request into a new file in `convos/{you}/` and point the agent at it. Name it `{date}_{topic}_LOG.md` yourself, or give it any other name (e.g. `new_topic.md`) and the agent renames it to fit that pattern. The agent creates the LOG/SUMMARY pair and adds the topic to the conversation index in `INDEX.md`.
 2. **Work happens in files, not chat.** The agent writes its analyses, plans, and results into the LOG. Chat is for small clarifications. This feels slower on day one and pays off from day two: everything important survives the session.
 3. **Comment inline.** Read the LOG (or just its latest section) and write comments directly into the file, prefixed with `C:`. You can put several comments in different places at once; the agent answers each in place, directly beneath your comment. This is the main way you steer.
 

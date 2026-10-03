@@ -89,4 +89,5 @@ PPGD (the persistent adversarial phase, last 20% of steps) adds 150–200 ms per
 
 The full list of open issues (including the analysis script, the untrained baseline run and the end-of-statement confound) is in the LOG, answer to "Are there any other open issues?".
 
+- See also: [convos/julian/26-10-03_wandb_storage_SUMMARY.md] — WandB 5 GB cap: these runs' checkpoints fill it; arm configs now save the final checkpoint only, tuning runs don't sync checkpoints.
 - See also: [convos/julian/26-10-02_overview_of_goal_SUMMARY.md] — experiment design, the code changes the runs depend on, and tPD background.

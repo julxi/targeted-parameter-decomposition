@@ -60,6 +60,13 @@ Lessons from avoidable restarts and lost time (26-10-02/03; details in `convos/j
 - **Kill by a bracket pattern or PID:** `pkill -f "run_trials[.]sh"`. A plain `pkill -f run_trials.sh` inside `ssh vastai '...'` matches its own command line and kills the ssh session, so the rest of the command never runs.
 - **Don't set `HF_HUB_OFFLINE=1`:** the LM decomposition still calls the Hugging Face API after loading cached weights and crashes in offline mode.
 - **Wall times are only comparable on the same machine.** Compare speed with per-step times measured on one instance, not with clock times from different rentals.
+- **WandB storage is capped at 5 GB** (Julian's account `bitt-j-personal`).
+  - Checkpoint size depends on the decomposition settings (decomposed modules, `C`, CI function), so check it for the config at hand. Measured sizes are recorded in the topic SUMMARY of the runs, e.g. `convos/julian/26-10-03_wandb_storage_SUMMARY.md` for the tiu arms.
+  - Decomposition runs whose result gets analysed: `save_freq: null`, which saves only the final checkpoint. Intermediate checkpoints have no planned use.
+  - Tuning and trial runs: `sync_checkpoints_to_wandb: false` with `save_freq: null`. Their result is the metrics, which WandB keeps anyway. The checkpoint stays on the instance and dies with it.
+  - `spd-vast --experiment` forces `sync_checkpoints_to_wandb: true`. Trial configs launched by hand over ssh keep their own setting.
+  - **Agents never delete checkpoints themselves** (on WandB or locally; destroying an instance after the step below is fine). Deletion is irreversible: when space is needed, list which files you would delete, with run ids and sizes, and ask Julian first.
+  - Free WandB space as soon as nothing needs a checkpoint (with Julian's approval). Check usage with `api.client.execute(gql('query { entity(name: "bitt-j-personal") { storageBytes } }'))`. That counter lags deletions by hours.
 - **Before the instance is destroyed:** checkpoints of runs with `sync_checkpoints_to_wandb: true` are on WandB; copy runs without WandB and any metrics/logs you need to `~/spd_out/<topic>/` (not `convos/`, see above).
 
 ## Additional instructions
