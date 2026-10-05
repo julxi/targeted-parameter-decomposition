@@ -1,0 +1,53 @@
+name: uth/tqa
+version: v1
+format: text
+description: 'UTH dataset tqa (category other), true and false samples mixed (record
+  field ''label''); role: training task (train + held-out test split, length-capped).'
+role: train_task
+category: other
+source:
+  reference: Liu, Chen, Cheng & He (2024). On the Universal Truthfulness Hyperplane
+    Inside LLMs. EMNLP 2024. arXiv:2407.08582
+  url: https://github.com/hkust-nlp/Universal_Truthfulness_Hyperplane
+  commit: f509513016c5353bf8f5781635fbad925c0b7cea
+  files:
+    data/tqa/tqa_probe_train.json:
+      sha256: e0d61d626eef4040d51acac103dd95477f7c58be7d3d98168d3d52ede5adec0f
+    data/tqa/tqa_probe_vali.json:
+      sha256: e1860059d0de19c62af787bf6af80d63efea10831a4fe87180d91ed31ae725f9
+  license: none stated in the upstream repo; component datasets carry their own licenses
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_uth.py
+  script_sha256: f854d3fc16d7f59e363f255ed7ccfc38cc1d563043b4fd61b64e038235d273cc
+  repo_commit: 93ff44b30dcf81ba738446a8a51740f9c0a9cc94
+  built_at: '2026-10-05T16:34:26+00:00'
+  params:
+    max_tokens: 128
+    min_coverage: 0.8
+    n_heldout: 200
+    n_test: 1000
+    seed: 0
+    tokenizer: Qwen/Qwen2.5-7B-Instruct
+  stats:
+    upstream_train: 800
+    upstream_vali: 5000
+    label_conflict_texts: 2
+    not_intact_pair_texts: 0
+    train_duplicates: 0
+    vali_duplicates: 3
+    vali_in_train: 0
+    train_coverage: 1.0
+    vali_within_cap: 4995
+splits:
+  train:
+    file: train.jsonl
+    n_records: 798
+    n_true: 353
+    max_tokens: 68
+    sha256: cf144555eaa64a36984cf985f404f3ec3332b4fd6259ecaddbd96aa8c3d5a643
+  test:
+    file: test.jsonl
+    n_records: 200
+    n_true: 86
+    max_tokens: 59
+    sha256: 149b605937252ec7e521417e341aa0549215316e26fa2ce01861f979f2e21a40

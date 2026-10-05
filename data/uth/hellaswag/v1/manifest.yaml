@@ -1,0 +1,46 @@
+name: uth/hellaswag
+version: v1
+format: text
+description: 'UTH dataset hellaswag (category sentence_completion), true and false
+  samples mixed (record field ''label''); role: held-out test task (test split only,
+  not length-capped).'
+role: test_task
+category: sentence_completion
+source:
+  reference: Liu, Chen, Cheng & He (2024). On the Universal Truthfulness Hyperplane
+    Inside LLMs. EMNLP 2024. arXiv:2407.08582
+  url: https://github.com/hkust-nlp/Universal_Truthfulness_Hyperplane
+  commit: f509513016c5353bf8f5781635fbad925c0b7cea
+  files:
+    data/hellaswag/hellaswag_probe_train.json:
+      sha256: edd6a6d73c6b1d3b17bce315353b5f5c2f7645707f19c2745a826ec1e6629a7d
+    data/hellaswag/hellaswag_probe_vali.json:
+      sha256: 14648b4bb672b896ff21cd971968f82a15b2865a34f7558d3e4dd5a6f9d56903
+  license: none stated in the upstream repo; component datasets carry their own licenses
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_uth.py
+  script_sha256: f854d3fc16d7f59e363f255ed7ccfc38cc1d563043b4fd61b64e038235d273cc
+  repo_commit: 93ff44b30dcf81ba738446a8a51740f9c0a9cc94
+  built_at: '2026-10-05T16:34:26+00:00'
+  params:
+    max_tokens: 128
+    min_coverage: 0.8
+    n_heldout: 200
+    n_test: 1000
+    seed: 0
+    tokenizer: Qwen/Qwen2.5-7B-Instruct
+  stats:
+    upstream_train: 800
+    upstream_vali: 5000
+    label_conflict_texts: 0
+    not_intact_pair_texts: 0
+    train_duplicates: 0
+    vali_duplicates: 0
+    vali_in_train: 0
+splits:
+  test:
+    file: test.jsonl
+    n_records: 1000
+    n_true: 514
+    max_tokens: 394
+    sha256: cb7ed15bac0c2913d6ab20ac0c6935aae842894d54f144fcb645a3bd4cc88461

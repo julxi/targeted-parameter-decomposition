@@ -1,0 +1,46 @@
+name: uth/cnn_dailymail_re
+version: v1
+format: text
+description: 'UTH dataset cnn_dailymail_re (category summarization), true and false
+  samples mixed (record field ''label''); role: held-out test task (test split only,
+  not length-capped).'
+role: test_task
+category: summarization
+source:
+  reference: Liu, Chen, Cheng & He (2024). On the Universal Truthfulness Hyperplane
+    Inside LLMs. EMNLP 2024. arXiv:2407.08582
+  url: https://github.com/hkust-nlp/Universal_Truthfulness_Hyperplane
+  commit: f509513016c5353bf8f5781635fbad925c0b7cea
+  files:
+    data/cnn_dailymail_re/cnn_dailymail_re_probe_train.json:
+      sha256: 992d4334f8b7304ae530434c037627d9465f77e96fa477216477c737ce7658f7
+    data/cnn_dailymail_re/cnn_dailymail_re_probe_vali.json:
+      sha256: 8f9fb9b081b10cf7978a901b81efc85830a935395633a636c0e9b1d8e8411a0c
+  license: none stated in the upstream repo; component datasets carry their own licenses
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_uth.py
+  script_sha256: f854d3fc16d7f59e363f255ed7ccfc38cc1d563043b4fd61b64e038235d273cc
+  repo_commit: 93ff44b30dcf81ba738446a8a51740f9c0a9cc94
+  built_at: '2026-10-05T16:34:26+00:00'
+  params:
+    max_tokens: 128
+    min_coverage: 0.8
+    n_heldout: 200
+    n_test: 1000
+    seed: 0
+    tokenizer: Qwen/Qwen2.5-7B-Instruct
+  stats:
+    upstream_train: 800
+    upstream_vali: 5000
+    label_conflict_texts: 0
+    not_intact_pair_texts: 0
+    train_duplicates: 0
+    vali_duplicates: 37
+    vali_in_train: 0
+splits:
+  test:
+    file: test.jsonl
+    n_records: 1000
+    n_true: 497
+    max_tokens: 2592
+    sha256: d26f467e4ce7d1510a0bde4340457db022325346ac2be69b99f0f4a583111d54

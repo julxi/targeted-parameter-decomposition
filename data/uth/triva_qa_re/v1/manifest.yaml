@@ -1,0 +1,46 @@
+name: uth/triva_qa_re
+version: v1
+format: text
+description: 'UTH dataset triva_qa_re (category short_answer_closed_book_qa), true
+  and false samples mixed (record field ''label''); role: held-out test task (test
+  split only, not length-capped).'
+role: test_task
+category: short_answer_closed_book_qa
+source:
+  reference: Liu, Chen, Cheng & He (2024). On the Universal Truthfulness Hyperplane
+    Inside LLMs. EMNLP 2024. arXiv:2407.08582
+  url: https://github.com/hkust-nlp/Universal_Truthfulness_Hyperplane
+  commit: f509513016c5353bf8f5781635fbad925c0b7cea
+  files:
+    data/triva_qa_re/triva_qa_re_probe_train.json:
+      sha256: a53f61e6e0e1961cd66e7a4f7f1ee6eb825a508af6815141c73e911cc8f43119
+    data/triva_qa_re/triva_qa_re_probe_vali.json:
+      sha256: 7af47dc5ea852a9f5bd3bfa69bbab60b8b00a9c56e93737ff71f7c9d82db78de
+  license: none stated in the upstream repo; component datasets carry their own licenses
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_uth.py
+  script_sha256: f854d3fc16d7f59e363f255ed7ccfc38cc1d563043b4fd61b64e038235d273cc
+  repo_commit: 93ff44b30dcf81ba738446a8a51740f9c0a9cc94
+  built_at: '2026-10-05T16:34:26+00:00'
+  params:
+    max_tokens: 128
+    min_coverage: 0.8
+    n_heldout: 200
+    n_test: 1000
+    seed: 0
+    tokenizer: Qwen/Qwen2.5-7B-Instruct
+  stats:
+    upstream_train: 800
+    upstream_vali: 5000
+    label_conflict_texts: 0
+    not_intact_pair_texts: 0
+    train_duplicates: 8
+    vali_duplicates: 261
+    vali_in_train: 86
+splits:
+  test:
+    file: test.jsonl
+    n_records: 1000
+    n_true: 494
+    max_tokens: 77
+    sha256: 33979b05aef4e2161f2ef871083e6e2995d926b4f5c9f8d93a61c2ac5c77afd0

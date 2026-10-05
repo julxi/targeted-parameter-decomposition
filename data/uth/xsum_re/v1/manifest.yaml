@@ -1,0 +1,45 @@
+name: uth/xsum_re
+version: v1
+format: text
+description: 'UTH dataset xsum_re (category summarization), true and false samples
+  mixed (record field ''label''); role: held-out test task (test split only, not length-capped).'
+role: test_task
+category: summarization
+source:
+  reference: Liu, Chen, Cheng & He (2024). On the Universal Truthfulness Hyperplane
+    Inside LLMs. EMNLP 2024. arXiv:2407.08582
+  url: https://github.com/hkust-nlp/Universal_Truthfulness_Hyperplane
+  commit: f509513016c5353bf8f5781635fbad925c0b7cea
+  files:
+    data/xsum_re/xsum_re_probe_train.json:
+      sha256: 399a8a458b6714cf22d44d24ad0c6cc4805a0577d16ad03e6e2ce416182aa6e9
+    data/xsum_re/xsum_re_probe_vali.json:
+      sha256: ac48e602b55d946f136fdc3c901f14c188bfde39b2c21a037b71ca63a503af91
+  license: none stated in the upstream repo; component datasets carry their own licenses
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_uth.py
+  script_sha256: f854d3fc16d7f59e363f255ed7ccfc38cc1d563043b4fd61b64e038235d273cc
+  repo_commit: 93ff44b30dcf81ba738446a8a51740f9c0a9cc94
+  built_at: '2026-10-05T16:34:26+00:00'
+  params:
+    max_tokens: 128
+    min_coverage: 0.8
+    n_heldout: 200
+    n_test: 1000
+    seed: 0
+    tokenizer: Qwen/Qwen2.5-7B-Instruct
+  stats:
+    upstream_train: 800
+    upstream_vali: 5000
+    label_conflict_texts: 0
+    not_intact_pair_texts: 0
+    train_duplicates: 0
+    vali_duplicates: 0
+    vali_in_train: 0
+splits:
+  test:
+    file: test.jsonl
+    n_records: 1000
+    n_true: 518
+    max_tokens: 2899
+    sha256: a6a68cdb787f2d12c6d31c72b12c416b60f1a4394e2f666131d4c160f5250de0

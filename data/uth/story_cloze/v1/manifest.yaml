@@ -1,0 +1,46 @@
+name: uth/story_cloze
+version: v1
+format: text
+description: 'UTH dataset story_cloze (category sentence_completion), true and false
+  samples mixed (record field ''label''); role: held-out test task (test split only,
+  not length-capped).'
+role: test_task
+category: sentence_completion
+source:
+  reference: Liu, Chen, Cheng & He (2024). On the Universal Truthfulness Hyperplane
+    Inside LLMs. EMNLP 2024. arXiv:2407.08582
+  url: https://github.com/hkust-nlp/Universal_Truthfulness_Hyperplane
+  commit: f509513016c5353bf8f5781635fbad925c0b7cea
+  files:
+    data/story_cloze/story_cloze_probe_train.json:
+      sha256: 59641a97497d4e123cb771761fe36495586f9d2ffb2e0063a250b8b00a7f2db8
+    data/story_cloze/story_cloze_probe_vali.json:
+      sha256: 5cc78cb5163f8a4fea5903ea3aa5257b6d54d8040bfa53e1a61f034105427f74
+  license: none stated in the upstream repo; component datasets carry their own licenses
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_uth.py
+  script_sha256: f854d3fc16d7f59e363f255ed7ccfc38cc1d563043b4fd61b64e038235d273cc
+  repo_commit: 93ff44b30dcf81ba738446a8a51740f9c0a9cc94
+  built_at: '2026-10-05T16:34:26+00:00'
+  params:
+    max_tokens: 128
+    min_coverage: 0.8
+    n_heldout: 200
+    n_test: 1000
+    seed: 0
+    tokenizer: Qwen/Qwen2.5-7B-Instruct
+  stats:
+    upstream_train: 800
+    upstream_vali: 3742
+    label_conflict_texts: 1007
+    not_intact_pair_texts: 1623
+    train_duplicates: 0
+    vali_duplicates: 0
+    vali_in_train: 0
+splits:
+  test:
+    file: test.jsonl
+    n_records: 1000
+    n_true: 526
+    max_tokens: 112
+    sha256: d086eefa10d80a7abb10a8a6c1bbb90aa92f48e883749235f8bf8d21edb72122

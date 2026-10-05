@@ -1,0 +1,54 @@
+name: uth/hotpot_qa_re
+version: v1
+format: text
+description: 'UTH dataset hotpot_qa_re (category multi_step_reasoning_qa), true and
+  false samples mixed (record field ''label''); role: training task (train + held-out
+  test split, length-capped).'
+role: train_task
+category: multi_step_reasoning_qa
+source:
+  reference: Liu, Chen, Cheng & He (2024). On the Universal Truthfulness Hyperplane
+    Inside LLMs. EMNLP 2024. arXiv:2407.08582
+  url: https://github.com/hkust-nlp/Universal_Truthfulness_Hyperplane
+  commit: f509513016c5353bf8f5781635fbad925c0b7cea
+  files:
+    data/hotpot_qa_re/hotpot_qa_re_probe_train.json:
+      sha256: 78e7a642417c5bee8d5ec346b4838e33e733e1a5698bf6f5d41144bf8ea77ec0
+    data/hotpot_qa_re/hotpot_qa_re_probe_vali.json:
+      sha256: 754a12a2382d15cc644903ce933e652abd445e36bf446992823cff516f2af494
+  license: none stated in the upstream repo; component datasets carry their own licenses
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_uth.py
+  script_sha256: f854d3fc16d7f59e363f255ed7ccfc38cc1d563043b4fd61b64e038235d273cc
+  repo_commit: 93ff44b30dcf81ba738446a8a51740f9c0a9cc94
+  built_at: '2026-10-05T16:34:26+00:00'
+  params:
+    max_tokens: 128
+    min_coverage: 0.8
+    n_heldout: 200
+    n_test: 1000
+    seed: 0
+    tokenizer: Qwen/Qwen2.5-7B-Instruct
+  stats:
+    upstream_train: 800
+    upstream_vali: 5000
+    label_conflict_texts: 0
+    not_intact_pair_texts: 0
+    train_duplicates: 0
+    vali_duplicates: 0
+    vali_in_train: 0
+    train_coverage: 1.0
+    vali_within_cap: 5000
+splits:
+  train:
+    file: train.jsonl
+    n_records: 800
+    n_true: 418
+    max_tokens: 117
+    sha256: 56f65bcc916575b90ba4b67d7d9c359f67dd6fbd9392b242339dc78edc058b40
+  test:
+    file: test.jsonl
+    n_records: 200
+    n_true: 101
+    max_tokens: 63
+    sha256: 609b914251c5e75f9c053a1a0dabfb6351c3a1680399fe8511957a72fa03fb10
