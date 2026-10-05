@@ -10,6 +10,8 @@ min_gpu_ram: 79
 disk: 100
 image: vastai/base-image:cuda-12.8.1-auto
 min_reliability: 0.98
+# All hosts: H100 rentals have worked without the filter, and it would halve the few offers.
+datacenter_only: false
 min_cuda: 12.8
 sort: dph_total
 n_offers: 20

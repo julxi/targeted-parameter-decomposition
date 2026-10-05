@@ -83,6 +83,11 @@ class VastConfig(BaseConfig):
     min_reliability: float = Field(
         description="Minimum host reliability. Low-reliability hosts drop runs mid-training"
     )
+    datacenter_only: bool = Field(
+        description="Rent only hosts vast.ai lists as datacenters. Most consumer-GPU offers (e.g. "
+        "RTX 4090) are not, and those hosts often fail to open the direct ssh port or reach PyPI "
+        "too slowly for `uv sync`. False searches all hosts, it does not exclude datacenters"
+    )
     min_cuda: float = Field(
         description="Minimum CUDA version the host supports, matched to the torch wheels in uv.lock"
     )
@@ -380,7 +385,9 @@ def _search_offers(config: VastConfig) -> list[Any]:
 
     `disk_space` is the machine's free disk, which must fit the disk we intend to rent.
     `direct_port_count>=1` is required for the `--direct` ssh this script relies on. `gpu_ram` is
-    queried in GB even though offers report it in MB.
+    queried in GB even though offers report it in MB. The datacenter term is added only when
+    required, because `datacenter=false` would restrict the search to non-datacenter hosts instead
+    of leaving it open.
     """
     query = (
         f"num_gpus=1 gpu_name={config.gpu_name} rentable=true verified=true "
@@ -388,6 +395,8 @@ def _search_offers(config: VastConfig) -> list[Any]:
         f"cuda_max_good>={config.min_cuda} gpu_ram>={config.min_gpu_ram} "
         f"disk_space>={config.disk} dph_total<{config.max_price}"
     )
+    if config.datacenter_only:
+        query += " datacenter=true"
     logger.info(f"Searching offers: {query}")
     offers = _vastai(
         [
