@@ -1,0 +1,1794 @@
+{"text": "host->index, subname ? subname : \"\");", "n_tokens": 11, "pile_doc_index": 49821, "doc_line": 265}
+{"text": "FLATBUFFERS_LICENSE = Apache-2.0", "n_tokens": 11, "pile_doc_index": 61928, "doc_line": 8}
+{"text": "if ([self.name isEqualToString:@\"SystemModstamp\"])", "n_tokens": 10, "pile_doc_index": 151316, "doc_line": 57}
+{"text": "if (targetMember == this.primary) {", "n_tokens": 9, "pile_doc_index": 124675, "doc_line": 90}
+{"text": "(sed rubrica 1960)", "n_tokens": 10, "pile_doc_index": 94804, "doc_line": 10}
+{"text": "- (int)minimumDownloadZoomLevel;", "n_tokens": 9, "pile_doc_index": 157169, "doc_line": 38}
+{"text": "create_dir_if_not_exist(path=path_json)", "n_tokens": 9, "pile_doc_index": 70567, "doc_line": 53}
+{"text": "platform_devices[device_count] = device;", "n_tokens": 9, "pile_doc_index": 75819, "doc_line": 672}
+{"text": "return Math.pow(product, 1.0d / length);", "n_tokens": 13, "pile_doc_index": 98707, "doc_line": 48}
+{"text": "_buffer_decode = codecs.utf_16_le_decode", "n_tokens": 10, "pile_doc_index": 102927, "doc_line": 22}
+{"text": "err := datastore.Get(ctx, key, &m)", "n_tokens": 11, "pile_doc_index": 47298, "doc_line": 26}
+{"text": "#define AUTO_ADD_SPRITE_FRAME_NAME_PREFIX 0", "n_tokens": 10, "pile_doc_index": 177795, "doc_line": 33}
+{"text": "return myBuildFileFolder.hashCode();", "n_tokens": 7, "pile_doc_index": 129217, "doc_line": 217}
+{"text": "filter: alpha(opacity=70);", "n_tokens": 9, "pile_doc_index": 36578, "doc_line": 87}
+{"text": "PauseTransitService.class.getName(), lockTimeout);", "n_tokens": 10, "pile_doc_index": 112929, "doc_line": 66}
+{"text": "preparer := autorest.CreatePreparer(", "n_tokens": 9, "pile_doc_index": 23490, "doc_line": 90}
+{"text": "<b>$T('affectedCat')</b><br/>", "n_tokens": 11, "pile_doc_index": 31447, "doc_line": 12}
+{"text": "if n < -math.MaxFloat64 {", "n_tokens": 10, "pile_doc_index": 48190, "doc_line": 75}
+{"text": "$attributes['UNSIGNED'] = FALSE;", "n_tokens": 9, "pile_doc_index": 127200, "doc_line": 156}
+{"text": "return combat:execute(creature, var)", "n_tokens": 9, "pile_doc_index": 7538, "doc_line": 10}
+{"text": "#include \"demo_aml166_core_entries.h\"", "n_tokens": 12, "pile_doc_index": 161313, "doc_line": 45}
+{"text": "if (!is_array($statusFilters)) {", "n_tokens": 9, "pile_doc_index": 132381, "doc_line": 251}
+{"text": "@property (readonly, copy) NSString *description;", "n_tokens": 10, "pile_doc_index": 41166, "doc_line": 7}
+{"text": "static mowgli_list_t **crypto_conf_table = NULL;", "n_tokens": 13, "pile_doc_index": 15449, "doc_line": 17}
+{"text": "<td><span class=\"label label-primary\">Post</span></td>", "n_tokens": 15, "pile_doc_index": 89964, "doc_line": 22}
+{"text": "public function up(Schema $schema): void", "n_tokens": 9, "pile_doc_index": 174649, "doc_line": 14}
+{"text": "QString Filesystem::resolve(const QString &pathOrUrl) const", "n_tokens": 13, "pile_doc_index": 67604, "doc_line": 67}
+{"text": "include __DIR__.'/../../../app/AppKernel.php';", "n_tokens": 10, "pile_doc_index": 274, "doc_line": 20}
+{"text": "import static jsweet.util.Lang.$export;", "n_tokens": 9, "pile_doc_index": 13935, "doc_line": 2}
+{"text": "public byte[] encode( byte[] pArray )", "n_tokens": 10, "pile_doc_index": 136963, "doc_line": 523}
+{"text": "v-on:change=\"clear(signUpField)\"", "n_tokens": 10, "pile_doc_index": 157830, "doc_line": 29}
+{"text": "template <GTEST_2_TYPENAMES_(T)>", "n_tokens": 12, "pile_doc_index": 119440, "doc_line": 213}
+{"text": "if (additionalVariants.contains(getValue())) {", "n_tokens": 10, "pile_doc_index": 140950, "doc_line": 65}
+{"text": "#include <net/irda/irda.h>", "n_tokens": 11, "pile_doc_index": 149042, "doc_line": 12}
+{"text": ": base(0x0B47)", "n_tokens": 10, "pile_doc_index": 84679, "doc_line": 7}
+{"text": "pop->event_r_back[i] = NULL;", "n_tokens": 10, "pile_doc_index": 122648, "doc_line": 330}
+{"text": "pixels = fromPixels2DContext.canvas;", "n_tokens": 9, "pile_doc_index": 112657, "doc_line": 66}
+{"text": "if (ComponentInfo.EndIsConnected(i)) {", "n_tokens": 10, "pile_doc_index": 27898, "doc_line": 54}
+{"text": "public void testEqualityShouldFailOnNull() {", "n_tokens": 10, "pile_doc_index": 125480, "doc_line": 13}
+{"text": "timer->active ? \"active\" : \"inactive\");", "n_tokens": 11, "pile_doc_index": 152877, "doc_line": 84}
+{"text": "const size_t desired_num_pending_threadpool_work =", "n_tokens": 10, "pile_doc_index": 6373, "doc_line": 148}
+{"text": "scanner := bufio.NewScanner(osReleaseFile)", "n_tokens": 9, "pile_doc_index": 121621, "doc_line": 41}
+{"text": "if (!TextUtils.equals(KEY_TIME, preference.getKey())) {", "n_tokens": 11, "pile_doc_index": 53994, "doc_line": 76}
+{"text": "from django.utils.translation import ugettext_lazy as _", "n_tokens": 10, "pile_doc_index": 111953, "doc_line": 6}
+{"text": "int lane_count, bool lane_reversal);", "n_tokens": 10, "pile_doc_index": 75720, "doc_line": 17}
+{"text": "return r.NewRoute().Headers(pairs...)", "n_tokens": 9, "pile_doc_index": 3760, "doc_line": 188}
+{"text": "collect_data(spirv_info, \"MemoryModel\"),", "n_tokens": 11, "pile_doc_index": 43636, "doc_line": 123}
+{"text": "import {isString} from \"../../lib/is\"", "n_tokens": 10, "pile_doc_index": 9364, "doc_line": 1}
+{"text": "console.log(\"JS! Hooray!\");", "n_tokens": 9, "pile_doc_index": 166554, "doc_line": 21}
+{"text": "import { configFromArray } from './from-array';", "n_tokens": 10, "pile_doc_index": 137611, "doc_line": 1}
+{"text": "#if defined (ACE_QoS_HAS_DLL)", "n_tokens": 9, "pile_doc_index": 52314, "doc_line": 20}
+{"text": "bool xe8_27_wallHang : 1;", "n_tokens": 12, "pile_doc_index": 10603, "doc_line": 14}
+{"text": "namespace Google\\Cloud\\Dlp\\V2;", "n_tokens": 9, "pile_doc_index": 55215, "doc_line": 4}
+{"text": "'duration': parse_duration(self._search_regex(", "n_tokens": 10, "pile_doc_index": 77915, "doc_line": 68}
+{"text": "md-menu-item > .md-button md-icon {", "n_tokens": 10, "pile_doc_index": 160360, "doc_line": 165}
+{"text": "copyTexSubImage2D : {}, // FIXME", "n_tokens": 10, "pile_doc_index": 104196, "doc_line": 103}
+{"text": "if strings.HasPrefix(tag, longTagPrefix) {", "n_tokens": 10, "pile_doc_index": 25374, "doc_line": 61}
+{"text": "learning_rate = 0.0002", "n_tokens": 10, "pile_doc_index": 165527, "doc_line": 10}
+{"text": "/Dockerfile*       @vaivaswatha @Gnnng", "n_tokens": 14, "pile_doc_index": 29403, "doc_line": 22}
+{"text": "public void testAuthenticationNoChallenges() throws Exception {", "n_tokens": 11, "pile_doc_index": 100343, "doc_line": 219}
+{"text": "- (unsigned long long)maxNumberOfRows;", "n_tokens": 10, "pile_doc_index": 100966, "doc_line": 108}
+{"text": "View* RadioButton::GetSelectedViewForGroup(int group) {", "n_tokens": 13, "pile_doc_index": 133273, "doc_line": 101}
+{"text": "url: installing-boot9strap-(hardmod)", "n_tokens": 10, "pile_doc_index": 179191, "doc_line": 121}
+{"text": "#include <realm/link_view.hpp>", "n_tokens": 7, "pile_doc_index": 109675, "doc_line": 22}
+{"text": "public void testClickHouseTLPWhereGroupBy() {", "n_tokens": 12, "pile_doc_index": 11013, "doc_line": 11}
+{"text": "void bench_recover(void* arg) {", "n_tokens": 9, "pile_doc_index": 127109, "doc_line": 17}
+{"text": "bad_token(t, \"bad struct definition\");", "n_tokens": 9, "pile_doc_index": 138637, "doc_line": 199}
+{"text": "CRYPTO_EX_free *free_func);", "n_tokens": 8, "pile_doc_index": 60278, "doc_line": 101}
+{"text": "fields[\"DataValue\"] = data.Data;", "n_tokens": 9, "pile_doc_index": 73733, "doc_line": 35}
+{"text": "func (x *chatServiceListRoomsStream) Close() error {", "n_tokens": 14, "pile_doc_index": 23798, "doc_line": 279}
+{"text": "left_collaborators.each do |row|", "n_tokens": 9, "pile_doc_index": 16559, "doc_line": 44}
+{"text": "#define INTER_MCBPC_VLC_BITS 7", "n_tokens": 10, "pile_doc_index": 27326, "doc_line": 39}
+{"text": "let(:cluster) { create(:cluster) }", "n_tokens": 10, "pile_doc_index": 7451, "doc_line": 5}
+{"text": "OrderEntry o = (OrderEntry) oth;", "n_tokens": 11, "pile_doc_index": 64631, "doc_line": 157}
+{"text": "Distance>::create(dataset, params,distance);", "n_tokens": 9, "pile_doc_index": 23218, "doc_line": 149}
+{"text": "},displayMessage:function(_1,_2){", "n_tokens": 9, "pile_doc_index": 156944, "doc_line": 11}
+{"text": "- (NSSet *)allTargets AS_WARN_UNUSED_RESULT;", "n_tokens": 11, "pile_doc_index": 69288, "doc_line": 127}
+{"text": "if user.jwt_token_key != user_jwt_token:", "n_tokens": 10, "pile_doc_index": 120773, "doc_line": 105}
+{"text": "irq[i] = qdev_get_gpio_in(dev, i);", "n_tokens": 13, "pile_doc_index": 81476, "doc_line": 119}
+{"text": "console.log('wwwww', data, flags);", "n_tokens": 10, "pile_doc_index": 49704, "doc_line": 43}
+{"text": "export const Routing: ModuleWithProviders = RouterModule.forChild(routes);", "n_tokens": 12, "pile_doc_index": 159495, "doc_line": 15}
+{"text": "if Path.GetExtension(path) <> \".sql\"", "n_tokens": 10, "pile_doc_index": 103008, "doc_line": 23}
+{"text": "protected function parseToken($result, $extend){", "n_tokens": 10, "pile_doc_index": 80795, "doc_line": 53}
+{"text": "LTC_ARGCHK(ct   != NULL);", "n_tokens": 9, "pile_doc_index": 96877, "doc_line": 121}
+{"text": "bool TimeRanges::contain(double time) const", "n_tokens": 9, "pile_doc_index": 31364, "doc_line": 107}
+{"text": "[Template(EditorTemplate = Templates.Editor.TextArea)]", "n_tokens": 10, "pile_doc_index": 172118, "doc_line": 14}
+{"text": "SetProperty<int>(ref this.selectedIndex, value);", "n_tokens": 10, "pile_doc_index": 146030, "doc_line": 39}
+{"text": "const ECDH_METHOD *ECDH_get_default_method(void);", "n_tokens": 14, "pile_doc_index": 60278, "doc_line": 92}
+{"text": "Eigen::MatrixBase<DerivedV>& V,", "n_tokens": 10, "pile_doc_index": 113132, "doc_line": 82}
+{"text": "if u, ok := in.(Unstructured); ok {", "n_tokens": 12, "pile_doc_index": 68140, "doc_line": 473}
+{"text": "const rValue = agencyRequirements[requirement];", "n_tokens": 10, "pile_doc_index": 32391, "doc_line": 51}
+{"text": "exports[`save() should create file 1`] = `", "n_tokens": 12, "pile_doc_index": 140302, "doc_line": 11}
+{"text": "V x2 = x * x;", "n_tokens": 8, "pile_doc_index": 8264, "doc_line": 46}
+{"text": "protected HttpResponse buildResult(HttpContext context) throws Exception {", "n_tokens": 10, "pile_doc_index": 38275, "doc_line": 99}
+{"text": "func (controller *Controller) SetDB(db *sql.DB) {", "n_tokens": 14, "pile_doc_index": 3429, "doc_line": 546}
+{"text": "mAdjustsFontSizeToFit = adjustsFontSizeToFit;", "n_tokens": 10, "pile_doc_index": 108799, "doc_line": 476}
+{"text": "<ClInclude Include=\"HardVacuum.h\">", "n_tokens": 10, "pile_doc_index": 96860, "doc_line": 43}
+{"text": "\"name\": \"[parameters('firewallPolicyName')]\",", "n_tokens": 11, "pile_doc_index": 164493, "doc_line": 431}
+{"text": "#ifndef BOOST_SPIRIT_INCLUDE_PHOENIX_OPERATOR", "n_tokens": 11, "pile_doc_index": 109240, "doc_line": 8}
+{"text": "so, ok := sockOpts[ssoTTL]", "n_tokens": 11, "pile_doc_index": 137651, "doc_line": 36}
+{"text": "public void testFullUriMatching() throws Exception {", "n_tokens": 10, "pile_doc_index": 142127, "doc_line": 62}
+{"text": "<F> 4894  </F>", "n_tokens": 11, "pile_doc_index": 112466, "doc_line": 5}
+{"text": "passwords.put(\"alice\", \"clarinet\");", "n_tokens": 10, "pile_doc_index": 166632, "doc_line": 19}
+{"text": "'console'          => 'console/{$name}/',", "n_tokens": 11, "pile_doc_index": 32514, "doc_line": 17}
+{"text": "if (!S_ISDIR(inode->i_mode)) {", "n_tokens": 11, "pile_doc_index": 161992, "doc_line": 301}
+{"text": "pci->agp.acquired = true;", "n_tokens": 9, "pile_doc_index": 13953, "doc_line": 92}
+{"text": "=> GetAndroidAppContext().CacheDir.AbsolutePath;", "n_tokens": 11, "pile_doc_index": 34128, "doc_line": 9}
+{"text": "auto mMenuItem::icon() const -> image {", "n_tokens": 10, "pile_doc_index": 112380, "doc_line": 12}
+{"text": "$suite->addTestFiles($files);", "n_tokens": 9, "pile_doc_index": 174814, "doc_line": 35}
+{"text": "cachedDependencies = append(cachedDependencies, c)", "n_tokens": 10, "pile_doc_index": 65606, "doc_line": 137}
+{"text": "\"node\": \">= 0.6\"", "n_tokens": 10, "pile_doc_index": 103962, "doc_line": 75}
+{"text": "GraphProcess(ProcessMarshaller.toJson(process).noSpaces),", "n_tokens": 11, "pile_doc_index": 67819, "doc_line": 17}
+{"text": "#endif // __HW_I2C_H__", "n_tokens": 9, "pile_doc_index": 119570, "doc_line": 496}
+{"text": "let $engine_subpart= INNODB;", "n_tokens": 10, "pile_doc_index": 66469, "doc_line": 8}
+{"text": "#if !defined (ACE_QOS_EXPORT_H)", "n_tokens": 10, "pile_doc_index": 52314, "doc_line": 5}
+{"text": "<Panel id=\"TeamPlayerDivider\" />", "n_tokens": 9, "pile_doc_index": 51000, "doc_line": 18}
+{"text": "<a title=\"Overview\" name=\"overview\"></a>", "n_tokens": 11, "pile_doc_index": 66792, "doc_line": 96}
+{"text": "Schema::create('comments', function($table)", "n_tokens": 10, "pile_doc_index": 11480, "doc_line": 14}
+{"text": "return Long.valueOf(lb.get(0));", "n_tokens": 9, "pile_doc_index": 172687, "doc_line": 68}
+{"text": "#include \"generic_i2c_info.h\"", "n_tokens": 9, "pile_doc_index": 93603, "doc_line": 9}
+{"text": "var array = GET_PRIVATE(iterator, arrayIteratorObjectSymbol);", "n_tokens": 12, "pile_doc_index": 169524, "doc_line": 57}
+{"text": "return \"mappingproxy(\" + repr(self.data) + \")\"", "n_tokens": 12, "pile_doc_index": 151585, "doc_line": 84}
+{"text": "class ExceptionNamespaceTest extends \\PHPUnit_Framework_TestCase", "n_tokens": 9, "pile_doc_index": 22179, "doc_line": 4}
+{"text": "this->get_from_CmdStatus(0)", "n_tokens": 9, "pile_doc_index": 170430, "doc_line": 85}
+{"text": "1 | {\"apple\": 100}", "n_tokens": 10, "pile_doc_index": 41811, "doc_line": 16}
+{"text": "JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8", "n_tokens": 11, "pile_doc_index": 115492, "doc_line": 3}
+{"text": "protected CommonArguments(string[] args, int start)", "n_tokens": 10, "pile_doc_index": 158984, "doc_line": 24}
+{"text": "void GTFMain(int argc, char* argv[]) {", "n_tokens": 12, "pile_doc_index": 45228, "doc_line": 21}
+{"text": "function istream(stream: any): boolean;", "n_tokens": 9, "pile_doc_index": 34438, "doc_line": 1}
+{"text": "#endif /* _SAMA5D2_RSTC_COMPONENT_ */", "n_tokens": 13, "pile_doc_index": 92906, "doc_line": 75}
+{"text": "import { DefineMap } from 'can';", "n_tokens": 9, "pile_doc_index": 103319, "doc_line": 22}
+{"text": "#define oz_trace2(_flag, ...) \\", "n_tokens": 9, "pile_doc_index": 71658, "doc_line": 15}
+{"text": "<div class=\"list-group list-group-flush\">", "n_tokens": 10, "pile_doc_index": 158835, "doc_line": 269}
+{"text": "int h = (index / width_col) % height_col;", "n_tokens": 13, "pile_doc_index": 15613, "doc_line": 305}
+{"text": "CRecordVector<CUpdatePair> &updatePairs)", "n_tokens": 11, "pile_doc_index": 26005, "doc_line": 78}
+{"text": "<p>{$LANG.pwresetsecurityquestionrequired}</p>", "n_tokens": 12, "pile_doc_index": 111970, "doc_line": 21}
+{"text": "configBytes, err := ioutil.ReadAll(config)", "n_tokens": 9, "pile_doc_index": 102520, "doc_line": 117}
+{"text": "auto mMenuItem::text() const -> string {", "n_tokens": 10, "pile_doc_index": 112380, "doc_line": 33}
+{"text": "public void handleDeleteBackward() {", "n_tokens": 8, "pile_doc_index": 146625, "doc_line": 174}
+{"text": "<html prefix=\"og: http://ogp.me/ns#\">", "n_tokens": 13, "pile_doc_index": 15783, "doc_line": 1}
+{"text": "<DefaultLanguage>en-US</DefaultLanguage>", "n_tokens": 10, "pile_doc_index": 32229, "doc_line": 34}
+{"text": "#if GB_IS_ANY_PAIR_SEMIRING", "n_tokens": 9, "pile_doc_index": 136948, "doc_line": 177}
+{"text": "assertEquals(\"chief executive officer\", r.getValue());", "n_tokens": 9, "pile_doc_index": 124716, "doc_line": 176}
+{"text": "\"access_token\": \"%[1]s\",", "n_tokens": 10, "pile_doc_index": 10871, "doc_line": 73}
+{"text": "U4DFontLoader::~U4DFontLoader(){", "n_tokens": 12, "pile_doc_index": 139837, "doc_line": 17}
+{"text": "std::unique_ptr<DecoderStrategy> _qdecoder;", "n_tokens": 12, "pile_doc_index": 82256, "doc_line": 176}
+{"text": "def get_info_string(self) -> str:", "n_tokens": 9, "pile_doc_index": 68562, "doc_line": 84}
+{"text": "void TopNavigationViewDataProvider::InvalidWidthCache()", "n_tokens": 9, "pile_doc_index": 124551, "doc_line": 243}
+{"text": "__notices.push(newNotice);", "n_tokens": 7, "pile_doc_index": 100029, "doc_line": 71}
+{"text": "$this->realProducer = $realProducer;", "n_tokens": 9, "pile_doc_index": 34452, "doc_line": 25}
+{"text": "<% if !c.facebook_description.blank? %>", "n_tokens": 10, "pile_doc_index": 3674, "doc_line": 9}
+{"text": "#define LIGHTDM_TYPE_USER            (lightdm_user_get_type())", "n_tokens": 13, "pile_doc_index": 85280, "doc_line": 27}
+{"text": "\"Moves the entry.\\n\\n\"", "n_tokens": 8, "pile_doc_index": 139533, "doc_line": 46}
+{"text": "<groupId>org.apache.maven.plugins</groupId>", "n_tokens": 10, "pile_doc_index": 120701, "doc_line": 97}
+{"text": "la\t\t$v1, _spu_transfer_addr", "n_tokens": 11, "pile_doc_index": 86934, "doc_line": 26}
+{"text": "$list-group-border: $laravel-border-color;", "n_tokens": 10, "pile_doc_index": 160694, "doc_line": 6}
+{"text": "entity::LuaCustomEntity_CSPtr build();", "n_tokens": 10, "pile_doc_index": 140575, "doc_line": 36}
+{"text": "void ECDH_set_default_method(const ECDH_METHOD *);", "n_tokens": 14, "pile_doc_index": 60278, "doc_line": 91}
+{"text": "<name>KOI-2778</name>", "n_tokens": 12, "pile_doc_index": 132506, "doc_line": 2}
+{"text": "fieldSetFlags()[2] = false;", "n_tokens": 9, "pile_doc_index": 130521, "doc_line": 289}
+{"text": "fmt.Printf(\"%c\", r)", "n_tokens": 7, "pile_doc_index": 119768, "doc_line": 41}
+{"text": "const [value, setValue] = useState();", "n_tokens": 9, "pile_doc_index": 81572, "doc_line": 7}
+{"text": "#define EIGEN_EULERANGLES_MODULE_H", "n_tokens": 9, "pile_doc_index": 125008, "doc_line": 10}
+{"text": "#author iframe { float: left; }", "n_tokens": 9, "pile_doc_index": 54822, "doc_line": 148}
+{"text": "return ifi, int(mi.Mtu), nil", "n_tokens": 10, "pile_doc_index": 20702, "doc_line": 66}
+{"text": "self.controllerInteraction?.presentController(actionSheet, nil)", "n_tokens": 11, "pile_doc_index": 62119, "doc_line": 155}
+{"text": "getTestBed().initTestEnvironment(", "n_tokens": 8, "pile_doc_index": 66189, "doc_line": 12}
+{"text": "this.TabAttributes.Padding = new System.Windows.Forms.Padding(3);", "n_tokens": 13, "pile_doc_index": 8362, "doc_line": 57}
+{"text": "std::string data = v->to_str();", "n_tokens": 10, "pile_doc_index": 15861, "doc_line": 81}
+{"text": "android:layout_height=\"0dip\"", "n_tokens": 9, "pile_doc_index": 106969, "doc_line": 23}
+{"text": "echarts.registerTheme('walden', {", "n_tokens": 9, "pile_doc_index": 129415, "doc_line": 21}
+{"text": "func resolvableTag(tag string) bool {", "n_tokens": 9, "pile_doc_index": 25374, "doc_line": 74}
+{"text": "select hierarchyid::GetRoot() as OrgNode", "n_tokens": 10, "pile_doc_index": 142719, "doc_line": 7}
+{"text": "- (void)removeAllObservations;", "n_tokens": 9, "pile_doc_index": 19792, "doc_line": 23}
+{"text": "DiskAccessDenied = Class.new(StandardError)", "n_tokens": 10, "pile_doc_index": 83219, "doc_line": 5}
+{"text": "return $this->listLookup->fetchList();", "n_tokens": 10, "pile_doc_index": 66547, "doc_line": 155}
+{"text": "FileTimeToDosTime(time1, dosTime1);", "n_tokens": 12, "pile_doc_index": 26005, "doc_line": 32}
+{"text": "@class(\"@TESTNAME@::ClassWithNamespace\");", "n_tokens": 10, "pile_doc_index": 153173, "doc_line": 12}
+{"text": "assert(\"${res}\" STREQUAL \"a\")", "n_tokens": 10, "pile_doc_index": 77638, "doc_line": 31}
+{"text": "clickFn : function(url, title) {", "n_tokens": 9, "pile_doc_index": 109136, "doc_line": 109}
+{"text": "count = rs.getInt('total') while rs.next", "n_tokens": 10, "pile_doc_index": 7136, "doc_line": 172}
+{"text": "if (HandlerOpt->HandleSegv)", "n_tokens": 9, "pile_doc_index": 51025, "doc_line": 35}
+{"text": "let length = Visio.pc.getSenders().length;", "n_tokens": 12, "pile_doc_index": 974, "doc_line": 135}
+{"text": "if (o == null || getClass() != o.getClass()) {", "n_tokens": 13, "pile_doc_index": 8470, "doc_line": 35}
+{"text": ", createProperty = require('./_create-property');", "n_tokens": 10, "pile_doc_index": 47346, "doc_line": 2}
+{"text": "(EFIAPI *COMMON_PROC_ENTRY) (", "n_tokens": 10, "pile_doc_index": 33698, "doc_line": 30}
+{"text": "s->AddData(static_cast<int>(p.getSize()));", "n_tokens": 11, "pile_doc_index": 121576, "doc_line": 56}
+{"text": "long l1 = 1L << (hiByte & 077);", "n_tokens": 17, "pile_doc_index": 126034, "doc_line": 685}
+{"text": "N = mxGetN(in[IN_DATA]) ;", "n_tokens": 11, "pile_doc_index": 28771, "doc_line": 179}
+{"text": "if (er->rx_mini_pending != 0||", "n_tokens": 11, "pile_doc_index": 131313, "doc_line": 90}
+{"text": "\"other\": \"Download Folder (Legacy)\"", "n_tokens": 9, "pile_doc_index": 55703, "doc_line": 188}
+{"text": "for (Result existingResult : results) {", "n_tokens": 9, "pile_doc_index": 62545, "doc_line": 82}
+{"text": "IN OUT  EFI_FILE_INFO          *Buffer,", "n_tokens": 10, "pile_doc_index": 66255, "doc_line": 461}
+{"text": "@property (readonly, retain) NSExpression *leftExpression;", "n_tokens": 12, "pile_doc_index": 23658, "doc_line": 64}
+{"text": "return rootGroup.findLabel(labelId) != null;", "n_tokens": 11, "pile_doc_index": 110484, "doc_line": 47}
+{"text": "FT_ULong  maxMemType42;", "n_tokens": 10, "pile_doc_index": 79542, "doc_line": 444}
+{"text": "texCoord.x = IN.uv0.x;", "n_tokens": 10, "pile_doc_index": 18633, "doc_line": 52}
+{"text": "@property (nonatomic, strong) UIScrollView *scrollView;", "n_tokens": 10, "pile_doc_index": 135284, "doc_line": 35}
+{"text": ":creationTime => GoogleApi.ToolResults.V1beta3.Model.Timestamp.t(),", "n_tokens": 16, "pile_doc_index": 65218, "doc_line": 40}
+{"text": "<label>Dimmer 4</label>", "n_tokens": 9, "pile_doc_index": 86623, "doc_line": 157}
+{"text": "\"    child_counter += 1            \"", "n_tokens": 9, "pile_doc_index": 44055, "doc_line": 365}
+{"text": "@interface NSComparisonPredicate : NSPredicate {", "n_tokens": 8, "pile_doc_index": 23658, "doc_line": 47}
+{"text": "#define BOOST_MPL_MAP_AUX_TAG_HPP_INCLUDED", "n_tokens": 9, "pile_doc_index": 22804, "doc_line": 2}
+{"text": "#define AV_CPU_FLAG_ARMV5TE      (1 << 0)", "n_tokens": 15, "pile_doc_index": 35884, "doc_line": 59}
+{"text": "globals.pluralidx = django.pluralidx;", "n_tokens": 10, "pile_doc_index": 31406, "doc_line": 257}
+{"text": "function ReadableState(options, stream) {", "n_tokens": 9, "pile_doc_index": 129630, "doc_line": 102}
+{"text": "@property(readonly, nonatomic) UITraitCollection *traitCollection;", "n_tokens": 13, "pile_doc_index": 11490, "doc_line": 11}
+{"text": "struct global_value *request, size_t request_size)", "n_tokens": 11, "pile_doc_index": 168451, "doc_line": 5}
+{"text": "\\fB\\-start\\fR=MILLIS", "n_tokens": 9, "pile_doc_index": 91516, "doc_line": 26}
+{"text": "return Cocos2dxRenderer.nativeGetContentText();", "n_tokens": 11, "pile_doc_index": 146625, "doc_line": 179}
+{"text": "use Opis\\JsonSchema\\IFormat;", "n_tokens": 9, "pile_doc_index": 12314, "doc_line": 19}
+{"text": "for (i, set) in segment.iter().enumerate() {", "n_tokens": 13, "pile_doc_index": 3888, "doc_line": 137}
+{"text": "topMenuItem.selected = topMenuItem.section === section;", "n_tokens": 10, "pile_doc_index": 98795, "doc_line": 65}
+{"text": "unsigned int comp_packets;\t/* compressed packets */", "n_tokens": 10, "pile_doc_index": 94757, "doc_line": 155}
+{"text": "spin_unlock(&sdp->sd_log_lock);", "n_tokens": 10, "pile_doc_index": 149636, "doc_line": 38}
+{"text": "<div class=\"ui-confirm confirmCapabilityToggle modal\">", "n_tokens": 10, "pile_doc_index": 168867, "doc_line": 31}
+{"text": "from urlparse import parse_qsl as parse_qsl", "n_tokens": 10, "pile_doc_index": 116583, "doc_line": 4}
+{"text": "this->component.set_CmdStatus_OutputPort(", "n_tokens": 9, "pile_doc_index": 170430, "doc_line": 83}
+{"text": "#include <boost/mpl/pair.hpp>", "n_tokens": 9, "pile_doc_index": 34184, "doc_line": 18}
+{"text": "\"_id\": \"locate-path@3.0.0\",", "n_tokens": 13, "pile_doc_index": 102250, "doc_line": 9}
+{"text": "if (rangeIndex[1] > -1) {", "n_tokens": 12, "pile_doc_index": 8005, "doc_line": 259}
+{"text": "public ICollection<Territory> Territories { get; set; }", "n_tokens": 13, "pile_doc_index": 172118, "doc_line": 18}
+{"text": "Context()->variables->are($var[0]=>'Real',", "n_tokens": 13, "pile_doc_index": 80451, "doc_line": 39}
+{"text": "set(CMAKE_REQUIRED_LIBRARIES \"m\")", "n_tokens": 10, "pile_doc_index": 92373, "doc_line": 45}
+{"text": "size_t s2_length = strlen(s2);", "n_tokens": 10, "pile_doc_index": 33313, "doc_line": 50}
+{"text": "MPDDRC->MPDDRC_LPR =", "n_tokens": 10, "pile_doc_index": 55996, "doc_line": 302}
+{"text": "static Serializer<CurrencyListResponse> get serializer =>", "n_tokens": 10, "pile_doc_index": 131705, "doc_line": 19}
+{"text": "android:layout_width=\"360dp\"", "n_tokens": 10, "pile_doc_index": 179775, "doc_line": 10}
+{"text": "xe[3] = malloc(320);", "n_tokens": 11, "pile_doc_index": 156767, "doc_line": 82}
+{"text": "b2Len := c.b2.Len()", "n_tokens": 9, "pile_doc_index": 139950, "doc_line": 108}
+{"text": "<div class=\"card-header\">Dashboard</div>", "n_tokens": 10, "pile_doc_index": 22903, "doc_line": 7}
+{"text": "convertFrom: sinon.stub().returns(42)", "n_tokens": 11, "pile_doc_index": 92876, "doc_line": 5}
+{"text": "<dd>2.3</dd></dl>", "n_tokens": 10, "pile_doc_index": 161923, "doc_line": 108}
+{"text": "return c == 0 || isspace(c) || ispunct(c)", "n_tokens": 15, "pile_doc_index": 117433, "doc_line": 30}
+{"text": "{% set php_version = constant('PHP_VERSION') %}", "n_tokens": 12, "pile_doc_index": 115521, "doc_line": 0}
+{"text": "android:layout_height=\"100dp\"", "n_tokens": 10, "pile_doc_index": 127727, "doc_line": 16}
+{"text": "<authors>Daniel Luberda</authors>", "n_tokens": 10, "pile_doc_index": 3503, "doc_line": 5}
+{"text": "header(\"Pragma: no-cache\");", "n_tokens": 7, "pile_doc_index": 175316, "doc_line": 31}
+{"text": "android:id=\"@+id/umeng_socialize_login_switch\"", "n_tokens": 13, "pile_doc_index": 148790, "doc_line": 75}
+{"text": "<Add>System.Web.Handlers.TraceHandler</Add>", "n_tokens": 12, "pile_doc_index": 142167, "doc_line": 32}
+{"text": "include $(LLVM_SRC_ROOT)/Makefile.rules", "n_tokens": 10, "pile_doc_index": 115944, "doc_line": 17}
+{"text": "#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)", "n_tokens": 15, "pile_doc_index": 109305, "doc_line": 10}
+{"text": "<refsect1 id=\"echoa\">", "n_tokens": 9, "pile_doc_index": 134106, "doc_line": 29}
+{"text": "return hash<void*>()(__v.address());", "n_tokens": 9, "pile_doc_index": 174002, "doc_line": 259}
+{"text": "void setLatestBranch(Branch branch);", "n_tokens": 9, "pile_doc_index": 27226, "doc_line": 75}
+{"text": "ls=`ls -ld \"$PRG\"`", "n_tokens": 9, "pile_doc_index": 137193, "doc_line": 102}
+{"text": "class InvalidClientSecretsError(Error):", "n_tokens": 8, "pile_doc_index": 35809, "doc_line": 65}
+{"text": "\"Proffer\\\\Tests\\\\\": \"tests/TestCase\",", "n_tokens": 12, "pile_doc_index": 170720, "doc_line": 35}
+{"text": "public IList<IRequiredItemBase> RequiredItems", "n_tokens": 9, "pile_doc_index": 81717, "doc_line": 30}
+{"text": "ossn_register_languages('zh', $zh);", "n_tokens": 10, "pile_doc_index": 61455, "doc_line": 13}
+{"text": "#define UDMA_IN_OPCODE_SW_MSG\t\t\t0xB", "n_tokens": 11, "pile_doc_index": 72754, "doc_line": 89}
+{"text": "containerTransform = GameObject.FindGameObjectWithTag(containerTag).transform;", "n_tokens": 10, "pile_doc_index": 17712, "doc_line": 125}
+{"text": "return function (req, res, next) {", "n_tokens": 10, "pile_doc_index": 153541, "doc_line": 19}
+{"text": "public Object invoke(MethodInvocation invocation) throws Throwable {", "n_tokens": 10, "pile_doc_index": 81969, "doc_line": 22}
+{"text": "virtual QPair<QVariant, RPropertyAttributes>", "n_tokens": 10, "pile_doc_index": 106735, "doc_line": 60}
+{"text": "double force() const { return m_force; }", "n_tokens": 10, "pile_doc_index": 15463, "doc_line": 65}
+{"text": "} elseif (!isset($object->$property)) {", "n_tokens": 10, "pile_doc_index": 58100, "doc_line": 32}
+{"text": "declare i32 @func_4(...)", "n_tokens": 9, "pile_doc_index": 78984, "doc_line": 11}
+{"text": "testScenario.args.toArray(new String[testScenario.args.size()]))", "n_tokens": 12, "pile_doc_index": 40066, "doc_line": 46}
+{"text": "typeof replacer.length !== 'number')) {", "n_tokens": 9, "pile_doc_index": 47154, "doc_line": 384}
+{"text": "title = 'Category: ' + page.category;", "n_tokens": 10, "pile_doc_index": 107969, "doc_line": 15}
+{"text": "\"other\": \"Write Only (upload)\"", "n_tokens": 9, "pile_doc_index": 55703, "doc_line": 485}
+{"text": "NFTA_HOOK_PRIORITY                = 0x2", "n_tokens": 10, "pile_doc_index": 130650, "doc_line": 1611}
+{"text": "#undef BOOST_TT_AUX_PROMOTED_INDEX_TESTER", "n_tokens": 11, "pile_doc_index": 11180, "doc_line": 141}
+{"text": "#include <websocketpp/common/connection_hdl.hpp>", "n_tokens": 9, "pile_doc_index": 61965, "doc_line": 35}
+{"text": "<namePart>United States</namePart>", "n_tokens": 10, "pile_doc_index": 6228, "doc_line": 13}
+{"text": "final SecurityManager s = System.getSecurityManager();", "n_tokens": 10, "pile_doc_index": 10272, "doc_line": 47}
+{"text": "if ( entry.fileName.size() != fileNameLength )", "n_tokens": 10, "pile_doc_index": 85341, "doc_line": 146}
+{"text": "config BR2_PACKAGE_GSTREAMER_PLUGIN_REGISTRY", "n_tokens": 9, "pile_doc_index": 4125, "doc_line": 24}
+{"text": "signal(SIGTSTP, sig_tstp);", "n_tokens": 10, "pile_doc_index": 103344, "doc_line": 39}
+{"text": "def next_if(self, types, token = None):", "n_tokens": 11, "pile_doc_index": 58234, "doc_line": 116}
+{"text": "void * dma_next_transfer_vaddr[2];", "n_tokens": 10, "pile_doc_index": 105071, "doc_line": 87}
+{"text": "public function __construct($request, $response)", "n_tokens": 10, "pile_doc_index": 22178, "doc_line": 27}
+{"text": "def str_to_datetime_processor_factory(regexp, type_):", "n_tokens": 12, "pile_doc_index": 174325, "doc_line": 20}
+{"text": "KParts::Part* m_part;", "n_tokens": 8, "pile_doc_index": 149060, "doc_line": 98}
+{"text": "#if defined(BOOST_HAS_PRAGMA_ONCE)", "n_tokens": 9, "pile_doc_index": 143110, "doc_line": 19}
+{"text": "ufontData.x=atof(x);", "n_tokens": 9, "pile_doc_index": 139837, "doc_line": 89}
+{"text": "$(DIA_PLT): $(DIA_PLT_DIR)", "n_tokens": 13, "pile_doc_index": 59531, "doc_line": 49}
+{"text": "122  -> return (Left True)", "n_tokens": 10, "pile_doc_index": 96924, "doc_line": 259}
+{"text": "couch_log_util:level_to_integer(Level);", "n_tokens": 10, "pile_doc_index": 33842, "doc_line": 92}
+{"text": "<a>Progressive Hydration</a>", "n_tokens": 9, "pile_doc_index": 158263, "doc_line": 36}
+{"text": ".elseif eax==IDC_BTNBROWSE", "n_tokens": 10, "pile_doc_index": 27380, "doc_line": 243}
+{"text": "depends_on \"cmake\" => :build", "n_tokens": 9, "pile_doc_index": 167896, "doc_line": 16}
+{"text": "it('renders a greeting', () => {", "n_tokens": 9, "pile_doc_index": 59592, "doc_line": 79}
+{"text": "author varchar(100) NOT NULL,", "n_tokens": 10, "pile_doc_index": 47689, "doc_line": 15}
+{"text": "public DurableRewind(IDurableManager durableManager)", "n_tokens": 11, "pile_doc_index": 73264, "doc_line": 14}
+{"text": "<h3>Optional Element Summary</h3>", "n_tokens": 10, "pile_doc_index": 142208, "doc_line": 114}
+{"text": "#if defined(ENABLED_DEBUG_SYNC)", "n_tokens": 8, "pile_doc_index": 80590, "doc_line": 41}
+{"text": "def normalizedArgumentDecorator(*args, **kwargs):", "n_tokens": 10, "pile_doc_index": 16475, "doc_line": 212}
+{"text": "<a href=\"/archives/\"> Archives </a>", "n_tokens": 9, "pile_doc_index": 39576, "doc_line": 26}
+{"text": "return (bool) array_filter($item);", "n_tokens": 9, "pile_doc_index": 48284, "doc_line": 127}
+{"text": "this.mtuSize = this.getSignedShort();", "n_tokens": 10, "pile_doc_index": 164649, "doc_line": 42}
+{"text": "$ vault login -method=gcp \\", "n_tokens": 8, "pile_doc_index": 159744, "doc_line": 108}
+{"text": "func TestFileReaderSeek(t *testing.T) {", "n_tokens": 11, "pile_doc_index": 30288, "doc_line": 55}
+{"text": "count2 = zeros(6, 6);", "n_tokens": 10, "pile_doc_index": 152007, "doc_line": 6}
+{"text": "<td class=\"b\">Player</td>", "n_tokens": 9, "pile_doc_index": 176842, "doc_line": 25}
+{"text": "r1_mat = r1_mat./count2;", "n_tokens": 11, "pile_doc_index": 152007, "doc_line": 29}
+{"text": "func Process() (*Root, error) {", "n_tokens": 9, "pile_doc_index": 64098, "doc_line": 116}
+{"text": "y(c_) = y(c_) - 1;", "n_tokens": 11, "pile_doc_index": 97429, "doc_line": 80}
+{"text": "<key>BuildMachineOSBuild</key>", "n_tokens": 10, "pile_doc_index": 76476, "doc_line": 4}
+{"text": "extern const ui_menu_entry_t plus4_rom_menu[];", "n_tokens": 12, "pile_doc_index": 160481, "doc_line": 38}
+{"text": "#include \"modules/desktop_capture/desktop_geometry.h\"", "n_tokens": 9, "pile_doc_index": 52330, "doc_line": 10}
+{"text": "this.path = Paths.get(path).normalize();", "n_tokens": 9, "pile_doc_index": 54926, "doc_line": 50}
+{"text": "return (last_v, best_v, regression_pos)", "n_tokens": 11, "pile_doc_index": 147014, "doc_line": 519}
+{"text": "<h3>Nested Class Summary</h3>", "n_tokens": 10, "pile_doc_index": 172558, "doc_line": 133}
+{"text": "var elm = e.target || e.srcElement;", "n_tokens": 10, "pile_doc_index": 30632, "doc_line": 457}
+{"text": "SetCustomImage(false, true, STATE_PRESSED,", "n_tokens": 11, "pile_doc_index": 133273, "doc_line": 48}
+{"text": "platformBrowserDynamic().bootstrapModule(AppModule)", "n_tokens": 9, "pile_doc_index": 171494, "doc_line": 10}
+{"text": "private Map<String, Object> extraParams;", "n_tokens": 9, "pile_doc_index": 162630, "doc_line": 94}
+{"text": "$this->assertUrl('user/1');", "n_tokens": 9, "pile_doc_index": 150885, "doc_line": 75}
+{"text": "(printf \"%s\\n\" \"hello world\")", "n_tokens": 10, "pile_doc_index": 22366, "doc_line": 0}
+{"text": "#endif  // SRC_NODE_DEBUG_OPTIONS_H_", "n_tokens": 9, "pile_doc_index": 130958, "doc_line": 44}
+{"text": "int updateByPrimaryKey(SysUserRoleTest record);", "n_tokens": 9, "pile_doc_index": 39929, "doc_line": 55}
+{"text": "String jobname = \"5d_cuboid\";", "n_tokens": 11, "pile_doc_index": 164916, "doc_line": 79}
+{"text": "assert(\"${res}\" STREQUAL \"abc\")", "n_tokens": 10, "pile_doc_index": 77638, "doc_line": 47}
+{"text": "<dt id=\"torchlayers.activations.HardSwish.forward\">", "n_tokens": 14, "pile_doc_index": 119954, "doc_line": 265}
+{"text": "self.Time[Offset]['End'] = self.GetCurrentDateTime()", "n_tokens": 12, "pile_doc_index": 148942, "doc_line": 72}
+{"text": "& Stream_Element_Offset'Image (Right_Last));", "n_tokens": 10, "pile_doc_index": 39055, "doc_line": 141}
+{"text": ">>> Vendor (Seagate) cache information", "n_tokens": 8, "pile_doc_index": 99280, "doc_line": 69}
+{"text": "t.datetime \"updated_at\", :null => false", "n_tokens": 10, "pile_doc_index": 123913, "doc_line": 21}
+{"text": "<?php $this->section('footer') ?>", "n_tokens": 10, "pile_doc_index": 171542, "doc_line": 47}
+{"text": "buffers_delete_cmd_callback (GimpAction *action,", "n_tokens": 11, "pile_doc_index": 63145, "doc_line": 133}
+{"text": "@property (nonatomic,assign) BOOL mIsFirefoxDtraceActive;", "n_tokens": 13, "pile_doc_index": 26747, "doc_line": 46}
+{"text": "<td>dfu-ee</td>", "n_tokens": 9, "pile_doc_index": 130034, "doc_line": 47}
+{"text": "<script src=\"/static/js/common/common.js\"></script>", "n_tokens": 11, "pile_doc_index": 74516, "doc_line": 27}
+{"text": "edit = editor.NewDefaultEditor(editorEnvs)", "n_tokens": 10, "pile_doc_index": 99218, "doc_line": 201}
+{"text": "Vector item_v = group.getItemsAsVector();", "n_tokens": 9, "pile_doc_index": 33276, "doc_line": 67}
+{"text": "val config = ConfigFactory.parseString(s\"\"\"", "n_tokens": 9, "pile_doc_index": 127836, "doc_line": 32}
+{"text": "@retval EFI_OUT_OF_RESOURCES    Out of resources.", "n_tokens": 11, "pile_doc_index": 66255, "doc_line": 570}
+{"text": "jQuery( document ).triggerHandler( \"ready\" );", "n_tokens": 11, "pile_doc_index": 24046, "doc_line": 57}
+{"text": "result = run_command(check_command, capture=True)", "n_tokens": 10, "pile_doc_index": 35542, "doc_line": 179}
+{"text": "EXPMatcherAliasImplementation(beNull, beNil, (void));", "n_tokens": 13, "pile_doc_index": 117474, "doc_line": 17}
+{"text": "lazy val root = (project in file(\".\"))", "n_tokens": 10, "pile_doc_index": 74696, "doc_line": 8}
+{"text": "use base_db::{fixture::WithFixture, SourceDatabase, Upcast};", "n_tokens": 15, "pile_doc_index": 72828, "doc_line": 329}
+{"text": "$requestTab = $this->request('tab');", "n_tokens": 10, "pile_doc_index": 29766, "doc_line": 93}
+{"text": "args[0] = &ffi_type_float;", "n_tokens": 10, "pile_doc_index": 80377, "doc_line": 20}
+{"text": "FileRemover() : DeleteIt(false) {}", "n_tokens": 10, "pile_doc_index": 50242, "doc_line": 43}
+{"text": "include dirname(__DIR__) . '/config/bootstrap.php';", "n_tokens": 11, "pile_doc_index": 89742, "doc_line": 30}
+{"text": "#include EFI_PROTOCOL_DEFINITION (ExtendedSalGuid)", "n_tokens": 9, "pile_doc_index": 33698, "doc_line": 26}
+{"text": "final List<File> fileList = FileCopyPasteUtil.getFileList(event.getTransferable());", "n_tokens": 17, "pile_doc_index": 160184, "doc_line": 37}
+{"text": "with qpageview.locking.lock(document):", "n_tokens": 9, "pile_doc_index": 76343, "doc_line": 48}
+{"text": "typename CapMap::Value sum = 0;", "n_tokens": 10, "pile_doc_index": 222, "doc_line": 89}
+{"text": "public bool Refresh { get; set; }", "n_tokens": 9, "pile_doc_index": 85703, "doc_line": 20}
+{"text": "if (agencyRequirements.hasOwnProperty(requirement)) {", "n_tokens": 9, "pile_doc_index": 32391, "doc_line": 50}
+{"text": "extern template istream& istream::_M_extract(long&);", "n_tokens": 13, "pile_doc_index": 31380, "doc_line": 1052}
+{"text": "#define IDR_AUTH_BUTTON_DROPDOWN        104", "n_tokens": 11, "pile_doc_index": 66382, "doc_line": 4}
+{"text": "<h3>Field Summary</h3>", "n_tokens": 9, "pile_doc_index": 172558, "doc_line": 154}
+{"text": "next += min;            /* here min is 1 << curr */", "n_tokens": 14, "pile_doc_index": 93987, "doc_line": 284}
+{"text": "url(r'^submission/$', submission_code_api),", "n_tokens": 9, "pile_doc_index": 30474, "doc_line": 19}
+{"text": "dely = ytmp - x[j][1];", "n_tokens": 11, "pile_doc_index": 115774, "doc_line": 98}
+{"text": "ListCache = require('./_ListCache'),", "n_tokens": 9, "pile_doc_index": 156812, "doc_line": 1}
+{"text": "ng-change=\"$ctrl.onToggleCapability(true)\"", "n_tokens": 9, "pile_doc_index": 168867, "doc_line": 22}
+{"text": "var assign = require('object-assign');", "n_tokens": 9, "pile_doc_index": 10020, "doc_line": 4}
+{"text": ".skin-1 .nav > li.active > a", "n_tokens": 10, "pile_doc_index": 92629, "doc_line": 54}
+{"text": "pointSource.set({ [propertyName]: value });", "n_tokens": 9, "pile_doc_index": 147232, "doc_line": 55}
+{"text": "ARRAY_SIZE(pxa27x_freqs));", "n_tokens": 10, "pile_doc_index": 121846, "doc_line": 250}
+{"text": "import { GlobalErrorHandler } from './shared/global-error-handler';", "n_tokens": 12, "pile_doc_index": 114989, "doc_line": 12}
+{"text": "<groupId>net.oauth.core</groupId>", "n_tokens": 9, "pile_doc_index": 112658, "doc_line": 839}
+{"text": "1 | a {b: selector-parse(\"c {\")}", "n_tokens": 12, "pile_doc_index": 115411, "doc_line": 68}
+{"text": "TabLaunchType.FROM_CHROME_UI);", "n_tokens": 9, "pile_doc_index": 147628, "doc_line": 61}
+{"text": "token: function (stream, state) {", "n_tokens": 9, "pile_doc_index": 119242, "doc_line": 32}
+{"text": "struct total_length_visitor : public boost::dijkstra_visitor<>", "n_tokens": 12, "pile_doc_index": 24214, "doc_line": 25}
+{"text": "export const PluginDepsToComponents = {", "n_tokens": 9, "pile_doc_index": 17751, "doc_line": 35}
+{"text": "if (strA == 'one' ||", "n_tokens": 9, "pile_doc_index": 10777, "doc_line": 30}
+{"text": "postcss-minify-params (thanks to @TrySound).", "n_tokens": 13, "pile_doc_index": 64116, "doc_line": 476}
+{"text": "TileContext context = (TileContext) ctx;", "n_tokens": 10, "pile_doc_index": 140299, "doc_line": 86}
+{"text": "return va_arg(*ap, long long);", "n_tokens": 9, "pile_doc_index": 20918, "doc_line": 591}
+{"text": "if (!isObjectLike(value)) {", "n_tokens": 7, "pile_doc_index": 28412, "doc_line": 27}
+{"text": "this(0, 0, 0);", "n_tokens": 10, "pile_doc_index": 55099, "doc_line": 32}
+{"text": "pmc_enable_peripheral(ID_MPDDRC);", "n_tokens": 10, "pile_doc_index": 55996, "doc_line": 275}
+{"text": "this.baselineNodes = baselineNodes;", "n_tokens": 8, "pile_doc_index": 164778, "doc_line": 83}
+{"text": "void operator()(std::ios_base &ios) const", "n_tokens": 11, "pile_doc_index": 92484, "doc_line": 61}
+{"text": ":historyId => String.t(),", "n_tokens": 7, "pile_doc_index": 65218, "doc_line": 47}
+{"text": "self.features['has_switches'] = False", "n_tokens": 9, "pile_doc_index": 68562, "doc_line": 51}
+{"text": "(void) wattrset(win, attributes[DIALOG_BOX]);", "n_tokens": 12, "pile_doc_index": 18324, "doc_line": 299}
+{"text": "public SurveyResponse(int id) => Id = id;", "n_tokens": 11, "pile_doc_index": 20943, "doc_line": 160}
+{"text": "fileStore:   NewFileStore(file),", "n_tokens": 9, "pile_doc_index": 54530, "doc_line": 27}
+{"text": "echo http://$NODE_IP:$NODE_PORT/", "n_tokens": 10, "pile_doc_index": 168382, "doc_line": 49}
+{"text": "app.set('db', 'reader_test');", "n_tokens": 9, "pile_doc_index": 179953, "doc_line": 31}
+{"text": "[[3.1.16] [", "n_tokens": 9, "pile_doc_index": 42910, "doc_line": 205}
+{"text": "logrus.Info(\"e2e teardown successfully\")", "n_tokens": 10, "pile_doc_index": 87720, "doc_line": 97}
+{"text": "IN SHELL_FILE_HANDLE          *FileHandle", "n_tokens": 9, "pile_doc_index": 66255, "doc_line": 314}
+{"text": "extern struct platform_driver sti_hdmi_driver;", "n_tokens": 10, "pile_doc_index": 78114, "doc_line": 30}
+{"text": "import '@lrnwebcomponents/lrndesign-contentblock.js';", "n_tokens": 13, "pile_doc_index": 163397, "doc_line": 10}
+{"text": "struct sun4i_drv\t*drv;", "n_tokens": 9, "pile_doc_index": 87038, "doc_line": 29}
+{"text": "{{ value|render_relation_element(field_description) }}", "n_tokens": 10, "pile_doc_index": 21296, "doc_line": 24}
+{"text": "UI_DATA_IMPEXP void SetBrowseVarData();", "n_tokens": 11, "pile_doc_index": 27528, "doc_line": 22}
+{"text": "if args.new_check_name + '.rst' in filename:", "n_tokens": 12, "pile_doc_index": 123645, "doc_line": 239}
+{"text": "collect_data(spirv_info, \"StorageClass\"),", "n_tokens": 11, "pile_doc_index": 43636, "doc_line": 124}
+{"text": "Collection<BarcodeFormat> decodeFormats = new ArrayList<BarcodeFormat>();", "n_tokens": 14, "pile_doc_index": 89472, "doc_line": 56}
+{"text": "mapCreated[\"key1\"] = 4.5", "n_tokens": 11, "pile_doc_index": 1366, "doc_line": 48}
+{"text": "PlayerInfo pi = PlayerInfo.get(player);", "n_tokens": 9, "pile_doc_index": 142408, "doc_line": 75}
+{"text": "tape('pbkdf2', function (t) {", "n_tokens": 12, "pile_doc_index": 89003, "doc_line": 5}
+{"text": "private Label locateLabel(final String labelId) {", "n_tokens": 10, "pile_doc_index": 110484, "doc_line": 33}
+{"text": "helloworld.HelloReply reply = 2;", "n_tokens": 10, "pile_doc_index": 155954, "doc_line": 16}
+{"text": "tmp[3] = bpp >> 8;", "n_tokens": 10, "pile_doc_index": 105096, "doc_line": 285}
+{"text": "int stride = frame->i_stride[p];", "n_tokens": 9, "pile_doc_index": 38668, "doc_line": 614}
+{"text": "requestContext.operation && requestContext.operation.operation === 'query'", "n_tokens": 12, "pile_doc_index": 140113, "doc_line": 131}
+{"text": "{\"OUT1R\", NULL, \"Right Out1 PGA\"},", "n_tokens": 13, "pile_doc_index": 175426, "doc_line": 717}
+{"text": "<h2>Keyboard Shortcuts</h2>", "n_tokens": 10, "pile_doc_index": 85844, "doc_line": 60}
+{"text": "if ( this.type !== 'textarea' ) {", "n_tokens": 10, "pile_doc_index": 143000, "doc_line": 46}
+{"text": "var personalLockAccount = new PersonalLockAccount(client);", "n_tokens": 11, "pile_doc_index": 55810, "doc_line": 20}
+{"text": "android:summary=\"@string/about_settings_text\"", "n_tokens": 9, "pile_doc_index": 157779, "doc_line": 42}
+{"text": "FILE_ATTRIBUTE_HIDDEN = 0x02", "n_tokens": 9, "pile_doc_index": 29744, "doc_line": 24}
+{"text": "#define FASTCALL __attribute__((regparm(3)))", "n_tokens": 11, "pile_doc_index": 80917, "doc_line": 32}
+{"text": "\"test\": \"standard && tap test/*.js\"", "n_tokens": 11, "pile_doc_index": 101492, "doc_line": 56}
+{"text": "this.innerData = { integer: 0 };", "n_tokens": 10, "pile_doc_index": 92876, "doc_line": 11}
+{"text": "def to_unicode_processor_factory(encoding, errors=None):", "n_tokens": 10, "pile_doc_index": 174325, "doc_line": 56}
+{"text": "devc->osp = hw_config->osp;", "n_tokens": 10, "pile_doc_index": 116978, "doc_line": 184}
+{"text": "SET_PRIVATE(iterator, arrayIteratorObjectSymbol, object);", "n_tokens": 11, "pile_doc_index": 169524, "doc_line": 29}
+{"text": "public static byte[] Uncompress(byte[] compressed)", "n_tokens": 10, "pile_doc_index": 83241, "doc_line": 38}
+{"text": "for (z = [0:20]){", "n_tokens": 10, "pile_doc_index": 54227, "doc_line": 46}
+{"text": "if (null !== $object->getFull()) {", "n_tokens": 11, "pile_doc_index": 136754, "doc_line": 46}
+{"text": "_GBDFED_INFO \"Edited with gbdfed 1.6.\"", "n_tokens": 15, "pile_doc_index": 27790, "doc_line": 11}
+{"text": "<ymin>282</ymin>", "n_tokens": 10, "pile_doc_index": 10644, "doc_line": 27}
+{"text": "packet.req_message_rate = req_message_rate;", "n_tokens": 9, "pile_doc_index": 148612, "doc_line": 60}
+{"text": "if (e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete)", "n_tokens": 14, "pile_doc_index": 119753, "doc_line": 47}
+{"text": "var args = node.arguments.map(traverse);", "n_tokens": 9, "pile_doc_index": 177259, "doc_line": 4}
+{"text": "def get_std_dev_mag(self, rake):", "n_tokens": 9, "pile_doc_index": 63986, "doc_line": 71}
+{"text": "__MPModelMediaRemotePodcastEpisodeAuthor ]", "n_tokens": 10, "pile_doc_index": 43469, "doc_line": 110}
+{"text": "<serviceTokenResolver type=xs:string>", "n_tokens": 9, "pile_doc_index": 68445, "doc_line": 30}
+{"text": "fn init_interface<I: Interface>() -> I {", "n_tokens": 10, "pile_doc_index": 108049, "doc_line": 52}
+{"text": "\"default_font\" => \"DejaVu Sans\",", "n_tokens": 10, "pile_doc_index": 116667, "doc_line": 151}
+{"text": "Param.damfac[i] = 0;", "n_tokens": 10, "pile_doc_index": 14279, "doc_line": 137}
+{"text": "<span class=\"en\">Text Fields</span>", "n_tokens": 10, "pile_doc_index": 141883, "doc_line": 170}
+{"text": "Template.editStudyGroupAvailabilitySlotModal.onRendered(function(){", "n_tokens": 12, "pile_doc_index": 1015, "doc_line": 16}
+{"text": "IPPROTO_VMTP = 81", "n_tokens": 8, "pile_doc_index": 8016, "doc_line": 230}
+{"text": "void propagateState(const std::vector<VoteMessage> &msg);", "n_tokens": 14, "pile_doc_index": 19133, "doc_line": 87}
+{"text": "use hisorange\\BrowserDetect\\Facade;", "n_tokens": 10, "pile_doc_index": 19962, "doc_line": 3}
+{"text": "void disableStroke(bool mustUpdateTexture = true);", "n_tokens": 10, "pile_doc_index": 29135, "doc_line": 108}
+{"text": "oprot.writeStructBegin(STRUCT_DESC);", "n_tokens": 9, "pile_doc_index": 148456, "doc_line": 267}
+{"text": "static address set_handler(CodeBuffer* buffer);", "n_tokens": 9, "pile_doc_index": 56725, "doc_line": 192}
+{"text": "#define BOOST_COMPUTE_INTEROP_VTK_BOUNDS_HPP", "n_tokens": 10, "pile_doc_index": 64044, "doc_line": 11}
+{"text": "float max_travel[N_AXIS];", "n_tokens": 6, "pile_doc_index": 81058, "doc_line": 83}
+{"text": "import { Message } from 'element-ui'", "n_tokens": 9, "pile_doc_index": 61613, "doc_line": 2}
+{"text": "virtual bool isFloat() const = 0;", "n_tokens": 10, "pile_doc_index": 64589, "doc_line": 62}
+{"text": "schemeName:                naming.GetNameFromCallsite(internalPackages...),", "n_tokens": 13, "pile_doc_index": 68140, "doc_line": 100}
+{"text": "\"############################################|      |############################################\",", "n_tokens": 9, "pile_doc_index": 90948, "doc_line": 122}
+{"text": "var maxJ = Math.min(k, blen - 1);", "n_tokens": 14, "pile_doc_index": 13766, "doc_line": 30}
+{"text": "for n = 1:length(queryCam)", "n_tokens": 9, "pile_doc_index": 152007, "doc_line": 7}
+{"text": "<solution style=\"display:none;\">3</solution>", "n_tokens": 11, "pile_doc_index": 19492, "doc_line": 30}
+{"text": "<a name=\"api_nan_encoding\"></a>", "n_tokens": 9, "pile_doc_index": 75285, "doc_line": 10}
+{"text": "void onServerStopped(const bool& abortCurrent);", "n_tokens": 10, "pile_doc_index": 43888, "doc_line": 51}
+{"text": "foreach ( $matches as $match ) {", "n_tokens": 9, "pile_doc_index": 171243, "doc_line": 94}
+{"text": "void glFreeObjectBufferATI (GLuint buffer)", "n_tokens": 11, "pile_doc_index": 78341, "doc_line": 12}
+{"text": "Project_Dep_Name wcomctl32", "n_tokens": 8, "pile_doc_index": 83814, "doc_line": 35}
+{"text": "this.con.setTarget(this.newTargetPort)", "n_tokens": 9, "pile_doc_index": 675, "doc_line": 123}
+{"text": "android:id=\"@+id/tv_videoView\"", "n_tokens": 10, "pile_doc_index": 64103, "doc_line": 35}
+{"text": "var gunzipTests = []gunzipTest{", "n_tokens": 10, "pile_doc_index": 49999, "doc_line": 24}
+{"text": "<Extensions>.dll;.bpl</Extensions>", "n_tokens": 10, "pile_doc_index": 35593, "doc_line": 210}
+{"text": "for (j = start; j < max; j += repeat) {", "n_tokens": 15, "pile_doc_index": 103407, "doc_line": 195}
+{"text": "UNAME_MACHINE=alphaev56 ;;", "n_tokens": 9, "pile_doc_index": 150403, "doc_line": 285}
+{"text": "<script src=\"/theme/default/js/html5.js\"></script>", "n_tokens": 12, "pile_doc_index": 70119, "doc_line": 9}
+{"text": "for.body:                                         ; preds = %for.cond", "n_tokens": 10, "pile_doc_index": 66253, "doc_line": 62}
+{"text": "if escaped := groups[\"escaped\"]; escaped != \"\" {", "n_tokens": 11, "pile_doc_index": 56133, "doc_line": 78}
+{"text": "string(186) \"line2", "n_tokens": 9, "pile_doc_index": 67674, "doc_line": 30}
+{"text": "public void testAuthenticationFailure() throws Exception {", "n_tokens": 9, "pile_doc_index": 100343, "doc_line": 293}
+{"text": "this->sendCmd_TEST_CMD_1(", "n_tokens": 9, "pile_doc_index": 170430, "doc_line": 52}
+{"text": "devctl |= MUSB_DEVCTL_SESSION;", "n_tokens": 9, "pile_doc_index": 129237, "doc_line": 678}
+{"text": ".build().create(GuokrApi.class);", "n_tokens": 10, "pile_doc_index": 45472, "doc_line": 66}
+{"text": "#endif /* AVUTIL_FFVERSION_H */", "n_tokens": 8, "pile_doc_index": 17786, "doc_line": 4}
+{"text": "<meta name='flags' content='http'>", "n_tokens": 9, "pile_doc_index": 33076, "doc_line": 9}
+{"text": "__block CGFloat listContentWidthSum = 0;", "n_tokens": 11, "pile_doc_index": 12374, "doc_line": 85}
+{"text": "android:id=\"@+id/umeng_socialize_loginNm\"", "n_tokens": 13, "pile_doc_index": 148790, "doc_line": 62}
+{"text": "FakeGroup = namedtuple('G', ['name'])", "n_tokens": 10, "pile_doc_index": 102689, "doc_line": 30}
+{"text": "gist_id = db.get(editor.get_path(),None)", "n_tokens": 11, "pile_doc_index": 146582, "doc_line": 119}
+{"text": "<string name=\"donations__paypal\">PayPal</string>", "n_tokens": 13, "pile_doc_index": 2904, "doc_line": 13}
+{"text": "if n != sizeofICMPv6Filter {", "n_tokens": 10, "pile_doc_index": 20702, "doc_line": 38}
+{"text": "p := make([]byte, len(pattern))", "n_tokens": 9, "pile_doc_index": 30288, "doc_line": 87}
+{"text": "HINTS ${fts_ROOT_DIR}/lib", "n_tokens": 9, "pile_doc_index": 72016, "doc_line": 27}
+{"text": "typedef typename add_const<T>::type const_string;", "n_tokens": 10, "pile_doc_index": 144130, "doc_line": 189}
+{"text": "globals.gettext_noop = django.gettext_noop;", "n_tokens": 12, "pile_doc_index": 31406, "doc_line": 260}
+{"text": "map.on('data', function (d) {", "n_tokens": 10, "pile_doc_index": 2826, "doc_line": 80}
+{"text": "COM_INTERFACE_ENTRY_IID(iid, x)", "n_tokens": 10, "pile_doc_index": 49897, "doc_line": 95}
+{"text": "\"_spec\": \"balanced-match@^0.4.1\",", "n_tokens": 14, "pile_doc_index": 81256, "doc_line": 45}
+{"text": "true_image_shape = 'true_image_shape'", "n_tokens": 9, "pile_doc_index": 163181, "doc_line": 87}
+{"text": "<tr style=\"height: 56px;\">", "n_tokens": 10, "pile_doc_index": 7910, "doc_line": 18}
+{"text": "static gboolean gPREF_DX       = FALSE;", "n_tokens": 10, "pile_doc_index": 174399, "doc_line": 58}
+{"text": "msgid \"My Company Tshirt (GRID)\"", "n_tokens": 9, "pile_doc_index": 119694, "doc_line": 61}
+{"text": "QRWindow(const std::string &name,", "n_tokens": 9, "pile_doc_index": 148985, "doc_line": 26}
+{"text": "auth-user-pass ../Own_VPN_Config/nordvpnauth.txt", "n_tokens": 13, "pile_doc_index": 171082, "doc_line": 20}
+{"text": "min = d[i-1][j-1]", "n_tokens": 11, "pile_doc_index": 115326, "doc_line": 161}
+{"text": "libpcl_registration.1.4.dylib \\", "n_tokens": 9, "pile_doc_index": 112550, "doc_line": 245}
+{"text": "addCrossingPoints = s.lines.show;", "n_tokens": 9, "pile_doc_index": 59873, "doc_line": 47}
+{"text": ": (int) layout.getSecondaryHorizontal(start);", "n_tokens": 10, "pile_doc_index": 108799, "doc_line": 189}
+{"text": "SetCustomImage(false, true, STATE_NORMAL,", "n_tokens": 10, "pile_doc_index": 133273, "doc_line": 44}
+{"text": "return winio.DialPipe(addr, &timeout)", "n_tokens": 10, "pile_doc_index": 125830, "doc_line": 11}
+{"text": "LhsIterator m_lhsIter;", "n_tokens": 7, "pile_doc_index": 69546, "doc_line": 149}
+{"text": "cmd = \"sudo systemctl stop #{name}\"", "n_tokens": 9, "pile_doc_index": 7136, "doc_line": 26}
+{"text": "void install (_self, const Symbol @ entry);", "n_tokens": 10, "pile_doc_index": 163002, "doc_line": 9}
+{"text": ">>> Compliance:           SPC-4", "n_tokens": 8, "pile_doc_index": 99280, "doc_line": 41}
+{"text": "<td>$T('show-us-name')</td>", "n_tokens": 10, "pile_doc_index": 31447, "doc_line": 95}
+{"text": "msgid \"Enter fullscreen view (F11)\"", "n_tokens": 10, "pile_doc_index": 117669, "doc_line": 212}
+{"text": "internal const int COPY_2_BYTE_OFFSET = 2;", "n_tokens": 12, "pile_doc_index": 83241, "doc_line": 10}
+{"text": "<% elsif @settings.facebook_image.file? %>", "n_tokens": 10, "pile_doc_index": 3674, "doc_line": 16}
+{"text": "console.log(did, ' left the chat')", "n_tokens": 10, "pile_doc_index": 162571, "doc_line": 64}
+{"text": "#import <UIKit/UIMenuController.h>", "n_tokens": 9, "pile_doc_index": 141073, "doc_line": 16}
+{"text": "str_to_datetime, str_to_time, \\", "n_tokens": 9, "pile_doc_index": 174325, "doc_line": 127}
+{"text": "info['pkgs_displayed'].append(pkg)", "n_tokens": 10, "pile_doc_index": 129952, "doc_line": 46}
+{"text": "#include <boost/utility/enable_if.hpp>", "n_tokens": 9, "pile_doc_index": 97184, "doc_line": 14}
+{"text": "DataResources:     make(map[string]*Resource),", "n_tokens": 10, "pile_doc_index": 42067, "doc_line": 31}
+{"text": "d = SwapDialog(self.parent)", "n_tokens": 7, "pile_doc_index": 117065, "doc_line": 389}
+{"text": "<xi:include href=\"../xinclude\" />", "n_tokens": 10, "pile_doc_index": 57213, "doc_line": 8}
+{"text": "public void testAlarmCreatorNoExperiments() throws Exception {", "n_tokens": 12, "pile_doc_index": 34785, "doc_line": 11}
+{"text": "var _ binding.StructValidator = &defaultValidator{}", "n_tokens": 10, "pile_doc_index": 145737, "doc_line": 21}
+{"text": "encKeyBlock = nca.header.getKeyBlock()", "n_tokens": 10, "pile_doc_index": 171431, "doc_line": 266}
+{"text": "if (typeof name !== 'string') {", "n_tokens": 9, "pile_doc_index": 780, "doc_line": 244}
+{"text": "$values = CRM_Core_Menu::getAdminLinks();", "n_tokens": 10, "pile_doc_index": 38684, "doc_line": 47}
+{"text": "public readonly actionStream: Subject<NotifierAction>;", "n_tokens": 10, "pile_doc_index": 78989, "doc_line": 23}
+{"text": "rev_timestamp     TIMESTAMP(3) NOT NULL,", "n_tokens": 10, "pile_doc_index": 107296, "doc_line": 125}
+{"text": "{toggleview,    \"toggleview\"},", "n_tokens": 9, "pile_doc_index": 105947, "doc_line": 33}
+{"text": "| ------------- |-------------|-------------|-------------|", "n_tokens": 9, "pile_doc_index": 8638, "doc_line": 15}
+{"text": ".wh-auto { width: 100%; }", "n_tokens": 11, "pile_doc_index": 3589, "doc_line": 95}
+{"text": "<option value=\"tasks\">Tasks</option>", "n_tokens": 9, "pile_doc_index": 66792, "doc_line": 50}
+{"text": "\"password\":    u.EncodePassword(newPassword),", "n_tokens": 10, "pile_doc_index": 7121, "doc_line": 149}
+{"text": "func longTag(tag string) string {", "n_tokens": 8, "pile_doc_index": 25374, "doc_line": 67}
+{"text": "<div class=\"col-auto\" data-dropdown-content>", "n_tokens": 10, "pile_doc_index": 158835, "doc_line": 31}
+{"text": "android:tint=\"?attr/colorControlNormal\">", "n_tokens": 9, "pile_doc_index": 150175, "doc_line": 5}
+{"text": "$this->map = (string) $world;", "n_tokens": 10, "pile_doc_index": 111364, "doc_line": 155}
+{"text": "CLOCK_DisableClock(clock_ip_name);", "n_tokens": 9, "pile_doc_index": 141169, "doc_line": 32}
+{"text": "width: 100%/$i;", "n_tokens": 10, "pile_doc_index": 92590, "doc_line": 343}
+{"text": "->orderBy('id', 'desc')", "n_tokens": 8, "pile_doc_index": 158561, "doc_line": 20}
+{"text": "b2[i] += b1[i];", "n_tokens": 9, "pile_doc_index": 151590, "doc_line": 366}
+{"text": "#if !defined(BOOST_ASIO_NO_TYPEID)", "n_tokens": 11, "pile_doc_index": 160195, "doc_line": 73}
+{"text": "el.classList.add(app_tile_colors[randomColorNumber]);", "n_tokens": 10, "pile_doc_index": 96380, "doc_line": 19}
+{"text": "Namespaces</h2></td></tr>", "n_tokens": 10, "pile_doc_index": 108957, "doc_line": 134}
+{"text": "CPU_FLAG_UNSET(cpu,f_cf); \\", "n_tokens": 9, "pile_doc_index": 21252, "doc_line": 45}
+{"text": "$lessons = \\App\\Lesson::all();", "n_tokens": 10, "pile_doc_index": 162344, "doc_line": 30}
+{"text": "JWT_AUTH_HEADER = \"HTTP_AUTHORIZATION\"", "n_tokens": 9, "pile_doc_index": 120773, "doc_line": 13}
+{"text": "isObjectLike = require('./isObjectLike'),", "n_tokens": 8, "pile_doc_index": 28412, "doc_line": 1}
+{"text": "AppendingSystem directReference = prevayler.prevalentSystem();", "n_tokens": 13, "pile_doc_index": 91629, "doc_line": 53}
+{"text": "Vpart[d,part] = intval;", "n_tokens": 9, "pile_doc_index": 64326, "doc_line": 23}
+{"text": "char  ParentNS[NS_MAX_STRING_WIN7_SIZE];", "n_tokens": 12, "pile_doc_index": 37714, "doc_line": 16}
+{"text": "AC_DEFUN([AC_NEED_DEV_ZERO_FOR_MMAP],", "n_tokens": 12, "pile_doc_index": 163005, "doc_line": 4}
+{"text": "ASSERT_NOT_NULL(emitterClass.callAsConstructor());", "n_tokens": 10, "pile_doc_index": 67604, "doc_line": 92}
+{"text": "public readonly KeyboardState[] LastKeyboardStates;", "n_tokens": 9, "pile_doc_index": 84691, "doc_line": 32}
+{"text": "\"enable_html5_parser\" => true,", "n_tokens": 9, "pile_doc_index": 116667, "doc_line": 239}
+{"text": "<div class=\"v-treeview-node__label\">", "n_tokens": 10, "pile_doc_index": 23244, "doc_line": 10}
+{"text": "it { expect(subject).to eq(expected_xml) }", "n_tokens": 11, "pile_doc_index": 117157, "doc_line": 20}
+{"text": "#include <pango/pango-coverage.h>", "n_tokens": 10, "pile_doc_index": 28016, "doc_line": 24}
+{"text": "const defaultMessage = canManageUsers ? 'Manage Members' : 'View Members';", "n_tokens": 16, "pile_doc_index": 147993, "doc_line": 35}
+{"text": "{\"FeatureStarIcon\", \"featureStarIcon\"},", "n_tokens": 10, "pile_doc_index": 116574, "doc_line": 544}
+{"text": "use: ['style-loader', 'css-loader']", "n_tokens": 10, "pile_doc_index": 123227, "doc_line": 79}
+{"text": "VTK_CREATE(vtkRenderWindow, win);", "n_tokens": 9, "pile_doc_index": 55806, "doc_line": 17}
+{"text": "#ifndef BOOST_MPL_MAP_AUX_TAG_HPP_INCLUDED", "n_tokens": 9, "pile_doc_index": 22804, "doc_line": 1}
+{"text": "wrote_chars -> return (Right (fromIntegral wrote_chars))", "n_tokens": 13, "pile_doc_index": 96924, "doc_line": 262}
+{"text": "public void testClickHouseTLPHaving() {", "n_tokens": 10, "pile_doc_index": 11013, "doc_line": 33}
+{"text": "import { enableProdMode } from '@angular/core';", "n_tokens": 11, "pile_doc_index": 128092, "doc_line": 0}
+{"text": "<id>ArangoDB-NET</id>", "n_tokens": 11, "pile_doc_index": 74862, "doc_line": 3}
+{"text": "if ($menu['pid'] == $pid) {", "n_tokens": 11, "pile_doc_index": 68338, "doc_line": 69}
+{"text": "@protocol MSSelectHandleGestureRecognizerDelegate <MSGestureRecognizerDelegate>", "n_tokens": 11, "pile_doc_index": 70720, "doc_line": 10}
+{"text": "<key>PythonDecoratorColor</key>", "n_tokens": 9, "pile_doc_index": 9015, "doc_line": 40}
+{"text": "if (self.cellScale > 0) {", "n_tokens": 10, "pile_doc_index": 132843, "doc_line": 78}
+{"text": "require 'mxx_ru/binary_unittest'", "n_tokens": 10, "pile_doc_index": 71571, "doc_line": 0}
+{"text": "throw new \\BadFunctionCallException('not support: memcached');", "n_tokens": 14, "pile_doc_index": 50297, "doc_line": 37}
+{"text": "this.power = new MageInt(2);", "n_tokens": 9, "pile_doc_index": 179038, "doc_line": 37}
+{"text": "void onToggleUniform(bool isChecked);", "n_tokens": 7, "pile_doc_index": 20701, "doc_line": 53}
+{"text": "match = request.GET.get(\"q\", \"\")", "n_tokens": 9, "pile_doc_index": 111953, "doc_line": 83}
+{"text": "if len(x) != len(y) {", "n_tokens": 9, "pile_doc_index": 82302, "doc_line": 133}
+{"text": "__pmGetPDU -> __pmNotifyErr;", "n_tokens": 11, "pile_doc_index": 64010, "doc_line": 38}
+{"text": "nosParada.add(chamadaFuncao);", "n_tokens": 10, "pile_doc_index": 111411, "doc_line": 159}
+{"text": "android:text=\"@string/next_button_label\"", "n_tokens": 9, "pile_doc_index": 106969, "doc_line": 79}
+{"text": "int64 step_id = 2;", "n_tokens": 9, "pile_doc_index": 138615, "doc_line": 160}
+{"text": ".new(jack, entries_managed_by_john)", "n_tokens": 10, "pile_doc_index": 139848, "doc_line": 143}
+{"text": "Promise.prototype.mapSeries = function (fn) {", "n_tokens": 10, "pile_doc_index": 51777, "doc_line": 18}
+{"text": "Route::group(['prefix' => 'leads'], function () {", "n_tokens": 13, "pile_doc_index": 6145, "doc_line": 86}
+{"text": "HashMap<ProductAttribute, String> selectedAttributes) {", "n_tokens": 10, "pile_doc_index": 119636, "doc_line": 244}
+{"text": "ac_cv_need_dev_zero_for_mmap=yes", "n_tokens": 9, "pile_doc_index": 163005, "doc_line": 8}
+{"text": "presenceService.setSleeping(queueModeRegistration);", "n_tokens": 9, "pile_doc_index": 178494, "doc_line": 58}
+{"text": "$scope.totals = newTotals;", "n_tokens": 9, "pile_doc_index": 178780, "doc_line": 46}
+{"text": "var aSub, bSub []float64", "n_tokens": 10, "pile_doc_index": 11739, "doc_line": 202}
+{"text": "import { SettingsService } from '@delon/theme';", "n_tokens": 11, "pile_doc_index": 92617, "doc_line": 1}
+{"text": "this.oldGradient = new DenseVector(function.getGradient());", "n_tokens": 11, "pile_doc_index": 132813, "doc_line": 20}
+{"text": "TYPED_TEST_P(FooTest, DoesBlah) {", "n_tokens": 14, "pile_doc_index": 66273, "doc_line": 116}
+{"text": "arg = arg.encode('utf-8')", "n_tokens": 9, "pile_doc_index": 134427, "doc_line": 171}
+{"text": "john = create(:user, :manager, on: common_account)", "n_tokens": 14, "pile_doc_index": 139848, "doc_line": 128}
+{"text": "$count = $wpdb->get_var( $query );", "n_tokens": 11, "pile_doc_index": 122879, "doc_line": 28}
+{"text": "String extension = Files.getFileExtension(file.getCanonicalPath());", "n_tokens": 11, "pile_doc_index": 79927, "doc_line": 41}
+{"text": "$xpos += $this->getBarcodeWidth();", "n_tokens": 10, "pile_doc_index": 18424, "doc_line": 172}
+{"text": "self.scrollView = [[UIScrollView alloc] init];", "n_tokens": 9, "pile_doc_index": 135284, "doc_line": 42}
+{"text": "two\t[1] IA5String", "n_tokens": 8, "pile_doc_index": 94393, "doc_line": 30}
+{"text": "[Learn More >>][use running cluster]", "n_tokens": 9, "pile_doc_index": 104844, "doc_line": 29}
+{"text": "func Mlockall(flags int) (err error) {", "n_tokens": 12, "pile_doc_index": 124693, "doc_line": 1668}
+{"text": "&ett_ax25_nol3,", "n_tokens": 9, "pile_doc_index": 174399, "doc_line": 232}
+{"text": "#define MSR_OUTFILE_HEADER_COUNT            (3)", "n_tokens": 10, "pile_doc_index": 129586, "doc_line": 31}
+{"text": "public T w(String string) throws IOException;", "n_tokens": 9, "pile_doc_index": 108327, "doc_line": 42}
+{"text": "var domExcTag = '[object DOMException]',", "n_tokens": 10, "pile_doc_index": 28412, "doc_line": 5}
+{"text": "Size = GetPackageSize(packageInfo.Size)", "n_tokens": 9, "pile_doc_index": 56844, "doc_line": 16}
+{"text": "if (event.getType() == Event.EventType.None) {", "n_tokens": 11, "pile_doc_index": 121664, "doc_line": 46}
+{"text": "<SubType>Designer</SubType>", "n_tokens": 9, "pile_doc_index": 122075, "doc_line": 108}
+{"text": "@RepositoryRestResource(exported = false)", "n_tokens": 9, "pile_doc_index": 52349, "doc_line": 10}
+{"text": "private final AppendingSystem _illegalDirectReference;", "n_tokens": 10, "pile_doc_index": 91629, "doc_line": 79}
+{"text": "msgid \"Searching for '$$$' in &&&:\"", "n_tokens": 11, "pile_doc_index": 117669, "doc_line": 176}
+{"text": "lecture08-10:: ; \\", "n_tokens": 9, "pile_doc_index": 87322, "doc_line": 146}
+{"text": "use Test::More tests => 1;", "n_tokens": 9, "pile_doc_index": 179781, "doc_line": 8}
+{"text": "const SQL_UNICODE             = SQL_WCHAR;", "n_tokens": 9, "pile_doc_index": 134624, "doc_line": 33}
+{"text": "public boolean isOneOf(HttpStatusFamily... families) {", "n_tokens": 11, "pile_doc_index": 72797, "doc_line": 75}
+{"text": "#ifndef EIGEN_SPARSE_CWISE_BINARY_OP_H", "n_tokens": 11, "pile_doc_index": 69546, "doc_line": 9}
+{"text": "namespace renderer      { class SurfaceShader; }", "n_tokens": 9, "pile_doc_index": 109851, "doc_line": 43}
+{"text": "func (x String) Less(than Item) bool {", "n_tokens": 12, "pile_doc_index": 7401, "doc_line": 14}
+{"text": "composite.setLayout(new GridLayout(1, false));", "n_tokens": 9, "pile_doc_index": 75900, "doc_line": 53}
+{"text": "\"php\": \">=5.6.0\",", "n_tokens": 11, "pile_doc_index": 170720, "doc_line": 19}
+{"text": "QWidget*           getDragHandle(QWidget*);", "n_tokens": 9, "pile_doc_index": 63886, "doc_line": 30}
+{"text": "leafletData.getMap('mymap').then(function(map) {", "n_tokens": 13, "pile_doc_index": 30608, "doc_line": 118}
+{"text": "private string Reason { get; set; }", "n_tokens": 9, "pile_doc_index": 73264, "doc_line": 10}
+{"text": "struct addr_map_win io_win_memory_map[] = {", "n_tokens": 11, "pile_doc_index": 15258, "doc_line": 42}
+{"text": "brne\t.Lnot_word_aligned", "n_tokens": 7, "pile_doc_index": 48886, "doc_line": 27}
+{"text": "provider.Resolve<IThriftServiceEntryProvider>(),", "n_tokens": 10, "pile_doc_index": 67994, "doc_line": 61}
+{"text": "<authors>yojimbo87</authors>", "n_tokens": 12, "pile_doc_index": 74862, "doc_line": 6}
+{"text": "<script src=\"script/search.js\"></script>", "n_tokens": 9, "pile_doc_index": 95090, "doc_line": 284}
+{"text": "if (self.afterSelectFile) {", "n_tokens": 8, "pile_doc_index": 109136, "doc_line": 112}
+{"text": "FLATBUFFERS_INSTALL_STAGING = YES", "n_tokens": 9, "pile_doc_index": 61928, "doc_line": 10}
+{"text": "while(aLen > index)createProperty(result, index, arguments[index++]);", "n_tokens": 16, "pile_doc_index": 47346, "doc_line": 14}
+{"text": "RemoteInspector::singleton().registerTarget(this);", "n_tokens": 9, "pile_doc_index": 73500, "doc_line": 41}
+{"text": "'custom-profile'   => 'profiles/custom/{$name}/',", "n_tokens": 13, "pile_doc_index": 32514, "doc_line": 15}
+{"text": "margin-bottom: @line-height-computed;", "n_tokens": 9, "pile_doc_index": 151283, "doc_line": 7}
+{"text": "size += len(m.Namespace) + 1", "n_tokens": 9, "pile_doc_index": 105606, "doc_line": 27}
+{"text": "tCIDLib::TCh*   m_pszName;", "n_tokens": 13, "pile_doc_index": 160722, "doc_line": 223}
+{"text": "BN_ULONG t2l,t2h;", "n_tokens": 10, "pile_doc_index": 71282, "doc_line": 339}
+{"text": "'1; mode=block',", "n_tokens": 7, "pile_doc_index": 85314, "doc_line": 96}
+{"text": "const val NTFS_EXFAT = 6", "n_tokens": 10, "pile_doc_index": 53435, "doc_line": 18}
+{"text": "extern const uint32_t offsetsFromUTF8[6];", "n_tokens": 13, "pile_doc_index": 153222, "doc_line": 24}
+{"text": "storage := &logical.InmemStorage{}", "n_tokens": 8, "pile_doc_index": 169674, "doc_line": 26}
+{"text": "LogsDirectory = TestContext.TestLogsDir;", "n_tokens": 9, "pile_doc_index": 169758, "doc_line": 74}
+{"text": "ASSERT_EQ (NULL, TREE_CHAIN (argtypes));", "n_tokens": 11, "pile_doc_index": 24072, "doc_line": 140}
+{"text": "|   Gap                |  <--+", "n_tokens": 8, "pile_doc_index": 13828, "doc_line": 36}
+{"text": "virtual void\t\t\t\tadd_element(const element::ptr &el);", "n_tokens": 12, "pile_doc_index": 144421, "doc_line": 65}
+{"text": "#ifndef TENSORFLOW_LIB_CORE_CODING_H_", "n_tokens": 10, "pile_doc_index": 43738, "doc_line": 20}
+{"text": "#define NPY_SIZEOF_OFF_T 8", "n_tokens": 9, "pile_doc_index": 144483, "doc_line": 11}
+{"text": "public function update($acProjectId, $id)", "n_tokens": 11, "pile_doc_index": 101929, "doc_line": 133}
+{"text": "pxa27x_clocks_init();", "n_tokens": 9, "pile_doc_index": 121846, "doc_line": 503}
+{"text": "throw new TranslatedCommandException(\"Missing interval argument\");", "n_tokens": 11, "pile_doc_index": 142408, "doc_line": 36}
+{"text": ".filter(|v| !v.is_empty())", "n_tokens": 9, "pile_doc_index": 30159, "doc_line": 62}
+{"text": "<body id=\"stage\" class=\"theme\">", "n_tokens": 9, "pile_doc_index": 107248, "doc_line": 30}
+{"text": "sex = [customInfoArray objectAtIndex:0];", "n_tokens": 10, "pile_doc_index": 83857, "doc_line": 138}
+{"text": "$export(\"value6\", MY_CONSTANT);", "n_tokens": 9, "pile_doc_index": 13935, "doc_line": 44}
+{"text": "<a class=\"close hide\">close</a>", "n_tokens": 10, "pile_doc_index": 142696, "doc_line": 219}
+{"text": "declare namespace ann = \"http://zorba.io/annotations\";", "n_tokens": 14, "pile_doc_index": 51196, "doc_line": 4}
+{"text": "<title>ORKCompletionStep Class Reference</title>", "n_tokens": 10, "pile_doc_index": 66792, "doc_line": 5}
+{"text": "-> Maybe (Timeline a, SequenceFocus)", "n_tokens": 9, "pile_doc_index": 138252, "doc_line": 29}
+{"text": "WM8350_RIGHT_INPUT_VOLUME,", "n_tokens": 9, "pile_doc_index": 175426, "doc_line": 428}
+{"text": "<string-array name=\"repeat_by_nth_tues\">", "n_tokens": 10, "pile_doc_index": 145588, "doc_line": 36}
+{"text": "protoc --go_out=. $dir/*.proto", "n_tokens": 10, "pile_doc_index": 42504, "doc_line": 29}
+{"text": "CREATE ROLE regress_subscription_user_dummy LOGIN NOSUPERUSER;", "n_tokens": 12, "pile_doc_index": 172510, "doc_line": 6}
+{"text": "parse_template_pattern(pattern, processor)", "n_tokens": 7, "pile_doc_index": 165321, "doc_line": 419}
+{"text": "7 | 4    |        93", "n_tokens": 10, "pile_doc_index": 99368, "doc_line": 602}
+{"text": "<string>ASIHTTPRequest Demo</string>", "n_tokens": 8, "pile_doc_index": 166018, "doc_line": 27}
+{"text": "6 | 1    |      1054", "n_tokens": 12, "pile_doc_index": 99368, "doc_line": 594}
+{"text": "IOptions<PredictorSettings> options)", "n_tokens": 9, "pile_doc_index": 21525, "doc_line": 19}
+{"text": "if ($tmp && @is_writable($tmp)) {", "n_tokens": 12, "pile_doc_index": 148393, "doc_line": 20}
+{"text": "void benchProjectFileFilter_reset_data();", "n_tokens": 8, "pile_doc_index": 74778, "doc_line": 37}
+{"text": "\"            </outSequence>\\n\" +", "n_tokens": 9, "pile_doc_index": 38250, "doc_line": 86}
+{"text": "\"jquery\": \">=1.6\",", "n_tokens": 9, "pile_doc_index": 109546, "doc_line": 60}
+{"text": "getMinute = (slot, hour) =>{", "n_tokens": 10, "pile_doc_index": 1015, "doc_line": 12}
+{"text": "result = scope.function_sort([[\"a\",\"c\",\"b\"]])", "n_tokens": 14, "pile_doc_index": 47913, "doc_line": 15}
+{"text": "func NewWithEnvironment(environment azure.Environment) Client {", "n_tokens": 10, "pile_doc_index": 91031, "doc_line": 19}
+{"text": "public String get(String key) {", "n_tokens": 7, "pile_doc_index": 87734, "doc_line": 24}
+{"text": "video_frame.on(\"UpdateData\", async () => {", "n_tokens": 11, "pile_doc_index": 111169, "doc_line": 2}
+{"text": "#include \"GB_AxB__include.h\"", "n_tokens": 9, "pile_doc_index": 136948, "doc_line": 19}
+{"text": "result.add(addNumber + tmp.get(i));", "n_tokens": 9, "pile_doc_index": 134409, "doc_line": 32}
+{"text": "<script src=\"script/patch-for-local.js\"></script>", "n_tokens": 12, "pile_doc_index": 95090, "doc_line": 289}
+{"text": "return (kind, values, operands[\"category\"])", "n_tokens": 10, "pile_doc_index": 43636, "doc_line": 45}
+{"text": "#include \"furthest_neighbor_sort_impl.hpp\"", "n_tokens": 9, "pile_doc_index": 93258, "doc_line": 202}
+{"text": "<tap pointers=\"2\">Pause</tap>", "n_tokens": 10, "pile_doc_index": 38002, "doc_line": 80}
+{"text": "_stringFieldType.StartPosition = Convert.ToInt32(tnStartPosition.Text);", "n_tokens": 13, "pile_doc_index": 78148, "doc_line": 51}
+{"text": "public DictionaryItem getItemById(String id) {", "n_tokens": 9, "pile_doc_index": 141584, "doc_line": 118}
+{"text": "_struct_addSize = struct.Struct('<L')", "n_tokens": 9, "pile_doc_index": 28549, "doc_line": 57}
+{"text": "<artifactId>ditto-services-models-streaming</artifactId>", "n_tokens": 15, "pile_doc_index": 87130, "doc_line": 23}
+{"text": "srcs = [\"servicec_test.go\"],", "n_tokens": 9, "pile_doc_index": 32846, "doc_line": 10}
+{"text": "#define XRS_API __declspec(dllimport)", "n_tokens": 10, "pile_doc_index": 112191, "doc_line": 6}
+{"text": "return jsString(exec, imp->message());", "n_tokens": 9, "pile_doc_index": 178143, "doc_line": 171}
+{"text": "Map<String, LanguageInfo> languageInfos,", "n_tokens": 9, "pile_doc_index": 85570, "doc_line": 89}
+{"text": "<artifactId>xml-apis</artifactId>", "n_tokens": 11, "pile_doc_index": 112658, "doc_line": 405}
+{"text": "(u/def-type dmap [map]", "n_tokens": 9, "pile_doc_index": 58616, "doc_line": 116}
+{"text": "command openapi [command options] [arguments...]", "n_tokens": 10, "pile_doc_index": 3429, "doc_line": 77}
+{"text": "_pathPoints.Add(new ToolStripPathPoint(pathPoint));", "n_tokens": 10, "pile_doc_index": 13371, "doc_line": 40}
+{"text": "<option value=\"WI\">Wisconsin</option>", "n_tokens": 10, "pile_doc_index": 135088, "doc_line": 285}
+{"text": "this.con.setSource(this.oldSourcePort)", "n_tokens": 9, "pile_doc_index": 675, "doc_line": 93}
+{"text": "<section id='main' class=\"content fn\">", "n_tokens": 10, "pile_doc_index": 85844, "doc_line": 43}
+{"text": "- (void)WCBizPickerViewDidCancel;", "n_tokens": 12, "pile_doc_index": 19520, "doc_line": 27}
+{"text": "h2 { font-size: 110%; }", "n_tokens": 12, "pile_doc_index": 64647, "doc_line": 87}
+{"text": "failureNotification.color = .redColor()", "n_tokens": 8, "pile_doc_index": 113, "doc_line": 79}
+{"text": "onExcludeMovieConfirmed = () => {", "n_tokens": 8, "pile_doc_index": 101433, "doc_line": 16}
+{"text": "return self.position + direction * self.head_1_length", "n_tokens": 11, "pile_doc_index": 64392, "doc_line": 318}
+{"text": "$all_groups = og_get_all_group();", "n_tokens": 9, "pile_doc_index": 176443, "doc_line": 610}
+{"text": "public int RegionID { get; set; }", "n_tokens": 10, "pile_doc_index": 172118, "doc_line": 11}
+{"text": "${3:## macro code}\\n\\", "n_tokens": 9, "pile_doc_index": 92374, "doc_line": 6}
+{"text": "var LIST_ORDERED_COMMONMARK_MARKERS = {};", "n_tokens": 10, "pile_doc_index": 173052, "doc_line": 47}
+{"text": "[![Maintenance Status][maintenance-image]](#maintenance-status)", "n_tokens": 12, "pile_doc_index": 138820, "doc_line": 0}
+{"text": "asm byte readkey() @$BB06 extern", "n_tokens": 10, "pile_doc_index": 145157, "doc_line": 127}
+{"text": "view->GetScene()->AddItem(chart);", "n_tokens": 9, "pile_doc_index": 103315, "doc_line": 41}
+{"text": "import { localised } from '../../locales'", "n_tokens": 9, "pile_doc_index": 130608, "doc_line": 12}
+{"text": "#ifndef __RV350D_H__", "n_tokens": 9, "pile_doc_index": 34517, "doc_line": 27}
+{"text": "static char THIS_FILE[] = __FILE__;", "n_tokens": 9, "pile_doc_index": 80958, "doc_line": 12}
+{"text": "static int mcux_sim_on(const struct device *dev,", "n_tokens": 12, "pile_doc_index": 141169, "doc_line": 17}
+{"text": "import javafx.{beans => jfxb}", "n_tokens": 9, "pile_doc_index": 85106, "doc_line": 30}
+{"text": "size = avio_rb32(pb);", "n_tokens": 9, "pile_doc_index": 47241, "doc_line": 61}
+{"text": "public function removeGbaseAttribute($baseAttribute) {", "n_tokens": 11, "pile_doc_index": 78248, "doc_line": 82}
+{"text": "App::uses('Helper', 'View');", "n_tokens": 9, "pile_doc_index": 105501, "doc_line": 2}
+{"text": "FileType file_type = FileType.FILE_TYPE_UNKNOWN;", "n_tokens": 9, "pile_doc_index": 101821, "doc_line": 31}
+{"text": "acc0 = 0.0f;", "n_tokens": 9, "pile_doc_index": 44183, "doc_line": 295}
+{"text": "page.site.collections[page['paginate']['collection']].docs", "n_tokens": 11, "pile_doc_index": 10265, "doc_line": 165}
+{"text": ", shader_ad_lit_(shader_ad_lit)", "n_tokens": 9, "pile_doc_index": 177332, "doc_line": 363}
+{"text": "messageSubscription = connector.Received().Filter(message =>", "n_tokens": 10, "pile_doc_index": 25070, "doc_line": 105}
+{"text": "func (p *executorPool) ActiveCount() int {", "n_tokens": 12, "pile_doc_index": 163587, "doc_line": 39}
+{"text": "if n > math.MaxFloat64 {", "n_tokens": 9, "pile_doc_index": 48190, "doc_line": 72}
+{"text": "typedef CaseName<gtest_TypeParam_> TestFixture; \\", "n_tokens": 12, "pile_doc_index": 66273, "doc_line": 173}
+{"text": "self.verify_signature(signature, public, &hash)", "n_tokens": 10, "pile_doc_index": 7636, "doc_line": 83}
+{"text": "<meta property=\"og:site_name\" content=\"Texture\">", "n_tokens": 12, "pile_doc_index": 15783, "doc_line": 27}
+{"text": "- (void)setCustomView:(UIView *)view", "n_tokens": 10, "pile_doc_index": 15096, "doc_line": 826}
+{"text": "} catch (ProcCallException e) {", "n_tokens": 9, "pile_doc_index": 79072, "doc_line": 99}
+{"text": "runOnlyForDeploymentPostprocessing = 0;", "n_tokens": 10, "pile_doc_index": 123299, "doc_line": 165}
+{"text": "pygame._sdl2.touch.get_finger", "n_tokens": 9, "pile_doc_index": 76453, "doc_line": 27}
+{"text": "if( amp > g_fEffectLimit )", "n_tokens": 9, "pile_doc_index": 74623, "doc_line": 215}
+{"text": "<dt> <var>task</var>", "n_tokens": 10, "pile_doc_index": 100314, "doc_line": 18}
+{"text": "@property (nonatomic,assign) BOOL mIsChromeDtraceActive;", "n_tokens": 13, "pile_doc_index": 26747, "doc_line": 45}
+{"text": "return self.layoutAttribute == NSLayoutAttributeWidth", "n_tokens": 9, "pile_doc_index": 145074, "doc_line": 29}
+{"text": "$b = -15/8R;", "n_tokens": 9, "pile_doc_index": 113458, "doc_line": 104}
+{"text": "public DomainTunnelId(long value) {", "n_tokens": 9, "pile_doc_index": 52037, "doc_line": 57}
+{"text": "ridgeSGDImpl.optimizer().setRegParam(0.1);", "n_tokens": 14, "pile_doc_index": 12754, "doc_line": 68}
+{"text": "'page_title' => 'Chat Manager',", "n_tokens": 9, "pile_doc_index": 77317, "doc_line": 37}
+{"text": "return r.NewRoute().Queries(pairs...)", "n_tokens": 9, "pile_doc_index": 3760, "doc_line": 224}
+{"text": "DES_key_schedule *ks3, int enc);", "n_tokens": 10, "pile_doc_index": 24842, "doc_line": 71}
+{"text": "idef_name = idef_name.Trim();", "n_tokens": 9, "pile_doc_index": 168821, "doc_line": 34}
+{"text": ".queryAllBranchesByRegion(bankId);", "n_tokens": 10, "pile_doc_index": 151244, "doc_line": 36}
+{"text": "final LogManager logManager = LogManager.getLogManager();", "n_tokens": 9, "pile_doc_index": 10272, "doc_line": 32}
+{"text": "void gpio_init(gpio_t *obj, PinName pin) {", "n_tokens": 14, "pile_doc_index": 104736, "doc_line": 30}
+{"text": "import { FormsModule } from '@angular/forms';", "n_tokens": 9, "pile_doc_index": 48383, "doc_line": 1}
+{"text": "console.log('progress %s%', n);", "n_tokens": 9, "pile_doc_index": 17604, "doc_line": 4}
+{"text": "SCHEMA_VERIFICATION=${SCHEMA_VERIFICATION:=false}", "n_tokens": 12, "pile_doc_index": 125290, "doc_line": 5}
+{"text": "outHeuristics.cost = 0;", "n_tokens": 9, "pile_doc_index": 140398, "doc_line": 37}
+{"text": "return results.toArray(new Result[results.size()]);", "n_tokens": 10, "pile_doc_index": 62545, "doc_line": 67}
+{"text": "my_name: name @required(action: LOG)", "n_tokens": 10, "pile_doc_index": 29758, "doc_line": 3}
+{"text": "this.Attributes.Dock = System.Windows.Forms.DockStyle.Fill;", "n_tokens": 10, "pile_doc_index": 8362, "doc_line": 65}
+{"text": "public string Password { get; set; }", "n_tokens": 9, "pile_doc_index": 159602, "doc_line": 10}
+{"text": "if (idMap.containsKey(item.id)) {", "n_tokens": 9, "pile_doc_index": 141584, "doc_line": 62}
+{"text": "SELECT day, (topn(agg, 10)).*", "n_tokens": 14, "pile_doc_index": 99368, "doc_line": 617}
+{"text": "memset(block, '\\0', sizeof(block));", "n_tokens": 9, "pile_doc_index": 93089, "doc_line": 116}
+{"text": "file.saveContent(mapping, bais, fileName);", "n_tokens": 9, "pile_doc_index": 179112, "doc_line": 67}
+{"text": "#define _CC_PAL_TYPES_PLAT_H", "n_tokens": 9, "pile_doc_index": 129873, "doc_line": 10}
+{"text": "pkInfo := table.GetPkColInfo()", "n_tokens": 9, "pile_doc_index": 80163, "doc_line": 491}
+{"text": "- field id (uint16)", "n_tokens": 8, "pile_doc_index": 23071, "doc_line": 33}
+{"text": "\"resource_group_name\": azure.SchemaResourceGroupName(),", "n_tokens": 10, "pile_doc_index": 9043, "doc_line": 47}
+{"text": "<p>User Name: {this.props.username}</p>", "n_tokens": 11, "pile_doc_index": 13632, "doc_line": 13}
+{"text": ".HasForeignKey<UserProfile>(x => x.UserId);", "n_tokens": 10, "pile_doc_index": 56027, "doc_line": 22}
+{"text": "blank_line_entry(3, 3),", "n_tokens": 9, "pile_doc_index": 100137, "doc_line": 78}
+{"text": "if (value.charAt(index) !== C_SPACE) {", "n_tokens": 11, "pile_doc_index": 173052, "doc_line": 230}
+{"text": "types = np.zeros(x_coords.shape, dtype=int)", "n_tokens": 11, "pile_doc_index": 54283, "doc_line": 502}
+{"text": "![](docs/images/download_makecert.png)", "n_tokens": 9, "pile_doc_index": 25070, "doc_line": 137}
+{"text": "$writer = new XLSXWriter();", "n_tokens": 9, "pile_doc_index": 32877, "doc_line": 6}
+{"text": "~WrongHWIDScreenHandler() override;", "n_tokens": 9, "pile_doc_index": 150302, "doc_line": 24}
+{"text": "if k+lenk > maxKLen {", "n_tokens": 9, "pile_doc_index": 11739, "doc_line": 199}
+{"text": "\"anInt = 2\\n\" +", "n_tokens": 9, "pile_doc_index": 30033, "doc_line": 189}
+{"text": "public void sessionDestroyed(HttpSessionEvent hse) {", "n_tokens": 11, "pile_doc_index": 77605, "doc_line": 362}
+{"text": ".B \\-\\-output, \\-o", "n_tokens": 9, "pile_doc_index": 151221, "doc_line": 59}
+{"text": "public func start(handler: MessageHandler) {", "n_tokens": 9, "pile_doc_index": 156608, "doc_line": 84}
+{"text": "CNZ, Morocco (Kingdom of)", "n_tokens": 9, "pile_doc_index": 61262, "doc_line": 112}
+{"text": "this.shielding = shield;", "n_tokens": 6, "pile_doc_index": 38939, "doc_line": 51}
+{"text": "type caCRLSignNotSet struct{}", "n_tokens": 9, "pile_doc_index": 169550, "doc_line": 28}
+{"text": "#endif /* __APPLE_API_UNSTABLE */", "n_tokens": 9, "pile_doc_index": 117236, "doc_line": 53}
+{"text": "this.offlineMembers = offlineMembers;", "n_tokens": 8, "pile_doc_index": 124675, "doc_line": 44}
+{"text": "if(lexicon.size()==0) {", "n_tokens": 9, "pile_doc_index": 141584, "doc_line": 175}
+{"text": "void            PyImageObject_SetLogging(bool val);", "n_tokens": 10, "pile_doc_index": 38511, "doc_line": 22}
+{"text": "xsi:type=\"it:textFileDelimited\">", "n_tokens": 10, "pile_doc_index": 171098, "doc_line": 66}
+{"text": "$( this ).addClass( \"ui-state-hover\" );", "n_tokens": 11, "pile_doc_index": 16787, "doc_line": 96}
+{"text": "NSUInteger bytesPerRow = bytesPerPixel * width;", "n_tokens": 10, "pile_doc_index": 2016, "doc_line": 51}
+{"text": "performAction(clearAction, provider, true);", "n_tokens": 10, "pile_doc_index": 66062, "doc_line": 295}
+{"text": "req := types.MoveVirtualDisk_Task{", "n_tokens": 8, "pile_doc_index": 110356, "doc_line": 102}
+{"text": "<nil key=\"simulatedStatusBarMetrics\"/>", "n_tokens": 9, "pile_doc_index": 41885, "doc_line": 62}
+{"text": "NSWindow\t\t*fullScreenWindow_;", "n_tokens": 9, "pile_doc_index": 139341, "doc_line": 61}
+{"text": "digitalWrite(LASER_PIN_2, LOW);", "n_tokens": 11, "pile_doc_index": 178939, "doc_line": 173}
+{"text": "\"display_name\": \"Python [conda env:universe]\",", "n_tokens": 12, "pile_doc_index": 152910, "doc_line": 96}
+{"text": "@property (nonatomic, assign)STPickerContentMode contentMode;", "n_tokens": 13, "pile_doc_index": 151075, "doc_line": 47}
+{"text": "#include \"tensorflow/core/lib/core/status_test_util.h\"", "n_tokens": 11, "pile_doc_index": 72359, "doc_line": 22}
+{"text": "- (void) updateForScreenReshape;", "n_tokens": 10, "pile_doc_index": 20720, "doc_line": 35}
+{"text": "$closure = function ( $t ) {", "n_tokens": 9, "pile_doc_index": 166798, "doc_line": 161}
+{"text": "public int getLength() { return buffer.getLength(); }", "n_tokens": 11, "pile_doc_index": 31843, "doc_line": 90}
+{"text": "WHERE aggr_name = p_aggr_name;", "n_tokens": 10, "pile_doc_index": 116241, "doc_line": 25}
+{"text": "t.is(\"redtwo\", args.color);", "n_tokens": 9, "pile_doc_index": 97024, "doc_line": 12}
+{"text": "statics.build_dir = %(here)s/static_build", "n_tokens": 10, "pile_doc_index": 161802, "doc_line": 17}
+{"text": "export var HorizontalDivider = Container.template($ => ({", "n_tokens": 10, "pile_doc_index": 40237, "doc_line": 169}
+{"text": "#endif /* BRCMFMAC_PCIE_H */", "n_tokens": 10, "pile_doc_index": 25243, "doc_line": 28}
+{"text": "if (BONUS_TAGS[i].equals(token))", "n_tokens": 10, "pile_doc_index": 52248, "doc_line": 37}
+{"text": "{\t.channel\t\t= 88,", "n_tokens": 10, "pile_doc_index": 179089, "doc_line": 712}
+{"text": "foopp = dlsym (h1, \"foopp\");", "n_tokens": 14, "pile_doc_index": 129055, "doc_line": 30}
+{"text": "img = Magick::Image.read('images/Flower_Hat.jpg').first", "n_tokens": 16, "pile_doc_index": 37577, "doc_line": 5}
+{"text": "$DotNetGlobalFile = \"$PSScriptRoot\\\\global.json\"", "n_tokens": 15, "pile_doc_index": 158532, "doc_line": 19}
+{"text": "features: [generators, async-iteration]", "n_tokens": 10, "pile_doc_index": 19122, "doc_line": 6}
+{"text": "const parseQuery = (searchQuery) => {", "n_tokens": 10, "pile_doc_index": 11593, "doc_line": 37}
+{"text": "while (state.inComment && !stream.eol()) {", "n_tokens": 12, "pile_doc_index": 119242, "doc_line": 60}
+{"text": "MOVL arg1+0(FP), CX", "n_tokens": 10, "pile_doc_index": 94782, "doc_line": 19}
+{"text": "path: getPathAndQueryString( post.url ),", "n_tokens": 9, "pile_doc_index": 99177, "doc_line": 104}
+{"text": "if (!item->HasArt(\"thumb\"))", "n_tokens": 9, "pile_doc_index": 152087, "doc_line": 76}
+{"text": "if ([keys containsObject:@\"Clip\"]) {", "n_tokens": 9, "pile_doc_index": 114088, "doc_line": 497}
+{"text": "DEFAULT_FS=${DEFAULT_FS:=file:///}", "n_tokens": 9, "pile_doc_index": 125290, "doc_line": 7}
+{"text": "import gl,{ VAO }\tfrom \"../gl.js\";", "n_tokens": 11, "pile_doc_index": 30399, "doc_line": 0}
+{"text": "insts[i] = r.Disassemble()", "n_tokens": 9, "pile_doc_index": 102188, "doc_line": 34}
+{"text": "#define BT_COMPOUND_COLLISION_ALGORITHM_H", "n_tokens": 10, "pile_doc_index": 123625, "doc_line": 17}
+{"text": "Hello from @TESTNAME@::ClassWithNamespace", "n_tokens": 10, "pile_doc_index": 153173, "doc_line": 40}
+{"text": "SELECT hll_add_agg(hll_hash_integer(user_id)) AS agg", "n_tokens": 14, "pile_doc_index": 99368, "doc_line": 39}
+{"text": "NativeMethods.GetNativeSystemInfo(ref lpSystemInfo);", "n_tokens": 11, "pile_doc_index": 159057, "doc_line": 112}
+{"text": "print('app_location     : [%s]' % app_location);", "n_tokens": 13, "pile_doc_index": 16511, "doc_line": 8}
+{"text": "case fd.Kind() == pref.BytesKind:", "n_tokens": 9, "pile_doc_index": 82302, "doc_line": 116}
+{"text": "mh{\"Marschallesisch\"}", "n_tokens": 8, "pile_doc_index": 104950, "doc_line": 322}
+{"text": "protected $Name = 'NormalWhiteLevel';", "n_tokens": 9, "pile_doc_index": 84814, "doc_line": 24}
+{"text": "nFlds = [   11 ];", "n_tokens": 10, "pile_doc_index": 164787, "doc_line": 8}
+{"text": "public void testTracingContextCannotPop() {", "n_tokens": 10, "pile_doc_index": 91650, "doc_line": 60}
+{"text": "S3_BUCKET: JSON.stringify(process.env.S3_CHARTTOOL_BUCKET)", "n_tokens": 16, "pile_doc_index": 36449, "doc_line": 28}
+{"text": "offerConnections      map[int]*mockOfferConnection", "n_tokens": 9, "pile_doc_index": 163630, "doc_line": 51}
+{"text": "#define NUMBER_OF_PIPES 4", "n_tokens": 8, "pile_doc_index": 94858, "doc_line": 36}
+{"text": "__catch(__cxxabiv1::__forced_unwind&)", "n_tokens": 12, "pile_doc_index": 31380, "doc_line": 99}
+{"text": "for(int col = 0; col < 9; col++)", "n_tokens": 14, "pile_doc_index": 24274, "doc_line": 34}
+{"text": "import Pux.DOM.HTML (HTML) as P", "n_tokens": 10, "pile_doc_index": 1009, "doc_line": 18}
+{"text": "y5 := src[8*7+x]", "n_tokens": 10, "pile_doc_index": 125070, "doc_line": 150}
+{"text": "Exception(\"I/O error: \" + err)", "n_tokens": 10, "pile_doc_index": 141719, "doc_line": 104}
+{"text": "ul_key VARCHAR(255) NOT NULL", "n_tokens": 10, "pile_doc_index": 107296, "doc_line": 705}
+{"text": "#ifdef MESA_EGL_NO_X11_HEADERS", "n_tokens": 10, "pile_doc_index": 84381, "doc_line": 444}
+{"text": "\"EV5 (21164)\")", "n_tokens": 10, "pile_doc_index": 150403, "doc_line": 282}
+{"text": "<width>1024</width>", "n_tokens": 10, "pile_doc_index": 10644, "doc_line": 15}
+{"text": "return frappe.tests.make('Quotation', [", "n_tokens": 10, "pile_doc_index": 138704, "doc_line": 7}
+{"text": "var _container2 = _interopRequireDefault(_container);", "n_tokens": 10, "pile_doc_index": 39717, "doc_line": 6}
+{"text": "#define __UTIL_TYPES_USHORT4_H__", "n_tokens": 9, "pile_doc_index": 83212, "doc_line": 17}
+{"text": "isHead := cs.req.Method == \"HEAD\"", "n_tokens": 10, "pile_doc_index": 172733, "doc_line": 1873}
+{"text": "extern mach_port_t\t\t\tux_exception_port;", "n_tokens": 10, "pile_doc_index": 117236, "doc_line": 64}
+{"text": "search_input = NewPageElement(name='wd')", "n_tokens": 10, "pile_doc_index": 20893, "doc_line": 38}
+{"text": "return new Promise((resolve, reject)=&gt;{", "n_tokens": 12, "pile_doc_index": 95090, "doc_line": 190}
+{"text": "public function getParentIdsByChild($childId)", "n_tokens": 10, "pile_doc_index": 132381, "doc_line": 188}
+{"text": "[\"operator\", \"/\"], [\"operator\", \"//\"],", "n_tokens": 10, "pile_doc_index": 113275, "doc_line": 14}
+{"text": "stringutil.SliceToLower(c.SMTP.AcceptDomains)", "n_tokens": 10, "pile_doc_index": 64098, "doc_line": 120}
+{"text": "int board_eth_init(bd_t *bis);", "n_tokens": 10, "pile_doc_index": 143702, "doc_line": 19}
+{"text": "virtual PCMFormat format() const = 0;", "n_tokens": 10, "pile_doc_index": 64589, "doc_line": 55}
+{"text": "public ManagementService managementService(ProcessEngine processEngine)", "n_tokens": 10, "pile_doc_index": 167874, "doc_line": 108}
+{"text": "$                        ONE, WORK, LDWORK )", "n_tokens": 9, "pile_doc_index": 17508, "doc_line": 274}
+{"text": "let mut builder = fst::MapBuilder::memory();", "n_tokens": 11, "pile_doc_index": 72828, "doc_line": 129}
+{"text": "<div class=\"alert alert-success\" role=\"alert\">", "n_tokens": 11, "pile_doc_index": 22903, "doc_line": 11}
+{"text": "<div id=\"caregoty_head\">", "n_tokens": 8, "pile_doc_index": 75955, "doc_line": 1}
+{"text": "public Collection<Command> getCommands() {", "n_tokens": 9, "pile_doc_index": 177743, "doc_line": 31}
+{"text": "if (stretched == isStretched())", "n_tokens": 9, "pile_doc_index": 172563, "doc_line": 105}
+{"text": "tCIDLib::TBoolean bTruncateAt();", "n_tokens": 11, "pile_doc_index": 160722, "doc_line": 182}
+{"text": "#define WHYNTER_BIT_MARK     750", "n_tokens": 11, "pile_doc_index": 97286, "doc_line": 14}
+{"text": "#endif  // CAFFE_SYNCEDMEM_HPP_", "n_tokens": 10, "pile_doc_index": 178170, "doc_line": 223}
+{"text": "b'X-Empty-Header': b''})", "n_tokens": 11, "pile_doc_index": 166142, "doc_line": 469}
+{"text": "gem \"will_paginate\", :require => false", "n_tokens": 10, "pile_doc_index": 107457, "doc_line": 6}
+{"text": "#include <Protocol/Shell.h>", "n_tokens": 7, "pile_doc_index": 66255, "doc_line": 24}
+{"text": "path_to_sign = args.path_to_sign.absolute()", "n_tokens": 10, "pile_doc_index": 147025, "doc_line": 47}
+{"text": "device_remove_file(&port->dev, &dev_attr_latency_timer);", "n_tokens": 14, "pile_doc_index": 26609, "doc_line": 1781}
+{"text": "category = _('General filters')", "n_tokens": 6, "pile_doc_index": 33453, "doc_line": 46}
+{"text": "#include <boost/type_traits/remove_cv.hpp>", "n_tokens": 9, "pile_doc_index": 11180, "doc_line": 13}
+{"text": "customPipeline.setFloat1('radius', r);", "n_tokens": 10, "pile_doc_index": 139355, "doc_line": 106}
+{"text": "if (ui.cbDigitsOnly->isChecked())", "n_tokens": 9, "pile_doc_index": 116603, "doc_line": 59}
+{"text": "pr_debug(\"deleting timer %s\\n\", info->label);", "n_tokens": 14, "pile_doc_index": 152877, "doc_line": 295}
+{"text": "<option value=\"MA\">Massachusetts</option>", "n_tokens": 10, "pile_doc_index": 135088, "doc_line": 229}
+{"text": "this._files = this._files.concat(fileArray);", "n_tokens": 11, "pile_doc_index": 147797, "doc_line": 147}
+{"text": "<p><strong>Example 2:</strong></p>", "n_tokens": 12, "pile_doc_index": 24290, "doc_line": 43}
+{"text": "&cookie->backing_objects, cookie_link) {", "n_tokens": 11, "pile_doc_index": 99045, "doc_line": 699}
+{"text": "def __init__(self, file_path):", "n_tokens": 9, "pile_doc_index": 69675, "doc_line": 22}
+{"text": "android:text=\"@string/search_wigle\"", "n_tokens": 9, "pile_doc_index": 4401, "doc_line": 24}
+{"text": "protected void onEvent(EventTemplate event) {", "n_tokens": 9, "pile_doc_index": 91972, "doc_line": 130}
+{"text": "bool Flush(MessageHandler* message_handler) override;", "n_tokens": 10, "pile_doc_index": 129292, "doc_line": 54}
+{"text": "failureMessageForNotTo(^NSString *{", "n_tokens": 9, "pile_doc_index": 117474, "doc_line": 11}
+{"text": "android:textColor=\"@color/buttonTextColor\"/>", "n_tokens": 8, "pile_doc_index": 64103, "doc_line": 44}
+{"text": "deriving (Eq, Show, Generic)", "n_tokens": 9, "pile_doc_index": 138252, "doc_line": 16}
+{"text": "Response response = await connector.Send(request);", "n_tokens": 8, "pile_doc_index": 25070, "doc_line": 128}
+{"text": "primus.emit('disconnection', spark);", "n_tokens": 9, "pile_doc_index": 6136, "doc_line": 258}
+{"text": "- **Notification** (public, extendable)", "n_tokens": 10, "pile_doc_index": 113, "doc_line": 39}
+{"text": "<name>Gentoo Haskell</name>", "n_tokens": 9, "pile_doc_index": 40446, "doc_line": 5}
+{"text": "DBPlugin.getResourceString(\"dialog.confirm.title\"),", "n_tokens": 9, "pile_doc_index": 177376, "doc_line": 34}
+{"text": "_FExp(&x, 1.0F, -1);", "n_tokens": 14, "pile_doc_index": 172513, "doc_line": 42}
+{"text": "UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];", "n_tokens": 11, "pile_doc_index": 123807, "doc_line": 26}
+{"text": "typedef typename gtest_internal::TupleElement<", "n_tokens": 9, "pile_doc_index": 119440, "doc_line": 744}
+{"text": "uart1_fctl: uart1-fctl {", "n_tokens": 10, "pile_doc_index": 53681, "doc_line": 98}
+{"text": "it(\"renders preview\", function(done) {", "n_tokens": 9, "pile_doc_index": 166613, "doc_line": 11}
+{"text": "fmt.Println(hash[:7], line[0])", "n_tokens": 10, "pile_doc_index": 133392, "doc_line": 66}
+{"text": "typedef TYPE<VALTYPE> * const pointer_const;", "n_tokens": 11, "pile_doc_index": 16319, "doc_line": 49}
+{"text": "begin: '{', end: '}$',", "n_tokens": 9, "pile_doc_index": 117154, "doc_line": 6}
+{"text": "@boolean_translator.value_to_boolean(value)", "n_tokens": 9, "pile_doc_index": 125032, "doc_line": 80}
+{"text": "android:viewportWidth=\"108\">", "n_tokens": 9, "pile_doc_index": 124364, "doc_line": 5}
+{"text": "<summary>TagEntryView for Xamarin.Forms</summary>", "n_tokens": 12, "pile_doc_index": 3503, "doc_line": 15}
+{"text": "<script src=\"cypher.js\"></script>", "n_tokens": 9, "pile_doc_index": 167656, "doc_line": 9}
+{"text": "typedef typename SelectionMap::mapped_type property_type;", "n_tokens": 10, "pile_doc_index": 78610, "doc_line": 79}
+{"text": "def testValueNoRegularization(): Unit = {", "n_tokens": 10, "pile_doc_index": 15005, "doc_line": 38}
+{"text": "@set ToolName=%~n0%", "n_tokens": 9, "pile_doc_index": 145833, "doc_line": 1}
+{"text": "const TFileHandle& hflThis() const", "n_tokens": 10, "pile_doc_index": 160722, "doc_line": 200}
+{"text": "@property(nonatomic, assign) CGFloat keyboardDistanceFromTextField;", "n_tokens": 11, "pile_doc_index": 89502, "doc_line": 34}
+{"text": "dependenciesMetadata.add(toDependencyMetadata(dependencyMetadata));", "n_tokens": 10, "pile_doc_index": 176465, "doc_line": 111}
+{"text": "const wrapper = mount(Greeting)", "n_tokens": 7, "pile_doc_index": 59592, "doc_line": 90}
+{"text": "@property (nonatomic, readonly) NSString *contentType;", "n_tokens": 10, "pile_doc_index": 57374, "doc_line": 21}
+{"text": "var _options$element = options.element,", "n_tokens": 9, "pile_doc_index": 137515, "doc_line": 8}
+{"text": "className=\"copyable-text__input form-control\"", "n_tokens": 10, "pile_doc_index": 34682, "doc_line": 79}
+{"text": "$this->setClassname('CcFiles');", "n_tokens": 9, "pile_doc_index": 19010, "doc_line": 35}
+{"text": "r := transform.NewReader(strings.NewReader(s), t)", "n_tokens": 10, "pile_doc_index": 36918, "doc_line": 18}
+{"text": "public void restoreFromBundle( Bundle bundle ) {", "n_tokens": 10, "pile_doc_index": 38939, "doc_line": 98}
+{"text": ".address    = MPL_I2C_ADDRESS,", "n_tokens": 9, "pile_doc_index": 93603, "doc_line": 21}
+{"text": "module Explorer.View.NotFound (notFoundView) where", "n_tokens": 10, "pile_doc_index": 1009, "doc_line": 0}
+{"text": "add_dependencies(${LIB_NAME}_objlib ${ARG_DEPENDENCIES})", "n_tokens": 13, "pile_doc_index": 50219, "doc_line": 299}
+{"text": "RidgeRegressionModel model) {", "n_tokens": 7, "pile_doc_index": 12754, "doc_line": 32}
+{"text": "<groupId>qdox</groupId>", "n_tokens": 9, "pile_doc_index": 112658, "doc_line": 959}
+{"text": "gossip_db_loaded = QtCore.pyqtSignal()", "n_tokens": 10, "pile_doc_index": 117065, "doc_line": 29}
+{"text": "Sci::Position VirtualSpace() const noexcept {", "n_tokens": 9, "pile_doc_index": 153562, "doc_line": 40}
+{"text": "url(r'^tag/$', tag.return_problems)", "n_tokens": 10, "pile_doc_index": 30474, "doc_line": 38}
+{"text": "<option value=\"ID\">Idaho</option>", "n_tokens": 10, "pile_doc_index": 135088, "doc_line": 211}
+{"text": "Rake::Task.define_task(\"deploy:check\")", "n_tokens": 11, "pile_doc_index": 175608, "doc_line": 19}
+{"text": "#define MAVLINK_MESSAGE_INFO_PING { \\", "n_tokens": 9, "pile_doc_index": 100025, "doc_line": 17}
+{"text": "}).map(_._1.mkString(separator))", "n_tokens": 9, "pile_doc_index": 71777, "doc_line": 26}
+{"text": "if (Config::instance()->getHorizontal()) {", "n_tokens": 10, "pile_doc_index": 152632, "doc_line": 98}
+{"text": "$this->code = $error['code'];", "n_tokens": 9, "pile_doc_index": 155412, "doc_line": 51}
+{"text": "this.isCtxDependent = isCtxDependent;", "n_tokens": 11, "pile_doc_index": 120967, "doc_line": 21}
+{"text": "UI_DATA_IMPEXP void OpenBrowseVar();", "n_tokens": 10, "pile_doc_index": 27528, "doc_line": 20}
+{"text": "Collection<Throwable> getLogThrowables() {", "n_tokens": 10, "pile_doc_index": 73049, "doc_line": 318}
+{"text": "conf.env.PROTOC_FL = '%s'", "n_tokens": 10, "pile_doc_index": 30044, "doc_line": 223}
+{"text": "android:strokeWidth=\"0.8\" />", "n_tokens": 10, "pile_doc_index": 124364, "doc_line": 13}
+{"text": "app:itemIconTint=\"@drawable/bottom_nav_colors\"", "n_tokens": 12, "pile_doc_index": 122402, "doc_line": 28}
+{"text": "<artifactId>jline</artifactId>", "n_tokens": 9, "pile_doc_index": 120701, "doc_line": 70}
+{"text": "throw new \\Exception(\"$file not found\");", "n_tokens": 9, "pile_doc_index": 119638, "doc_line": 29}
+{"text": "func convertMapNumbers(m map[string]interface{}) error {", "n_tokens": 11, "pile_doc_index": 50235, "doc_line": 71}
+{"text": "#include <boost/type_traits/intrinsics.hpp>", "n_tokens": 10, "pile_doc_index": 43504, "doc_line": 15}
+{"text": "#define GPOPT_IConstExprEvaluator_H", "n_tokens": 9, "pile_doc_index": 163939, "doc_line": 18}
+{"text": "typename _RhsStorageMode = typename traits<Rhs>::StorageKind>", "n_tokens": 15, "pile_doc_index": 69546, "doc_line": 41}
+{"text": "PPAS=ppas$(SRCBATCHEXT)", "n_tokens": 11, "pile_doc_index": 21030, "doc_line": 1073}
+{"text": "label \"aquire_output_area_P3\"", "n_tokens": 9, "pile_doc_index": 27737, "doc_line": 371}
+{"text": "<menuitem id=\"item3\" label=\"Third\"/>", "n_tokens": 12, "pile_doc_index": 37502, "doc_line": 26}
+{"text": "LOCAL_MODULE := bml_over_mtd", "n_tokens": 8, "pile_doc_index": 26291, "doc_line": 56}
+{"text": "pm_runtime_put_sync(musb->controller);", "n_tokens": 9, "pile_doc_index": 129237, "doc_line": 2245}
+{"text": "<===> parse/invalid/error-libsass", "n_tokens": 10, "pile_doc_index": 115411, "doc_line": 42}
+{"text": "mouseenter: $.proxy(this.showTooltip, this),", "n_tokens": 10, "pile_doc_index": 39141, "doc_line": 140}
+{"text": "unshift @INC, $srcdir;", "n_tokens": 9, "pile_doc_index": 179781, "doc_line": 3}
+{"text": "commonSuperview = [view mas_closestCommonSuperview:commonSuperview];", "n_tokens": 14, "pile_doc_index": 135428, "doc_line": 152}
+{"text": "<author>Christian Kerl</author>", "n_tokens": 9, "pile_doc_index": 149596, "doc_line": 6}
+{"text": "#include <cad/builders/insert.h>", "n_tokens": 9, "pile_doc_index": 140575, "doc_line": 3}
+{"text": "return !!isTypeSupported && !!sourceBufferValidAPI", "n_tokens": 11, "pile_doc_index": 27157, "doc_line": 45}
+{"text": "args.num_boxes = l.max_boxes;", "n_tokens": 8, "pile_doc_index": 142092, "doc_line": 90}
+{"text": "<?php $this->renderFeedbackMessages(); ?>", "n_tokens": 10, "pile_doc_index": 158618, "doc_line": 7}
+{"text": "$allowed_attributes[\"$element.$attribute\"] = true;", "n_tokens": 11, "pile_doc_index": 83410, "doc_line": 17}
+{"text": "#include <boost/xpressive/xpressive_static.hpp>", "n_tokens": 10, "pile_doc_index": 91984, "doc_line": 17}
+{"text": "$this->primary[] = $row['Column_name'];", "n_tokens": 11, "pile_doc_index": 91130, "doc_line": 157}
+{"text": "public void testClassObjectSynchronization() {", "n_tokens": 9, "pile_doc_index": 78575, "doc_line": 63}
+{"text": "let fixture: ComponentFixture<ZoneCreateComponent>;", "n_tokens": 9, "pile_doc_index": 122369, "doc_line": 6}
+{"text": "return format.parse(getStringArg(map, \"value\"));", "n_tokens": 10, "pile_doc_index": 133997, "doc_line": 59}
+{"text": "def city_list(request, *args, **kwargs):", "n_tokens": 11, "pile_doc_index": 111953, "doc_line": 117}
+{"text": "ACE_Time_Value const now (ACE_OS::gettimeofday());", "n_tokens": 12, "pile_doc_index": 101381, "doc_line": 363}
+{"text": "echo $e->getMessage() . \"\\n\";", "n_tokens": 10, "pile_doc_index": 54543, "doc_line": 33}
+{"text": "<item android:state_enabled=\"false\"", "n_tokens": 9, "pile_doc_index": 13657, "doc_line": 17}
+{"text": "ret = get_freq_stats(cpu, human);", "n_tokens": 9, "pile_doc_index": 66873, "doc_line": 635}
+{"text": "name_class{6} = 'Cam6';", "n_tokens": 10, "pile_doc_index": 152007, "doc_line": 26}
+{"text": "data.accx = toNum(record[label.accx])", "n_tokens": 11, "pile_doc_index": 43183, "doc_line": 12}
+{"text": "'lesg': '\\u22DA\\uFE00',", "n_tokens": 14, "pile_doc_index": 21334, "doc_line": 105}
+{"text": "FocusScope.of(context).requestFocus(blankNode);", "n_tokens": 10, "pile_doc_index": 35602, "doc_line": 116}
+{"text": "m, err := ast.ParseModule(path, src)", "n_tokens": 11, "pile_doc_index": 83004, "doc_line": 62}
+{"text": "const auto frequency = static_cast<float>(Device->Frequency);", "n_tokens": 12, "pile_doc_index": 33625, "doc_line": 121}
+{"text": "var $_custom_merge_tag = 'payment_amount';", "n_tokens": 10, "pile_doc_index": 171243, "doc_line": 20}
+{"text": "=> Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);", "n_tokens": 10, "pile_doc_index": 34128, "doc_line": 18}
+{"text": "[EventTracker logScreen:@\"AppBox Log\"];", "n_tokens": 10, "pile_doc_index": 168927, "doc_line": 21}
+{"text": "- [Installation](#installation)", "n_tokens": 7, "pile_doc_index": 73603, "doc_line": 16}
+{"text": "type: '(Resident | Wild)[]'", "n_tokens": 10, "pile_doc_index": 93001, "doc_line": 169}
+{"text": ".test_variants = TEST_VARIANTS,", "n_tokens": 9, "pile_doc_index": 151033, "doc_line": 52}
+{"text": "-DFLATBUFFERS_BUILD_TESTS=OFF", "n_tokens": 9, "pile_doc_index": 61928, "doc_line": 14}
+{"text": ".IR function::* (3stap),", "n_tokens": 9, "pile_doc_index": 80132, "doc_line": 22}
+{"text": "<string-array name=\"repeat_by_nth_fri\">", "n_tokens": 10, "pile_doc_index": 145588, "doc_line": 57}
+{"text": "assertNull(cades.getMaskGenerationFunction());", "n_tokens": 9, "pile_doc_index": 37653, "doc_line": 58}
+{"text": "public void setMedicine(Medicine medicine) {", "n_tokens": 10, "pile_doc_index": 57320, "doc_line": 92}
+{"text": "Regs     [32]uint64", "n_tokens": 9, "pile_doc_index": 167463, "doc_line": 11}
+{"text": "#define IDC_ARTIST_MAPPING_EDIT         1202", "n_tokens": 12, "pile_doc_index": 66382, "doc_line": 14}
+{"text": "store_credentials_mock.assert_called_once()", "n_tokens": 7, "pile_doc_index": 149186, "doc_line": 65}
+{"text": "#pragma clang loop unroll_count(16)", "n_tokens": 10, "pile_doc_index": 69917, "doc_line": 32}
+{"text": ".elseif eax==IDC_BTNPREVIOUS", "n_tokens": 9, "pile_doc_index": 27380, "doc_line": 268}
+{"text": "if len(formatIndx) == 2 {", "n_tokens": 10, "pile_doc_index": 48190, "doc_line": 125}
+{"text": "axis            (0 0 1);", "n_tokens": 9, "pile_doc_index": 156972, "doc_line": 51}
+{"text": "ability.addCost(new SacrificeSourceCost());", "n_tokens": 9, "pile_doc_index": 179038, "doc_line": 43}
+{"text": "plane2: {fileID: 0}", "n_tokens": 10, "pile_doc_index": 148180, "doc_line": 1029}
+{"text": "flags |= Qt::ImhDialableCharactersOnly;", "n_tokens": 12, "pile_doc_index": 116603, "doc_line": 58}
+{"text": "block:(WSObservationBlock)block;", "n_tokens": 9, "pile_doc_index": 19792, "doc_line": 46}
+{"text": "self.xml_state.get_container_config = mock.Mock(", "n_tokens": 10, "pile_doc_index": 37364, "doc_line": 25}
+{"text": "return [fromMetadata(registry, metadata), registry];", "n_tokens": 11, "pile_doc_index": 22821, "doc_line": 17}
+{"text": "let line = In_channel.input_line_exn cin in", "n_tokens": 11, "pile_doc_index": 122541, "doc_line": 59}
+{"text": "resultSet.init(target, (int)queries.cols);", "n_tokens": 10, "pile_doc_index": 4164, "doc_line": 180}
+{"text": "constexpr int UdsClient::_threadsPerConnection;", "n_tokens": 10, "pile_doc_index": 16265, "doc_line": 30}
+{"text": "#include <asm/arch/sc-regs.h>", "n_tokens": 9, "pile_doc_index": 50403, "doc_line": 8}
+{"text": "public void setStatus(String Status) {", "n_tokens": 7, "pile_doc_index": 119490, "doc_line": 160}
+{"text": "optional VolumeAttachmentStatus status = 3;", "n_tokens": 9, "pile_doc_index": 163959, "doc_line": 49}
+{"text": "/= Right_Buffer (0 .. Right_Last)", "n_tokens": 9, "pile_doc_index": 39055, "doc_line": 146}
+{"text": "var go = new Rhino.Input.Custom.GetObject();", "n_tokens": 9, "pile_doc_index": 168821, "doc_line": 7}
+{"text": "if (!empty($entity['af-values'])) {", "n_tokens": 10, "pile_doc_index": 48284, "doc_line": 27}
+{"text": "#pragma clang loop interleave_count(8)", "n_tokens": 9, "pile_doc_index": 69917, "doc_line": 31}
+{"text": "decode = codecs.utf_16_le_decode", "n_tokens": 9, "pile_doc_index": 102927, "doc_line": 28}
+{"text": "pl := make(policyList, 0)", "n_tokens": 9, "pile_doc_index": 30636, "doc_line": 79}
+{"text": "void benchProjectFileFilter_providerData();", "n_tokens": 8, "pile_doc_index": 74778, "doc_line": 40}
+{"text": "{\t.channel\t\t= 122,", "n_tokens": 11, "pile_doc_index": 179089, "doc_line": 848}
+{"text": "static int j = 4;", "n_tokens": 7, "pile_doc_index": 82953, "doc_line": 2}
+{"text": "org.opencontainers.image.created=\"$CREATED\" \\", "n_tokens": 10, "pile_doc_index": 106580, "doc_line": 6}
+{"text": "boost::asio::io_service::service* first_service_;", "n_tokens": 12, "pile_doc_index": 160195, "doc_line": 131}
+{"text": "if (name.toLowerCase().contains(filter)) {", "n_tokens": 9, "pile_doc_index": 131705, "doc_line": 102}
+{"text": "(thanks to @darthmaim).", "n_tokens": 9, "pile_doc_index": 64116, "doc_line": 200}
+{"text": "#region IEquatable<SettingsGroupDescriptor> Members", "n_tokens": 10, "pile_doc_index": 28721, "doc_line": 198}
+{"text": "'/public \\$version = \\'.+?\\';/',", "n_tokens": 11, "pile_doc_index": 119513, "doc_line": 70}
+{"text": "$env:NUGET_XMLDOC_MODE = \"skip\"", "n_tokens": 12, "pile_doc_index": 158532, "doc_line": 25}
+{"text": "&& rm -rf /var/list/apt/lists/*", "n_tokens": 10, "pile_doc_index": 79266, "doc_line": 7}
+{"text": "queryContext: { page: 1 },", "n_tokens": 9, "pile_doc_index": 99177, "doc_line": 61}
+{"text": "</Dynamo.Graph.Nodes.CustomNodes.Symbol>", "n_tokens": 9, "pile_doc_index": 51591, "doc_line": 22}
+{"text": "if (l == LS_ALIVE)", "n_tokens": 8, "pile_doc_index": 101381, "doc_line": 276}
+{"text": "switch (strtoupper($attributes['TYPE']))", "n_tokens": 9, "pile_doc_index": 127200, "doc_line": 152}
+{"text": "const-class v3, [Ljava/lang/String;", "n_tokens": 10, "pile_doc_index": 144090, "doc_line": 36}
+{"text": "previousHtmlContentFile = null;", "n_tokens": 7, "pile_doc_index": 30001, "doc_line": 29}
+{"text": "#define __RTCORE_USER_GEOMETRY_H__", "n_tokens": 9, "pile_doc_index": 116381, "doc_line": 17}
+{"text": "ProvidedStaticParameter(\"Path\", typeof<string>)", "n_tokens": 10, "pile_doc_index": 103008, "doc_line": 15}
+{"text": "public void doSimpleTest() throws Exception {", "n_tokens": 9, "pile_doc_index": 164616, "doc_line": 19}
+{"text": "<< \"#define _stype   samplerRECT\\n\"", "n_tokens": 10, "pile_doc_index": 140398, "doc_line": 13}
+{"text": "virtual ~CharacterEnchants() = default;", "n_tokens": 9, "pile_doc_index": 99099, "doc_line": 12}
+{"text": "#endif // EIGEN_EULERANGLES_MODULE_H", "n_tokens": 10, "pile_doc_index": 125008, "doc_line": 42}
+{"text": "uint32_t resolution = timer_get_resolution();", "n_tokens": 10, "pile_doc_index": 55996, "doc_line": 270}
+{"text": "ifcomp_1: while (true) {", "n_tokens": 10, "pile_doc_index": 122439, "doc_line": 38}
+{"text": ".launchUrl(UrlConstants.MY_ACTIVITY_URL_IN_CBD_NOTICE,", "n_tokens": 14, "pile_doc_index": 147628, "doc_line": 60}
+{"text": "public Position setX(java.lang.Float x) {", "n_tokens": 10, "pile_doc_index": 105338, "doc_line": 66}
+{"text": "@include media-breakpoint-down(is) {", "n_tokens": 8, "pile_doc_index": 30138, "doc_line": 90}
+{"text": "$message_guids = get_input('message_id', []);", "n_tokens": 12, "pile_doc_index": 174620, "doc_line": 5}
+{"text": "angular.module('filters',[]).filter('thousandSuffix', function () {", "n_tokens": 16, "pile_doc_index": 159227, "doc_line": 0}
+{"text": ".cursor-pointer ::v-deep .v-chip__content {", "n_tokens": 13, "pile_doc_index": 91785, "doc_line": 50}
+{"text": "<h3>RETURN VALUES</h3>", "n_tokens": 9, "pile_doc_index": 100314, "doc_line": 43}
+{"text": "Assert.False(analyzer.IsValidInOnly());", "n_tokens": 8, "pile_doc_index": 65260, "doc_line": 57}
+{"text": "container = document.createElement( \"div\" );", "n_tokens": 9, "pile_doc_index": 16094, "doc_line": 28}
+{"text": "#define I2C_MASTER_SA_SA_SHIFT  1", "n_tokens": 11, "pile_doc_index": 119570, "doc_line": 364}
+{"text": "'translator' => ['Organization','Person'],", "n_tokens": 10, "pile_doc_index": 5048, "doc_line": 484}
+{"text": "var config int MEDITATION_FOCUS_RECOVERY;", "n_tokens": 10, "pile_doc_index": 66067, "doc_line": 10}
+{"text": "#include <boost/vmd/empty.hpp>", "n_tokens": 9, "pile_doc_index": 5346, "doc_line": 15}
+{"text": "public bool save_battleBack = false;", "n_tokens": 9, "pile_doc_index": 116574, "doc_line": 32}
+{"text": "public string SourceDocumentId { get; set; }", "n_tokens": 11, "pile_doc_index": 40139, "doc_line": 35}
+{"text": "consul_dns_service_ttl: 0s", "n_tokens": 9, "pile_doc_index": 128329, "doc_line": 39}
+{"text": "namespace OxidEsales\\EshopCommunity\\Application\\Controller\\Admin;", "n_tokens": 12, "pile_doc_index": 46814, "doc_line": 7}
+{"text": "credentials (google.auth.credentials.Credentials): The", "n_tokens": 9, "pile_doc_index": 112323, "doc_line": 98}
+{"text": "UnitUpper=UnitDiag|Upper,", "n_tokens": 9, "pile_doc_index": 134448, "doc_line": 176}
+{"text": "@@ -35,7 +35,7 @@", "n_tokens": 12, "pile_doc_index": 179356, "doc_line": 11}
+{"text": "var month = date.getMonth() + 1", "n_tokens": 9, "pile_doc_index": 155305, "doc_line": 2}
+{"text": "offset: [4, -(verticalArrowShift + arrowWidth)],", "n_tokens": 13, "pile_doc_index": 36299, "doc_line": 76}
+{"text": "FOR_NBORS_OF_ATOM(nbor, atom)", "n_tokens": 10, "pile_doc_index": 96034, "doc_line": 268}
+{"text": "var node = new TreeNodeAdv(text)", "n_tokens": 8, "pile_doc_index": 20910, "doc_line": 14}
+{"text": "byte[] res = Snappy.compress(bytes);", "n_tokens": 9, "pile_doc_index": 125994, "doc_line": 84}
+{"text": "function MyDateFromTime( t ) {", "n_tokens": 9, "pile_doc_index": 82281, "doc_line": 122}
+{"text": "#ifndef __RTCORE_USER_GEOMETRY_H__", "n_tokens": 9, "pile_doc_index": 116381, "doc_line": 16}
+{"text": "&:extend(.bg-light-blue);", "n_tokens": 8, "pile_doc_index": 77511, "doc_line": 22}
+{"text": "@property(copy) NSString *username;", "n_tokens": 7, "pile_doc_index": 25088, "doc_line": 33}
+{"text": "if (viewMode == vmTitleOnly)", "n_tokens": 9, "pile_doc_index": 151316, "doc_line": 63}
+{"text": "my $chan = TestProtocol->new();", "n_tokens": 9, "pile_doc_index": 111928, "doc_line": 98}
+{"text": "int Index<T>::veclen() const", "n_tokens": 9, "pile_doc_index": 4164, "doc_line": 243}
+{"text": "if (_logger.isLoggable(Level.INFO)) {", "n_tokens": 10, "pile_doc_index": 95963, "doc_line": 73}
+{"text": "E(a|alt)_1=n.e.", "n_tokens": 9, "pile_doc_index": 79994, "doc_line": 245}
+{"text": "varlist.split(',').each do |varspec|", "n_tokens": 11, "pile_doc_index": 165321, "doc_line": 430}
+{"text": "PciRootNode, &PciValue);", "n_tokens": 10, "pile_doc_index": 18193, "doc_line": 335}
+{"text": "FT_Outline_Translate( const FT_Outline*  outline,", "n_tokens": 14, "pile_doc_index": 167266, "doc_line": 275}
+{"text": "class nitc_index_language_id_sqli_BaseVerify:", "n_tokens": 11, "pile_doc_index": 94913, "doc_line": 13}
+{"text": "if len(v.VCs) != 0 {", "n_tokens": 10, "pile_doc_index": 4755, "doc_line": 341}
+{"text": "p.feed_data(UPGRADE_REQUEST1)", "n_tokens": 9, "pile_doc_index": 166142, "doc_line": 333}
+{"text": "MOVL DX, edx+20(FP)", "n_tokens": 11, "pile_doc_index": 94782, "doc_line": 14}
+{"text": "if($Socket->result_status_code != 200)", "n_tokens": 13, "pile_doc_index": 167941, "doc_line": 47}
+{"text": "if(window.isNaN(input)) return null;", "n_tokens": 9, "pile_doc_index": 159227, "doc_line": 4}
+{"text": "OBJECTS = $(SOURCES:.cpp=.o)", "n_tokens": 11, "pile_doc_index": 152312, "doc_line": 10}
+{"text": "Test vprintf() function : basic functionality - unsigned format", "n_tokens": 11, "pile_doc_index": 167358, "doc_line": 1}
+{"text": "#include <boost/mpl/aux_/config/msvc.hpp>", "n_tokens": 13, "pile_doc_index": 164479, "doc_line": 17}
+{"text": "valueType = value.Elem().Kind()", "n_tokens": 9, "pile_doc_index": 145737, "doc_line": 57}
+{"text": "self.addSubnode(self.dateNode)", "n_tokens": 8, "pile_doc_index": 62119, "doc_line": 63}
+{"text": "<key>OSBundleLibraries</key>", "n_tokens": 10, "pile_doc_index": 76476, "doc_line": 62}
+{"text": "<xsd:enumeration value=\"ETH_P_AX25\">", "n_tokens": 13, "pile_doc_index": 38346, "doc_line": 1121}
+{"text": "if (uname(&un) < 0) {", "n_tokens": 11, "pile_doc_index": 124165, "doc_line": 209}
+{"text": "if (mOnExceptionListener == null) {", "n_tokens": 10, "pile_doc_index": 118467, "doc_line": 232}
+{"text": "this.oldP = oldGradient.times(-1);", "n_tokens": 10, "pile_doc_index": 132813, "doc_line": 21}
+{"text": "for allowed_method in self.allowed_method:", "n_tokens": 8, "pile_doc_index": 64558, "doc_line": 103}
+{"text": "case t: Throwable => Left(errorMgt(t))", "n_tokens": 11, "pile_doc_index": 151166, "doc_line": 33}
+{"text": "#define SECURITY_CLK_SEL\t\tBIT(29)", "n_tokens": 10, "pile_doc_index": 87243, "doc_line": 45}
+{"text": "env.parser_from_field(\"path\", PathField)", "n_tokens": 10, "pile_doc_index": 134005, "doc_line": 19}
+{"text": "<div class=\"tile panel panel-body main\">", "n_tokens": 9, "pile_doc_index": 28613, "doc_line": 3}
+{"text": "<test name=\"SuiteOneCaseOne\">", "n_tokens": 9, "pile_doc_index": 117760, "doc_line": 5}
+{"text": "self.auth = (\"tester\", \"secret\")", "n_tokens": 9, "pile_doc_index": 93203, "doc_line": 41}
+{"text": "@Insert(onConflict = OnConflictStrategy.IGNORE)", "n_tokens": 10, "pile_doc_index": 156003, "doc_line": 17}
+{"text": "SYS_TIMER_CREATE           = 5216", "n_tokens": 10, "pile_doc_index": 80589, "doc_line": 224}
+{"text": "Cutie* hugger = new Cutie();", "n_tokens": 10, "pile_doc_index": 123221, "doc_line": 10}
+{"text": "am_clk_rate_get(CLK_UART1),", "n_tokens": 9, "pile_doc_index": 161313, "doc_line": 65}
+{"text": "struct std_pair_tag; // std::pair tag", "n_tokens": 10, "pile_doc_index": 159804, "doc_line": 25}
+{"text": "console.log(updates + ' updates per second');", "n_tokens": 10, "pile_doc_index": 2826, "doc_line": 87}
+{"text": "enum NoChange_t   { NoChange };", "n_tokens": 9, "pile_doc_index": 134448, "doc_line": 293}
+{"text": "#include <boost/type_traits/add_reference.hpp>", "n_tokens": 9, "pile_doc_index": 134009, "doc_line": 20}
+{"text": "assertEquals(\"m1\", result.get(3));", "n_tokens": 10, "pile_doc_index": 151307, "doc_line": 48}
+{"text": "<tap pointers=\"3\">Back</tap>", "n_tokens": 10, "pile_doc_index": 38002, "doc_line": 108}
+{"text": "static bool canTriggerActivationBehavior(const Event&);", "n_tokens": 10, "pile_doc_index": 15463, "doc_line": 73}
+{"text": "protected long getContentSize() {", "n_tokens": 6, "pile_doc_index": 106003, "doc_line": 56}
+{"text": "if nil == ccs.ObjectFactory._instance then", "n_tokens": 10, "pile_doc_index": 100518, "doc_line": 110}
+{"text": "logWrapper_INSTANCE.set(null, gfshFileLogger);", "n_tokens": 11, "pile_doc_index": 73049, "doc_line": 291}
+{"text": "- text/javascript; charset=\"UTF-8\"", "n_tokens": 10, "pile_doc_index": 136765, "doc_line": 23}
+{"text": "query = users.Select(u => u.Residence!.Street);", "n_tokens": 12, "pile_doc_index": 151461, "doc_line": 38}
+{"text": "internal ServiceCallSite[] ServiceCallSites { get; }", "n_tokens": 12, "pile_doc_index": 179365, "doc_line": 11}
+{"text": "var.d.b = xml_getInt(cur);", "n_tokens": 9, "pile_doc_index": 148040, "doc_line": 169}
+{"text": "protected $couponCode = '#coupon_code';", "n_tokens": 9, "pile_doc_index": 18037, "doc_line": 41}
+{"text": "public void registerListener(OnSongChangedListener l) {", "n_tokens": 12, "pile_doc_index": 62206, "doc_line": 496}
+{"text": ".floor-8{background: #4fade3;}", "n_tokens": 11, "pile_doc_index": 152622, "doc_line": 15}
+{"text": "const Project = require('../../project').Project;", "n_tokens": 9, "pile_doc_index": 174264, "doc_line": 3}
+{"text": "<gmd:date gco:nilReason=\"unknown\"/>", "n_tokens": 10, "pile_doc_index": 7312, "doc_line": 113}
+{"text": "return seqLen, data[:seqLen], nil", "n_tokens": 10, "pile_doc_index": 52495, "doc_line": 17}
+{"text": "$rcA = new ReflectionClass('A');", "n_tokens": 10, "pile_doc_index": 54543, "doc_line": 14}
+{"text": "public DelegateCommand AddRuleCommand { get; set; }", "n_tokens": 12, "pile_doc_index": 146030, "doc_line": 24}
+{"text": "conf.set(\"fs.default.name\", \"file:///\");", "n_tokens": 11, "pile_doc_index": 164916, "doc_line": 44}
+{"text": "cfg = config.security.pam.usb;", "n_tokens": 9, "pile_doc_index": 7296, "doc_line": 6}
+{"text": "typedef double         jmp_buf[24];", "n_tokens": 9, "pile_doc_index": 65554, "doc_line": 30}
+{"text": "'min' => '1 minut|:count minuter',", "n_tokens": 13, "pile_doc_index": 172244, "doc_line": 23}
+{"text": "void BlobResourceHandle::didRead(int bytesRead)", "n_tokens": 10, "pile_doc_index": 37803, "doc_line": 486}
+{"text": ".BR plcboot ( 1 ),", "n_tokens": 8, "pile_doc_index": 169229, "doc_line": 188}
+{"text": "background-image: url('control-bg.png');", "n_tokens": 9, "pile_doc_index": 112768, "doc_line": 59}
+{"text": "public CustomNodeEditorAttribute(Type inspectedType) {", "n_tokens": 10, "pile_doc_index": 100788, "doc_line": 154}
+{"text": "foreach($varray as $vil) {", "n_tokens": 9, "pile_doc_index": 176842, "doc_line": 44}
+{"text": "public void updateState(Preference preference) {", "n_tokens": 9, "pile_doc_index": 53994, "doc_line": 63}
+{"text": "onclosetag: function(tagname){", "n_tokens": 9, "pile_doc_index": 166554, "doc_line": 27}
+{"text": "if (curchunk->buf == NULL) {", "n_tokens": 10, "pile_doc_index": 69263, "doc_line": 186}
+{"text": "public ArrayList<String> GetInlinedCode(", "n_tokens": 9, "pile_doc_index": 27898, "doc_line": 41}
+{"text": "iRunes := []rune(i)", "n_tokens": 9, "pile_doc_index": 165161, "doc_line": 6}
+{"text": "DummyTransferSettings dts = new DummyTransferSettings();", "n_tokens": 11, "pile_doc_index": 91064, "doc_line": 39}
+{"text": "public abstract byte[] Unprotect(string protectedData);", "n_tokens": 10, "pile_doc_index": 176559, "doc_line": 8}
+{"text": "const about = api.resolve('src/views/About.vue')", "n_tokens": 12, "pile_doc_index": 20096, "doc_line": 32}
+{"text": "\"temp_dir\" => sys_get_temp_dir(),", "n_tokens": 10, "pile_doc_index": 116667, "doc_line": 59}
+{"text": "$dist = dirname(__DIR__).'/dist';", "n_tokens": 10, "pile_doc_index": 39896, "doc_line": 1}
+{"text": "public final .java.lang.Object next() {", "n_tokens": 9, "pile_doc_index": 122439, "doc_line": 50}
+{"text": "def to_json(options = {}) #:nodoc:", "n_tokens": 9, "pile_doc_index": 20989, "doc_line": 1}
+{"text": "real<lower=0> sigma_distance;", "n_tokens": 9, "pile_doc_index": 55128, "doc_line": 12}
+{"text": "long long m_iCurrentSectoin;", "n_tokens": 9, "pile_doc_index": 19520, "doc_line": 21}
+{"text": "process.ErrorDataReceived += OnDataReceived;", "n_tokens": 9, "pile_doc_index": 143791, "doc_line": 44}
+{"text": "explicit GTestMutexLock(Mutex* mutex)", "n_tokens": 10, "pile_doc_index": 95334, "doc_line": 1718}
+{"text": "#include <thrift/cxxfunctional.h>", "n_tokens": 9, "pile_doc_index": 134588, "doc_line": 22}
+{"text": "func obfText(lvl int) string {", "n_tokens": 10, "pile_doc_index": 148484, "doc_line": 110}
+{"text": "public IFLE(final InstructionHandle target) {", "n_tokens": 9, "pile_doc_index": 143526, "doc_line": 40}
+{"text": "final String val = logManager.getProperty(key);", "n_tokens": 9, "pile_doc_index": 10272, "doc_line": 79}
+{"text": "#define CONFIG_NEWLIB_STDIN_LINE_ENDING_CR 1", "n_tokens": 12, "pile_doc_index": 135330, "doc_line": 129}
+{"text": "messageChan := make(chan *backend.LogMessage, 1)", "n_tokens": 13, "pile_doc_index": 62444, "doc_line": 84}
+{"text": "#[error(\"Validation error: {source}\")]", "n_tokens": 10, "pile_doc_index": 175204, "doc_line": 73}
+{"text": "<operations id=\"aggregate\" xsi:type=\"op:aggregate\">", "n_tokens": 13, "pile_doc_index": 171098, "doc_line": 377}
+{"text": "let semaphore = DispatchSemaphore(value: 0)", "n_tokens": 10, "pile_doc_index": 156608, "doc_line": 30}
+{"text": "pr_warn(\"%s\\n\", log_buf);", "n_tokens": 9, "pile_doc_index": 8178, "doc_line": 845}
+{"text": "func (x Int) Less(than Item) bool {", "n_tokens": 12, "pile_doc_index": 7401, "doc_line": 8}
+{"text": "$scope.search.pgid = search.poolId+'.';", "n_tokens": 11, "pile_doc_index": 68354, "doc_line": 32}
+{"text": "@RunWith(RobolectricTestRunner::class)", "n_tokens": 9, "pile_doc_index": 5966, "doc_line": 29}
+{"text": "struct usb_device *udev = serial->dev;", "n_tokens": 10, "pile_doc_index": 26609, "doc_line": 1571}
+{"text": "public void setRightItem(Item rightItem) {", "n_tokens": 10, "pile_doc_index": 46083, "doc_line": 148}
+{"text": "\"    zoom_range=0.0,\\n\",", "n_tokens": 11, "pile_doc_index": 65486, "doc_line": 488}
+{"text": "</div><div class=\"textblock\"><div class=\"dynheader\">", "n_tokens": 15, "pile_doc_index": 108957, "doc_line": 111}
+{"text": "static void DumpInt (int x, DumpState *D) {", "n_tokens": 14, "pile_doc_index": 121122, "doc_line": 57}
+{"text": "mApps.setOrderedFilter(orderedFilter);", "n_tokens": 9, "pile_doc_index": 162936, "doc_line": 65}
+{"text": "(tod tpn (null Timeval))", "n_tokens": 9, "pile_doc_index": 54311, "doc_line": 44}
+{"text": "QList<QDockWidget *> extraDockWidgets;", "n_tokens": 10, "pile_doc_index": 102678, "doc_line": 89}
+{"text": "public void setMethod(final String method) {", "n_tokens": 9, "pile_doc_index": 92065, "doc_line": 31}
+{"text": "app:popupTheme=\"@style/ToolbarPopupTheme\"", "n_tokens": 11, "pile_doc_index": 64103, "doc_line": 11}
+{"text": "return (Position) super.set(fieldName, value);", "n_tokens": 10, "pile_doc_index": 105338, "doc_line": 107}
+{"text": "static void tomon(const Arg arg);", "n_tokens": 8, "pile_doc_index": 105947, "doc_line": 7}
+{"text": "x.Write(sw, \"axId\");", "n_tokens": 8, "pile_doc_index": 108700, "doc_line": 386}
+{"text": "public void schemaReferenceWithSchemaToString() {", "n_tokens": 9, "pile_doc_index": 116107, "doc_line": 59}
+{"text": "if ([self isReferenceToOnlyUser])", "n_tokens": 9, "pile_doc_index": 151316, "doc_line": 51}
+{"text": "public void deleteLabel(String labelId) {", "n_tokens": 9, "pile_doc_index": 110484, "doc_line": 109}
+{"text": "struct iwm_umac_cmd umac_cmd;", "n_tokens": 10, "pile_doc_index": 72754, "doc_line": 188}
+{"text": "CONFIG_HOTPLUG_CPU=y", "n_tokens": 6, "pile_doc_index": 119743, "doc_line": 2}
+{"text": "long[] rands = new long[size];", "n_tokens": 9, "pile_doc_index": 105295, "doc_line": 136}
+{"text": "context \"for key (#{key})\" do", "n_tokens": 10, "pile_doc_index": 3122, "doc_line": 14}
+{"text": "else if (!shouldHaveTabindex) {", "n_tokens": 9, "pile_doc_index": 176813, "doc_line": 277}
+{"text": "samsung,pins = \"gpl-0\";", "n_tokens": 11, "pile_doc_index": 53681, "doc_line": 164}
+{"text": "'li_shop' : '&#xe02a;',", "n_tokens": 11, "pile_doc_index": 114376, "doc_line": 50}
+{"text": "const int stub_start_offset = __ offset();", "n_tokens": 9, "pile_doc_index": 93512, "doc_line": 107}
+{"text": "return new ArrayList<UserAuthenticationInfo>(map.keySet());", "n_tokens": 10, "pile_doc_index": 49638, "doc_line": 65}
+{"text": "return &ConfigState{Indent: \" \"}", "n_tokens": 9, "pile_doc_index": 156582, "doc_line": 304}
+{"text": "File* Extract( const int file_number );", "n_tokens": 9, "pile_doc_index": 19785, "doc_line": 18}
+{"text": "var LazyWrapper = require('./_LazyWrapper'),", "n_tokens": 10, "pile_doc_index": 11713, "doc_line": 0}
+{"text": "func_synth_mono          mono[r_limit][f_limit];", "n_tokens": 12, "pile_doc_index": 51069, "doc_line": 48}
+{"text": "@property (readonly) NSComparisonPredicateModifier comparisonPredicateModifier;", "n_tokens": 12, "pile_doc_index": 23658, "doc_line": 63}
+{"text": "<chapter-title>List 13</chapter-title>", "n_tokens": 11, "pile_doc_index": 106773, "doc_line": 3}
+{"text": "MBED_ASSERT(pin != (PinName)NC);", "n_tokens": 10, "pile_doc_index": 104736, "doc_line": 20}
+{"text": "-I$(LIB_SRC)/fvOptions/lnInclude \\", "n_tokens": 11, "pile_doc_index": 43661, "doc_line": 12}
+{"text": "clients[i].hDbg = NULL;", "n_tokens": 9, "pile_doc_index": 100388, "doc_line": 499}
+{"text": "nssASN1EncoderWriteFunction</a>", "n_tokens": 10, "pile_doc_index": 77329, "doc_line": 71}
+{"text": "this.SetItemDependencyObjectInternal(index, value);", "n_tokens": 10, "pile_doc_index": 19357, "doc_line": 59}
+{"text": "| Type                          | Required | Platform | Default |", "n_tokens": 10, "pile_doc_index": 179581, "doc_line": 36}
+{"text": "'errorAction' => 'site/error',", "n_tokens": 9, "pile_doc_index": 32527, "doc_line": 42}
+{"text": "Script.__init__(self, **kwargs)", "n_tokens": 9, "pile_doc_index": 76146, "doc_line": 32}
+{"text": "#import <SensorsAnalyticsExtension/SensorsAnalyticsExtension.h>", "n_tokens": 12, "pile_doc_index": 43611, "doc_line": 22}
+{"text": "onopentag: function(name, attribs){", "n_tokens": 11, "pile_doc_index": 166554, "doc_line": 19}
+{"text": "android:id=\"@+id/tv_info\"", "n_tokens": 9, "pile_doc_index": 64103, "doc_line": 26}
+{"text": "if row['NCAtype']!='Meta':", "n_tokens": 9, "pile_doc_index": 171431, "doc_line": 95}
+{"text": "\"This afternoon\" = \"Petang ini\";", "n_tokens": 9, "pile_doc_index": 124381, "doc_line": 67}
+{"text": "::boost::is_void<T>::value,", "n_tokens": 9, "pile_doc_index": 43504, "doc_line": 42}
+{"text": "logger.info(\"deserialize: deserialized[{}]\", actual);", "n_tokens": 12, "pile_doc_index": 42119, "doc_line": 76}
+{"text": ".program\t= &nfsd_program,", "n_tokens": 9, "pile_doc_index": 136032, "doc_line": 33}
+{"text": "location            = azurerm_resource_group.example.location", "n_tokens": 10, "pile_doc_index": 33357, "doc_line": 27}
+{"text": "for.inc:                                          ; preds = %for.body", "n_tokens": 10, "pile_doc_index": 66253, "doc_line": 79}
+{"text": "virtual ~AudioStreamDescription() = default;", "n_tokens": 9, "pile_doc_index": 64589, "doc_line": 44}
+{"text": ".B \\-\\-dont\\-output\\-resources", "n_tokens": 9, "pile_doc_index": 151221, "doc_line": 49}
+{"text": "module.exports = require('../toSafeInteger');", "n_tokens": 9, "pile_doc_index": 38688, "doc_line": 0}
+{"text": "of: function of(/* ...args */){", "n_tokens": 9, "pile_doc_index": 47346, "doc_line": 10}
+{"text": "func (n *noneAuth) method() string {", "n_tokens": 11, "pile_doc_index": 45463, "doc_line": 105}
+{"text": "std::string array_of_strings[10];", "n_tokens": 10, "pile_doc_index": 30871, "doc_line": 21}
+{"text": "struct fcoe_netdev_mapping *nm;", "n_tokens": 9, "pile_doc_index": 25477, "doc_line": 521}
+{"text": "void *out, size_t *outlen));", "n_tokens": 10, "pile_doc_index": 60278, "doc_line": 97}
+{"text": "SYS_CLOCK_SETTIME          = 5221", "n_tokens": 11, "pile_doc_index": 80589, "doc_line": 229}
+{"text": "PROPERTIES IMPORTED_LOCATION \"${ARG_SHARED_LIB}\")", "n_tokens": 10, "pile_doc_index": 50219, "doc_line": 86}
+{"text": "if (len > bufferLimitBytes) {", "n_tokens": 9, "pile_doc_index": 38275, "doc_line": 74}
+{"text": "'.expected' file in <dir>. *)", "n_tokens": 9, "pile_doc_index": 49027, "doc_line": 30}
+{"text": "devToolsCmd.key = VK_F12", "n_tokens": 9, "pile_doc_index": 131882, "doc_line": 4}
+{"text": "exports.includeScopes = [\"html\", \"javascript\", \"css\"];", "n_tokens": 14, "pile_doc_index": 92374, "doc_line": 33}
+{"text": "'li_t-shirt' : '&#xe027;',", "n_tokens": 12, "pile_doc_index": 114376, "doc_line": 47}
+{"text": "var url = '../../base/AMAdminFrame';", "n_tokens": 10, "pile_doc_index": 80889, "doc_line": 37}
+{"text": "- **Hermes** (public)", "n_tokens": 9, "pile_doc_index": 113, "doc_line": 35}
+{"text": "secondWindow = new BrowserWindow({frame: false,", "n_tokens": 11, "pile_doc_index": 91717, "doc_line": 58}
+{"text": "FilterChain filterChain) throws ServletException, IOException {", "n_tokens": 10, "pile_doc_index": 57080, "doc_line": 51}
+{"text": "std::shared_ptr<YacCryptoProvider> crypto,", "n_tokens": 12, "pile_doc_index": 19133, "doc_line": 36}
+{"text": "foreach ($defaults as $format) {", "n_tokens": 8, "pile_doc_index": 140985, "doc_line": 90}
+{"text": "#define TR_EFFECT_ENABLEGUNS            13", "n_tokens": 10, "pile_doc_index": 55608, "doc_line": 76}
+{"text": "saveAs = parsedArgs[\"output\"].ToString();", "n_tokens": 10, "pile_doc_index": 116185, "doc_line": 95}
+{"text": "pDialogLayout->addItem(pVerticalSpacer);", "n_tokens": 9, "pile_doc_index": 94683, "doc_line": 26}
+{"text": "if (item.isWithinAMap()) {", "n_tokens": 9, "pile_doc_index": 4561, "doc_line": 24}
+{"text": "var IsSystemDLL = map[string]bool{}", "n_tokens": 9, "pile_doc_index": 145079, "doc_line": 19}
+{"text": "elsif Left_Buffer (0 .. Left_Last)", "n_tokens": 9, "pile_doc_index": 39055, "doc_line": 145}
+{"text": "func newBinlogStreamer() *BinlogStreamer {", "n_tokens": 11, "pile_doc_index": 152709, "doc_line": 53}
+{"text": "for (int i = 0; i < size; i++) {", "n_tokens": 15, "pile_doc_index": 4951, "doc_line": 53}
+{"text": "public ByteBuf encode(Object in) throws IOException {", "n_tokens": 10, "pile_doc_index": 125994, "doc_line": 79}
+{"text": "} else return .ceylon.language.finished_.get_();", "n_tokens": 12, "pile_doc_index": 122439, "doc_line": 55}
+{"text": "final Converter converter = elementConverterPair.second;", "n_tokens": 9, "pile_doc_index": 140950, "doc_line": 106}
+{"text": "if !math.IsNaN(cfg.analyticsRate) {", "n_tokens": 10, "pile_doc_index": 91490, "doc_line": 37}
+{"text": "return get_secrets(sysaddr, secaddr)", "n_tokens": 10, "pile_doc_index": 161, "doc_line": 134}
+{"text": "if ( values[ index ] != null ) {", "n_tokens": 10, "pile_doc_index": 172550, "doc_line": 37}
+{"text": "@property (nonatomic, readonly) NSString *accept;", "n_tokens": 10, "pile_doc_index": 57374, "doc_line": 19}
+{"text": "public Collection<? extends AbstractTreeNode<?>> getChildren() {", "n_tokens": 11, "pile_doc_index": 129217, "doc_line": 128}
+{"text": "this.picker = $('<div class=\"slider\">'+", "n_tokens": 10, "pile_doc_index": 39141, "doc_line": 23}
+{"text": "protected TemplateHashModel getWrappedEntity(int objIdx)", "n_tokens": 11, "pile_doc_index": 177252, "doc_line": 33}
+{"text": "if (rc != Rhino.Commands.Result.Success)", "n_tokens": 9, "pile_doc_index": 168821, "doc_line": 25}
+{"text": "bm->UserFlags.optimize_flag = optimize_enabled;", "n_tokens": 10, "pile_doc_index": 33979, "doc_line": 557}
+{"text": "if len(retVals) != 1 {", "n_tokens": 9, "pile_doc_index": 28837, "doc_line": 56}
+{"text": "bool prevent_contents_opaque_changes = true;", "n_tokens": 9, "pile_doc_index": 80932, "doc_line": 68}
+{"text": "<li class='active'>revision</li>", "n_tokens": 9, "pile_doc_index": 70472, "doc_line": 31}
+{"text": "exports.snippetText = \"# macro\\n\\", "n_tokens": 9, "pile_doc_index": 92374, "doc_line": 3}
+{"text": "for FBSTRING arrays: fbc calls fb_ArrayDestructStr()", "n_tokens": 14, "pile_doc_index": 170359, "doc_line": 8}
+{"text": "return (UCoverPoint*)(WeakObjPtr.Get());", "n_tokens": 11, "pile_doc_index": 5810, "doc_line": 14}
+{"text": "app.use(function(req, res, next) {", "n_tokens": 10, "pile_doc_index": 179953, "doc_line": 13}
+{"text": "<integer>510</integer>", "n_tokens": 9, "pile_doc_index": 96618, "doc_line": 63}
+{"text": "<pre>public&nbsp;TreeCodec()</pre>", "n_tokens": 10, "pile_doc_index": 161923, "doc_line": 193}
+{"text": "&& !(this.scope.uses_eval || this.scope.uses_with);", "n_tokens": 14, "pile_doc_index": 116550, "doc_line": 318}
+{"text": "Data& operator=(const Data& rhs);", "n_tokens": 9, "pile_doc_index": 179790, "doc_line": 74}
+{"text": "if (existing_idef != null)", "n_tokens": 9, "pile_doc_index": 168821, "doc_line": 40}
+{"text": "ELSE IF( M.LT.0 ) THEN", "n_tokens": 10, "pile_doc_index": 84284, "doc_line": 260}
+{"text": "tail_two: // do {", "n_tokens": 6, "pile_doc_index": 2342, "doc_line": 95}
+{"text": "(func $f3 (param i32)", "n_tokens": 10, "pile_doc_index": 5023, "doc_line": 18}
+{"text": "unset($d, $e, $b);", "n_tokens": 10, "pile_doc_index": 29287, "doc_line": 2}
+{"text": "msgid \"Website | Translation | Bug Tracker\"", "n_tokens": 9, "pile_doc_index": 117669, "doc_line": 44}
+{"text": "params := &rekognition.ListCollectionsInput{}", "n_tokens": 9, "pile_doc_index": 168399, "doc_line": 23}
+{"text": "memset(*ctx, '\\0', sizeof(LP_DIR_CTX));", "n_tokens": 12, "pile_doc_index": 179079, "doc_line": 111}
+{"text": "use Faker\\Provider\\de_DE\\Company;", "n_tokens": 10, "pile_doc_index": 36512, "doc_line": 7}
+{"text": "border-bottom: 1px solid var(--black);", "n_tokens": 11, "pile_doc_index": 70515, "doc_line": 70}
+{"text": "return playerDhcpLeasesPath(device)", "n_tokens": 9, "pile_doc_index": 79347, "doc_line": 192}
+{"text": "#define FE_STATUS_LOCKED              -7", "n_tokens": 8, "pile_doc_index": 170101, "doc_line": 220}
+{"text": "- output file    -> tgw2_1.out", "n_tokens": 11, "pile_doc_index": 73730, "doc_line": 20}
+{"text": "acc = `${part}\\\\.${acc}`;", "n_tokens": 9, "pile_doc_index": 138393, "doc_line": 12}
+{"text": "void addBeforeFace(KeyFace * beforeFace);", "n_tokens": 10, "pile_doc_index": 169513, "doc_line": 50}
+{"text": "<script src=\"../third-party/jquery.min.js\"></script>", "n_tokens": 11, "pile_doc_index": 149038, "doc_line": 1}
+{"text": "return pc + (is_return_address ? 1 : 0);", "n_tokens": 14, "pile_doc_index": 151748, "doc_line": 1057}
+{"text": "Response originalResponse = chain.proceed(chain.request());", "n_tokens": 10, "pile_doc_index": 45472, "doc_line": 27}
+{"text": "set_isempty_false(newflags, i);", "n_tokens": 9, "pile_doc_index": 78881, "doc_line": 137}
+{"text": "<Version>6.1.1</Version>", "n_tokens": 11, "pile_doc_index": 99734, "doc_line": 505}
+{"text": "intptr_t* from, intptr_t* to);", "n_tokens": 10, "pile_doc_index": 56725, "doc_line": 139}
+{"text": "<div id=\"SC-22xxx\">", "n_tokens": 9, "pile_doc_index": 107527, "doc_line": 21}
+{"text": "function metaDataProvider(type, imageId) {", "n_tokens": 9, "pile_doc_index": 128069, "doc_line": 15}
+{"text": "#define TR_EFFECT_SHOWOBJECT            24", "n_tokens": 9, "pile_doc_index": 55608, "doc_line": 87}
+{"text": "private EnOceanConfigStatusMessage(String messageKey) {", "n_tokens": 11, "pile_doc_index": 143966, "doc_line": 25}
+{"text": "if (typeof key !== 'string') {", "n_tokens": 9, "pile_doc_index": 780, "doc_line": 211}
+{"text": "_fileIsOpen = _handle != INVALID_HANDLE_VALUE;", "n_tokens": 11, "pile_doc_index": 88774, "doc_line": 26}
+{"text": "if ((string)n.TagObject == key)", "n_tokens": 9, "pile_doc_index": 20910, "doc_line": 41}
+{"text": "<title>JsDoc Reference - File Index</title>", "n_tokens": 11, "pile_doc_index": 64647, "doc_line": 6}
+{"text": "router.GET(\"/ping\", func(c *gin.Context) {", "n_tokens": 12, "pile_doc_index": 11116, "doc_line": 26}
+{"text": "<value>text/microsoft-resx</value>", "n_tokens": 11, "pile_doc_index": 30071, "doc_line": 105}
+{"text": "case DRIVE_TYPE_1571CR:", "n_tokens": 10, "pile_doc_index": 82163, "doc_line": 174}
+{"text": "+\t\tlabel = \"second stage u-boot\";", "n_tokens": 10, "pile_doc_index": 46534, "doc_line": 19}
+{"text": "IsClassMethod = !IsInstanceMethod;", "n_tokens": 9, "pile_doc_index": 36191, "doc_line": 232}
+{"text": "+dnl                   gnome-desktop-3.0 >= $GNOME_DESKTOP_REQUIRED_VERSION)", "n_tokens": 18, "pile_doc_index": 96797, "doc_line": 47}
+{"text": "use PHPExiftool\\Driver\\AbstractTag;", "n_tokens": 10, "pile_doc_index": 84814, "doc_line": 14}
+{"text": "_isShowPassWord ? Icons.visibility : Icons.visibility_off,", "n_tokens": 12, "pile_doc_index": 35602, "doc_line": 72}
+{"text": "ufontData.y=atof(y);", "n_tokens": 9, "pile_doc_index": 139837, "doc_line": 92}
+{"text": "effectEntity.transform.parent = reference.containerTransform;", "n_tokens": 9, "pile_doc_index": 17712, "doc_line": 72}
+{"text": "function listNotificationInterests( ):Vector.<String>;", "n_tokens": 11, "pile_doc_index": 143596, "doc_line": 129}
+{"text": "federation/federation_user_devices.la \\", "n_tokens": 9, "pile_doc_index": 155232, "doc_line": 240}
+{"text": "<li class=\"{{ item.classes | join(' ') }}\">", "n_tokens": 10, "pile_doc_index": 1570, "doc_line": 2}
+{"text": "CONFIG_PHY_MICREL_KSZ90X1=y", "n_tokens": 11, "pile_doc_index": 24722, "doc_line": 45}
+{"text": "VK_INSERT   = 0x2D // INS key", "n_tokens": 12, "pile_doc_index": 144076, "doc_line": 29}
+{"text": "if isArmArch(runtime.GOARCH) {", "n_tokens": 9, "pile_doc_index": 104886, "doc_line": 33}
+{"text": "public void setDone(boolean isDone) {", "n_tokens": 9, "pile_doc_index": 31686, "doc_line": 37}
+{"text": "ac_cv_need_dev_zero_for_mmap=no", "n_tokens": 9, "pile_doc_index": 163005, "doc_line": 10}
+{"text": "docker ps --filter \"label=com.joyent.package=<PackageName>\"", "n_tokens": 14, "pile_doc_index": 131814, "doc_line": 99}
+{"text": "ArrayList<String> Contents = new ArrayList<String>();", "n_tokens": 9, "pile_doc_index": 27898, "doc_line": 48}
+{"text": "def stamp(to_version='head', sql_url=None):", "n_tokens": 11, "pile_doc_index": 121748, "doc_line": 74}
+{"text": "for indexed_value in indexed_values {", "n_tokens": 7, "pile_doc_index": 72828, "doc_line": 272}
+{"text": "<script src=\"../webcomponentsjs/webcomponents-lite.js\"></script>", "n_tokens": 13, "pile_doc_index": 1234, "doc_line": 17}
+{"text": "#if GMP_NAIL_BITS == 0", "n_tokens": 9, "pile_doc_index": 78698, "doc_line": 33}
+{"text": "hidden = not pkg.model.update or pkg.model.is_update_ignored()", "n_tokens": 14, "pile_doc_index": 129952, "doc_line": 53}
+{"text": "assert_eq!(\"**RAILS_ENV=development\", line.raw_string);", "n_tokens": 15, "pile_doc_index": 100137, "doc_line": 60}
+{"text": "#pragma wave option(preserve: 1)", "n_tokens": 9, "pile_doc_index": 112368, "doc_line": 53}
+{"text": "-\\fBt \\fImilliseconds\\fR", "n_tokens": 10, "pile_doc_index": 169229, "doc_line": 75}
+{"text": "public WebserviceJavaScriptCodeGeneratorTest(String testName) {", "n_tokens": 11, "pile_doc_index": 41009, "doc_line": 9}
+{"text": "#include <boost/geometry/core/closure.hpp>", "n_tokens": 10, "pile_doc_index": 78610, "doc_line": 13}
+{"text": "$export($export.P + $export.F * forced, 'Array', {", "n_tokens": 16, "pile_doc_index": 36204, "doc_line": 8}
+{"text": "if (anyAlpha) { return image; }", "n_tokens": 10, "pile_doc_index": 2016, "doc_line": 38}
+{"text": "config.barbican_sqlalchemy_url = sqlalchemy_url", "n_tokens": 10, "pile_doc_index": 121748, "doc_line": 52}
+{"text": "getPage: jest.fn().mockReturnValue(Promise.resolve()),", "n_tokens": 11, "pile_doc_index": 20448, "doc_line": 27}
+{"text": "public void define(WebService.NewController context) {", "n_tokens": 10, "pile_doc_index": 34991, "doc_line": 32}
+{"text": "_, err = client.ListCollections(ctx, params)", "n_tokens": 10, "pile_doc_index": 168399, "doc_line": 24}
+{"text": "dirname(__DIR__).'/lib/index.php',", "n_tokens": 9, "pile_doc_index": 39896, "doc_line": 19}
+{"text": "lenShared = len(jRunes)", "n_tokens": 8, "pile_doc_index": 165161, "doc_line": 11}
+{"text": "given(connection.getMetaData()).willReturn(databaseMetaData);", "n_tokens": 9, "pile_doc_index": 54095, "doc_line": 54}
+{"text": "Bob Carlitz <bob@info-ren.org>", "n_tokens": 10, "pile_doc_index": 166230, "doc_line": 9}
+{"text": "do_test colname-1.1 {", "n_tokens": 9, "pile_doc_index": 29658, "doc_line": 40}
+{"text": "list_of_elem = cls(list_of_elem)", "n_tokens": 9, "pile_doc_index": 113152, "doc_line": 97}
+{"text": "WriteLiteral(\" type=\\\"image/x-icon\\\"\");", "n_tokens": 10, "pile_doc_index": 93177, "doc_line": 108}
+{"text": "interpretarListaBlocos(noPara.getBlocos());", "n_tokens": 11, "pile_doc_index": 111411, "doc_line": 127}
+{"text": "func makeList(n int) []*entry {", "n_tokens": 9, "pile_doc_index": 5587, "doc_line": 21}
+{"text": "const uint8_t *buf, int buf_size)", "n_tokens": 11, "pile_doc_index": 174430, "doc_line": 25}
+{"text": "def findtext(element, path, default=None):", "n_tokens": 10, "pile_doc_index": 150370, "doc_line": 187}
+{"text": "parts = append(parts, name[last:i])", "n_tokens": 9, "pile_doc_index": 146823, "doc_line": 63}
+{"text": "BRANCH=${TRAVIS_BRANCH:-master}", "n_tokens": 9, "pile_doc_index": 115615, "doc_line": 14}
+{"text": "return Convert.ToInt32(textBoxEndPosition.Text);", "n_tokens": 10, "pile_doc_index": 78148, "doc_line": 81}
+{"text": "IFT_CEPT                          = 0x13", "n_tokens": 10, "pile_doc_index": 56853, "doc_line": 623}
+{"text": "url: installing-boot9strap-(browser)", "n_tokens": 9, "pile_doc_index": 179191, "doc_line": 118}
+{"text": "animation-delay: $i*.15s;", "n_tokens": 10, "pile_doc_index": 92590, "doc_line": 336}
+{"text": "if (i%2) {", "n_tokens": 7, "pile_doc_index": 4400, "doc_line": 350}
+{"text": "extern logical lsame_(char *, char *);", "n_tokens": 10, "pile_doc_index": 57569, "doc_line": 35}
+{"text": "$this->logger = $logger;", "n_tokens": 7, "pile_doc_index": 108705, "doc_line": 22}
+{"text": "(output_files || []).zip(output_files_compiler_flags || [])", "n_tokens": 11, "pile_doc_index": 147015, "doc_line": 80}
+{"text": "var burrito = require('burrito');", "n_tokens": 9, "pile_doc_index": 5751, "doc_line": 0}
+{"text": "IF( IDIST.EQ.1 ) THEN", "n_tokens": 10, "pile_doc_index": 87803, "doc_line": 66}
+{"text": "func (a Argument) TypeString() string {", "n_tokens": 10, "pile_doc_index": 96741, "doc_line": 58}
+{"text": "MULSD ALPHA, X2            // X_i *= ALPHA", "n_tokens": 13, "pile_doc_index": 2342, "doc_line": 108}
+{"text": "return xxx_messageInfo_Summary.Unmarshal(m, b)", "n_tokens": 12, "pile_doc_index": 78230, "doc_line": 249}
+{"text": "setUriInfo(setUpBasicUriExpectations());", "n_tokens": 10, "pile_doc_index": 133625, "doc_line": 25}
+{"text": "<tr id=\"i6\" class=\"altColor\">", "n_tokens": 11, "pile_doc_index": 87758, "doc_line": 210}
+{"text": "INCLUDE(CheckTypeSize)", "n_tokens": 6, "pile_doc_index": 127165, "doc_line": 91}
+{"text": "<title translate=\"app.title.label\"></title>", "n_tokens": 9, "pile_doc_index": 101757, "doc_line": 12}
+{"text": "#endif // ENABLE(REMOTE_INSPECTOR)", "n_tokens": 9, "pile_doc_index": 73500, "doc_line": 51}
+{"text": "PYNUT_UNIQUE_ID: unique_id,", "n_tokens": 9, "pile_doc_index": 25920, "doc_line": 95}
+{"text": "## DBsection(Systems with 2 variables)", "n_tokens": 10, "pile_doc_index": 29428, "doc_line": 8}
+{"text": "value = cmdenv_get(env, \"platform\");", "n_tokens": 10, "pile_doc_index": 124165, "doc_line": 115}
+{"text": "#ifndef BOOST_TYPE_TRAITS_DECLVAL_HPP_INCLUDED", "n_tokens": 9, "pile_doc_index": 167070, "doc_line": 7}
+{"text": "fnGlobalObject().enumerable = true;", "n_tokens": 9, "pile_doc_index": 227, "doc_line": 12}
+{"text": "imol = molindex[i];", "n_tokens": 7, "pile_doc_index": 115774, "doc_line": 76}
+{"text": "x5 := src[y8+7]", "n_tokens": 9, "pile_doc_index": 125070, "doc_line": 96}
+{"text": "self.use = self.to_list(use) + ['PROTOBUF']", "n_tokens": 13, "pile_doc_index": 30044, "doc_line": 212}
+{"text": "Ship.warp = 5.0;", "n_tokens": 9, "pile_doc_index": 14279, "doc_line": 127}
+{"text": "import { helper } from \"@ember/component/helper\";", "n_tokens": 10, "pile_doc_index": 179769, "doc_line": 75}
+{"text": "const hasValues = new Array<boolean>(length);", "n_tokens": 10, "pile_doc_index": 7954, "doc_line": 282}
+{"text": "return stream.WriteAsync(bytes, 0, bytes.Length);", "n_tokens": 12, "pile_doc_index": 138331, "doc_line": 21}
+{"text": "if ((struct device_attribute *)zone_data[zone].attr == attr) {", "n_tokens": 16, "pile_doc_index": 110616, "doc_line": 267}
+{"text": "#ifndef BOOST_MPL_AUX_TYPE_WRAPPER_HPP_INCLUDED", "n_tokens": 9, "pile_doc_index": 102891, "doc_line": 1}
+{"text": "lazy val check = taskKey[Unit](\"check\")", "n_tokens": 10, "pile_doc_index": 74696, "doc_line": 0}
+{"text": "generator.BuildCastState(exp, \"TIMESTAMP\");", "n_tokens": 10, "pile_doc_index": 134437, "doc_line": 197}
+{"text": "if len(ds.Vm) != 0 {", "n_tokens": 10, "pile_doc_index": 16828, "doc_line": 64}
+{"text": "void             CreateLineout(const bool fromDefault = true,", "n_tokens": 12, "pile_doc_index": 140761, "doc_line": 114}
+{"text": "if (!pdf_is_number(ctx, obj))", "n_tokens": 9, "pile_doc_index": 2147, "doc_line": 56}
+{"text": "boolean sameValueAs(TrackingId other) {", "n_tokens": 10, "pile_doc_index": 8470, "doc_line": 49}
+{"text": "## _2018-08-04_", "n_tokens": 13, "pile_doc_index": 28563, "doc_line": 216}
+{"text": "return static_cast<V>(a[0]);", "n_tokens": 9, "pile_doc_index": 8264, "doc_line": 22}
+{"text": "SYS_ADD_KEY                = 5239", "n_tokens": 10, "pile_doc_index": 39744, "doc_line": 246}
+{"text": "<Capability Name=\"ID_CAP_CAMERA\" />", "n_tokens": 9, "pile_doc_index": 122139, "doc_line": 132}
+{"text": "<object class=\"NSFont\" key=\"IBUIFont\">", "n_tokens": 11, "pile_doc_index": 134145, "doc_line": 67}
+{"text": "Checked 1 interleaving(s). No errors found.", "n_tokens": 11, "pile_doc_index": 85537, "doc_line": 0}
+{"text": "#define _LIBCPP_DISABLE_DEPRECATION_WARNINGS", "n_tokens": 9, "pile_doc_index": 34974, "doc_line": 13}
+{"text": "raw, err := json.Marshal(*in)", "n_tokens": 9, "pile_doc_index": 92959, "doc_line": 39}
+{"text": "android:id=\"@+id/pull_to_refresh_image\"", "n_tokens": 11, "pile_doc_index": 179775, "doc_line": 21}
+{"text": "obj.grad_input = repmat(grad_output, sz);", "n_tokens": 10, "pile_doc_index": 68116, "doc_line": 26}
+{"text": "Elf32_Ehdr *ehdr;", "n_tokens": 9, "pile_doc_index": 159299, "doc_line": 52}
+{"text": "f = append(f, uintptr(0))", "n_tokens": 9, "pile_doc_index": 173012, "doc_line": 49}
+{"text": "it('runs four stages', function (done) {", "n_tokens": 11, "pile_doc_index": 155786, "doc_line": 67}
+{"text": "BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y", "n_tokens": 9, "pile_doc_index": 76351, "doc_line": 31}
+{"text": "shrinkWrapBlocksVal = div.offsetWidth !== 3;", "n_tokens": 12, "pile_doc_index": 16094, "doc_line": 45}
+{"text": "summary({'integer': 1, 'boolean': true})", "n_tokens": 12, "pile_doc_index": 81208, "doc_line": 3}
+{"text": "'post_link': self.mock_permalink.return_value,", "n_tokens": 9, "pile_doc_index": 46912, "doc_line": 215}
+{"text": "test_check: stap -p4 kvm_service_time.stp", "n_tokens": 12, "pile_doc_index": 166208, "doc_line": 12}
+{"text": "#include <boost/spirit/home/support/info.hpp>", "n_tokens": 10, "pile_doc_index": 113547, "doc_line": 17}
+{"text": "return eOAL_SampleFormat_Unknown;", "n_tokens": 10, "pile_doc_index": 88218, "doc_line": 313}
+{"text": "std::string ConfMessage) APT_OVERRIDE;", "n_tokens": 10, "pile_doc_index": 64045, "doc_line": 88}
+{"text": "var _ Cache = DirCache(\"/\")", "n_tokens": 7, "pile_doc_index": 10766, "doc_line": 16}
+{"text": "#ifndef CALL_RECEIVE_TIME_CALCULATOR_H_", "n_tokens": 9, "pile_doc_index": 176715, "doc_line": 9}
+{"text": "python tools/build_vocab.py \\", "n_tokens": 6, "pile_doc_index": 138802, "doc_line": 149}
+{"text": "c.Request = c.Request.WithContext(ctx)", "n_tokens": 9, "pile_doc_index": 91490, "doc_line": 47}
+{"text": "BZZ, China (People's Republic of)", "n_tokens": 10, "pile_doc_index": 61262, "doc_line": 101}
+{"text": "public void allowsUnknownTrait() throws URISyntaxException {", "n_tokens": 10, "pile_doc_index": 1563, "doc_line": 70}
+{"text": "expect(values.country).toBe(initialValues.country);", "n_tokens": 9, "pile_doc_index": 133512, "doc_line": 64}
+{"text": "HINTS ${fts_ROOT_DIR}/include", "n_tokens": 9, "pile_doc_index": 72016, "doc_line": 32}
+{"text": "elif command.startswith('neighbor '):", "n_tokens": 7, "pile_doc_index": 29689, "doc_line": 128}
+{"text": "ACPI_OPERAND_OBJECT     *HandlerObj;", "n_tokens": 10, "pile_doc_index": 18193, "doc_line": 184}
+{"text": "public void write(byte b) throws IOException {", "n_tokens": 9, "pile_doc_index": 36171, "doc_line": 171}
+{"text": "if (value.indexOf('\\x04') != -1) {", "n_tokens": 14, "pile_doc_index": 31406, "doc_line": 184}
+{"text": "NSButton* handle = ret->getHandle();", "n_tokens": 10, "pile_doc_index": 145101, "doc_line": 105}
+{"text": "DbColumnAccessExpression datumPointExp = null;", "n_tokens": 10, "pile_doc_index": 134437, "doc_line": 43}
+{"text": "DO_VA_COPY(ap, ap2);", "n_tokens": 9, "pile_doc_index": 35730, "doc_line": 36}
+{"text": "file 'output/core.o' => 'output/core.s' do", "n_tokens": 13, "pile_doc_index": 162044, "doc_line": 79}
+{"text": "Go version (client): go1.4.2", "n_tokens": 11, "pile_doc_index": 32736, "doc_line": 213}
+{"text": "() => frappe.timeout(0.3),", "n_tokens": 10, "pile_doc_index": 138704, "doc_line": 34}
+{"text": "#define I2C_SOAR_OAR_S          0", "n_tokens": 12, "pile_doc_index": 119570, "doc_line": 92}
+{"text": "mpSourceManager = new cOAL_SourceManager;", "n_tokens": 11, "pile_doc_index": 88218, "doc_line": 211}
+{"text": "public function __construct(LoggerInterface $logger)", "n_tokens": 9, "pile_doc_index": 108705, "doc_line": 20}
+{"text": "var activeTableTab = \"activeTableTab\";", "n_tokens": 10, "pile_doc_index": 31555, "doc_line": 25}
+{"text": "function baseNth(array, n) {", "n_tokens": 9, "pile_doc_index": 93917, "doc_line": 10}
+{"text": "if (GUIHelper.RepaintRequested) {", "n_tokens": 9, "pile_doc_index": 100788, "doc_line": 70}
+{"text": "if !reflect.DeepEqual(b1, b2) {", "n_tokens": 11, "pile_doc_index": 10766, "doc_line": 42}
+{"text": "app:navGraph=\"@navigation/app_nav_graph\"/>", "n_tokens": 10, "pile_doc_index": 122402, "doc_line": 19}
+{"text": "<IconStyle targetId=\"targetStyle\">", "n_tokens": 9, "pile_doc_index": 122567, "doc_line": 8}
+{"text": "main(int argc, char** argv) {", "n_tokens": 9, "pile_doc_index": 161856, "doc_line": 21}
+{"text": "], function( jQuery, rsingleTag ) {", "n_tokens": 10, "pile_doc_index": 135911, "doc_line": 4}
+{"text": "<literal_component>^</literal_component>", "n_tokens": 9, "pile_doc_index": 85275, "doc_line": 2}
+{"text": "use OpenStack\\Common\\Resource\\Retrievable;", "n_tokens": 11, "pile_doc_index": 37611, "doc_line": 9}
+{"text": "public TableResultTable Table { get; set; }", "n_tokens": 11, "pile_doc_index": 40139, "doc_line": 55}
+{"text": "buffer = gimp_context_get_buffer (context);", "n_tokens": 10, "pile_doc_index": 63145, "doc_line": 61}
+{"text": "total time: 100 [ms]", "n_tokens": 10, "pile_doc_index": 56614, "doc_line": 24}
+{"text": "module.exports.out = function (str, cb) {", "n_tokens": 11, "pile_doc_index": 142161, "doc_line": 15}
+{"text": "const video: HTMLVideoElement = document.querySelector(\"video\");", "n_tokens": 12, "pile_doc_index": 111169, "doc_line": 3}
+{"text": "dll::dbn_layers<                                                                                                    \\", "n_tokens": 9, "pile_doc_index": 174258, "doc_line": 28}
+{"text": "mMiddleTrim.remove(mMiddleTrim.getLeast());", "n_tokens": 10, "pile_doc_index": 161336, "doc_line": 490}
+{"text": "data.roll = toNum(record[label.roll])", "n_tokens": 9, "pile_doc_index": 43183, "doc_line": 10}
+{"text": "elif type gettext.sh >/dev/null 2>&1", "n_tokens": 11, "pile_doc_index": 119681, "doc_line": 28}
+{"text": "$item = new CacheItem($key);", "n_tokens": 8, "pile_doc_index": 97498, "doc_line": 65}
+{"text": "vMatrix[2] = in.vMatrix_2;", "n_tokens": 12, "pile_doc_index": 145338, "doc_line": 88}
+{"text": "Exclude - {title} ({tmdbId})", "n_tokens": 10, "pile_doc_index": 101433, "doc_line": 35}
+{"text": "import { storiesOf } from '@storybook/react';", "n_tokens": 10, "pile_doc_index": 81572, "doc_line": 1}
+{"text": "def __init__ (self):", "n_tokens": 7, "pile_doc_index": 74867, "doc_line": 29}
+{"text": "assert_eq!(decoded.caps, caps);", "n_tokens": 9, "pile_doc_index": 30159, "doc_line": 109}
+{"text": "<TextField label=\"Name\" {...fields.name} />", "n_tokens": 11, "pile_doc_index": 10743, "doc_line": 523}
+{"text": "new BundlePauseXCommand(bundleJob).call();", "n_tokens": 10, "pile_doc_index": 112929, "doc_line": 99}
+{"text": "void benchProjectFileFilter_addRemoveProject_data();", "n_tokens": 10, "pile_doc_index": 74778, "doc_line": 35}
+{"text": "var commandContextProvider = new CommandContextProvider(busMock.Object);", "n_tokens": 13, "pile_doc_index": 120114, "doc_line": 30}
+{"text": "namespace Faker\\Test\\Provider\\de_DE;", "n_tokens": 9, "pile_doc_index": 36512, "doc_line": 2}
+{"text": "struct configure_cmd_struct __iomem *cfg_cmd;", "n_tokens": 11, "pile_doc_index": 135182, "doc_line": 592}
+{"text": "$(EXECUTABLE): $(OBJECTS)", "n_tokens": 9, "pile_doc_index": 152312, "doc_line": 23}
+{"text": "<div class=\"o-group\">", "n_tokens": 6, "pile_doc_index": 173913, "doc_line": 2}
+{"text": "public void testClickHouseTLPWhere() {", "n_tokens": 10, "pile_doc_index": 11013, "doc_line": 22}
+{"text": "<None Include=\"app.manifest\" />", "n_tokens": 9, "pile_doc_index": 99734, "doc_line": 156}
+{"text": "if( pathParamRe.test(split[i]) ) {", "n_tokens": 11, "pile_doc_index": 95609, "doc_line": 41}
+{"text": "<A NAME=HEADING78-0></A>", "n_tokens": 12, "pile_doc_index": 65257, "doc_line": 21}
+{"text": "val[3] = 0x00;", "n_tokens": 11, "pile_doc_index": 105096, "doc_line": 338}
+{"text": "val ret4 = numTrees4(3)", "n_tokens": 10, "pile_doc_index": 46284, "doc_line": 19}
+{"text": "pduread -> __pmOverrideLastFd;", "n_tokens": 10, "pile_doc_index": 64010, "doc_line": 44}
+{"text": "func CurrentRoute(r *http.Request) *Route {", "n_tokens": 11, "pile_doc_index": 3760, "doc_line": 266}
+{"text": "namespace Butschster\\Tests\\MetaTags;", "n_tokens": 9, "pile_doc_index": 45595, "doc_line": 2}
+{"text": "UserOperation user_op = in_user_op;", "n_tokens": 9, "pile_doc_index": 107456, "doc_line": 291}
+{"text": "import { BrowserAnimationsModule } from '@angular/platform-browser/animations';", "n_tokens": 11, "pile_doc_index": 114989, "doc_line": 4}
+{"text": "_ => rouille::Response::empty_404()", "n_tokens": 13, "pile_doc_index": 20892, "doc_line": 15}
+{"text": "mv_b=1.000000", "n_tokens": 11, "pile_doc_index": 30894, "doc_line": 58}
+{"text": "ev = pop->event_w_back[idx];", "n_tokens": 9, "pile_doc_index": 122648, "doc_line": 119}
+{"text": "<div id=\"projectname\">QScintilla", "n_tokens": 10, "pile_doc_index": 174244, "doc_line": 20}
+{"text": "this.anonymousAuthenticationProvider = anonymousAuthenticationProvider;", "n_tokens": 10, "pile_doc_index": 57080, "doc_line": 45}
+{"text": "<output class='ref'>foo</output>", "n_tokens": 10, "pile_doc_index": 177337, "doc_line": 4}
+{"text": "const { children, status } = this.props;", "n_tokens": 10, "pile_doc_index": 156343, "doc_line": 20}
+{"text": "<ws>win32</ws>", "n_tokens": 9, "pile_doc_index": 83076, "doc_line": 7}
+{"text": "inline bool UpdateTimeHasBeenSet() const { return m_updateTimeHasBeenSet; }", "n_tokens": 15, "pile_doc_index": 64290, "doc_line": 151}
+{"text": "Assert.That(contentTypeDefinition2.Name, Is.EqualTo(\"alpha\"));", "n_tokens": 13, "pile_doc_index": 37318, "doc_line": 30}
+{"text": "const verificationResponse = JSON.parse(localStorage.getItem('verificationResponse'));", "n_tokens": 12, "pile_doc_index": 98028, "doc_line": 60}
+{"text": "<a href=\"../Classes/Node.html\">Node</a>", "n_tokens": 12, "pile_doc_index": 48035, "doc_line": 37}
+{"text": "pcgs      map[*ssa.Package]*packageCallGraph", "n_tokens": 11, "pile_doc_index": 54264, "doc_line": 304}
+{"text": "| CS_INFO_ARM _ -> ();", "n_tokens": 7, "pile_doc_index": 66801, "doc_line": 40}
+{"text": "describe('extractPDFInfo', () => {", "n_tokens": 9, "pile_doc_index": 20448, "doc_line": 23}
+{"text": "<%=Model.CurrentNode.Title%>", "n_tokens": 8, "pile_doc_index": 96997, "doc_line": 4}
+{"text": "parmiko.util.log_to_file(log_filename)", "n_tokens": 9, "pile_doc_index": 31983, "doc_line": 8}
+{"text": "public ExportGraphQLProjectOutput(String exportedProject) {", "n_tokens": 10, "pile_doc_index": 18202, "doc_line": 28}
+{"text": "validationPlugins = append(validationPlugins, pluginName)", "n_tokens": 10, "pile_doc_index": 102520, "doc_line": 152}
+{"text": "<string-array name=\"repeat_by_nth_wed\">", "n_tokens": 10, "pile_doc_index": 145588, "doc_line": 43}
+{"text": "export const applyDisplayOptions = () => applyHelmDisplayOptions;", "n_tokens": 14, "pile_doc_index": 30470, "doc_line": 35}
+{"text": "angleaxis_opts=opts.AngleAxisOpts(", "n_tokens": 9, "pile_doc_index": 130371, "doc_line": 24}
+{"text": "es[len(es)-1].exclude = true", "n_tokens": 9, "pile_doc_index": 5587, "doc_line": 39}
+{"text": "'docker', 'root_dir', self.container_config", "n_tokens": 10, "pile_doc_index": 37364, "doc_line": 125}
+{"text": ": object<StatementEventListener>(jobj)", "n_tokens": 9, "pile_doc_index": 159004, "doc_line": 39}
+{"text": "isPlainObject = require('./isPlainObject');", "n_tokens": 10, "pile_doc_index": 28412, "doc_line": 2}
+{"text": "#import <UIKit/NSObject-Protocol.h>", "n_tokens": 9, "pile_doc_index": 11490, "doc_line": 6}
+{"text": "encode = codecs.utf_16_le_encode", "n_tokens": 9, "pile_doc_index": 102927, "doc_line": 12}
+{"text": "this.Property(c => c.DisplayLocale).HasMaxLength(50);", "n_tokens": 13, "pile_doc_index": 10261, "doc_line": 13}
+{"text": "assertEquals(\"m3\", result.get(2));", "n_tokens": 10, "pile_doc_index": 151307, "doc_line": 47}
+{"text": "Copyright (c) 2006 Tobias Schwinger", "n_tokens": 12, "pile_doc_index": 179290, "doc_line": 1}
+{"text": "gl_PointSize = 1.0;", "n_tokens": 9, "pile_doc_index": 78014, "doc_line": 888}
+{"text": "drainGroup = storePrivate->dispatchGroup;", "n_tokens": 10, "pile_doc_index": 108245, "doc_line": 668}
+{"text": "describe('extractPageInfo', () => {", "n_tokens": 9, "pile_doc_index": 20448, "doc_line": 41}
+{"text": "\"Driver type (do not touch)\": {", "n_tokens": 9, "pile_doc_index": 55703, "doc_line": 196}
+{"text": "numSparseBufferSize = npoints+100;", "n_tokens": 11, "pile_doc_index": 98570, "doc_line": 116}
+{"text": "rootWs.once('message', function(data, flags) {", "n_tokens": 12, "pile_doc_index": 49704, "doc_line": 99}
+{"text": "public javax.servlet.http.HttpSessionContext getSessionContext() {", "n_tokens": 10, "pile_doc_index": 43478, "doc_line": 95}
+{"text": "buf[buf[0]] ^= p.last", "n_tokens": 9, "pile_doc_index": 171177, "doc_line": 117}
+{"text": "struct __MSSPCContext _super;", "n_tokens": 9, "pile_doc_index": 83427, "doc_line": 18}
+{"text": "const presetName = `Vuetify ${options.preset} preset`", "n_tokens": 15, "pile_doc_index": 20096, "doc_line": 29}
+{"text": "private static _ResizeTexturesToSameDimensions(texture1, texture2, scene);", "n_tokens": 16, "pile_doc_index": 143871, "doc_line": 537}
+{"text": "void onToggleDisabledSlicing(bool isChecked);", "n_tokens": 9, "pile_doc_index": 20701, "doc_line": 57}
+{"text": "writeByte(3);    // IdV", "n_tokens": 9, "pile_doc_index": 162150, "doc_line": 470}
+{"text": "real<lower=0> sigma_theta;", "n_tokens": 9, "pile_doc_index": 55128, "doc_line": 11}
+{"text": "B(CreateFunctionContext), U8(3),", "n_tokens": 10, "pile_doc_index": 86746, "doc_line": 101}
+{"text": "static typename base_type::y_type y;                                    \\", "n_tokens": 11, "pile_doc_index": 145295, "doc_line": 466}
+{"text": "<div v-show=\"!options.disableSelection\">", "n_tokens": 9, "pile_doc_index": 173913, "doc_line": 181}
+{"text": "| ----------------------------- | -------- | -------- | ------- |", "n_tokens": 10, "pile_doc_index": 179581, "doc_line": 37}
+{"text": "webpage, 'duration', fatal=False)),", "n_tokens": 9, "pile_doc_index": 77915, "doc_line": 70}
+{"text": "var timeout = window.setTimeout( next, time );", "n_tokens": 10, "pile_doc_index": 151106, "doc_line": 15}
+{"text": "msgpack::object msg = result.get();", "n_tokens": 9, "pile_doc_index": 167405, "doc_line": 55}
+{"text": "'processes'  => 3,", "n_tokens": 9, "pile_doc_index": 147878, "doc_line": 116}
+{"text": "struct mipi_dsi_device\t*device;", "n_tokens": 10, "pile_doc_index": 87038, "doc_line": 30}
+{"text": "<strong>location_id </strong><br>", "n_tokens": 9, "pile_doc_index": 70472, "doc_line": 65}
+{"text": "#include <lemon/concepts/digraph.h>", "n_tokens": 10, "pile_doc_index": 222, "doc_line": 22}
+{"text": "stopMode = kSmcVlps;", "n_tokens": 10, "pile_doc_index": 124459, "doc_line": 233}
+{"text": "public void set(@Nullable DisplayInfo info) {", "n_tokens": 10, "pile_doc_index": 87655, "doc_line": 39}
+{"text": "<div class=\"chart-details-usage__repository\">", "n_tokens": 10, "pile_doc_index": 29988, "doc_line": 4}
+{"text": "func newModule(path string) *Module {", "n_tokens": 9, "pile_doc_index": 42067, "doc_line": 24}
+{"text": ". ${PROJECT_SOURCE_DIR}/RunGrepTest", "n_tokens": 10, "pile_doc_index": 127165, "doc_line": 826}
+{"text": "return zng.map((t) => ({", "n_tokens": 9, "pile_doc_index": 9364, "doc_line": 6}
+{"text": "<meta name=\"theme-color\" content=\"#ffffff\">", "n_tokens": 10, "pile_doc_index": 15783, "doc_line": 24}
+{"text": "public java.lang.Float getZ() {", "n_tokens": 8, "pile_doc_index": 105338, "doc_line": 92}
+{"text": ".buf = msg, .len = 2 },", "n_tokens": 10, "pile_doc_index": 89560, "doc_line": 393}
+{"text": "depends_on \"maven\" => :build", "n_tokens": 9, "pile_doc_index": 68640, "doc_line": 14}
+{"text": "return Timeval{Sec: sec, Usec: usec}", "n_tokens": 14, "pile_doc_index": 77792, "doc_line": 99}
+{"text": "import babel from '@rollup/plugin-babel';", "n_tokens": 10, "pile_doc_index": 93437, "doc_line": 0}
+{"text": "aspects: (bits: 1),", "n_tokens": 9, "pile_doc_index": 32037, "doc_line": 35}
+{"text": "prepopulatedField.data('_changed', true);", "n_tokens": 10, "pile_doc_index": 104268, "doc_line": 34}
+{"text": "count1 = zeros(6, 6);", "n_tokens": 10, "pile_doc_index": 152007, "doc_line": 5}
+{"text": "#define BOOST_SPIRIT_INCLUDE_PHOENIX_OPERATOR", "n_tokens": 11, "pile_doc_index": 109240, "doc_line": 9}
+{"text": "<% elsif !@settings.facebook_description.blank? %>", "n_tokens": 11, "pile_doc_index": 3674, "doc_line": 11}
+{"text": "<Content Include=\"Assets\\StoreLogo.png\" />", "n_tokens": 11, "pile_doc_index": 122075, "doc_line": 119}
+{"text": "<Col span={6}>col-6</Col>", "n_tokens": 12, "pile_doc_index": 60310, "doc_line": 29}
+{"text": "if ($editLink !== null) {", "n_tokens": 8, "pile_doc_index": 78248, "doc_line": 147}
+{"text": "#ifdef CVMX_BUILD_FOR_FREEBSD_KERNEL", "n_tokens": 9, "pile_doc_index": 49794, "doc_line": 79}
+{"text": "if (htab_table != NULL) {", "n_tokens": 9, "pile_doc_index": 101494, "doc_line": 134}
+{"text": "tags = [\"Elastic\", \"Windows\"]", "n_tokens": 9, "pile_doc_index": 87517, "doc_line": 16}
+{"text": "#endif //WEEX_PROJECT_STYLEGETTER_H", "n_tokens": 9, "pile_doc_index": 60023, "doc_line": 41}
+{"text": "originalRadius = sceneGraphObject.getRadius();", "n_tokens": 9, "pile_doc_index": 74306, "doc_line": 56}
+{"text": ", call        = require('./$.iter-call')", "n_tokens": 10, "pile_doc_index": 63246, "doc_line": 1}
+{"text": "$composer = json_decode(file_get_contents('composer.json'));", "n_tokens": 12, "pile_doc_index": 89742, "doc_line": 20}
+{"text": "return (PackageSize)(int)containerSize;", "n_tokens": 10, "pile_doc_index": 56844, "doc_line": 24}
+{"text": "$navList[] = $menu;", "n_tokens": 8, "pile_doc_index": 68338, "doc_line": 72}
+{"text": ".direction-links li a{border-radius: 0;}", "n_tokens": 11, "pile_doc_index": 152622, "doc_line": 21}
+{"text": "<groupId>org.glassfish.web</groupId>", "n_tokens": 11, "pile_doc_index": 53883, "doc_line": 46}
+{"text": "operator: operator.label || operator.text,", "n_tokens": 8, "pile_doc_index": 76137, "doc_line": 125}
+{"text": "var descriptor = Object.getOwnPropertyDescriptor(o, 'foo');", "n_tokens": 10, "pile_doc_index": 116820, "doc_line": 5}
+{"text": "\"implementation\"(project(\":crypto\"))", "n_tokens": 7, "pile_doc_index": 62769, "doc_line": 1}
+{"text": "return h.ChatServiceHandler.DeleteMessage(ctx, in, out)", "n_tokens": 13, "pile_doc_index": 23798, "doc_line": 335}
+{"text": "@array.cycle(nil) do |x|", "n_tokens": 9, "pile_doc_index": 134947, "doc_line": 40}
+{"text": "protected $Description = 'Normal White Level';", "n_tokens": 9, "pile_doc_index": 84814, "doc_line": 40}
+{"text": "#include \"asio/ip/address_v4_iterator.hpp\"", "n_tokens": 10, "pile_doc_index": 118779, "doc_line": 16}
+{"text": "HibBranch fromReference(BranchReference reference);", "n_tokens": 11, "pile_doc_index": 27226, "doc_line": 93}
+{"text": "goog.provide('goog.fx.Transition');", "n_tokens": 9, "pile_doc_index": 29580, "doc_line": 21}
+{"text": "for (JTBMessage jtbMessage : selection) {", "n_tokens": 12, "pile_doc_index": 123441, "doc_line": 62}
+{"text": "LD\t(IX+32),A", "n_tokens": 9, "pile_doc_index": 159281, "doc_line": 558}
+{"text": "- (void)clearAllForces;", "n_tokens": 9, "pile_doc_index": 167729, "doc_line": 123}
+{"text": "if (document.cookie && document.cookie != '') {", "n_tokens": 10, "pile_doc_index": 49507, "doc_line": 78}
+{"text": "const ParamArray&   params) const override;", "n_tokens": 10, "pile_doc_index": 109851, "doc_line": 71}
+{"text": "def add_output_file(file, compiler_flags = '')", "n_tokens": 10, "pile_doc_index": 147015, "doc_line": 70}
+{"text": "\"sentences\", SharedOpenNLPModel.class);", "n_tokens": 11, "pile_doc_index": 124716, "doc_line": 45}
+{"text": "jRunes := []rune(j)", "n_tokens": 9, "pile_doc_index": 165161, "doc_line": 7}
+{"text": "'..............................@.......... @.....................'\\", "n_tokens": 9, "pile_doc_index": 127738, "doc_line": 86}
+{"text": "<int key=\"IBUIBaselineAdjustment\">0</int>", "n_tokens": 13, "pile_doc_index": 134145, "doc_line": 60}
+{"text": "if (ka[i] != kb[i])", "n_tokens": 9, "pile_doc_index": 12321, "doc_line": 81}
+{"text": "this.subtype.add(SubType.ELEMENTAL);", "n_tokens": 10, "pile_doc_index": 179038, "doc_line": 36}
+{"text": "import { mount } from '@vue/test-utils'", "n_tokens": 10, "pile_doc_index": 59592, "doc_line": 75}
+{"text": "function(ADD_ARROW_LIB LIB_NAME)", "n_tokens": 8, "pile_doc_index": 50219, "doc_line": 230}
+{"text": "if (pathOrUrl.startsWith(\"file://\")) {", "n_tokens": 11, "pile_doc_index": 67604, "doc_line": 69}
+{"text": "MOVQ\tx3+24(FP), X3", "n_tokens": 12, "pile_doc_index": 37158, "doc_line": 10}
+{"text": "def startTextPos = curTextPos;", "n_tokens": 9, "pile_doc_index": 125883, "doc_line": 12}
+{"text": "niryo_one_msgs/TrajectoryPlan trajectory_plan", "n_tokens": 11, "pile_doc_index": 167399, "doc_line": 3}
+{"text": "#include <ocelot/analysis/interface/ProgramStructureGraph.h>", "n_tokens": 14, "pile_doc_index": 102368, "doc_line": 9}
+{"text": "for(int i=0;i<6;i++)", "n_tokens": 10, "pile_doc_index": 142365, "doc_line": 19}
+{"text": "&.#{$fa-css-prefix}-lg {", "n_tokens": 9, "pile_doc_index": 131787, "doc_line": 15}
+{"text": "extern int VarintLength(uint64_t v);", "n_tokens": 11, "pile_doc_index": 43738, "doc_line": 70}
+{"text": "ruby_version: Gem::Version.new(RUBY_VERSION),", "n_tokens": 11, "pile_doc_index": 112894, "doc_line": 4}
+{"text": "let mut network = Network::new(args.server);", "n_tokens": 10, "pile_doc_index": 108049, "doc_line": 65}
+{"text": "#include <boost/range/iterator.hpp>", "n_tokens": 9, "pile_doc_index": 1933, "doc_line": 24}
+{"text": "#import <VectorKit/VKTileSource.h>", "n_tokens": 10, "pile_doc_index": 157169, "doc_line": 6}
+{"text": "{\"TimeWorkImage\", \"timeWorkImage\"},", "n_tokens": 10, "pile_doc_index": 116574, "doc_line": 556}
+{"text": "&quot;validator_rule&quot;: null,", "n_tokens": 9, "pile_doc_index": 21034, "doc_line": 69}
+{"text": "extern struct platform_driver sti_dvo_driver;", "n_tokens": 10, "pile_doc_index": 78114, "doc_line": 32}
+{"text": "return $this->droppedFramesCount;", "n_tokens": 9, "pile_doc_index": 143792, "doc_line": 30}
+{"text": "tnStartPosition.Text = _stringFieldType.StartPosition.ToString();", "n_tokens": 10, "pile_doc_index": 78148, "doc_line": 65}
+{"text": "Args.notNull(outStream, \"Output stream\");", "n_tokens": 9, "pile_doc_index": 150312, "doc_line": 128}
+{"text": "netdev_for_each_mc_addr(ha, dev)", "n_tokens": 11, "pile_doc_index": 135182, "doc_line": 725}
+{"text": "SXDate(BaseGame *inGame, ScStack *Stack);", "n_tokens": 13, "pile_doc_index": 113748, "doc_line": 40}
+{"text": "expect(model.urlRoot).toBe('some');", "n_tokens": 9, "pile_doc_index": 158078, "doc_line": 59}
+{"text": "sizeof( endOfCdirRecord ) );", "n_tokens": 9, "pile_doc_index": 85341, "doc_line": 107}
+{"text": "common = { path = \"../common\" }", "n_tokens": 9, "pile_doc_index": 66728, "doc_line": 12}
+{"text": "repeated LabeledStepStats step = 1;", "n_tokens": 11, "pile_doc_index": 138615, "doc_line": 275}
+{"text": "func TestDNS(t *testing.T) {", "n_tokens": 9, "pile_doc_index": 173674, "doc_line": 9}
+{"text": "typedef logic [7:0] data_t;", "n_tokens": 10, "pile_doc_index": 31582, "doc_line": 12}
+{"text": "\"sigmaMin=0.5\\n\",", "n_tokens": 9, "pile_doc_index": 44055, "doc_line": 131}
+{"text": "fl2 = 128.0;", "n_tokens": 10, "pile_doc_index": 80377, "doc_line": 29}
+{"text": "<Namespace Name=\"Microsoft.VisualBasic.MyServices.Internal\">", "n_tokens": 10, "pile_doc_index": 149568, "doc_line": 0}
+{"text": "@media (max-width: $max) {", "n_tokens": 9, "pile_doc_index": 141547, "doc_line": 69}
+{"text": "extern void md4_sem_destroy(int semid);", "n_tokens": 10, "pile_doc_index": 44888, "doc_line": 12}
+{"text": "public DisplayInfoProxy(@Nullable DisplayInfo info) {", "n_tokens": 11, "pile_doc_index": 87655, "doc_line": 29}
+{"text": "pub(crate) struct IncorrectDelimiterFixer<'a> {", "n_tokens": 12, "pile_doc_index": 100137, "doc_line": 3}
+{"text": "for my $regex ( @regexes ) {", "n_tokens": 10, "pile_doc_index": 82860, "doc_line": 23}
+{"text": "if (ui.cbLowercaseOnly->isChecked())", "n_tokens": 10, "pile_doc_index": 116603, "doc_line": 67}
+{"text": "<h4>ForEQEdit</h4>", "n_tokens": 10, "pile_doc_index": 67357, "doc_line": 188}
+{"text": "- [Hyper-parameters Tuning](#hyper-parameters-tuning)", "n_tokens": 15, "pile_doc_index": 138802, "doc_line": 14}
+{"text": "visibility = G(sym_protected);", "n_tokens": 7, "pile_doc_index": 179027, "doc_line": 769}
+{"text": "@mkdir($directorioCache.'/data');", "n_tokens": 9, "pile_doc_index": 274, "doc_line": 33}
+{"text": "print('===> Save image: ' + filename)", "n_tokens": 11, "pile_doc_index": 102993, "doc_line": 40}
+{"text": "public RegistryOperationContextModel Updated { get; set; }", "n_tokens": 12, "pile_doc_index": 22194, "doc_line": 98}
+{"text": "for (Map.Entry<?, ?> entry : map.entrySet()) {", "n_tokens": 12, "pile_doc_index": 16441, "doc_line": 47}
+{"text": "window.opener.SimpleTest.waitForFocus(runTests, window);", "n_tokens": 12, "pile_doc_index": 37502, "doc_line": 11}
+{"text": "<span class=\"en\">Bluetooth</span></a>", "n_tokens": 11, "pile_doc_index": 141883, "doc_line": 397}
+{"text": "use Faker\\Provider\\de_DE\\Internet;", "n_tokens": 10, "pile_doc_index": 36512, "doc_line": 6}
+{"text": "_.each(obj.frames, function(frame, name) {", "n_tokens": 11, "pile_doc_index": 11880, "doc_line": 447}
+{"text": "textgc += \"\\treturn\\n}\\n\"", "n_tokens": 10, "pile_doc_index": 157588, "doc_line": 493}
+{"text": "final User user = lfsContentManager.checkDownload(request);", "n_tokens": 12, "pile_doc_index": 132515, "doc_line": 41}
+{"text": "res = taker.initialize(t_orderbook)", "n_tokens": 9, "pile_doc_index": 77741, "doc_line": 142}
+{"text": ".type\t__raw_writesb,@function", "n_tokens": 9, "pile_doc_index": 48886, "doc_line": 20}
+{"text": "seo_title: \"More Basic Queries | SQL | GOUP\"", "n_tokens": 13, "pile_doc_index": 21370, "doc_line": 3}
+{"text": "android:color=\"@color/sak_color_primary\" />", "n_tokens": 11, "pile_doc_index": 61364, "doc_line": 6}
+{"text": "declare %ann:sequential function local:update()", "n_tokens": 9, "pile_doc_index": 51196, "doc_line": 36}
+{"text": "languagesRecyclerView.addItemDecoration(dividerItemDecoration)", "n_tokens": 9, "pile_doc_index": 40739, "doc_line": 32}
+{"text": "module Unsigned_extended = Unsigned_extended_nonconsensus.Unsigned_extended", "n_tokens": 12, "pile_doc_index": 67192, "doc_line": 15}
+{"text": "<div class=\"volmeter-spacer\" ref=\"spacer\" />", "n_tokens": 13, "pile_doc_index": 99767, "doc_line": 3}
+{"text": "if (max_replication_slots <= 0)", "n_tokens": 10, "pile_doc_index": 46580, "doc_line": 788}
+{"text": "- (void)mouseEntered:(id)arg1;", "n_tokens": 11, "pile_doc_index": 100806, "doc_line": 31}
+{"text": "for(i=0;i<nlhs;i++)", "n_tokens": 10, "pile_doc_index": 121499, "doc_line": 30}
+{"text": "#ifndef BOOST_INTEGER_COMMON_FACTOR_HPP", "n_tokens": 6, "pile_doc_index": 175526, "doc_line": 9}
+{"text": "func NewDefaultConfig() *ConfigState {", "n_tokens": 9, "pile_doc_index": 156582, "doc_line": 303}
+{"text": "<A NAME=\"TOKEN_MESSAGE_ID\"></A>", "n_tokens": 9, "pile_doc_index": 142696, "doc_line": 2314}
+{"text": "extern struct platform_driver sti_tvout_driver;", "n_tokens": 10, "pile_doc_index": 78114, "doc_line": 28}
+{"text": "SetCustomImage(true, true, STATE_PRESSED,", "n_tokens": 11, "pile_doc_index": 133273, "doc_line": 56}
+{"text": "v, _ := trie.lookup(buf[:n])", "n_tokens": 10, "pile_doc_index": 171177, "doc_line": 89}
+{"text": "func (s *LocationStreamer) GetObjectKind() schema.ObjectKind {", "n_tokens": 15, "pile_doc_index": 59342, "doc_line": 48}
+{"text": "void silenceDetected(Terminal* terminal);", "n_tokens": 10, "pile_doc_index": 149060, "doc_line": 80}
+{"text": ".loop-grid-columns(@grid-columns, @class);", "n_tokens": 10, "pile_doc_index": 123725, "doc_line": 69}
+{"text": "if (!(object instanceof IncludesViewNode)) {", "n_tokens": 9, "pile_doc_index": 129217, "doc_line": 208}
+{"text": "#ifndef BOOST_NO_CV_VOID_SPECIALIZATIONS", "n_tokens": 9, "pile_doc_index": 43504, "doc_line": 59}
+{"text": "WriteLiteral(\" class=\\\"ie ie7\\\"\");", "n_tokens": 10, "pile_doc_index": 93177, "doc_line": 58}
+{"text": "<value>330, 383</value>", "n_tokens": 14, "pile_doc_index": 77087, "doc_line": 174}
+{"text": "<namePart>Detroit</namePart>", "n_tokens": 9, "pile_doc_index": 6228, "doc_line": 84}
+{"text": "for _, tt = range gunzipTests {", "n_tokens": 9, "pile_doc_index": 49999, "doc_line": 374}
+{"text": "options={['Maui', 'Jerusalem', 'Wuhan']}", "n_tokens": 13, "pile_doc_index": 81572, "doc_line": 25}
+{"text": "data.fuel = toNum(record[label.fuel])", "n_tokens": 11, "pile_doc_index": 43183, "doc_line": 6}
+{"text": "module.exports = require('./conformsTo');", "n_tokens": 9, "pile_doc_index": 36231, "doc_line": 0}
+{"text": "logical function pspw_gradient(rtdb)", "n_tokens": 10, "pile_doc_index": 48552, "doc_line": 3}
+{"text": "Examples: <em>ne, ni, niti</em>", "n_tokens": 14, "pile_doc_index": 99972, "doc_line": 74}
+{"text": "if(ppr->desctype==0xff) {", "n_tokens": 11, "pile_doc_index": 20608, "doc_line": 91}
+{"text": "globResults = cleanResults(globResults)", "n_tokens": 9, "pile_doc_index": 19916, "doc_line": 61}
+{"text": "#define %implicitconv_flag              $implicitconv", "n_tokens": 9, "pile_doc_index": 87361, "doc_line": 46}
+{"text": "@interface AppDelegate : UIResponder <UIApplicationDelegate>", "n_tokens": 7, "pile_doc_index": 12906, "doc_line": 11}
+{"text": "Coda_compile_config_nonconsensus.Coda_compile_config", "n_tokens": 11, "pile_doc_index": 67192, "doc_line": 10}
+{"text": "#endif /* !MBEDTLS_PLATFORM_STD_TIME */", "n_tokens": 9, "pile_doc_index": 167727, "doc_line": 226}
+{"text": "public string ProviderName { get; set; }", "n_tokens": 10, "pile_doc_index": 143965, "doc_line": 8}
+{"text": "IPCTL_INTRQMAXLEN = 10", "n_tokens": 10, "pile_doc_index": 8016, "doc_line": 377}
+{"text": "this->removed_entries_.size ()));", "n_tokens": 8, "pile_doc_index": 101381, "doc_line": 1054}
+{"text": "void operator()(const node_ptr & p)", "n_tokens": 9, "pile_doc_index": 143110, "doc_line": 41}
+{"text": "class CRM_Admin_Page_Admin extends CRM_Core_Page {", "n_tokens": 10, "pile_doc_index": 38684, "doc_line": 20}
+{"text": "#include <CoreGraphics/CGAffineTransform.h>", "n_tokens": 9, "pile_doc_index": 149614, "doc_line": 29}
+{"text": "foo(i, function(cached, i) {", "n_tokens": 10, "pile_doc_index": 99409, "doc_line": 16}
+{"text": "public function getOperatorSigil() : string {", "n_tokens": 10, "pile_doc_index": 59781, "doc_line": 8}
+{"text": "TEST(MockTestSuiteTest, DISABLED_Pass)", "n_tokens": 11, "pile_doc_index": 22009, "doc_line": 89}
+{"text": "#endif // _WX_GENERIC_CALCTRLG_H", "n_tokens": 9, "pile_doc_index": 144923, "doc_line": 316}
+{"text": "function tokenMultiLineString(stream, state)", "n_tokens": 9, "pile_doc_index": 144450, "doc_line": 108}
+{"text": "d1.d_year = 2001", "n_tokens": 10, "pile_doc_index": 66806, "doc_line": 17}
+{"text": "?(with NAME ?(, NAME)*)", "n_tokens": 9, "pile_doc_index": 1490, "doc_line": 20}
+{"text": "if (equivs.size() > 0)", "n_tokens": 10, "pile_doc_index": 33979, "doc_line": 177}
+{"text": "private void RegisterDefaultProtocol(ContainerBuilderWrapper builder)", "n_tokens": 10, "pile_doc_index": 67994, "doc_line": 56}
+{"text": "int hstart = ph * 2;", "n_tokens": 9, "pile_doc_index": 141869, "doc_line": 98}
+{"text": "get { return this.editablePlaylist; }", "n_tokens": 9, "pile_doc_index": 146030, "doc_line": 30}
+{"text": "common.Uint64ToBytes(viewNumber)))", "n_tokens": 9, "pile_doc_index": 4755, "doc_line": 356}
+{"text": "ret := make([]RawInstruction, len(insts))", "n_tokens": 11, "pile_doc_index": 102188, "doc_line": 14}
+{"text": "public int getPosition() { return buffer.getPosition(); }", "n_tokens": 10, "pile_doc_index": 31843, "doc_line": 87}
+{"text": "x264_frame_t *frame;", "n_tokens": 9, "pile_doc_index": 38668, "doc_line": 73}
+{"text": "[/proc/{{.Pid}}/stat]", "n_tokens": 9, "pile_doc_index": 24980, "doc_line": 147}
+{"text": "Vue.component(vsComponent.name, vsComponent)", "n_tokens": 9, "pile_doc_index": 55369, "doc_line": 3}
+{"text": "on { email } doReturn \"email@test.com\"", "n_tokens": 11, "pile_doc_index": 5966, "doc_line": 191}
+{"text": "t: Map(func(r rune) rune {", "n_tokens": 9, "pile_doc_index": 80284, "doc_line": 248}
+{"text": ">>>  Description                              number   (hours)", "n_tokens": 9, "pile_doc_index": 99280, "doc_line": 83}
+{"text": "u16 data = 0;", "n_tokens": 8, "pile_doc_index": 89560, "doc_line": 539}
+{"text": "int get_luma_stride() const { return stride; }", "n_tokens": 12, "pile_doc_index": 99614, "doc_line": 302}
+{"text": "if ($this->parametersMatcher !== NULL) {", "n_tokens": 10, "pile_doc_index": 152060, "doc_line": 116}
+{"text": "db eval {PRAGMA short_column_names}", "n_tokens": 9, "pile_doc_index": 29658, "doc_line": 41}
+{"text": "estate = AMGetEdgeNumState( edge );", "n_tokens": 10, "pile_doc_index": 11263, "doc_line": 434}
+{"text": "struct drm_agp_mem *agpmem;", "n_tokens": 10, "pile_doc_index": 104319, "doc_line": 63}
+{"text": "var _paq = _paq || [];", "n_tokens": 10, "pile_doc_index": 107969, "doc_line": 35}
+{"text": "handleCol := ds.newExtraHandleSchemaCol()", "n_tokens": 10, "pile_doc_index": 80163, "doc_line": 323}
+{"text": "'<dir>/test-case.md' otherwise. *)", "n_tokens": 10, "pile_doc_index": 49027, "doc_line": 19}
+{"text": "android:text=\"@string/app_descrip\"", "n_tokens": 9, "pile_doc_index": 16, "doc_line": 26}
+{"text": "echo $twig->render($template, $args);", "n_tokens": 11, "pile_doc_index": 119638, "doc_line": 50}
+{"text": ">>> Drive Trip Temperature:        85 C", "n_tokens": 10, "pile_doc_index": 99280, "doc_line": 60}
+{"text": "tracingContext.pushSpan(span);", "n_tokens": 7, "pile_doc_index": 91650, "doc_line": 80}
+{"text": "blob_top_(new Blob<Dtype>()) {}", "n_tokens": 9, "pile_doc_index": 141869, "doc_line": 24}
+{"text": "public function setServerName($serverName){", "n_tokens": 9, "pile_doc_index": 111364, "doc_line": 94}
+{"text": "unset($this->data[$id]);", "n_tokens": 8, "pile_doc_index": 25385, "doc_line": 70}
+{"text": "println(Pi2_6='math.pi**2/6'),", "n_tokens": 14, "pile_doc_index": 112396, "doc_line": 40}
+{"text": "vtype=\"${BASH_REMATCH[2]}\"", "n_tokens": 9, "pile_doc_index": 1049, "doc_line": 29}
+{"text": "$.extend($.inputmask.defaults.aliases, {", "n_tokens": 10, "pile_doc_index": 79379, "doc_line": 23}
+{"text": "ylabel='Affinity eigenvector 2')", "n_tokens": 10, "pile_doc_index": 54283, "doc_line": 573}
+{"text": "CONFIG_TARGET_COBRA5272=y", "n_tokens": 10, "pile_doc_index": 13783, "doc_line": 2}
+{"text": "typedef char(&double_reference_type)[8];", "n_tokens": 9, "pile_doc_index": 145295, "doc_line": 211}
+{"text": "fa_storage_group      VARCHAR(255),", "n_tokens": 10, "pile_doc_index": 107296, "doc_line": 445}
+{"text": "account = create(:account, with_editor: user)", "n_tokens": 11, "pile_doc_index": 139848, "doc_line": 26}
+{"text": "public void writeExternal(ObjectOutput out) throws IOException {", "n_tokens": 11, "pile_doc_index": 130406, "doc_line": 247}
+{"text": "if c.p+delta >= c.size {", "n_tokens": 9, "pile_doc_index": 139950, "doc_line": 112}
+{"text": "run_spec(__dirname, [\"apex\"]);", "n_tokens": 9, "pile_doc_index": 58123, "doc_line": 0}
+{"text": "val vertex1 = ConstantVertex.of(true)", "n_tokens": 9, "pile_doc_index": 107843, "doc_line": 23}
+{"text": "<x3>721.42</x3>", "n_tokens": 13, "pile_doc_index": 10644, "doc_line": 36}
+{"text": "for.end:                                          ; preds = %for.cond", "n_tokens": 10, "pile_doc_index": 66253, "doc_line": 85}
+{"text": "typedef unsigned char DES_cblock[8];", "n_tokens": 9, "pile_doc_index": 24842, "doc_line": 27}
+{"text": "@forelse($tags as $tag)", "n_tokens": 9, "pile_doc_index": 93877, "doc_line": 10}
+{"text": "WoObject woObject = new WoObject();", "n_tokens": 9, "pile_doc_index": 179112, "doc_line": 77}
+{"text": "Living</A></FONT></TD>", "n_tokens": 8, "pile_doc_index": 92722, "doc_line": 98}
+{"text": "{separator && <Separator theme={theme}/>}", "n_tokens": 10, "pile_doc_index": 147993, "doc_line": 51}
+{"text": "equal @formator.canUnderline(), false", "n_tokens": 9, "pile_doc_index": 157300, "doc_line": 91}
+{"text": "var Cons = List.type('Cons', {", "n_tokens": 9, "pile_doc_index": 60734, "doc_line": 9}
+{"text": "intObj.rigidbody.velocity = Vector3.zero;", "n_tokens": 10, "pile_doc_index": 159328, "doc_line": 93}
+{"text": "#define ENABLE_PHYSICS_CHIPMUNK_DETECT 0", "n_tokens": 10, "pile_doc_index": 177795, "doc_line": 42}
+{"text": "vtkNew<vtkDoubleArray> arrS;", "n_tokens": 10, "pile_doc_index": 103315, "doc_line": 51}
+{"text": "color: mix($white, $purple_dark);", "n_tokens": 10, "pile_doc_index": 92590, "doc_line": 771}
+{"text": "<Panel id=\"TeamBackgroundGradientHighlight\" />", "n_tokens": 10, "pile_doc_index": 51000, "doc_line": 11}
+{"text": "], function( jQuery, document ) {", "n_tokens": 8, "pile_doc_index": 24046, "doc_line": 5}
+{"text": "static_path = env.path(\"STATIC_PATH\")", "n_tokens": 9, "pile_doc_index": 134005, "doc_line": 21}
+{"text": "return Cpg_.f(p, T);", "n_tokens": 9, "pile_doc_index": 47129, "doc_line": 57}
+{"text": "public Builder setEndingBefore(String endingBefore) {", "n_tokens": 10, "pile_doc_index": 162630, "doc_line": 137}
+{"text": "let $engine_part= INNODB;", "n_tokens": 9, "pile_doc_index": 66469, "doc_line": 7}
+{"text": "if err != nil && err != io.EOF {", "n_tokens": 10, "pile_doc_index": 146966, "doc_line": 104}
+{"text": "if (--count[len] === 0) {", "n_tokens": 10, "pile_doc_index": 93987, "doc_line": 271}
+{"text": "handler = new DecodeHandler(activity, hints);", "n_tokens": 9, "pile_doc_index": 89472, "doc_line": 95}
+{"text": "(ref0 char)\ttm_zone\t\t\t\t;", "n_tokens": 10, "pile_doc_index": 54311, "doc_line": 71}
+{"text": "if [ ! -d build_linux ]; then", "n_tokens": 9, "pile_doc_index": 9131, "doc_line": 1}
+{"text": "public string TableHtml { get; set; }", "n_tokens": 10, "pile_doc_index": 40139, "doc_line": 45}
+{"text": "var x = document.getElementById(\"typeahead_promote\");", "n_tokens": 11, "pile_doc_index": 171542, "doc_line": 55}
+{"text": "case DRIVE_TYPE_1570:", "n_tokens": 9, "pile_doc_index": 82163, "doc_line": 172}
+{"text": "$ yarn global add @tua-mp/cli", "n_tokens": 10, "pile_doc_index": 8633, "doc_line": 18}
+{"text": "<Panel id=\"TeamBackgroundGradient\" />", "n_tokens": 9, "pile_doc_index": 51000, "doc_line": 10}
+{"text": "client_config = domain_category_service_client_config.config", "n_tokens": 9, "pile_doc_index": 112323, "doc_line": 119}
+{"text": "public void setMachineIp(String MachineIp) {", "n_tokens": 10, "pile_doc_index": 119490, "doc_line": 76}
+{"text": "from codesign.simple_code_signer import SimpleCodeSigner", "n_tokens": 12, "pile_doc_index": 147025, "doc_line": 35}
+{"text": "helper.add(\"family\", channel.getFamily());", "n_tokens": 9, "pile_doc_index": 72341, "doc_line": 67}
+{"text": "stages : ['combine', 'gzip']", "n_tokens": 9, "pile_doc_index": 155786, "doc_line": 41}
+{"text": "buildInfoKeys += BuildInfoKey(resolvers),", "n_tokens": 10, "pile_doc_index": 74696, "doc_line": 15}
+{"text": "auto pDialogLayout = new QVBoxLayout(this);", "n_tokens": 9, "pile_doc_index": 94683, "doc_line": 24}
+{"text": "var oSettings = oTable.fnSettings();", "n_tokens": 9, "pile_doc_index": 175102, "doc_line": 15}
+{"text": "return MyCompare(i1, i2);", "n_tokens": 9, "pile_doc_index": 26005, "doc_line": 71}
+{"text": "#import <SceneKit/SceneKitTypes.h>", "n_tokens": 10, "pile_doc_index": 167729, "doc_line": 6}
+{"text": "public List<ToolStripPathPoint> PathPoints", "n_tokens": 9, "pile_doc_index": 13371, "doc_line": 17}
+{"text": "} params;                                         /**< Parameter union. */", "n_tokens": 9, "pile_doc_index": 38350, "doc_line": 324}
+{"text": "return adoptRef(*new TimeRanges);", "n_tokens": 8, "pile_doc_index": 31364, "doc_line": 32}
+{"text": "web3_type='bounties_network',", "n_tokens": 9, "pile_doc_index": 69099, "doc_line": 520}
+{"text": "#define DT_DRV_COMPAT nxp_kinetis_sim", "n_tokens": 10, "pile_doc_index": 141169, "doc_line": 6}
+{"text": "let v = Marshal.from_channel chan in", "n_tokens": 8, "pile_doc_index": 145461, "doc_line": 39}
+{"text": "namespace foundation    { class DictionaryArray; }", "n_tokens": 9, "pile_doc_index": 109851, "doc_line": 42}
+{"text": "AppMethodBeat.i(21928);", "n_tokens": 10, "pile_doc_index": 68696, "doc_line": 177}
+{"text": "self.assertEqual(f(3), 0)", "n_tokens": 9, "pile_doc_index": 88026, "doc_line": 115}
+{"text": "const int32 new_axis_mask = 0;", "n_tokens": 11, "pile_doc_index": 65631, "doc_line": 109}
+{"text": "{{ 'form.delivery.view_order'|trans }}", "n_tokens": 9, "pile_doc_index": 158862, "doc_line": 31}
+{"text": "var iterFn = getIterFn(iterable)", "n_tokens": 10, "pile_doc_index": 63246, "doc_line": 7}
+{"text": "var shjs = require(\"shelljs\");", "n_tokens": 9, "pile_doc_index": 25750, "doc_line": 2}
+{"text": "ConstructorInstance srcCI = (ConstructorInstance)ctxt.currentCode();", "n_tokens": 13, "pile_doc_index": 12129, "doc_line": 35}
+{"text": "parent.CloseAndCleanUp(item, dispose);", "n_tokens": 9, "pile_doc_index": 178974, "doc_line": 64}
+{"text": "this.m_PacketFuncList.PushBack(callfunc)", "n_tokens": 11, "pile_doc_index": 53476, "doc_line": 176}
+{"text": "client := rekognition.NewFromConfig(cfg)", "n_tokens": 9, "pile_doc_index": 168399, "doc_line": 22}
+{"text": "| CS_INFO_ARM64 _ -> ();", "n_tokens": 9, "pile_doc_index": 66801, "doc_line": 41}
+{"text": "exports.description = 'removes <metadata>';", "n_tokens": 9, "pile_doc_index": 171058, "doc_line": 6}
+{"text": "GtkWidget *widget = GTK_WIDGET (editor);", "n_tokens": 9, "pile_doc_index": 63145, "doc_line": 120}
+{"text": "Query::new(\"fmt\").anchor_end(),", "n_tokens": 9, "pile_doc_index": 72828, "doc_line": 672}
+{"text": "assertThat(controller.actions()).hasSize(1);", "n_tokens": 10, "pile_doc_index": 34991, "doc_line": 52}
+{"text": "## _2018-09-26_", "n_tokens": 13, "pile_doc_index": 28563, "doc_line": 99}
+{"text": "public LegacyKafkaMessageIterator() {", "n_tokens": 8, "pile_doc_index": 13024, "doc_line": 49}
+{"text": "#kdu_expand = kakadu_path + '/kdu_expand'", "n_tokens": 15, "pile_doc_index": 140247, "doc_line": 25}
+{"text": "import {LoginService} from \"./login.service\";", "n_tokens": 10, "pile_doc_index": 98028, "doc_line": 2}
+{"text": "#define SDL_test_font_h_", "n_tokens": 6, "pile_doc_index": 113248, "doc_line": 30}
+{"text": "$connection_info = Database::getConnectionInfo();", "n_tokens": 9, "pile_doc_index": 150885, "doc_line": 39}
+{"text": "assertThat(help, containsString(\"Validates\"));", "n_tokens": 10, "pile_doc_index": 1563, "doc_line": 40}
+{"text": "public void testSetHeadingTooHigh() {", "n_tokens": 9, "pile_doc_index": 161265, "doc_line": 114}
+{"text": "nextText: '&#x3E;',", "n_tokens": 8, "pile_doc_index": 26859, "doc_line": 6}
+{"text": "client := &http.Client{Timeout: timeout}", "n_tokens": 10, "pile_doc_index": 148245, "doc_line": 56}
+{"text": "return User.findOne({ token: token }).exec()", "n_tokens": 10, "pile_doc_index": 175020, "doc_line": 45}
+{"text": "#include \"ShaderHeader/model_lit_vs.h\"", "n_tokens": 9, "pile_doc_index": 177332, "doc_line": 25}
+{"text": "if len(sys.argv) > 1:", "n_tokens": 9, "pile_doc_index": 7880, "doc_line": 33}
+{"text": "{.padX \t\t \t2}", "n_tokens": 9, "pile_doc_index": 90448, "doc_line": 36}
+{"text": "import { BrowserModule } from '@angular/platform-browser';", "n_tokens": 10, "pile_doc_index": 48383, "doc_line": 2}
+{"text": "curTask = enforceProperty(prop, curTask, p.basePlan.ctx)", "n_tokens": 15, "pile_doc_index": 80163, "doc_line": 141}
+{"text": "axios.interceptors.response.use(function (response) {", "n_tokens": 10, "pile_doc_index": 61613, "doc_line": 32}
+{"text": "this._events(Link).on('click', function() {", "n_tokens": 12, "pile_doc_index": 133588, "doc_line": 17}
+{"text": "trace_printk(trace_printk_test_global_str_irq);", "n_tokens": 11, "pile_doc_index": 65274, "doc_line": 19}
+{"text": "2. ReturnIfAbrupt(propKey).", "n_tokens": 9, "pile_doc_index": 19122, "doc_line": 32}
+{"text": ".driver_data = &quirk_asm100,", "n_tokens": 11, "pile_doc_index": 110616, "doc_line": 151}
+{"text": "GCC_WARN_UNDECLARED_SELECTOR = YES;", "n_tokens": 9, "pile_doc_index": 72680, "doc_line": 687}
+{"text": "extern const ui_menu_entry_t pet_rom_menu[];", "n_tokens": 11, "pile_doc_index": 160481, "doc_line": 37}
+{"text": "self.running_var.fill_(1)", "n_tokens": 7, "pile_doc_index": 17074, "doc_line": 30}
+{"text": "!llvm.module.flags = !{!7}", "n_tokens": 10, "pile_doc_index": 109772, "doc_line": 13}
+{"text": "if ( !body || !body.style ) {", "n_tokens": 10, "pile_doc_index": 16094, "doc_line": 20}
+{"text": "if (stream->token != FILTOK) {", "n_tokens": 11, "pile_doc_index": 39381, "doc_line": 54}
+{"text": "struct device *dev = &pdev->dev;", "n_tokens": 10, "pile_doc_index": 87243, "doc_line": 275}
+{"text": "void *ampdesc = $&descriptor;", "n_tokens": 9, "pile_doc_index": 86945, "doc_line": 39}
+{"text": "SSM, Egypt (Arab Republic of)", "n_tokens": 10, "pile_doc_index": 61262, "doc_line": 220}
+{"text": "^<\\?xml version=\"1.0\"\\?>", "n_tokens": 12, "pile_doc_index": 50805, "doc_line": 0}
+{"text": "options:(NSKeyValueObservingOptions)options", "n_tokens": 9, "pile_doc_index": 19792, "doc_line": 45}
+{"text": "if _, ok := plugin.(MutationInterface); ok {", "n_tokens": 11, "pile_doc_index": 102520, "doc_line": 148}
+{"text": "cast<ObjCMessageExpr>(E)->getMethodDecl()) {", "n_tokens": 13, "pile_doc_index": 167198, "doc_line": 355}
+{"text": "<AllowUnsafeBlocks>true</AllowUnsafeBlocks>", "n_tokens": 10, "pile_doc_index": 95614, "doc_line": 12}
+{"text": "extern char Voice_abbrev_message[NAME_LENGTH];", "n_tokens": 10, "pile_doc_index": 130427, "doc_line": 50}
+{"text": "android:layout_marginTop=\"10dip\"", "n_tokens": 11, "pile_doc_index": 106969, "doc_line": 46}
+{"text": "public Address getRegisterAsAddress(int index) {", "n_tokens": 10, "pile_doc_index": 23345, "doc_line": 43}
+{"text": "int v_shift = CHROMA_V_SHIFT;", "n_tokens": 10, "pile_doc_index": 38668, "doc_line": 446}
+{"text": "#include <websocketpp/common/system_error.hpp>", "n_tokens": 9, "pile_doc_index": 61965, "doc_line": 33}
+{"text": "} else {\t\t/* Unicode to OEMCP */", "n_tokens": 11, "pile_doc_index": 5783, "doc_line": 86}
+{"text": "CHECK_NAME(glutForceJoystickFunc);", "n_tokens": 9, "pile_doc_index": 39841, "doc_line": 39}
+{"text": ".B \\-\\-help, \\-h", "n_tokens": 9, "pile_doc_index": 151221, "doc_line": 54}
+{"text": "<div class=\"SRStatus\" id=\"Loading\">", "n_tokens": 10, "pile_doc_index": 1825, "doc_line": 20}
+{"text": "android:id=\"@+id/navHostFragment\"", "n_tokens": 9, "pile_doc_index": 122402, "doc_line": 10}
+{"text": "#include <boost/mpl/identity.hpp>", "n_tokens": 9, "pile_doc_index": 145295, "doc_line": 182}
+{"text": "var x = (\"\" + argA) +", "n_tokens": 10, "pile_doc_index": 10777, "doc_line": 5}

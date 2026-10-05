@@ -1,0 +1,63 @@
+name: pile_code/github_lines
+version: v1
+format: text
+description: Single stripped lines of source code from the Pile's GitHub subset (test
+  file), comment and prose lines filtered out; per-split length histogram in Qwen2.5
+  tokens matches tiu v1. Control target with little truth content.
+source:
+  reference: Gao et al. (2020). The Pile. arXiv:2101.00027
+  url: https://huggingface.co/datasets/monology/pile-uncopyrighted
+  commit: 3be90335b66f24456a5d6659d9c8d208c0357119
+  file: test.jsonl.zst
+  license: per-file licenses of the GitHub sources (Pile GitHub subset)
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_pile_code.py
+  script_sha256: bfe4142e5103242a64145aab917f82e0c27d6aa100c701c5cf2a6f4e5ffea4f6
+  repo_commit: 884052a96c50ee93fc37da6fb8b5a8a7620a1e6d
+  built_at: '2026-10-05T09:42:54+00:00'
+  params:
+    max_lines_per_doc: 10
+    max_docs: 30000
+    test_frac: 0.2
+    split_seed: 0
+    sample_seed: 0
+    tokenizer: Qwen/Qwen2.5-7B-Instruct
+    length_matched_to:
+    - data/tiu/animal_class_false/v1
+    - data/tiu/animal_class_true/v1
+    - data/tiu/cities_false/v1
+    - data/tiu/cities_true/v1
+    - data/tiu/element_symb_false/v1
+    - data/tiu/element_symb_true/v1
+    - data/tiu/larger_than_false/v1
+    - data/tiu/larger_than_true/v1
+    - data/tiu/neg_animal_class_false/v1
+    - data/tiu/neg_animal_class_true/v1
+    - data/tiu/neg_cities_false/v1
+    - data/tiu/neg_cities_true/v1
+    - data/tiu/neg_element_symb_false/v1
+    - data/tiu/neg_element_symb_true/v1
+    - data/tiu/neg_sp_en_trans_false/v1
+    - data/tiu/neg_sp_en_trans_true/v1
+    - data/tiu/smaller_than_false/v1
+    - data/tiu/smaller_than_true/v1
+    - data/tiu/sp_en_trans_false/v1
+    - data/tiu/sp_en_trans_true/v1
+  github_docs_read: 18195
+  line_outcomes:
+    few_symbols: 888525
+    length: 362708
+    passed_filters: 605095
+    comment: 387241
+    prose_run: 64595
+    duplicate: 158283
+    non_ascii: 49161
+splits:
+  train:
+    file: train.jsonl
+    n_records: 6560
+    sha256: ce62d43fa80f615a99ebf88bf4478dc563b118dd5b0de0bdc0c3a651c8e93dbe
+  test:
+    file: test.jsonl
+    n_records: 1794
+    sha256: 2ae4bc56a5ab36f9bed23eb13172cff735594870fff50236975a7d4335b5ebcb
