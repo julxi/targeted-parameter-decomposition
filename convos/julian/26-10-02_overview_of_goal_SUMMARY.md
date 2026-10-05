@@ -1,11 +1,12 @@
 # SUMMARY: Overview of goal (tPD on Qwen for truthfulness)
 
-**Last updated:** 26-10-03 (topic **closed**; batch/steps in the shared settings updated to the tuned values; training continues in `convos/julian/26-10-02_training_run_SUMMARY.md`)
+**Last updated:** 26-10-04 (sync: statements made stale by later topics brought to current state — arm A has run at 7B, the analysis script exists with first results, the untrained baseline was generated on CPU, code committed, bf16 frozen model, final-checkpoint-only saving; open FEEDBACK suggestion and the "all domains" reading recorded)
 
-**Status: closed** [decided: Julian, chat transcribed in the LOG]. Moved on:
-- **To the training-run topic:** batch size and GPU use; untuned hyperparameters; running the untrained baseline (not on an H100); committing the code, which Julian defers until the training run has been discussed.
-- **To a future analysis topic:** the probe script; which CI value to probe; the no-truth-signal control dataset.
-- **Still open here:** the `eval_data_files` crash-mechanism verdict stays `[concluded]`.
+**Status: closed** [decided: Julian, chat transcribed in the LOG]. Where the items handed on at closing stand now:
+- **Training-run topic** (`convos/julian/26-10-02_training_run_SUMMARY.md`): batch size, GPU use and steps/LR were tuned on arm A (batch 16, 5k steps, LR 5e-4, applied to all arms); loss coefficients and the PPGD start stay untuned; tuning the last-token arm is proposed, not done. The code of this topic was committed by Julian (commit `2725132`, 26-10-03).
+- **Test-accuracy topic** (`convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md`): the probe script (`probe_ci.py`) exists and has run on arm A checkpoints; the CI value probed is `lower_leaky` [assumed there]; the untrained baseline was generated there on the laptop CPU.
+- **Still open:** the no-truth-signal control dataset (Julian's TODO, below).
+- **Still open here:** the `eval_data_files` crash-mechanism verdict stays `[concluded]`, explicitly not `[decided]` (Julian, chat transcribed in the LOG). Adopting the FEEDBACK.md suggestion from this session (add to CLAUDE.md's `[decided]` rule that chat messages making a decision get transcribed verbatim in that turn's LOG entry) is Julian's call; as of 26-10-04 it is not adopted.
 
 ## Goal and motivation
 
@@ -27,17 +28,19 @@
 - (C) `all`: padding included. ≈58% of trained positions are padding [verified: mean train length 10.03 Qwen tokens, `max_seq_len` 24]. Julian required ≥50%.
 
 **Shared settings:**
-- Target: all 20 tiu datasets (true + false, affirmative + negated): 6,560 train / 1,794 test statements, about 12 passes over the data in 5k steps × batch 16 [verified: counts]. tiu has no more data. Batch and steps were changed from 10k × batch 4 on 26-10-03, after tuning on arm A (see `convos/julian/26-10-02_training_run_SUMMARY.md`).
+- Target: all 20 tiu datasets (true + false, affirmative + negated; Julian said "all domains", the agent read that as including both labels and asked him to object if he meant true-only; he didn't): 6,560 train / 1,794 test statements, about 12 passes over the data in 5k steps × batch 16 [verified: counts]. tiu has no more data. Batch and steps were changed from 10k × batch 4 on 26-10-03, after tuning on arm A (see `convos/julian/26-10-02_training_run_SUMMARY.md`).
 - Model, losses and layers (15–19 `down_proj`, C=96) are carried over from the legacy config and untuned.
+- Since 26-10-03 the frozen model loads in bf16 (`pretrained_model_dtype: bfloat16`); runs before that loaded fp32 (see the test-accuracy topic).
+- Checkpoints: `save_freq: null` in the three arm configs, so only the final checkpoint is saved, because of the 5 GB WandB cap (see `convos/julian/26-10-03_wandb_storage_SUMMARY.md`).
 
 **Code changes for it** [verified: unit test, full suite, CPU smoke test of arms B and C on a tiny Qwen2]:
 - Positions outside `loss_positions` now run on the **original weights** in all masked forward passes (`route_only_selected_positions`, `spd/models/components.py`) [decided: Julian]. So the decomposition only has to reproduce the computation at the selected positions.
-- **Untrained baseline:** `config_truth_untrained.yaml` (= the all-tokens arm with `steps: 0`). Purpose: do untrained CI functions already leak truth information? [Julian] It saves the initial decomposition (`model_0.pth`) and stops. That checkpoint is bit-identical to a trained run's starting weights and shared by all arms [verified: tiny-model smoke tests]. We initially saved step 0 in every run; Julian rejected that.
-- **Non-target eval** reads the Pile's `val.jsonl.zst` (`eval_data_split: validation`, `eval_data_files`), disjoint from the training files [verified]. `eval_data_files` is honoured only by `lm_decomposition.py`, `targeted_ci_heatmap.py` and `spd/scripts/validation/common.py`. Other scripts that ignore it fail loudly on our configs (`Bad split: validation`) rather than silently reading the training files [verified]. Before, it re-read the first training documents (same split, same seed); that only affected a monitoring metric.
+- **Untrained baseline:** `config_truth_untrained.yaml` (= the all-tokens arm with `steps: 0`). Purpose: do untrained CI functions already leak truth information? [Julian] It saves the initial decomposition (`model_0.pth`) and stops. On the same device, that checkpoint is bit-identical to a trained run's starting weights and identical across arms [verified: tiny-model smoke tests 26-10-02]. The baseline actually used (`s-286aa6a9`) was generated on the laptop CPU, so it is not the GPU runs' exact starting weights; Julian said that doesn't matter (see the test-accuracy topic). We initially saved step 0 in every run; Julian rejected that.
+- **Non-target eval** reads the Pile's `val.jsonl.zst` (`eval_data_split: validation`, `eval_data_files`), disjoint from the training files [verified 26-10-02: resolved data files, snippet lookup]. `eval_data_files` is honoured only by `lm_decomposition.py`, `targeted_ci_heatmap.py` and `spd/scripts/validation/common.py`. Other scripts that ignore it fail loudly on our configs (`Bad split: validation`) rather than silently reading the training files [verified: the `ValueError` reproduced]. The general verdict (only a config naming a split the default layout has, e.g. `train`, would be silently misread) stays `[concluded]`. Before, it re-read the first training documents (same split, same seed); that only affected a monitoring metric.
 
-**Launch:** `python spd/experiments/lm/lm_decomposition.py <arm config>`. Checkpoints, including a 0-step run's `model_0.pth`, are uploaded to WandB (`sync_checkpoints_to_wandb: true`). On vast.ai: `spd-vast --mode provision --config h100`, then run on the instance. `spd-vast <name>` only takes registry experiment names, and the arms aren't registered. Not yet run at 7B. Julian expects iterations on GPU utilisation first.
+**Launch:** `python spd/experiments/lm/lm_decomposition.py <arm config>`. Checkpoints, including a 0-step run's `model_0.pth`, are uploaded to WandB (`sync_checkpoints_to_wandb: true`). On vast.ai: `spd-vast --mode provision --config h100`, then run on the instance. `spd-vast <name>` only takes registry experiment names, and the arms aren't registered. Launch over a login shell (`ssh vastai 'bash -lc "<cmd>"'`), details in the training-run topic. **Run status:** only arm A (all tokens) has been run at 7B (several tuning runs, training-run topic); arms B and C have not.
 
-**Analysis** (a separate script, parked until Julian confirms the runs are going [decided]):
+**Analysis** (a separate script from training, as Julian required; it was parked until the runs were going [decided], and now exists as `probe_ci.py`, see the test-accuracy topic):
 - CI readouts: at the last token, and mean over real tokens. For arm C, also the mean including pads. Arm B: last token only, since its other CIs get no training signal.
 - Probes: logistic regression and mass-mean, on the held-out test split.
 - Baselines:
@@ -47,11 +50,11 @@
 - Generalisation: across domains, and affirmative → negated.
 
 **Points to keep in mind:**
-- **Null hypothesis** [concluded]: the CI net is a learned nonlinear readout (5 × 18,944 MLP-hidden dims → 512 → 480 CIs) of mid-layer activations, from which truth is reportedly linearly decodable. So CIs may carry truth for mundane reasons. Hence the baselines.
+- **Null hypothesis** [concluded]: the CI net is a learned nonlinear readout (5 × 18,944 MLP-hidden dims → 512 → 480 CIs) of mid-layer activations, from which truth is reportedly linearly decodable. So CIs may carry truth for mundane reasons. Hence the baselines. First result supports it: on arm A, untrained CIs reach the residual-stream ceiling, and trained CIs score slightly lower (exact numbers and caveats in `convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md`, *Results*; single seed per run).
 - "The end-of-statement token carries the truth signal" is a working hypothesis of the setup [assumed].
 - The last token is `.` for most statements, but `'.` for the 702 Spanish-translation statements [verified]. Token identity differs across domains.
 
-**Follow-up after results** [Julian's TODO]: if arm A shows a truth signal, test with similar sentences that carry no truth signal (data design open; a random-label "control task" is one option).
+**Follow-up after results** [Julian's TODO; still open]: if arm A shows a truth signal, test with similar sentences that carry no truth signal (data design open; a random-label "control task" is one option).
 
 **Known issues outside this topic** (tracked in `FUTURE_WORK.md`):
 - 6 basedpyright errors in `spd/experiments/rotgrid/analysis/rank_rotgrid_decompositions.py`.
@@ -106,3 +109,4 @@ The arm configs inherit these settings.
 - See also: [convos/julian/26-10-02_prepared_datasets_SUMMARY.md] — the tiu (Truth-is-Universal) datasets and `build_tiu.py` that the arm configs target.
 - See also: [convos/julian/26-10-02_training_run_SUMMARY.md] — the 7B training runs of the arms designed here.
 - See also: [convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md] — probe test accuracies of the finished decompositions; runs on the laptop CPU.
+- See also: [convos/julian/26-10-03_wandb_storage_SUMMARY.md] — why the arm configs designed here now save only the final checkpoint (5 GB WandB cap).

@@ -264,6 +264,7 @@ Answer (26-10-02, Claude Opus 5.5): Recorded as a follow-up in the SUMMARY. A th
 
 C: I want the training of the decompositions and the analysis of them to be different scripts because analysis is cheap and training is expensive
 Answer (26-10-02, Claude Opus 5.5): Agreed. Training is the existing `spd/experiments/lm/lm_decomposition.py` with the arm configs. The probe analysis will be a separate script that only loads saved checkpoints. To make baseline 1 possible without retraining, checkpoints are now also saved at **step 0** (before the first optimizer step) whenever `save_freq` is set. The arm configs save at 0, 2000, …, 10000.
+OUTDATED (26-10-04, sync): the arm configs no longer save at 0, 2000, …, 10000. They have `save_freq: null` (final checkpoint only) because of the WandB storage cap, and the untrained baseline was produced by `config_truth_untrained.yaml` (`steps: 0`). See `convos/julian/26-10-03_wandb_storage_SUMMARY.md`.
 
 ## Questions for Julian
 
@@ -301,6 +302,7 @@ Context: same session. I implemented the training side of the first experiment p
    - New `route_only_selected_positions(mask_infos, position_mask)` in `spd/models/components.py`: it ANDs the position mask into each module's routing mask. The forward hook (`spd/models/component_model.py`) already uses the original module output wherever the routing mask is False.
    - Applied at all six masked forward passes that take a position mask: `stochastic_recon_subset_loss.py`, `persistent_pgd.py`, `pgd_utils.py` (PGD eval), `unmasked_recon_loss.py`, `targeted_recon_loss.py`, `hidden_acts_recon_loss.py`. Other metrics are rejected by config validation for non-`all` positions anyway.
    - The `loss_positions` field description in `spd/configs.py` and the legacy `docs/PROJECT_REFERENCE.md` were updated to match.
+     OUTDATED (26-10-04, sync): the `docs/PROJECT_REFERENCE.md` edit was reverted on 26-10-03 and replaced by an `OUTDATED` marker there; see entry *legacy references frozen; rented-GPU rules moved to CODING.md* in `convos/julian/26-10-02_training_run_LOG.md`.
    - New unit test: `tests/metrics/test_recon_losses.py::test_route_only_selected_positions_uses_original_weights_elsewhere`.
 2. **Step-0 checkpoint** (`spd/run_spd.py`): saved whenever `save_freq` is set, before the first optimizer step. This is for the untrained-CI baseline. It affects every experiment with `save_freq` (one extra small file).
 C: I don't want Step-0 checkpoints. If it's for untrainde-CI baseline only I don't think it should be included in each run. Rather we can just do a 0-step train or whatever is fair if there are any warmup steps.
@@ -318,6 +320,7 @@ Answer (26-10-02, Claude Opus 5.5): Done: the step-0 save is reverted, and `step
 - All three use the 20 tiu datasets with `max_seq_len: 24`. Model, layers, losses and steps are unchanged from the old config.
 - They differ only in `loss_positions` and `label` (checked with `diff`).
 - `config_truth_statements.yaml` was replaced by these (arm A is its successor). References in INDEX.md, `docs/PROJECT_REFERENCE.md` and the prepared-datasets SUMMARY were updated.
+  OUTDATED (26-10-04, sync): the `docs/PROJECT_REFERENCE.md` reference edit was reverted on 26-10-03 and replaced by an `OUTDATED` marker there; see entry *legacy references frozen; rented-GPU rules moved to CODING.md* in `convos/julian/26-10-02_training_run_LOG.md`.
 
 **Verification:**
 - `make check`: ruff clean. basedpyright reports 6 errors, all in `spd/experiments/rotgrid/analysis/rank_rotgrid_decompositions.py`, a file this session did not touch [verified: not in `git status`]. Changed files: 0 errors.
