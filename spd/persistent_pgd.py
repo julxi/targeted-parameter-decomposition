@@ -284,6 +284,22 @@ def _get_router_for_ppgd_config(
             return get_subset_router(routing, device)
 
 
+def _slice_to_batch(
+    source: Float[Tensor, "*source_dims source_c"], batch_dims: tuple[int, ...]
+) -> Float[Tensor, "*source_dims source_c"]:
+    """Cut a source's non-leading batch dims (e.g. positions) down to the current batch.
+
+    LM prompt batches are trimmed to their last loss position, so their width varies; the sources
+    are created for the widest batch (max_seq_len, see run_spd.py) and each batch uses the first
+    `width` positions. Positions beyond the batch get no gradient in that step.
+    """
+    index: list[slice] = [slice(None)]
+    for have, want in zip(source.shape[1:-1], batch_dims[1:], strict=True):
+        assert have == 1 or have >= want, f"source dim {have} < batch dim {want}"
+        index.append(slice(None) if have in (1, want) else slice(0, want))
+    return source[tuple(index)]
+
+
 def get_ppgd_mask_infos(
     ci: dict[str, Float[Tensor, "... C"]],
     weight_deltas: dict[str, Float[Tensor, "d_out d_in"]] | None,
@@ -296,6 +312,7 @@ def get_ppgd_mask_infos(
 
     expanded_adv_sources: dict[str, Float[Tensor, "*batch_dims source_c"]] = {}
     for module_name, source in ppgd_sources.items():
+        source = _slice_to_batch(source, batch_dims)
         B = batch_dims[0]
         N = source.shape[0]
         if N == 1 or N == B:

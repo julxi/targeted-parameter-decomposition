@@ -280,13 +280,16 @@ def _build_sync_script() -> str:
 
     The image is expected to ship uv; vast.ai's CUDA images do, and installing our own would mask
     an image that is not the one we think we rented.
+
+    Intentionally includes the `dev` dependency group (no `--no-dev`): analysis scripts that run on
+    the rented machine need it, e.g. the probe scripts import scikit-learn, which is declared there.
     """
     return "\n".join(
         [
             "set -euo pipefail",
             f"cd {REMOTE_REPO_DIR}",
             "command -v uv >/dev/null || { echo 'uv is not installed in this image' >&2; exit 1; }",
-            "uv sync --no-dev --link-mode copy",
+            "uv sync --link-mode copy",
         ]
     )
 

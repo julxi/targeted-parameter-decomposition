@@ -103,3 +103,4 @@ All C: comments in the LOG are answered.
 - See also: [convos/julian/26-10-02_prepared_datasets_SUMMARY.md] — the tiu v1 datasets these runs train on; the OUTDATED marker placed in `docs/PROJECT_REFERENCE.md` by this topic points there.
 - See also: [convos/julian/26-10-02_epistemic_memory_setup_SUMMARY.md] — set up the legacy-reference rules (`docs/PROJECT_REFERENCE.md`) that this topic changed on 26-10-03 (no new information, mark wrong passages `OUTDATED`).
 - See also: [convos/julian/26-10-05_no_truth_baseline_SUMMARY.md] — first bf16 training runs at the final arm-A settings (arm A `s-bd23f0d1` matches e2b within noise) and the fp32-vs-bf16 throughput trial.
+- See also: [convos/julian/26-10-05_vast_rentals_SUMMARY.md] — why RTX 4090 rentals with `spd-vast` fail at ssh / `uv sync` (mostly non-datacenter hosts) and the proposed launcher fixes.

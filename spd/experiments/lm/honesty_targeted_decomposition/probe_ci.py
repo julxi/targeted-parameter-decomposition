@@ -119,8 +119,12 @@ def load_ci_fns(
 def readouts(x: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
     """(batch, pos, d) -> last-real-token values (batch, d) and mean over real tokens (batch, d)."""
     batch, pos, _ = x.shape
-    real = (torch.arange(pos).unsqueeze(0) < lengths.unsqueeze(1)).unsqueeze(-1).to(x.dtype)
-    last = x[torch.arange(batch), lengths - 1]
+    real = (
+        (torch.arange(pos, device=x.device).unsqueeze(0) < lengths.unsqueeze(1))
+        .unsqueeze(-1)
+        .to(x.dtype)
+    )
+    last = x[torch.arange(batch, device=x.device), lengths - 1]
     mean = (x * real).sum(1) / lengths.unsqueeze(1).to(x.dtype)
     return last, mean
 

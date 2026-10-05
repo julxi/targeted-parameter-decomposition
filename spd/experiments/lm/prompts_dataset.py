@@ -70,6 +70,29 @@ def build_position_mask(
             return is_token & (positions >= (n_tokens - k).unsqueeze(1))
 
 
+def trim_to_loss_positions(batch: dict[str, Tensor]) -> dict[str, Tensor]:
+    """Cut a right-padded batch after its last loss position (= pad it to its longest sequence).
+
+    Positions after the last loss position of every row are padding that no loss reads: masked
+    losses select by `position_mask`, unselected positions run on the original weights, and with
+    causal attention padding on the right cannot influence earlier positions. So dropping them only
+    saves compute; tests/test_prompts_padding.py checks that the losses are unchanged. The batch
+    width then varies from batch to batch (at most max_seq_len).
+    """
+    input_ids, position_mask = batch["input_ids"], batch[POSITION_MASK_KEY]
+    assert input_ids.shape == position_mask.shape, (input_ids.shape, position_mask.shape)
+    positions = torch.arange(1, position_mask.shape[1] + 1)
+    width = int((position_mask * positions).max())
+    assert width > 0, "batch without loss positions"
+    return {"input_ids": input_ids[:, :width], POSITION_MASK_KEY: position_mask[:, :width]}
+
+
+def _collate_trimmed(rows: list[dict[str, Tensor]]) -> dict[str, Tensor]:
+    return trim_to_loss_positions(
+        {key: torch.stack([row[key] for row in rows]) for key in ("input_ids", POSITION_MASK_KEY)}
+    )
+
+
 def read_prompts_file(prompts_file: Path) -> list[str]:
     """One prompt per non-empty line."""
     assert prompts_file.exists(), f"Prompts file not found: {prompts_file}"
@@ -131,6 +154,10 @@ def create_prompts_data_loader(
 ) -> tuple[DataLoader[Any] | StaticBatchLoader, PreTrainedTokenizer]:
     """Create a DataLoader from a list of prompts.
 
+    With a position mask (`loss_positions` other than `all`), every batch is trimmed to its last
+    loss position (`trim_to_loss_positions`), so short batches don't pay for padding up to
+    max_seq_len. With `all`, padding positions are trained on, so batches keep the full width.
+
     Args:
         prompts: The prompts, one sequence each
         tokenizer_name: HuggingFace tokenizer name/path
@@ -161,6 +188,8 @@ def create_prompts_data_loader(
             dataset = dataset.with_format("torch")
 
         batch = dataset[:batch_size]
+        if POSITION_MASK_KEY in batch:
+            batch = trim_to_loss_positions(batch)
         return StaticBatchLoader(batch), tokenizer
 
     # For larger datasets or distributed training, use standard DataLoader.
@@ -199,6 +228,7 @@ def create_prompts_data_loader(
         shuffle=(sampler is None),
         drop_last=True,
         generator=generator,
+        collate_fn=_collate_trimmed if POSITION_MASK_KEY in dataset.column_names else None,
     )
 
     return loader, tokenizer

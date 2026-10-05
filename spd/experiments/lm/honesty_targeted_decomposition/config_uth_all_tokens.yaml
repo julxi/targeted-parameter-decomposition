@@ -1,0 +1,204 @@
+# Qwen2.5-7B-Instruct — targeted decomposition on the Universal Truthfulness Hyperplane (UTH) data
+# (Liu et al., EMNLP 2024, arXiv:2407.08582), all-tokens arm.
+#
+# Target data: the 29 UTH "train task" datasets of data/uth/*/v1 (10 task categories, 20,292
+# training sequences, true and false mixed; built by build_uth.py, see data/README.md). The
+# paper's 3 held-out categories (sentence completion, short-answer QA, summarization) are "test
+# task" datasets without a train split; they are never trained on and only used by probe_uth.py to
+# test truth probes on the CI values across tasks. Eval metrics use the train tasks' held-out
+# splits (5,694 samples).
+#
+# Everything else is the tiu all-tokens arm (config_truth_all_tokens.yaml), unchanged: Qwen layers
+# 15-19 down_proj with C = 96, losses, batch 16, 5,000 steps (= 80,000 target sequences, ~4 passes
+# over the data), LR 5e-4, bf16 frozen model, the Pile as nontarget data. Those settings were tuned
+# on tiu statements of ~10 tokens (single seed per setting) and are untested on these longer and
+# more varied samples (mean 47 tokens).
+#
+# Loss on every real token (loss_positions: tokens), as in the tiu arm. Batches are trimmed to their
+# longest sample (prompts_dataset.trim_to_loss_positions), so max_seq_len 128 is only the upper
+# bound; padding beyond the longest sample in a batch is not computed.
+
+# --- WandB ---
+wandb_project: spd
+wandb_run_name: null
+wandb_run_name_prefix: ""
+sync_checkpoints_to_wandb: true
+label: "uth_all_tokens"
+
+# --- General ---
+seed: 0
+n_mask_samples: 1
+ci_config:
+  mode: global
+  fn_type: global_shared_mlp
+  hidden_dims: [512]
+sampling: continuous
+sigmoid_type: leaky_hard
+module_info:
+  - module_pattern: model.layers.15.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.16.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.17.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.18.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.19.mlp.down_proj
+    C: 96
+identity_module_info: null
+use_delta_component: true
+
+# --- Loss config ---
+loss_metric_configs:
+  - classname: ImportanceMinimalityLoss
+    coeff: 1.0e-3
+    pnorm: 2.0
+    beta: 0.2
+    p_anneal_start_frac: 0.0
+    p_anneal_final_p: 1.0
+    p_anneal_end_frac: 1.0
+    eps: 1.0e-12
+    coeff_warmup_frac: 0.2
+    coeff_peak_multiplier: 4.0
+    coeff_anneal_start_frac: 0.2
+    coeff_anneal_end_frac: 1.0
+  - classname: StochasticReconSubsetLoss
+    coeff: 1
+    routing:
+      type: uniform_k_subset
+  - classname: PersistentPGDReconLoss
+    coeff: 0.5
+    optimizer:
+      type: adam
+      beta1: 0.5
+      beta2: 0.99
+      eps: 1.0e-08
+      lr_schedule:
+        start_val: 0.01
+        warmup_pct: 0.025
+        final_val_frac: 0.1
+        fn_type: cosine
+    scope:
+      type: per_batch_per_position
+    use_sigmoid_parameterization: false
+    n_warmup_steps: 2
+    start_frac: 0.8
+output_loss_type: kl
+
+# --- Training ---
+lr_schedule:
+  start_val: 5e-4
+  warmup_pct: 0.0
+  final_val_frac: 0.1
+  fn_type: cosine
+steps: 5_000
+batch_size: 16
+eval_batch_size: 16
+grad_clip_norm_components: 0.01
+grad_clip_norm_ci_fns: null
+component_weight_decay: 0.1
+autocast_bf16: true
+
+# --- Faithfulness Warmup ---
+faithfulness_warmup_steps: 0
+
+# --- Logging & Saving ---
+train_log_freq: 100
+eval_freq: 500
+slow_eval_freq: 2500
+# 16 x eval_batch_size = 256 held-out statements per eval; 32 statements were too noisy to
+# compare runs.
+n_eval_steps: 16
+slow_eval_on_first_step: true
+# Final checkpoint only (238 MB each): the WandB account has 5 GB, and intermediate checkpoints
+# have no planned use.
+save_freq: null
+ci_alive_threshold: 0.01
+
+# --- Eval Metrics ---
+eval_metric_configs:
+  - classname: CI_L0
+    groups:
+      total:
+        - "*"
+  - classname: PGDReconLoss
+    init: random
+    step_size: 0.1
+    n_steps: 20
+    mask_scope: shared_across_batch
+  - classname: TargetReconLoss
+    rounding_threshold: 0.01
+  - classname: NontargetReconLoss
+    rounding_threshold: 0.01
+    n_nontarget_batches: 10
+  - classname: TargetedCIHeatmap
+    n_nontarget_examples: 16
+  - classname: WeightMagnitude
+  - classname: UnmaskedReconLoss
+  - classname: CIMeanPerComponent
+  - classname: CIHiddenActsReconLoss
+
+# --- Pretrained model info ---
+pretrained_model_class: transformers.AutoModelForCausalLM
+pretrained_model_path: null
+pretrained_model_name: Qwen/Qwen2.5-7B-Instruct
+# bf16 = the checkpoint's own dtype; matmuls run in bf16 under autocast anyway. Runs before 26-10-03
+# loaded fp32 (only the residual stream between matmuls differs).
+pretrained_model_dtype: bfloat16
+pretrained_model_output_attr: logits
+tokenizer_name: Qwen/Qwen2.5-7B-Instruct
+
+# --- Task Specific (target data) ---
+task_config:
+  task_name: lm
+  max_seq_len: 128  # build_uth.py v1 keeps train-task samples of <= 128 Qwen tokens
+  prepared_datasets:
+    - data/uth/ag_news/v1
+    - data/uth/animals/v1
+    - data/uth/arc/v1
+    - data/uth/arithmetic/v1
+    - data/uth/capitals/v1
+    - data/uth/commonsense_qa/v1
+    - data/uth/companies/v1
+    - data/uth/counterfact/v1
+    - data/uth/creak/v1
+    - data/uth/dbpedia_14/v1
+    - data/uth/definite_pronoun_resolution/v1
+    - data/uth/e2e_nlg_cleaned/v1
+    - data/uth/easy_arc/v1
+    - data/uth/elements/v1
+    - data/uth/facts/v1
+    - data/uth/hotpot_qa_re/v1
+    - data/uth/inventions/v1
+    - data/uth/mrpc/v1
+    - data/uth/nq_re_long/v1
+    - data/uth/openbookqa/v1
+    - data/uth/paws/v1
+    - data/uth/qnli/v1
+    - data/uth/qqp/v1
+    - data/uth/rte/v1
+    - data/uth/strategy_qa/v1
+    - data/uth/tqa/v1
+    - data/uth/triva_qa_re_long/v1
+    - data/uth/winogrande/v1
+    - data/uth/wsc.fixed/v1
+  loss_positions:
+    type: tokens
+
+# --- Targeted Decomposition (nontarget data: general text) ---
+nontarget_task_config:
+  task_name: lm
+  dataset_name: monology/pile-uncopyrighted
+  max_seq_len: 64
+  column_name: text
+  is_tokenized: false
+  streaming: true
+  train_data_split: train
+  eval_data_split: validation
+  eval_data_files: val.jsonl.zst
+  dataset_seed: 0
+  loss_positions:
+    type: all
+nontarget_batch_size: 16
+nontarget_eval_batch_size: 16  # x n_nontarget_batches 10 x 64 tokens = 10,240 Pile tokens
+nontarget_impmin_coeff_ratio: 2

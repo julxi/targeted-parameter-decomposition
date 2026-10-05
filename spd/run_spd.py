@@ -25,6 +25,7 @@ from spd.base_config import BaseConfig
 from spd.configs import (
     Config,
     ImportanceMinimalityLossConfig,
+    LMTaskConfig,
     LossMetricConfigType,
     MetricConfigType,
     PersistentPGDReconLossConfig,
@@ -257,6 +258,12 @@ def optimize(
         if config.output_loss_type == "mse"  # if mse then input is a vector
         else sample_batch.shape  # else it's a batch of token ids
     )
+    if isinstance(config.task_config, LMTaskConfig):
+        # Prompt loaders trim each batch to its last loss position (prompts_dataset.py), so the
+        # first batch can be narrower than later ones. Persistent PGD sources are sized for the
+        # widest possible batch and sliced down per batch (persistent_pgd.get_ppgd_mask_infos).
+        assert len(batch_dims) == 2 and batch_dims[1] <= config.task_config.max_seq_len
+        batch_dims = (batch_dims[0], config.task_config.max_seq_len)
 
     ppgd_states: dict[
         PersistentPGDReconLossConfig | PersistentPGDReconSubsetLossConfig, PersistentPGDState

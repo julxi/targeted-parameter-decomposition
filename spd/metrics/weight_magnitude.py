@@ -11,6 +11,7 @@ from spd.metrics.base import Metric
 from spd.models.component_model import CIOutputs, ComponentModel
 from spd.models.components import LinearComponents
 from spd.plotting import plot_weight_magnitude
+from spd.utils.general_utils import PositionMask, select_positions
 
 C = None  # jaxtyping placeholder
 
@@ -23,7 +24,10 @@ class WeightMagnitude(Metric):
     - Y-axis: Weight magnitude (||V|| * ||U||) per component
     - Color: Max CI over eval inputs per component
 
-    CI values are accumulated from the shared eval loop batches via update().
+    CI values are accumulated from the shared eval loop batches via update(), only at the positions
+    selected by the batch's position mask (padding and other unselected positions are excluded).
+    Each batch is flattened to (positions, C) before accumulation, because prompt batches are
+    trimmed to their longest sample and so differ in width.
     """
 
     slow: ClassVar[bool] = True
@@ -34,9 +38,12 @@ class WeightMagnitude(Metric):
         self.accumulated_cis: dict[str, list[Float[Tensor, "... C"]]] = {}
 
     @override
-    def update(self, *, ci: CIOutputs, **_: Any) -> None:
+    def update(self, *, ci: CIOutputs, position_mask: PositionMask | None, **_: Any) -> None:
         for name, vals in ci.lower_leaky.items():
-            self.accumulated_cis.setdefault(name, []).append(vals.detach().cpu())
+            selected = select_positions(vals.detach(), position_mask)
+            self.accumulated_cis.setdefault(name, []).append(
+                selected.reshape(-1, selected.shape[-1]).cpu()
+            )
 
     @override
     def compute(self) -> dict[str, Image.Image]:
@@ -53,8 +60,7 @@ class WeightMagnitude(Metric):
         max_cis: dict[str, Float[Tensor, C]] = {}
         mean_cis: dict[str, Float[Tensor, C]] = {}
         for layer_name, ci_tensors in self.accumulated_cis.items():
-            ci_cat = torch.cat(ci_tensors, dim=0)
-            ci_flat = ci_cat.reshape(-1, ci_cat.shape[-1])  # [N, C]
+            ci_flat = torch.cat(ci_tensors, dim=0)  # [N, C]
             max_cis[layer_name] = ci_flat.max(dim=0).values  # [C]
             mean_cis[layer_name] = ci_flat.mean(dim=0)  # [C]
 
