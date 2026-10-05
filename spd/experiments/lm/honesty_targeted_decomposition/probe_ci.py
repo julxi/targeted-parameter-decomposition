@@ -14,12 +14,14 @@ Feature sets:
 - Baseline "logprob": mean next-token log-probability of the statement under the frozen model
   (one scalar; positions 1..n-1, since the first token has no prefix). Logistic regression only.
 The untrained baseline is just another run id (a 0-step run of config_truth_untrained.yaml).
+Probe data = the tiu datasets the FIRST run id was trained on; later runs may have a different
+target (e.g. the code-lines control, config_code_control.yaml) and are probed on that same tiu data.
 
 All CI functions read the unmasked model's `down_proj` inputs, so one forward pass serves every
 run: the target model is loaded once, in the runs' `pretrained_model_dtype`, under bf16 autocast
 as in training, and each run contributes only its CI function.
 
-Usage: python probe_ci.py <out_dir> <run_id> [<run_id> ...]
+Usage: python probe_ci.py <out_dir> <tiu run_id> [<run_id> ...]
 """
 
 import copy
@@ -213,7 +215,6 @@ def main(out_dir: str, *run_ids: str) -> None:
         assert c.pretrained_model_dtype == ref.pretrained_model_dtype, run_id
         assert c.module_info == ref.module_info and c.ci_config == ref.ci_config, run_id
         assert c.sigmoid_type == ref.sigmoid_type and c.sampling == "continuous", run_id
-        assert c.task_config.prepared_datasets == ref.task_config.prepared_datasets, run_id  # pyright: ignore[reportAttributeAccessIssue]
         assert c.task_config.max_seq_len == ref.task_config.max_seq_len, run_id  # pyright: ignore[reportAttributeAccessIssue]
         assert c.autocast_bf16, run_id
     dataset_dirs = ref.task_config.prepared_datasets  # pyright: ignore[reportAttributeAccessIssue]
@@ -269,7 +270,11 @@ def main(out_dir: str, *run_ids: str) -> None:
             results[f"{key}/{probe_name}"] = {"test_acc": acc, "per_dataset": per_dataset}
             logger.info(f"{key}/{probe_name}: test acc {acc:.3f}")
     meta = {
-        r: {"checkpoint": i.checkpoint_path.name, "label": i.config.label}
+        r: {
+            "checkpoint": i.checkpoint_path.name,
+            "label": i.config.label,
+            "target": i.config.task_config.prepared_datasets,  # pyright: ignore[reportAttributeAccessIssue]
+        }
         for r, i in run_infos.items()
     }
     (out / "results.json").write_text(json.dumps({"runs": meta, "results": results}, indent=2))

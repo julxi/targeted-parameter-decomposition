@@ -1,0 +1,190 @@
+# Qwen2.5-7B-Instruct — CONTROL decomposition for the Truth-is-Universal tPD arms: the target is
+# short lines of source code instead of true/false statements.
+#
+# Identical to config_truth_all_tokens.yaml except label and target data (task_config.prepared_datasets).
+# Purpose: the tiu arms' CIs are probed for statement truth. This run's CIs are probed on the same tiu
+# statements (probe_ci.py, with a tiu run given first), as a baseline that is trained and sparse
+# like the tiu arms but never saw truth-bearing target data. If the tiu arms' component-specific
+# probe results (on/off pattern of the active components, top-k components, generalisation) are no
+# better than this run's, decomposing truth data added nothing truth-specific. An unrelated target
+# cannot separate "truth" from "short statements about cities/elements/animals/numbers"; a
+# form-matched control would.
+#
+# Target data: data/pile_code/github_lines/v1 (single lines of code from the Pile's GitHub subset,
+# test file; comment and prose lines filtered; per-split length histogram in Qwen tokens equal to
+# tiu v1's, so the number of trained positions per step matches the all-tokens arm). Generator:
+# build_pile_code.py in this folder. The Pile nontarget stream reads train/* and val.jsonl.zst,
+# never test.jsonl.zst, so target and nontarget data are disjoint documents.
+#
+# Model, module_info, losses and optimisation: as the tiu arms (carried over from an earlier capitals
+# config adapted from numpy_and_pandas_4L/config_numpy_reference.yaml; not tuned for Qwen). Layers
+# 15-19 down_proj, C=96.
+#
+# Nontarget eval reads the Pile's validation file (val.jsonl.zst), disjoint from the 30 train/*
+# files that make up the default 'train' split.
+#
+# Batch size, steps and eval size were tuned on the all-tokens arm only (26-10-03, single seed per
+# setting): batch 16 / 5,000 steps matched batch 4 / 10,000 steps on target reconstruction and beat
+# it on PGD reconstruction, Pile reconstruction and sparsity, in about two thirds of the wall time
+# (batch 4 is overhead-bound on an H100: a batch-16 step costs ~1.3x a batch-4 step). A 2x learning
+# rate (1e-3) improved target reconstruction but doubled the Pile reconstruction loss, so 5e-4 was
+# kept. The other arms inherit these settings untested. The last-token arm trains on one position
+# per statement (~16 per batch vs ~160 for all-tokens), so its gradient is much noisier and it may
+# need its own tuning (e.g. a larger batch).
+
+# --- WandB ---
+wandb_project: spd
+wandb_run_name: null
+wandb_run_name_prefix: ""
+sync_checkpoints_to_wandb: true
+label: "code_control_all_tokens"
+
+# --- General ---
+seed: 0
+n_mask_samples: 1
+ci_config:
+  mode: global
+  fn_type: global_shared_mlp
+  hidden_dims: [512]
+sampling: continuous
+sigmoid_type: leaky_hard
+module_info:
+  - module_pattern: model.layers.15.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.16.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.17.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.18.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.19.mlp.down_proj
+    C: 96
+identity_module_info: null
+use_delta_component: true
+
+# --- Loss config ---
+loss_metric_configs:
+  - classname: ImportanceMinimalityLoss
+    coeff: 1.0e-3
+    pnorm: 2.0
+    beta: 0.2
+    p_anneal_start_frac: 0.0
+    p_anneal_final_p: 1.0
+    p_anneal_end_frac: 1.0
+    eps: 1.0e-12
+    coeff_warmup_frac: 0.2
+    coeff_peak_multiplier: 4.0
+    coeff_anneal_start_frac: 0.2
+    coeff_anneal_end_frac: 1.0
+  - classname: StochasticReconSubsetLoss
+    coeff: 1
+    routing:
+      type: uniform_k_subset
+  - classname: PersistentPGDReconLoss
+    coeff: 0.5
+    optimizer:
+      type: adam
+      beta1: 0.5
+      beta2: 0.99
+      eps: 1.0e-08
+      lr_schedule:
+        start_val: 0.01
+        warmup_pct: 0.025
+        final_val_frac: 0.1
+        fn_type: cosine
+    scope:
+      type: per_batch_per_position
+    use_sigmoid_parameterization: false
+    n_warmup_steps: 2
+    start_frac: 0.8
+output_loss_type: kl
+
+# --- Training ---
+lr_schedule:
+  start_val: 5e-4
+  warmup_pct: 0.0
+  final_val_frac: 0.1
+  fn_type: cosine
+steps: 5_000
+batch_size: 16
+eval_batch_size: 16
+grad_clip_norm_components: 0.01
+grad_clip_norm_ci_fns: null
+component_weight_decay: 0.1
+autocast_bf16: true
+
+# --- Faithfulness Warmup ---
+faithfulness_warmup_steps: 0
+
+# --- Logging & Saving ---
+train_log_freq: 100
+eval_freq: 500
+slow_eval_freq: 2500
+# 16 x eval_batch_size = 256 held-out statements per eval; 32 statements were too noisy to
+# compare runs.
+n_eval_steps: 16
+slow_eval_on_first_step: true
+# Final checkpoint only (238 MB each): the WandB account has 5 GB, and intermediate checkpoints
+# have no planned use.
+save_freq: null
+ci_alive_threshold: 0.01
+
+# --- Eval Metrics ---
+eval_metric_configs:
+  - classname: CI_L0
+    groups:
+      total:
+        - "*"
+  - classname: PGDReconLoss
+    init: random
+    step_size: 0.1
+    n_steps: 20
+    mask_scope: shared_across_batch
+  - classname: TargetReconLoss
+    rounding_threshold: 0.01
+  - classname: NontargetReconLoss
+    rounding_threshold: 0.01
+    n_nontarget_batches: 10
+  - classname: TargetedCIHeatmap
+    n_nontarget_examples: 16
+  - classname: WeightMagnitude
+  - classname: UnmaskedReconLoss
+  - classname: CIMeanPerComponent
+  - classname: CIHiddenActsReconLoss
+
+# --- Pretrained model info ---
+pretrained_model_class: transformers.AutoModelForCausalLM
+pretrained_model_path: null
+pretrained_model_name: Qwen/Qwen2.5-7B-Instruct
+# bf16 = the checkpoint's own dtype; matmuls run in bf16 under autocast anyway. Runs before 26-10-03
+# loaded fp32 (only the residual stream between matmuls differs).
+pretrained_model_dtype: bfloat16
+pretrained_model_output_attr: logits
+tokenizer_name: Qwen/Qwen2.5-7B-Instruct
+
+# --- Task Specific (target data) ---
+task_config:
+  task_name: lm
+  max_seq_len: 24  # longest line is 20 Qwen tokens (length-matched to tiu v1)
+  prepared_datasets:
+    - data/pile_code/github_lines/v1
+  loss_positions:
+    type: tokens
+
+# --- Targeted Decomposition (nontarget data: general text) ---
+nontarget_task_config:
+  task_name: lm
+  dataset_name: monology/pile-uncopyrighted
+  max_seq_len: 64
+  column_name: text
+  is_tokenized: false
+  streaming: true
+  train_data_split: train
+  eval_data_split: validation
+  eval_data_files: val.jsonl.zst
+  dataset_seed: 0
+  loss_positions:
+    type: all
+nontarget_batch_size: 16
+nontarget_eval_batch_size: 16  # x n_nontarget_batches 10 x 64 tokens = 10,240 Pile tokens
+nontarget_impmin_coeff_ratio: 2
