@@ -28,7 +28,8 @@ experiment that uses the data (all code in this project lives under `spd/`). Eac
 - **Versions are immutable.** `v1`, `v2`, ... are never edited after being committed; changing the
   data means building a new version. Loading verifies every split file against the `sha256` in its
   manifest, so a run's config (which names the version) pins the exact data it trained on.
-- **Pre-split.** Every dataset ships its own `train` and `test` split. Generators that build several
+- **Pre-split.** Every dataset ships its own `train` and `test` split (exception: the `uth/` test
+  tasks, below, ship only a `test` split, so they cannot be trained on by accident). Generators that build several
   related datasets should split them consistently (e.g. by subject), so mixing datasets in one run
   never leaks a test subject into training.
 
@@ -69,3 +70,12 @@ splits:
 - `tiu/`: true/false statements from Truth-is-Universal (Bürger et al., NeurIPS 2024), one dataset
   per (upstream file, label), split by subject. Build with
   `python spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py --version vN`.
+- `pile_code/github_lines`: single lines of source code from the Pile's GitHub subset, length-matched
+  to tiu v1; a low-truth control target. Build with
+  `python spd/experiments/lm/honesty_targeted_decomposition/build_pile_code.py --version vN`.
+- `uth/`: the Universal Truthfulness Hyperplane datasets (Liu et al., EMNLP 2024), one dataset per
+  upstream dataset, true and false mixed (record field `label`). Each manifest has a `role`:
+  `train_task` (train + held-out test split, length-capped) or `test_task` (the paper's held-out
+  categories: test split only, not length-capped). Cleaning and roles are described in the
+  generator's docstring. Build with
+  `python spd/experiments/lm/honesty_targeted_decomposition/build_uth.py --version vN`.
