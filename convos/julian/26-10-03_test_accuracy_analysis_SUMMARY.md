@@ -1,6 +1,6 @@
 # SUMMARY: Test accuracies of the decompositions (probe analysis)
 
-**Last updated:** 26-10-04 (sync: added the answered top-5 vs sparsity-matched question; removed stale "untrained baseline not generated" caveat; corrected the CPU-autocast KL error size; softened unrecorded claims)
+**Last updated:** 26-10-05 (sparsity-matched baseline and the end of the arm A experiment recorded, from the no-truth-baseline topic)
 
 Julian wants the test accuracies of the decompositions run so far: accuracy of truth probes on CI (causal-importance) values on the held-out tiu test split, as designed in `convos/julian/26-10-02_overview_of_goal_SUMMARY.md` (*Analysis*) [decided: Julian, C: comment in the LOG].
 
@@ -47,7 +47,7 @@ Conclusions [concluded]:
 1. CI probes detecting truth is **expected without any training**: untrained CIs match the residual-stream ceiling. The motivating finding (someone else's unreplicated result: probes on CI values detect statement truth, with no baseline) is fully explained by this null hypothesis.
 2. Training makes the CIs sparse (8.5–11.4 of 480 active per statement vs ~220 untrained) and costs 1.4–2.8 points of accuracy.
 3. The on/off pattern of the ~10 active components alone predicts truth at 0.916–0.964. Not domain identity (domains are balanced), and not a constant end-of-statement code.
-4. No evidence yet that trained components are more truth-specific than random ones: the untrained top-5 components (0.938) fall within the trained range (0.877–0.953). Not a like-for-like comparison; a sparsity-matched baseline is needed.
+4. No evidence yet that trained components are more truth-specific than random ones: the untrained top-5 components (0.938) fall within the trained range (0.877–0.953). Not a like-for-like comparison. The sparsity-matched baseline was done later (26-10-05, bf16 runs, `convos/julian/26-10-05_no_truth_baseline_SUMMARY.md`): at matched k, trained arm A beats untrained by only 1–2 points, within the run-to-run spread.
 5. The hyperparameter settings can't be ranked from these numbers (1.4-point spread, one seed each).
 
 ## Top-5 components vs the proposed sparsity-matched baseline
@@ -59,9 +59,10 @@ Julian asked (C: comment in the LOG, answered there) how the "top-5" result diff
 ## Open
 
 - All C: comments in the LOG are answered.
-- Proposed next: generalisation tests (affirmative → negated, leave-one-domain-out) on `features.npz`; a sparsity-matched untrained baseline; probing the last-token and padded arms once trained (bf16).
+- Not done, and the arm A experiment has ended (26-10-05, see `convos/julian/26-10-05_no_truth_baseline_SUMMARY.md`): generalisation tests (affirmative → negated, leave-one-domain-out); probing the last-token and padded arms (never trained). The sparsity-matched untrained baseline was done in that topic.
 - Faster re-runs for later arms: drop the log-prob baseline and the layers above 19 (proposed in chat, not recorded in the LOG, not done) [assumed].
 
 - See also: [convos/julian/26-10-02_overview_of_goal_SUMMARY.md] — the analysis design (readouts, probes, baselines) this topic implements.
 - See also: [convos/julian/26-10-02_training_run_SUMMARY.md] — the runs whose checkpoints are analysed.
 - See also: [convos/julian/26-10-03_wandb_storage_SUMMARY.md] — which checkpoints survived the cleanup.
+- See also: [convos/julian/26-10-05_no_truth_baseline_SUMMARY.md] — designs a low-truth control decomposition as a further baseline for these probe results.

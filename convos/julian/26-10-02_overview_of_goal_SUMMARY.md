@@ -5,7 +5,7 @@
 **Status: closed** [decided: Julian, chat transcribed in the LOG]. Where the items handed on at closing stand now:
 - **Training-run topic** (`convos/julian/26-10-02_training_run_SUMMARY.md`): batch size, GPU use and steps/LR were tuned on arm A (batch 16, 5k steps, LR 5e-4, applied to all arms); loss coefficients and the PPGD start stay untuned; tuning the last-token arm is proposed, not done. The code of this topic was committed by Julian (commit `2725132`, 26-10-03).
 - **Test-accuracy topic** (`convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md`): the probe script (`probe_ci.py`) exists and has run on arm A checkpoints; the CI value probed is `lower_leaky` [assumed there]; the untrained baseline was generated there on the laptop CPU.
-- **Still open:** the no-truth-signal control dataset (Julian's TODO, below).
+- **No-truth-signal control** (Julian's TODO, below): done in `convos/julian/26-10-05_no_truth_baseline_SUMMARY.md` with lines of code as the target; the control's CIs were mostly off on tiu, so it was uninformative. Julian then ended the arm A experiment (summary in `scratch/arm_A_experiment_summary.md`, local).
 - **Still open here:** the `eval_data_files` crash-mechanism verdict stays `[concluded]`, explicitly not `[decided]` (Julian, chat transcribed in the LOG). Adopting the FEEDBACK.md suggestion from this session (add to CLAUDE.md's `[decided]` rule that chat messages making a decision get transcribed verbatim in that turn's LOG entry) is Julian's call; as of 26-10-04 it is not adopted.
 
 ## Goal and motivation
@@ -54,7 +54,7 @@
 - "The end-of-statement token carries the truth signal" is a working hypothesis of the setup [assumed].
 - The last token is `.` for most statements, but `'.` for the 702 Spanish-translation statements [verified]. Token identity differs across domains.
 
-**Follow-up after results** [Julian's TODO; still open]: if arm A shows a truth signal, test with similar sentences that carry no truth signal (data design open; a random-label "control task" is one option).
+**Follow-up after results** [Julian's TODO; done 26-10-05 with a code-lines control, see the no-truth-baseline topic]: if arm A shows a truth signal, test with similar sentences that carry no truth signal (data design open; a random-label "control task" is one option).
 
 **Known issues outside this topic** (tracked in `FUTURE_WORK.md`):
 - 6 basedpyright errors in `spd/experiments/rotgrid/analysis/rank_rotgrid_decompositions.py`.
@@ -110,3 +110,4 @@ The arm configs inherit these settings.
 - See also: [convos/julian/26-10-02_training_run_SUMMARY.md] — the 7B training runs of the arms designed here.
 - See also: [convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md] — probe test accuracies of the finished decompositions; runs on the laptop CPU.
 - See also: [convos/julian/26-10-03_wandb_storage_SUMMARY.md] — why the arm configs designed here now save only the final checkpoint (5 GB WandB cap).
+- See also: [convos/julian/26-10-05_no_truth_baseline_SUMMARY.md] — picks up the open TODO "similar sentences that carry no truth signal" (low-truth control decomposition).
