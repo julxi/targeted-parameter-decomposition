@@ -15,3 +15,14 @@ hosts:
 - host_id: 124072
   date: 26-10-06
   reason: not running after 900s (instance 54486536, machine 38442, RTX 4090, Japan, JP)
+- host_id: 135676
+  date: 26-10-06
+  reason: not running after 900s (instance 54488634, machine 25706, RTX 4090, Japan, JP)
+- host_id: 256524
+  date: 26-10-06
+  reason: 'ssh failing after 300s: root@23.158.136.85: Permission denied (publickey). (instance 54491074,
+    machine 57250, RTX 4090, California, US)'
+- host_id: 33035
+  date: 26-10-06
+  reason: 'ssh failing after 300s: root@92.180.27.84: Permission denied (publickey). (instance 54492767,
+    machine 55957, RTX 4090, Romania, RO)'
