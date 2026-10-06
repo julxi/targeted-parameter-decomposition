@@ -170,6 +170,7 @@ Julian asked why GPU utilisation is low (I had reported 43%), given that earlier
 **Now** (10:36 UTC, arm A `s-bd23f0d1`, batch 16, bf16 frozen model, step ~600): 3.2 steps/s; `nvidia-smi` 42–74% over 6 one-second samples, ~390–410 W of 575 W, SM clock 1935–1980 MHz [verified]. So about **25% slower per step** than e2a, with less GPU activity and power. Training process: 136% CPU (main thread 67%, autograd thread 42%). The host has 192 cores (Xeon Platinum 8568Y+), 85% idle, load average 16–20, so other tenants are on it [verified: `top`, `lscpu`].
 
 **Cause: unknown.** Two candidates:
+OUTDATED (26-10-06): resolved by the later entry *dtype trial result: bf16 is faster; the slowdown is the machine*: bf16 is 8–10% faster per step than fp32, so the host, not the dtype, caused the slowdown.
 - **The machine.** Different host, different CPU, shared with other tenants. Per `docs/CODING.md`, wall times are only comparable on the same machine.
 - **The bf16 frozen model.** The 26-10-02 micro-benchmark measured bf16 loading as 10–20% *faster* per forward+backward pass. So bf16 should not slow things down, but that benchmark was a single pass, not a full training step (which also contains the fp32 components and CI network and the KL losses) [assumed: no reason found in code for a slowdown; not tested].
 

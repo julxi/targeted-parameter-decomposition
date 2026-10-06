@@ -10,6 +10,7 @@ C: (transcribed from chat) I have problems renting RTX 4090. Whenever I rent a H
 - it waits up to 300 s for ssh and re-attaches the key once halfway through;
 - it gives `uv sync` 10 min (`max_sync_minutes`), and then raises an error;
 - on any of these failures it raises, **and the broken instance keeps billing** unless `--destroy_on_exit` was passed (the `finally` block only prints the destroy command). Recovery is manual: destroy it, relaunch.
+OUTDATED (26-10-06): host-caused failures now destroy the instance (entry *destroy on blacklist*), and `--destroy_on_exit` never actually worked before the `-y` fix (entry *first live test: boot timeout blacklisted, destroy hung*).
 
 **Market check** [verified: `vastai search offers`, 26-10-05, the 4090 config's query with `dph_total` sort, 60 GB storage priced in]:
 
@@ -98,6 +99,7 @@ C: (transcribed from chat) I want the blacklist code, also show the host number 
 - Entries: `host_id`, `date` (YY-MM-DD), `reason`. Pydantic models `BlacklistedHost` / `VastBlacklist` in `run_vast.py`; duplicate host ids fail loudly.
 - Every search adds `host_id notin [...]` to the query, so `n_offers` still counts rentable offers. Because `host_id` is not a documented query field, the result is also checked for blacklisted hosts (assert).
 - **Auto-append, no restart**: the host-caused failures now raise a new `HostFailure` instead of `AssertionError`/`TimeoutError`: instance vanished, status `missing`/`exited` while booting or waiting for ssh, not running after 900 s, ssh still failing after 300 s, `uv sync` over `max_sync_minutes`. `main` catches it, appends the host (reason includes instance, machine, GPU, location), and re-raises. Nothing is destroyed or re-rented (Julian: "No restarts"); the instance keeps billing as before unless `--destroy_on_exit`. A non-timeout `uv sync` error is not blacklisted, since it can be our lockfile's fault.
+OUTDATED (26-10-06): "Nothing is destroyed" was reversed at Julian's request in entry *destroy on blacklist*: a `HostFailure` now destroys the instance (still no re-rent).
 - ssh failures are blacklisted even though a broken local key would fail the same way [concluded: a broken key would show up after the first blacklisted host, and an entry is easy to delete].
 - Hand entries: for failures the launcher cannot see (e.g. a slow Hugging Face download later). The file's header comment shows the format. The launcher rewrites the file when it appends, so comments other than the header are lost; notes go in `reason`.
 - `--offer_id` now looks the offer up first (`search offers -n ask_contract_id=<id>`; `id=` matches nothing [verified: 26-10-06]; the CLI warns that `ask_contract_id` is an unknown field but filters correctly, and the code asserts exactly that offer came back), and refuses an offer on a blacklisted host.
@@ -119,6 +121,7 @@ C: (transcribed from chat) can you add that the instance get's destroyed when it
 Implemented: when a `HostFailure` blacklists the host, `main` now also destroys the instance (in the `finally` block, the same path as `--destroy_on_exit`; the CLI's reply is logged). Still no re-rent: the launcher stops with the error, and relaunching is Julian's call. The "Destroy it with: vastai destroy instance …" hints were removed from the `HostFailure` messages since the destroy is automatic; `_sync_dependencies` lost its now-unused `instance_id` parameter. Other failures (ours, e.g. a `uv sync` error that isn't a timeout) still leave the instance running with the destroy hint, as before.
 
 [verified: ruff, basedpyright clean; `--dry_run` runs.] Not tested: the destroy inside a real failing rental. One unknown: for the "instance vanished" failure, vast.ai has already forgotten the rental, and I don't know whether `vastai destroy instance` then exits non-zero. If it does, Python reports the destroy error on top of the original one; both stay visible.
+OUTDATED (26-10-06): this destroy hung in the first live test (vastai's hidden confirmation prompt, no `-y`), and `vastai destroy` exits 0 even on a 404; fixed in entry *first live test: boot timeout blacklisted, destroy hung*.
 
 ---
 
@@ -138,3 +141,24 @@ Fix: `_vastai` now runs with stdin closed (no invisible prompt can hang it). The
 Possible improvements, not done:
 - A `status_msg` with "resolve host" (or similar) could fail at once instead of after 15 min.
 - The boot wait prints a line every 10 s even when nothing changed; it could print only changes.
+
+---
+
+26-10-06, Claude Opus 5.5 — *sync: two publickey blacklistings unexplained*; written during a `!sync`, from the blacklist file, `git log` and `run_vast.py`; I did not see the console of these rentals
+
+Commit `1b7e978` ("update vastai blacklist", 26-10-06 16:22) added two hosts this LOG never discusses, both auto-appended by the launcher [verified: `spd/scripts/vast_blacklist.yaml`]:
+- host 256524 (instance 54491074, California): "ssh failing after 300s: … Permission denied (publickey)."
+- host 33035 (instance 54492767, Romania): the same message.
+
+Two key rejections in a row on different hosts is the pattern that the comment in `_wait_until_ssh_ready` names as the sign of a broken local key ("the first blacklisted host would reveal a broken one"). Nothing in this LOG records a rental since then where ssh accepted the key. So these two entries may blame hosts for our own key or for a failed `vastai attach ssh` [assumed: cannot tell which from the files]. Suggested check before trusting them: run `vastai logs <id>` on the next rejection, or try the key on a fresh rental. If the key turns out to be at fault, delete the two entries.
+OUTDATED (26-10-06): the flag is resolved: the hosts were bad, and the next rental accepted the same key; see entry *publickey flag resolved: hosts were bad*.
+
+---
+
+C: (transcribed from chat) no, they were bad. The third one worked
+
+---
+
+26-10-06, Claude Opus 5.5 — *publickey flag resolved: hosts were bad*; continuing the sync session
+
+Julian's answer above settles the flag raised in *sync: two publickey blacklistings unexplained*: hosts 256524 and 33035 were bad, and the third rental after them accepted the same key, so our local key and `vastai attach ssh` work [verified by Julian, chat 26-10-06; I did not see that rental's console]. The two blacklist entries stay. This fits the code comment's logic: a broken key would have failed on the next host too.

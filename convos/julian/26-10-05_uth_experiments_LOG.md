@@ -389,6 +389,7 @@ C: (transcribed from chat) yes
 - The sequential job was killed. Its log is renamed `extract.log` on the VM. `meta.json` was written by hand for this run, since the old version wrote none; it says so in a `note` field. The parallel probe step started 18:21 UTC with 15 workers.
 
 Open point for Julian: move `scikit-learn` from the `dev` group to the main dependencies, since the probe scripts need it on rented machines. Alternatively, `spd-vast` could sync with `--group dev`.
+OUTDATED (26-10-06): resolved by the second option; `spd-vast` now installs the dev group. See the entry *spd-vast installs the dev group; the 4090 is too small for item 3*.
 
 ---
 
@@ -566,6 +567,7 @@ Reading [concluded unless marked]:
    - too few components (C = 96 per layer) for 29 diverse datasets;
    - too little training (~4 passes over 20k samples, against ~12 for tiu);
    - the loss weights tuned on short tiu statements.
+   OUTDATED (26-10-06): the loss weights were never tuned on tiu; only batch size, steps and learning rate were (the decomposed layers and C = 96 weren't either). Corrected in the entry *series ended; self-contained summary written and checked*.
 3. **More active on the Pile**: 0.62 components per Pile token against 0.11 for arm A, plausibly because diverse QA, NLI and topic data overlaps general text more than tiu's templated statements [assumed]. Pile reconstruction stays good (0.052).
 4. **Consequence for stage 1**: the CI values come from a decomposition that captures the target computation only partly. A trained-vs-untrained probe difference is still interpretable as "what the trained CI network reads". But if trained CIs don't beat untrained ones, that is weaker evidence against tPD than it would be for a faithful decomposition. A better-fitting decomposition (larger C, more steps) would be the follow-up in that case.
 
@@ -618,6 +620,7 @@ Reading [concluded unless marked]:
 2. **The trained CIs' truth information is task-specific.** In-distribution (tune) they reach 0.705, which is lower than untrained (0.793) but well above chance. Cross-task they are at chance. Whatever truth signal the trained CI network carries does not transfer to new task categories. On tiu (in-distribution only) the corresponding gap looked negligible (0.991 vs 0.998), so the cross-task protocol is what exposed this.
 3. **Below chance on three datasets** (copa 0.285 with n = 200, story_cloze 0.401, sciq 0.438). The trained probe's decision is systematically *inverted* there, not just uninformative. My guess [assumed, untested]: the probe relies on components whose relation to the label differs in sign between tasks, e.g. features tied to answer format or answer length that correlate with truth one way in the training tasks and the other way in these. Inspecting which components drive the probe would test this.
 4. **Caveat: the decomposition fits poorly** (target KL 0.43 vs 0.14 on tiu; even all 480 components give 0.48). So this result says "*this* decomposition's CIs don't carry transferable truth information". It doesn't rule out a better-fitting decomposition (more components, more steps) doing so. Against that hope: the trained CI network loses information relative to the untrained one *in-distribution* too, so sparsification itself seems to drop the transferable part.
+   OUTDATED (26-10-06): the "Against that hope" argument was withdrawn as not following; whether a better-fitting decomposition transfers is untested. See the entry *series ended; self-contained summary written and checked*.
 5. Per the criterion agreed before the run, the series would end here with a negative result. The fit caveat makes "one more run with a better-fitting decomposition" a defensible exception. That's Julian's call.
 
 The H100 is idle.

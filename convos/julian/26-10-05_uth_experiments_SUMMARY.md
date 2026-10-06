@@ -1,10 +1,10 @@
 # SUMMARY: tPD truth experiments on the Universal Truthfulness Hyperplane (UTH) data
 
-**Last updated:** 26-10-05 (series ended by Julian after the negative stage 1 result; self-contained summary in `scratch/uth_experiment_summary.md`)
+**Last updated:** 26-10-06 (sync: self-contained-check corrections applied (tuned settings, dropped in-distribution argument), commit/scikit-learn/cap statuses brought current, k ≥ 2 qualifier, pointers to the 26-10-06 follow-up on the inversions)
 
 Julian wants a new series of tPD (targeted parameter decomposition) truth experiments on Qwen2.5-7B-Instruct. The target data comes from "On the Universal Truthfulness Hyperplane Inside LLMs" (Liu et al., EMNLP 2024, arXiv:2407.08582; data repo `hkust-nlp/Universal_Truthfulness_Hyperplane`), chosen for its diversity despite noisier data. The series should "recreate their experiment" at the compute scale of the arm A runs (about one H100 hour per run). This follows the arm A experiment on Truth-is-Universal (tiu) statements, which ended without evidence for truth-specific mechanisms (`convos/julian/26-10-05_no_truth_baseline_SUMMARY.md`).
 
-**Status: closed** [decided: Julian, transcribed chat in the LOG, "end this series"]. Bottom line [concluded]: on this setup tPD did not recover truth-related mechanisms that generalise across tasks. The trained CI values carry truth only within the training tasks (0.705); on unseen task categories they are at chance (0.488), worse than an untrained CI network at every matched sparsity. Caveat: one seed, and the decomposition fits this data poorly. Self-contained summary of the whole series: `scratch/uth_experiment_summary.md` (gitignored, local). Not pursued: a better-fitting decomposition (more components per layer); why the trained probe inverts on copa, story_cloze and sciq.
+**Status: closed** [decided: Julian, transcribed chat in the LOG, "end this series"]. Bottom line [concluded]: on this setup tPD did not recover truth-related mechanisms that generalise across tasks. The trained CI values carry truth only within the training tasks (0.705); on unseen task categories they are at chance (0.488), worse than an untrained CI network at every matched sparsity k ≥ 2 (top-k CIs per sample). Caveat: one seed, and the decomposition fits this data poorly. Self-contained summary of the whole series: `scratch/uth_experiment_summary.md` (gitignored, local). Not pursued in this series: a better-fitting decomposition (more components per layer). The inversions on copa, story_cloze and sciq were analysed afterwards in `convos/julian/26-10-06_truth_writing_components_SUMMARY.md` (there: an overfit probe; within each held-out dataset the trained CIs do read truth, so the failure is non-transfer).
 
 ## Key facts
 
@@ -20,7 +20,7 @@ Julian wants a new series of tPD (targeted parameter decomposition) truth experi
   - Summarization (cnn_dailymail_re, xsum_re: median 440–849 tokens) fits no affordable training cap. It only matters for testing, which has no cap (see *Plan*).
 - **Label artefacts** [verified]: 34% of arithmetic's false answers are non-numeric ("house"), against 0% of the true ones, so a probe can solve them by format. Single odd examples were also seen in capitals, counterfact and hotpot_qa_re; their frequency is unmeasured [assumed: noise].
 
-## Implemented: generator `build_uth.py` and data `data/uth/*/v1` [verified: generator committed by Julian (`93ff44b`); v1 built from it, all manifests carry that commit and the script hash; data not committed yet]
+## Implemented: generator `build_uth.py` and data `data/uth/*/v1` [verified: generator committed by Julian (`93ff44b`); v1 built from it, all manifests carry that commit and the script hash; data committed by Julian in `692bf6d`]
 
 `python spd/experiments/lm/honesty_targeted_decomposition/build_uth.py --version vN` (defaults: cap 128 tokens, coverage 0.8, 200 held-out per training dataset, 1,000 per test dataset, seed 0). It downloads the files from the pinned upstream commit `f509513`. Output `data/uth/<dataset>/<version>/`; manifests carry `role` (`train_task` / `test_task`) and `category`. Test tasks have no `train` split, so the loader refuses them for training [verified]. Record (first line of the dry run's `strategy_qa/v1/train.jsonl`):
 
@@ -65,10 +65,10 @@ Reading [concluded]:
 Practicalities:
 - `probe_uth.py` now has two subcommands: `run <out_dir> <data_version> <n_workers> <run_id>...` and `probe <out_dir> <n_workers>`. The latter refits from `features.npz` in parallel; sequential fitting took ~4.5 min per 3,584-dim set. Probes fit on the stored float16 features.
 - C grid: {1e-4, 1e-3, 1e-2, 0.1, 1}.
-- **scikit-learn is only in the `dev` dependency group.** VMs synced by `spd-vast` lack it; install with `uv sync --group dev`. Proposed: move it to the main dependencies (Julian's call).
+- **scikit-learn is only in the `dev` dependency group**, so VMs synced by `spd-vast` lacked it. Resolved: `spd-vast` now installs the `dev` group (see *Implemented: stage 1 code*); scikit-learn stays in `dev`.
 - Feature extraction: 7.5 min on the 4090, peak ~20.5 of 24 GB, after cutting `BATCH_TOKENS` to 2,048 and computing log-probs in chunks.
 
-## Implemented: stage 1 code [verified: unit test incl. a mutation check, CPU smoke training on the tiny Qwen2, `make test` (only the known rotgrid failure); not committed]
+## Implemented: stage 1 code [verified: unit test incl. a mutation check, CPU smoke training on the tiny Qwen2, `make test` (only the known rotgrid failure); committed by Julian in `8e8cc1c`, the later `sparsity` subcommand of `probe_uth.py` in a subsequent commit]
 
 - **Per-batch padding**: `prompts_dataset.trim_to_loss_positions` cuts every prompt batch after its last loss position (only with a position mask, i.e. `tokens` / `last_k`; with `all` padding is trained on). Batches stay random; there is no sorting. On the uth data: mean width 101.6 of 128 (0.79× target tokens) [verified: 401 batches].
 - **Persistent PGD**: sources are sized (batch, `max_seq_len`) for LM tasks (`run_spd.py`) and sliced to each batch's width (`persistent_pgd._slice_to_batch`).
@@ -100,7 +100,8 @@ Practicalities:
 
 Reading [concluded]:
 - Sparse, but 15% of the components' effect stays unreconstructed (arm A: 4%), and the target KL plateaued after ~1,500 steps.
-- Even all 480 components reproduce the layers poorly, so the limit is capacity or training, not sparsity. Possible causes: C = 96 is too few for 29 diverse datasets, ~4 passes over the data, settings tuned on tiu [assumed].
+- Even all 480 components reproduce the layers poorly, so the limit is capacity or training, not sparsity. Possible causes: C = 96 is too few for 29 diverse datasets, ~4 passes over the data, settings carried over from tiu [assumed]. Of those settings only batch size, steps and learning rate were ever tuned (on tiu); the decomposed layers, C = 96 and the loss weights never were. The LOG's first reading said the loss weights were tuned on tiu; that was corrected during the self-contained check.
+- Why all 480 components on (0.479) reconstruct worse than only the active ones (0.433) was not investigated.
 - Consequence: a null probe result would be weak evidence against tPD. A larger C or more steps would be the follow-up.
 
 **Matched-sparsity analysis**: `probe_uth.py sparsity <out_dir> <n_workers> <run_id>...` (method from the tiu follow-up `~/spd_out/26-10-05_no_truth_baseline/followup.py`, now in the repo). It reports active-component counts and probes on each sample's top-k CIs (k = 1–50) and on the binary on/off pattern, cross-task.
@@ -113,18 +114,20 @@ Cross-task test (mean over the 8 test datasets), last-token logistic regression;
 - **trained CIs `s-d2ded461`: 0.488 (0.705)**;
 - log-probability: 0.561.
 
-**Matched sparsity**: the trained CIs are worse than the untrained ones at every k ≥ 2 (k = 5: 0.504 vs 0.585; k = 10: 0.499 vs 0.593), at chance throughout. Trained: median 12 active components per sample (untrained ~222); 8% of test samples have none (0.4% on fit).
+(The bracketed tune values are pooled accuracies; the mean over training datasets is 0.850 / 0.794 / 0.706, the values quoted in the 26-10-06 follow-up [verified: `results.json`, 26-10-06].)
 
-Below chance on copa (0.285), story_cloze (0.401) and sciq (0.438), i.e. systematically inverted; cause unknown [assumed: component features whose relation to the label flips between tasks].
+**Matched sparsity**: the trained CIs are worse than the untrained ones at every k ≥ 2 (k = 5: 0.504 vs 0.585; k = 10: 0.499 vs 0.593), at chance throughout; at k = 1 both are 0.54. On the binary on/off pattern: trained 0.530, untrained 0.728. Trained: median 12 active components per sample (untrained ~222); 8% of test samples have none (0.4% on fit).
+
+Below chance on copa (0.285), story_cloze (0.401) and sciq (0.438), i.e. systematically inverted. The cause was left open in this series [assumed then: component features whose relation to the label flips between tasks]. The 26-10-06 follow-up traced it to an overfit probe: strong regularisation removes the inversions, and a few heavily weighted components flip sign between tasks (`convos/julian/26-10-06_truth_writing_components_SUMMARY.md`).
 
 Reading [concluded]:
 - **The success criterion is not met, and the effect goes the opposite way.** The trained CI network's truth signal is task-specific: 0.705 in-distribution, chance on new task categories. The cross-task protocol exposed what tiu's in-distribution test (0.991 vs 0.998) could not.
-- Caveat: the decomposition fits poorly (see the stage 1 run), so this concerns *this* decomposition. A better-fitting one is untested. That trained CIs lose information even in-distribution argues against expecting much from it.
+- Caveat: the decomposition fits poorly (see the stage 1 run), so this concerns *this* decomposition. Whether a better-fitting one (more components, more steps) would transfer is untested. The LOG first argued that the trained CIs' weaker in-distribution score (0.705 vs 0.793) speaks against expecting much from it; that argument was dropped during the self-contained check because it doesn't follow.
 - Re-extraction reproduced stage 0 to within 0.2 points [verified].
 
 ## Plan
 
-Full consolidated design: LOG entry *design consolidated after the second round of comments*.
+Full consolidated design: LOG entry *design consolidated after the second round of comments*. All four steps of the order of work below were carried out (results above). Two points the plan left open were settled: cap 128, by the H100 timing trial (1.57× arm A); and the stage 0 code became the separate script `probe_uth.py` rather than a change to `probe_ci.py`.
 
 **Decided** [decided: Julian's C: comments in the LOG]:
 - **Settings as arm A**: Qwen2.5-7B-Instruct, `down_proj` of layers 15–19, C = 96, batch 16, 5k steps, LR 5e-4, bf16 frozen model, Pile non-target stream, loss on all real tokens, no chat template, one seed (a second if the result is borderline).
@@ -140,12 +143,12 @@ Full consolidated design: LOG entry *design consolidated after the second round 
   - arithmetic stays, despite its format shortcut; probe accuracy is reported per training dataset so any reliance on the shortcut shows.
   - Counts [verified: token counts, 26-10-05]: cap 64 gives 7 categories, 19 datasets, 12,999 sequences (~6 passes in the 80,000 sequences of a run); cap 128 gives 10 categories (adds NLI, topic classification, structure-to-text), 29 datasets, 21,041 sequences (~4 passes). Arm A: ~12 passes. Statement fact checking is 4,600 sequences (35% / 22%).
 - **Eval split**: each training-category dataset gets a `test` split from its `vali` file, within the cap. It serves the built-in training eval and the probe tuning.
-- **Cap 64 vs 128**: decided by a timing trial on the H100 (fixed padding at both caps, 150 steps each).
+- **Cap 64 vs 128**: to be decided by a timing trial on the H100. Outcome: cap 128 (the trial compared arm A with uth at cap 128 with trimmed batches; see *H100 timing trials*).
 - **Padding**: each random batch is padded only to its longest sample. Julian rejected sorting or pooling by length, because it changes the training order.
   - Saving: 15% of target tokens at cap 64, 22% at cap 128 [verified: simulation on the real lengths]. Sorting would have given 0.40–0.45×.
   - Expected to leave training unchanged apart from speed [concluded: right padding plus causal attention, and every loss in the config applies the position mask; not tested]. Checked by an exact unit test (the same batch padded to two lengths gives equal losses).
   - Code: unpadded storage and a collate in the loader; persistent PGD masks (fixed shape (batch, seq_len, C), `spd/persistent_pgd.py`) sliced to the batch length.
-- The cost estimate is still open: the first one (1.8× arm A at cap 64) ignored the Pile batch and padding and was withdrawn. The trial measures it.
+- Cost estimate: the first one (1.8× arm A at cap 64) ignored the Pile batch and padding and was withdrawn. The H100 trial then measured 1.57× arm A at cap 128 with per-batch padding.
 
 **Probe protocol** [concluded; Julian agreed after asking what "probe" referred to]:
 - logistic regression and mass-mean on three feature sets: the residual stream (layer 19 plus a coarse layer sweep), untrained CIs (`s-7fad0c14`), trained CIs;
@@ -167,3 +170,5 @@ Full consolidated design: LOG entry *design consolidated after the second round 
 - See also: [convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md] — `probe_ci.py`, the probe setup to be reused with a cross-task split.
 - See also: [convos/julian/26-10-02_overview_of_goal_SUMMARY.md] — the original motivation (an unreplicated result that used UTH domains) and the deleted legacy `prompts_liu` data, which came from the same UTH repo.
 - See also: [convos/julian/26-10-02_prepared_datasets_SUMMARY.md] — the `data/` + generator convention a `data/uth/` family would follow.
+- See also: [convos/julian/26-10-06_truth_writing_components_SUMMARY.md] — follow-up on `s-d2ded461`: do components write into the truth direction on training tasks and stay silent on test tasks? Finds that the trained CIs do carry truth within each held-out task (the readout just doesn't transfer), that the copa/story_cloze/sciq inversions come from an overfit probe, and that ablating single components (L16:5, L15:10) removes ~45% of the cross-task truth separation at layer 23 (controls pending).
+- See also: [convos/julian/26-10-05_vast_rentals_SUMMARY.md] — why the RTX 4090 rentals for stage 0 kept failing (ssh / `uv sync` on non-datacenter hosts) and the `spd-vast` fixes: host blacklist, 48 GB 4090 and A100 configs.

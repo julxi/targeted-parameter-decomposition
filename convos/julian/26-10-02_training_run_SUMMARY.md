@@ -1,6 +1,6 @@
 # SUMMARY: Training runs (tPD on Qwen2.5-7B, Truth-is-Universal arms)
 
-**Last updated:** 26-10-04 (sync: config state corrected (final checkpoint only, bf16); untrained baseline, probe script and commit marked done; open list made self-contained; legacy-reference and CODING.md outcomes added; decision traces added)
+**Last updated:** 26-10-06 (sync: WeightMagnitude padding-dilution caveat and bf16 throughput added from later topics; See-also links to no-truth-baseline and vast-rentals)
 
 Continues `convos/julian/26-10-02_overview_of_goal_SUMMARY.md`, which designed the experiment:
 - tPD (targeted parameter decomposition) on Qwen2.5-7B-Instruct, target = Truth-is-Universal (tiu) statements;
@@ -64,6 +64,7 @@ PPGD (the persistent adversarial phase, last 20% of steps) adds 150–200 ms per
 ## Done since the verdict (in other topics)
 
 - **bf16 loading of the frozen model** [decided: Julian, transcribed chat in `convos/julian/26-10-03_test_accuracy_analysis_LOG.md`]: new config field `pretrained_model_dtype`, set to `bfloat16` in all tiu configs. All runs of this topic (run 1 to e3b) loaded fp32. Measured in training since (26-10-05, one H100 instance, batch 16, 150-step trials): bf16 is 8–10% faster per step than fp32 and needs ~27 GB instead of 49–54 GB; that instance was ~37% slower than the 26-10-02 one in both dtypes, so wall times differ more between hosts than between dtypes (`convos/julian/26-10-05_no_truth_baseline_SUMMARY.md`).
+- **Caveat on this topic's WeightMagnitude eval figures** (found 26-10-05 in `convos/julian/26-10-05_uth_experiments_LOG.md`, entry *stage 1 code done: per-batch padding, unit test, WeightMagnitude fix, uth config, trial scripts*): the figure ignored the position mask, so the per-component mean CI of every tiu run here was diluted by padding positions (~58% of positions at `max_seq_len` 24, per that entry). The code is fixed for new runs; no record says the existing WandB figures were regenerated [assumed: they were not].
 - **Untrained baseline** generated on the laptop CPU (`s-286aa6a9`; Julian did not want it run on an H100); see the test-accuracy topic.
 - **Probe script** `probe_ci.py` written and run on run 1, e2b, e2c, e3a, e3b and the untrained baseline (test-accuracy topic).
 - **Commit:** Julian committed this topic's records and code himself (`2725132`, "hyperparameter tuning for truthfulness") [verified: `git log`, 26-10-04].
@@ -103,4 +104,5 @@ All C: comments in the LOG are answered.
 - See also: [convos/julian/26-10-02_prepared_datasets_SUMMARY.md] — the tiu v1 datasets these runs train on; the OUTDATED marker placed in `docs/PROJECT_REFERENCE.md` by this topic points there.
 - See also: [convos/julian/26-10-02_epistemic_memory_setup_SUMMARY.md] — set up the legacy-reference rules (`docs/PROJECT_REFERENCE.md`) that this topic changed on 26-10-03 (no new information, mark wrong passages `OUTDATED`).
 - See also: [convos/julian/26-10-05_no_truth_baseline_SUMMARY.md] — first bf16 training runs at the final arm-A settings (arm A `s-bd23f0d1` matches e2b within noise) and the fp32-vs-bf16 throughput trial.
-- See also: [convos/julian/26-10-05_vast_rentals_SUMMARY.md] — why RTX 4090 rentals with `spd-vast` fail at ssh / `uv sync` (mostly non-datacenter hosts) and the proposed launcher fixes.
+- See also: [convos/julian/26-10-06_truth_writing_components_SUMMARY.md] — discusses a new last-k decomposition (the never-run last-token arm flagged here as needing its own tuning); its gate G found that on tiu the next-token output after a statement does depend on truth.
+- See also: [convos/julian/26-10-05_vast_rentals_SUMMARY.md] — why RTX 4090 rentals with `spd-vast` fail at ssh / `uv sync` (mostly non-datacenter hosts), and the launcher changes made for it: datacenter filter, host blacklist (failed hosts auto-added, instance destroyed), A100 config (`--config a100`), and the fix that makes `--destroy_on_exit` actually destroy (it hung on a hidden vastai prompt before).

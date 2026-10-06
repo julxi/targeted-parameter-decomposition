@@ -59,3 +59,4 @@ The topic also started a convention [decided: Julian, this LOG's opening and a t
 - See also: [convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md] — probe test accuracies of the finished decompositions; runs on the laptop CPU.
 - See also: [convos/julian/26-10-02_epistemic_memory_setup_SUMMARY.md] — set up the memory conventions; this topic added one (*Topic starts from a file* in CLAUDE.md).
 - See also: [convos/julian/26-10-02_overview_of_goal_SUMMARY.md] — designed the tiu arm configs whose `save_freq` this topic set to final-checkpoint-only, and set `sync_checkpoints_to_wandb: true` in them.
+- See also: [convos/julian/26-10-05_no_truth_baseline_SUMMARY.md] — uploaded three new final checkpoints (bf16 arm A, code control, untrained; ~238 MB each), budgeted against this topic's 5 GB cap and post-cleanup usage.

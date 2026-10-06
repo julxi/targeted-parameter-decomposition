@@ -66,3 +66,4 @@ Julian asked (C: comment in the LOG, answered there) how the "top-5" result diff
 - See also: [convos/julian/26-10-02_training_run_SUMMARY.md] — the runs whose checkpoints are analysed.
 - See also: [convos/julian/26-10-03_wandb_storage_SUMMARY.md] — which checkpoints survived the cleanup.
 - See also: [convos/julian/26-10-05_no_truth_baseline_SUMMARY.md] — designs a low-truth control decomposition as a further baseline for these probe results.
+- See also: [convos/julian/26-10-05_uth_experiments_SUMMARY.md] — reused this topic's probe setup (`probe_ci.py` functions, via the new `probe_uth.py`) with a cross-task split on UTH (Universal Truthfulness Hyperplane) data; there the trained CIs fell to chance (0.488) on held-out task categories, which the in-distribution tiu test here could not show.
