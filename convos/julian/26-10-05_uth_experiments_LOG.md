@@ -485,3 +485,165 @@ I answered in chat to wait until the code was ready (an H100 rented now would mo
 2. Cap decision. If cap 128 is too expensive, build `data/uth/*/v2` at `--max_tokens 64` (the generator is unchanged) and rerun the stage 0 probes on its categories.
 3. Stage 1 run with `config_uth_all_tokens.yaml` (WandB, final checkpoint).
 4. Stage 1 probes: `probe_uth.py run <out> v1 15 <trained run> s-7fad0c14` on the same machine. Still to write while training runs: the matched-sparsity comparison (top-k CIs per sample, trained vs untrained).
+
+---
+
+C: (transcribed from chat) I commited the code and rented a H100. If the power is restricted, then tha's acceptable. After each step please ask me how to proceed. Also when you go through the timing runs and there is enough ram / utilization we maybe should do two runs.
+
+---
+
+26-10-05, Claude Opus 5.5 — *H100 timing trials: cap 128 costs 1.57× arm A; running two at once gains nothing*
+
+Machine: vast.ai H100 80GB HBM3, power limit 700 W (not capped), 32 CPUs. Code = commit `8e8cc1c` [verified: sha256 of the six changed files equal on laptop and instance]. Trials 19:19–19:39 UTC, all exit 0. Logs in `~/spd_out/26-10-05_uth_experiments/trials/h100/`; parser `parse_trials.py`, which takes the per-step time from tqdm's elapsed time over steps 20–150 (1-second resolution, so ~1–2%; checked against the 26-10-05 dtype trials: 300/592 ms parsed vs 296/591 recorded).
+
+[verified: parsed logs and nvidia-smi samples; single trial each]
+
+| trial (150 steps, batch 16) | ms/step | peak GPU mem | median util | median power |
+|---|---|---|---|---|
+| arm A (tiu, `max_seq_len` 24), no PPGD | 177 | 26.1 GB | 80 % | 575 W |
+| arm A, PPGD | 308 | 25.8 GB | 63 % | 475 W |
+| uth (cap 128, trimmed batches), no PPGD | 262 | 34.6 GB | 98 % | 683 W |
+| uth, PPGD | 546 | 45.3 GB | 98 % | 682 W |
+| 2 × uth at once, no PPGD | 554 each | 69.3 GB | 100 % | 663 W |
+| 2 × uth at once, PPGD | 1,185 / 1,177 | 78.7 GB | 100 % | 665 W |
+
+**Cap decision** [concluded]: a full run is 80% steps without PPGD and 20% with (`start_frac: 0.8`). That gives 0.8 × 177 + 0.2 × 308 = 203 ms per step for arm A and 0.8 × 262 + 0.2 × 546 = 319 ms for uth: **1.57×**, well below the agreed ~2.5× threshold. So cap 128 stays and the v1 data is used as built. 5,000 steps ≈ 27 min of training steps, plus evals; uth's evals are larger than arm A's (~5 min overhead there). So roughly 35–40 min per run [assumed: eval overhead not measured for uth]. This H100 is fast: arm A's step here (177 ms) is 40% faster than on the 26-10-05 instance (296 ms), which again shows that wall times only compare on one machine.
+
+**Two runs at once** (Julian's question) [concluded]: no gain. One uth run already keeps the GPU at 98% utilisation and ~680 W, near the 700 W limit. Two concurrent runs each take slightly more than twice as long per step: 554 vs 2 × 262 = 524 ms without PPGD (+6%), ~1,181 vs 2 × 546 = 1,092 ms with PPGD (+8%). So concurrency is 6–8% *slower* than running sequentially. With PPGD the pair also peaks at 78.7 of 80 GB, close to running out of memory. Recommendation: run sequentially. If a second run is wanted (e.g. a second seed, to measure the run-to-run spread that the success criterion depends on), run it after the first.
+
+---
+
+C: (transcribed from chat) Ok, when one run uses the whole GPU that's great. So start the run
+
+(in reply to: A = one run (seed 0), as planned; B = two seeds sequentially, recommended by the agent. Read as A: one run.)
+
+---
+
+26-10-05, Claude Opus 5.5 — *stage 1 run launched*
+
+One run of `config_uth_all_tokens.yaml` (seed 0) on the H100, commit `8e8cc1c`, launched detached via a login shell. Log `/root/runs/uth_s0.log` on the instance.
+
+---
+
+C: (transcribed from chat) Yes, do that. But I thought you already had this script for the previous analysis
+
+---
+
+26-10-05, Claude Opus 5.5 — *matched-sparsity analysis added to probe_uth.py (method reused from the tiu follow-up)*
+
+Julian is right that the method exists. The tiu matched-sparsity comparison was a one-off script outside the repo, `~/spd_out/26-10-05_no_truth_baseline/followup.py`, hard-wired to that run's tiu features and in-distribution split. I reused its method and moved it into the repo as a subcommand:
+
+`python probe_uth.py sparsity <out_dir> <n_workers> <run_id>...` reads `features.npz` from a `run` and writes `sparsity.json`. Per run (last-token CI values):
+- active components per sample (CI > 0.01, as in the tiu analysis): mean, p10/p50/p90 and fraction with none, per split;
+- probes on the top-k CI values per sample (rest set to 0) for k ∈ {1, 2, 5, 10, 20, 50}, and on the binary on/off pattern. Each goes through the same probe code as `probe` (mass-mean, logistic regression with C chosen on tune), scored cross-task.
+
+Tested on the stage 0 smoke-test features: runs and writes all variants [verified]. The untrained network's ~220 active components per sample match the tiu record. `topk` was checked by hand on a 2 × 4 example. Lint and types clean. Not committed.
+
+Planned probe step after training: `run <out> v1 16 s-d2ded461 s-7fad0c14` (extracts the residual stream, both runs' CIs and log-probs in one pass, then probes), then `sparsity <out> 16 s-d2ded461 s-7fad0c14`.
+
+---
+
+26-10-05, Claude Opus 5.5 — *stage 1 run s-d2ded461 finished: sparse, but target reconstruction plateaued at ~0.43 nats/token*
+
+Run `s-d2ded461` (`config_uth_all_tokens.yaml`, seed 0, commit `8e8cc1c`, H100 at 700 W): 19:44 → ~20:19 UTC (35 min including startup and evals), all 5,000 steps, no traceback. `model_5000.pth` (238 MB) is on WandB, run state finished [verified: WandB API]. `metrics.jsonl`, `final_config.yaml`, `run_metadata.json` and the log copied to `~/spd_out/26-10-05_uth_experiments/stage1_train/`. Memory: 34.5 GB before PPGD, ~49 GB during PPGD.
+
+Eval over training [verified: `metrics.jsonl`; KL in nats per token on the train tasks' held-out samples (256 per eval); L0 = active components per token, of 480; single run]:
+
+| step | L0 | target rounded KL | target all-off (delta-only) KL | Pile rounded KL | Pile L0 | PGD KL | unmasked KL |
+|---|---|---|---|---|---|---|---|
+| 500 | 29.8 | 0.545 | 1.94 | 0.060 | 7.16 | 1.54 | 0.95 |
+| 1500 | 10.1 | 0.479 | 2.18 | 0.082 | 1.97 | 1.80 | 1.00 |
+| 2500 | 8.0 | 0.481 | 2.18 | 0.083 | 1.00 | 1.38 | 0.89 |
+| 4000 | 5.4 | 0.445 | 1.98 | 0.071 | 0.44 | 1.03 | 0.69 |
+| **5000** | **7.8** | **0.433** | **2.80** | **0.052** | **0.62** | **0.61** | **0.48** |
+| arm A tiu `s-bd23f0d1`, 5000 | 7.0 | 0.136 | 3.54 | 0.038 | 0.11 | 0.39 | 0.135 |
+
+(The all-off values fluctuate between evals, 1.8–2.8, because the 256 eval samples differ in task mix from eval to eval [assumed].)
+
+Reading [concluded unless marked]:
+1. **Sparse, but the target reconstruction is much worse than on tiu.** The share of the components' effect left unreconstructed (rounded KL / all-off KL) is 0.433 / 2.80 = 15% here, against 0.136 / 3.54 = 4% for arm A. The rounded KL has hardly moved since step 1500 (0.48 → 0.43).
+2. **It is not a sparsity problem.** With all 480 components on and the delta off, the target KL is still 0.48 (arm A: 0.135). So even the full set of components doesn't reproduce the five layers' effect on this data. Likely causes [assumed, untested]:
+   - too few components (C = 96 per layer) for 29 diverse datasets;
+   - too little training (~4 passes over 20k samples, against ~12 for tiu);
+   - the loss weights tuned on short tiu statements.
+3. **More active on the Pile**: 0.62 components per Pile token against 0.11 for arm A, plausibly because diverse QA, NLI and topic data overlaps general text more than tiu's templated statements [assumed]. Pile reconstruction stays good (0.052).
+4. **Consequence for stage 1**: the CI values come from a decomposition that captures the target computation only partly. A trained-vs-untrained probe difference is still interpretable as "what the trained CI network reads". But if trained CIs don't beat untrained ones, that is weaker evidence against tPD than it would be for a faithful decomposition. A better-fitting decomposition (larger C, more steps) would be the follow-up in that case.
+
+Next step (awaiting Julian): the stage 1 probes on the H100: `probe_uth.py run <out> v1 16 s-d2ded461 s-7fad0c14`, then `sparsity <out> 16 s-d2ded461 s-7fad0c14`, about 20 min.
+
+---
+
+C: (transcribed from chat) Yo, do A now
+
+(A = run the stage 1 probes now on the H100: `run` with the trained and untrained CI networks, then `sparsity`.)
+
+---
+
+26-10-05, Claude Opus 5.5 — *stage 1 probe results: trained CIs at chance cross-task; worse than untrained at every matched sparsity*
+
+Run on the H100 (`/root/run_stage1_probes.sh`: `probe_uth.py run <out> v1 16 s-d2ded461 s-7fad0c14`, then `sparsity`), 20:23–20:32 UTC, both exit 0. Code: commit `8e8cc1c` plus the uncommitted `sparsity` subcommand (synced, hash-checked). Results copied to `~/spd_out/26-10-05_uth_experiments/stage1/` (`results.json`, `sparsity.json`, logs). `features.npz` stays on the VM.
+
+**Consistency check** [verified]: features re-extracted on the H100 reproduce stage 0 (RTX 4090) to within 0.2 points. Residual L19 0.8071 → 0.8057, untrained CIs 0.7147 → 0.7169 (test mean over datasets).
+
+**Plain probes**, last-token readout [verified: `results.json`; logistic regression with C chosen on tune; test = mean over the 8 test datasets; one run each]:
+
+| features | tune (in-distribution held-out) | test (cross-task) |
+|---|---|---|
+| residual L19 | 0.849 | 0.806 |
+| untrained CIs `s-7fad0c14` | 0.793 | 0.717 |
+| **trained CIs `s-d2ded461`** | **0.705** | **0.488** |
+| mean log-probability | 0.570 | 0.561 |
+
+**Active components per sample** at the last token (CI > 0.01) [verified: `sparsity.json`]:
+- trained: fit mean 14.8 (median 12), test mean 16.2 (median 12, p10 1). 8.0% of test samples have none active, against 0.4% on fit;
+- untrained: ~222 everywhere, never zero.
+
+**Matched sparsity** (each sample's top-k CIs, rest set to 0; test mean over datasets, tune in brackets) [verified: `sparsity.json`]:
+
+| | binary on/off | k = 1 | 2 | 5 | 10 | 20 | 50 |
+|---|---|---|---|---|---|---|---|
+| trained | 0.530 (0.664) | 0.540 (0.619) | 0.504 (0.631) | 0.504 (0.644) | 0.499 (0.683) | 0.505 (0.701) | 0.498 (0.705) |
+| untrained | 0.728 (0.770) | 0.538 (0.620) | 0.558 (0.655) | 0.585 (0.700) | 0.593 (0.725) | 0.606 (0.742) | 0.649 (0.770) |
+
+**Per test dataset**, plain probes:
+
+| | cnn_dm | copa | hellaswag | nq_re | sciq | story_cloze | triva_qa | xsum |
+|---|---|---|---|---|---|---|---|---|
+| residual L19 | 0.738 | 0.965 | 0.781 | 0.631 | 0.842 | 0.959 | 0.721 | 0.809 |
+| untrained CIs | 0.552 | 0.960 | 0.570 | 0.584 | 0.836 | 0.939 | 0.661 | 0.633 |
+| trained CIs | 0.642 | **0.285** | 0.500 | 0.540 | **0.438** | **0.401** | 0.544 | 0.550 |
+
+Reading [concluded unless marked]:
+1. **The success criterion is clearly not met; the effect goes the opposite way.** At every matched k ≥ 2 the trained CIs are *worse* cross-task than the untrained ones (k = 5: 0.504 vs 0.585; k = 10: 0.499 vs 0.593), and at chance from k = 2 on. Plain, the trained CIs score 0.488 against 0.717 untrained and 0.806 residual.
+2. **The trained CIs' truth information is task-specific.** In-distribution (tune) they reach 0.705, which is lower than untrained (0.793) but well above chance. Cross-task they are at chance. Whatever truth signal the trained CI network carries does not transfer to new task categories. On tiu (in-distribution only) the corresponding gap looked negligible (0.991 vs 0.998), so the cross-task protocol is what exposed this.
+3. **Below chance on three datasets** (copa 0.285 with n = 200, story_cloze 0.401, sciq 0.438). The trained probe's decision is systematically *inverted* there, not just uninformative. My guess [assumed, untested]: the probe relies on components whose relation to the label differs in sign between tasks, e.g. features tied to answer format or answer length that correlate with truth one way in the training tasks and the other way in these. Inspecting which components drive the probe would test this.
+4. **Caveat: the decomposition fits poorly** (target KL 0.43 vs 0.14 on tiu; even all 480 components give 0.48). So this result says "*this* decomposition's CIs don't carry transferable truth information". It doesn't rule out a better-fitting decomposition (more components, more steps) doing so. Against that hope: the trained CI network loses information relative to the untrained one *in-distribution* too, so sparsification itself seems to drop the transferable part.
+5. Per the criterion agreed before the run, the series would end here with a negative result. The fit caveat makes "one more run with a better-fitting decomposition" a defensible exception. That's Julian's call.
+
+The H100 is idle.
+
+---
+
+C: (transcribed from chat) end this series
+
+(in reply to: A = end the series and write a self-contained summary; B = one more run with a better-fitting decomposition; C = look at why the probe inverts on three datasets.)
+
+---
+
+26-10-05, Claude Opus 5.5 — *series ended; self-contained summary written and checked*
+
+Julian destroyed the H100 VM (chat: "I'm destroying the vm"). Everything needed was already copied: the checkpoint `s-d2ded461` is on WandB, and results, logs and training metrics are in `~/spd_out/26-10-05_uth_experiments/`. Only the stage 1 `features.npz` was lost; it can be regenerated from the two checkpoints with `probe_uth.py run`.
+
+**Summary of the whole series**: `scratch/uth_experiment_summary.md` (gitignored, local, next to `scratch/arm_A_experiment_summary.md`). Self-contained check per `docs/procedures/self_contained_check.md`: a fresh sub-agent read only the file and listed gaps. Fixed in place:
+- UTH expanded;
+- "the statement experiment" defined;
+- the active threshold (CI > 0.01) and per-sample vs per-token counts stated;
+- what each prediction-error row switches on;
+- how the residual layer was chosen (on held-out samples of the training tasks) and how the standard error was computed;
+- that k = 20/50 already contain all trained active components;
+- the 0.79× padding saving explained; result folders described; side results rephrased so they don't read as a changelog.
+
+Two content corrections came out of the check:
+- **"Every setting … tuned" was wrong.** Only batch size, steps and learning rate were tuned on the statement data; the decomposed layers, C = 96 and the loss weights never were.
+- **I dropped my argument** that the trained CIs' weaker in-task score "argues against expecting a large change" from a better-fitting decomposition. It doesn't follow; the question is now stated as untested.
+- Also: the 0.479 in "0.479 → 0.433 after step 1,500" coincided with the final unmasked KL (0.479, a different metric); reworded to avoid the confusion. The reason the all-480-on error exceeds the active-only error is now stated as not investigated, instead of my guess.

@@ -33,9 +33,18 @@ Feature sets are probed in parallel worker processes (`n_workers`), each with an
 the CPU threads; one sklearn fit uses few cores, and a sequential loop over 15 feature sets took
 ~4.5 min per 3,584-dim set on a 26-10-05 VM.
 
+`sparsity` compares CI runs at matched sparsity (last-token readout), as the stage 1 success
+criterion requires: a trained decomposition has ~10 active components per sample, an untrained one
+hundreds, so their plain probe scores are not comparable. Per sample only the k largest CI values
+are kept (the rest set to 0), for each k in TOPK_VALUES, and probed like any feature set. Also
+reported: the number of active components (CI > CI_ACTIVE) per sample, and a probe on the binary
+on/off pattern. Same method as the tiu analysis of 26-10-05 (~/spd_out/26-10-05_no_truth_baseline/
+followup.py), but cross-task and with C chosen on the tune split.
+
 Usage:
     python probe_uth.py run <out_dir> <data_version> <n_workers> <run_id> [<run_id> ...]
     python probe_uth.py probe <out_dir> <n_workers>
+    python probe_uth.py sparsity <out_dir> <n_workers> <run_id> [<run_id> ...]
     e.g. python probe_uth.py run ~/spd_out/26-10-05_uth_experiments/stage0 v1 15 s-7fad0c14
 """
 
@@ -79,6 +88,9 @@ LOGPROB_CHUNK = 512
 # Extended down to 1e-4 after the first stage 0 run (26-10-05) picked C = 0.01, then the grid's
 # strongest regularisation, for every residual layer, with accuracy still rising towards it.
 LOGREG_CS = (1e-4, 1e-3, 1e-2, 0.1, 1.0)
+TOPK_VALUES = (1, 2, 5, 10, 20, 50)
+# A component counts as active above this CI (the runs' ci_alive_threshold, and the tiu analysis's).
+CI_ACTIVE = 0.01
 # fit: train-task train splits; tune: train-task held-out splits; test: test-task datasets
 SPLITS = ("fit", "tune", "test")
 
@@ -317,6 +329,68 @@ def probe(out_dir: str, n_workers: int) -> None:
     (out / "results.json").write_text(json.dumps({"meta": meta, "results": results}, indent=2))
 
 
+def topk(x: np.ndarray, k: int) -> np.ndarray:
+    """Per row keep the k largest values, zero the rest."""
+    out = np.zeros_like(x)
+    idx = np.argsort(-x, axis=1)[:, :k]
+    np.put_along_axis(out, idx, np.take_along_axis(x, idx, 1), 1)
+    return out
+
+
+def _sparsity_worker(
+    features_path: str, run_id: str, variant: str, n_threads: int
+) -> tuple[str, str, dict[str, Any]]:
+    """One (run, variant) probe; variant is 'top<k>' or 'binary', on the last-token CI values."""
+    with threadpool_limits(limits=n_threads), np.load(features_path) as npz:
+        raw = {s: npz[f"{s}:{run_id}/last"].astype(np.float32) for s in SPLITS}
+        if variant == "binary":
+            feats = {s: (x > CI_ACTIVE).astype(np.float32) for s, x in raw.items()}
+        else:
+            k = int(variant.removeprefix("top"))
+            feats = {s: topk(x, k) for s, x in raw.items()}
+        result = probe_feature(feats, load_targets(npz))
+    lr = result["logreg"]
+    logger.info(
+        f"{run_id} {variant}: logreg (C={lr['selected_C']}) tune {lr['tune']['acc_pooled']:.3f}, "
+        f"test mean-over-datasets {lr['test']['acc_mean_over_datasets']:.3f}"
+    )
+    return run_id, variant, result
+
+
+def sparsity(out_dir: str, n_workers: int, *run_ids: str) -> None:
+    """Matched-sparsity comparison of CI runs from `out_dir/features.npz`; writes sparsity.json."""
+    out = Path(out_dir).expanduser()
+    features_path = out / "features.npz"
+    assert run_ids, "give the CI run ids to compare (e.g. trained and untrained)"
+    results: dict[str, dict[str, Any]] = {}
+    with np.load(features_path) as npz:
+        for run_id in run_ids:
+            n_active = {}
+            for split in SPLITS:
+                n = (npz[f"{split}:{run_id}/last"] > CI_ACTIVE).sum(1)
+                n_active[split] = {
+                    "mean": float(n.mean()),
+                    "p10": float(np.percentile(n, 10)),
+                    "p50": float(np.percentile(n, 50)),
+                    "p90": float(np.percentile(n, 90)),
+                    "frac_zero": float((n == 0).mean()),
+                }
+            results[run_id] = {"n_active_last": n_active, "probes": {}}
+            logger.info(f"{run_id}: active components per sample (last token) {n_active}")
+    variants = ["binary"] + [f"top{k}" for k in TOPK_VALUES]
+    jobs = [(r, v) for r in run_ids for v in variants]
+    n_threads = max(1, (os.cpu_count() or 1) // n_workers)
+    with ProcessPoolExecutor(max_workers=n_workers) as pool:
+        futures = [
+            pool.submit(_sparsity_worker, str(features_path), r, v, n_threads) for r, v in jobs
+        ]
+        for f in futures:
+            run_id, variant, result = f.result()
+            results[run_id]["probes"][variant] = result
+    meta = {"topk_values": list(TOPK_VALUES), "ci_active": CI_ACTIVE, "readout": "last"}
+    (out / "sparsity.json").write_text(json.dumps({"meta": meta, "results": results}, indent=2))
+
+
 def run(out_dir: str, data_version: str, n_workers: int, *run_ids: str) -> None:
     """Extract features of all samples (GPU if available), then fit the probes."""
     out = Path(out_dir).expanduser()
@@ -392,4 +466,4 @@ def run(out_dir: str, data_version: str, n_workers: int, *run_ids: str) -> None:
 
 
 if __name__ == "__main__":
-    fire.Fire({"run": run, "probe": probe})
+    fire.Fire({"run": run, "probe": probe, "sparsity": sparsity})

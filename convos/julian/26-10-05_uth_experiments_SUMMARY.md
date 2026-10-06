@@ -1,8 +1,10 @@
 # SUMMARY: tPD truth experiments on the Universal Truthfulness Hyperplane (UTH) data
 
-**Last updated:** 26-10-05 (stage 1 code done and tested: per-batch padding, WeightMagnitude fix, uth config, trial scripts; `spd-vast` installs the dev group; next: H100 for trials + stage 1)
+**Last updated:** 26-10-05 (series ended by Julian after the negative stage 1 result; self-contained summary in `scratch/uth_experiment_summary.md`)
 
 Julian wants a new series of tPD (targeted parameter decomposition) truth experiments on Qwen2.5-7B-Instruct. The target data comes from "On the Universal Truthfulness Hyperplane Inside LLMs" (Liu et al., EMNLP 2024, arXiv:2407.08582; data repo `hkust-nlp/Universal_Truthfulness_Hyperplane`), chosen for its diversity despite noisier data. The series should "recreate their experiment" at the compute scale of the arm A runs (about one H100 hour per run). This follows the arm A experiment on Truth-is-Universal (tiu) statements, which ended without evidence for truth-specific mechanisms (`convos/julian/26-10-05_no_truth_baseline_SUMMARY.md`).
+
+**Status: closed** [decided: Julian, transcribed chat in the LOG, "end this series"]. Bottom line [concluded]: on this setup tPD did not recover truth-related mechanisms that generalise across tasks. The trained CI values carry truth only within the training tasks (0.705); on unseen task categories they are at chance (0.488), worse than an untrained CI network at every matched sparsity. Caveat: one seed, and the decomposition fits this data poorly. Self-contained summary of the whole series: `scratch/uth_experiment_summary.md` (gitignored, local). Not pursued: a better-fitting decomposition (more components per layer); why the trained probe inverts on copa, story_cloze and sciq.
 
 ## Key facts
 
@@ -77,6 +79,48 @@ Practicalities:
 - **`spd-vast` installs the `dev` group** (scikit-learn for the probe scripts) [decided: Julian, transcribed chat in the LOG].
 - **Timing trial scripts** in `~/spd_out/26-10-05_uth_experiments/trials/`: arm A vs uth, with and without PPGD, 150 steps each, on one H100. Keep cap 128 if uth costs ≤ ~2.5× arm A.
 - The RTX 4090 cannot train (a tPD step needed ~27 GB at tiu sizes); training needs an H100.
+
+## H100 timing trials [verified: `~/spd_out/26-10-05_uth_experiments/trials/h100/`, single trial each, H100 80GB at 700 W]
+
+- Per step, weighted 80% without PPGD and 20% with (as in a full run): arm A 203 ms, uth at cap 128 with trimmed batches 319 ms, i.e. **1.57×**. That is below the agreed ~2.5× limit, so **cap 128 stays** [concluded]. A 5,000-step uth run takes ~27 min of steps plus evals, roughly 35–40 min [assumed].
+- Peak GPU memory: uth 34.6 GB without PPGD, 45.3 GB with PPGD (arm A ~26 GB).
+- **Two concurrent runs gain nothing** (Julian asked): one uth run already uses 98% of the GPU at ~680 W. Two at once are 6–8% slower than running them one after the other, and with PPGD they peak at 78.7 of 80 GB. Further runs (e.g. a second seed) should run sequentially.
+
+## Stage 1 run `s-d2ded461` [verified: `~/spd_out/26-10-05_uth_experiments/stage1_train/metrics.jsonl`; checkpoint on WandB; single run, seed 0, commit `8e8cc1c`]
+
+`config_uth_all_tokens.yaml` on the H100, 35 min. Final eval vs arm A tiu (`s-bd23f0d1`):
+
+| | uth | arm A |
+|---|---|---|
+| active components per token | 7.8 | 7.0 |
+| target rounded KL | 0.433 | 0.136 |
+| all components off | 2.80 | 3.54 |
+| all 480 on, no delta (unmasked) | 0.479 | 0.135 |
+| Pile L0 / rounded KL | 0.62 / 0.052 | 0.11 / 0.038 |
+
+Reading [concluded]:
+- Sparse, but 15% of the components' effect stays unreconstructed (arm A: 4%), and the target KL plateaued after ~1,500 steps.
+- Even all 480 components reproduce the layers poorly, so the limit is capacity or training, not sparsity. Possible causes: C = 96 is too few for 29 diverse datasets, ~4 passes over the data, settings tuned on tiu [assumed].
+- Consequence: a null probe result would be weak evidence against tPD. A larger C or more steps would be the follow-up.
+
+**Matched-sparsity analysis**: `probe_uth.py sparsity <out_dir> <n_workers> <run_id>...` (method from the tiu follow-up `~/spd_out/26-10-05_no_truth_baseline/followup.py`, now in the repo). It reports active-component counts and probes on each sample's top-k CIs (k = 1–50) and on the binary on/off pattern, cross-task.
+
+## Stage 1 probe results [verified: `~/spd_out/26-10-05_uth_experiments/stage1/results.json`, `sparsity.json`; one run each]
+
+Cross-task test (mean over the 8 test datasets), last-token logistic regression; in-distribution held-out (tune) in brackets:
+- residual L19: 0.806 (0.849);
+- untrained CIs: 0.717 (0.793);
+- **trained CIs `s-d2ded461`: 0.488 (0.705)**;
+- log-probability: 0.561.
+
+**Matched sparsity**: the trained CIs are worse than the untrained ones at every k ≥ 2 (k = 5: 0.504 vs 0.585; k = 10: 0.499 vs 0.593), at chance throughout. Trained: median 12 active components per sample (untrained ~222); 8% of test samples have none (0.4% on fit).
+
+Below chance on copa (0.285), story_cloze (0.401) and sciq (0.438), i.e. systematically inverted; cause unknown [assumed: component features whose relation to the label flips between tasks].
+
+Reading [concluded]:
+- **The success criterion is not met, and the effect goes the opposite way.** The trained CI network's truth signal is task-specific: 0.705 in-distribution, chance on new task categories. The cross-task protocol exposed what tiu's in-distribution test (0.991 vs 0.998) could not.
+- Caveat: the decomposition fits poorly (see the stage 1 run), so this concerns *this* decomposition. A better-fitting one is untested. That trained CIs lose information even in-distribution argues against expecting much from it.
+- Re-extraction reproduced stage 0 to within 0.2 points [verified].
 
 ## Plan
 
