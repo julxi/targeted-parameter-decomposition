@@ -28,3 +28,4 @@ Details and the offer table: [LOG](26-10-05_vast_rentals_LOG.md).
 - See also: [convos/julian/26-10-05_uth_experiments_SUMMARY.md] — UTH stage 0 ran on a 24 GB RTX 4090 (peak ~20.5 GB), the job these rentals were first for.
 - See also: [convos/julian/26-10-06_truth_writing_components_SUMMARY.md] — runs on the rented 48 GB RTX 4090; its LOG's plan named a 24 GB 4090, hence open question (a).
 - See also: [convos/julian/26-10-05_no_truth_baseline_SUMMARY.md] — bf16 memory trials, source of the ~27 GB training peak used to size the GPU choice.
+- See also: [convos/julian/26-10-06_feedback_review_SUMMARY.md] — reviews the FEEDBACK.md lessons that came out of this topic and which of them become rules.

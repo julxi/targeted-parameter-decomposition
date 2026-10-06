@@ -76,3 +76,4 @@ Last-token readout, logistic regression: residual stream 0.998; untrained 0.998;
 - See also: [convos/julian/26-10-05_uth_experiments_SUMMARY.md] — the follow-up series on UTH data; reuses this topic's untrained bf16 checkpoint `s-7fad0c14` and its matched-sparsity method.
 - See also: [convos/julian/26-10-06_truth_writing_components_SUMMARY.md] — re-reads this topic's code-control result (training on an unrelated target removes truth from the CIs) and analyses arm A `s-bd23f0d1` for components writing into the truth direction.
 - See also: [convos/julian/26-10-05_vast_rentals_SUMMARY.md] — uses this topic's ~27 GB bf16 training peak to size rental GPUs (24 GB 4090 for probing only; A100 40 GB / 48 GB cards fit training).
+- See also: [convos/julian/26-10-06_feedback_review_SUMMARY.md] — reviews the FEEDBACK.md lessons that came out of this topic and which of them become rules.

@@ -118,9 +118,9 @@ Run this command to test it:
 
 Always use these markers when recording claims, conclusions, or decisions in LOG and SUMMARY files. They exist because fresh agents otherwise confabulate confidence: they read "we chose X" and treat it as settled when it was a working assumption.
 
-- `[decided]` — explicitly agreed by the humans involved. Requires traceable human ratification: a C: comment, or a chat confirmation transcribed verbatim with the `C: (transcribed from chat)` marker. An agent-written paraphrase or quote of what the user said is NOT traceable ratification. Never tag your own proposal or implementation `[decided]`; it stays `[concluded]` until a human ratifies it.
+- `[decided]` — explicitly agreed by the humans involved. Requires traceable human ratification: a C: comment, or a chat confirmation transcribed verbatim with the `C: (transcribed from chat)` marker. An agent-written paraphrase or quote of what the user said is NOT traceable ratification. Never tag your own proposal or implementation `[decided]`; it stays `[concluded]` until a human ratifies it. Chat messages that make a decision or trigger a change get transcribed verbatim in that turn's LOG entry; purely informational questions don't.
 - `[verified]` — a verification event occurred: a live test, a reproduced result, a direct observation. Carry the specifics inline, e.g. `[verified: end-to-end test 26-08-02, single run]` — a bare `[verified]` reads as more evidence than there was.
-- `[concluded]` — derived through reasoning but not ratified. Use conservatively: only when the supporting reasoning is stated next to the tag and would survive a critical reviewer. If the derivation is thin, use `[assumed]`.
+- `[concluded]` — derived through reasoning but not ratified. Use conservatively: only when the supporting reasoning is stated next to the tag and would survive a critical reviewer. If the derivation is thin, use `[assumed]`. Predictions about experiments not yet run are `[assumed]`, however strong the argument.
 - `[assumed]` — taken as a working assumption; may need revisiting.
 - `[superseded]` — was active, has been replaced. Include a pointer to the replacement.
 - `OUTDATED: <reason>` — inline warning that specific claims in a passage are wrong or superseded. This is how you warn readers inside an append-only LOG without editing history: place it directly before or after the outdated content.
@@ -146,6 +146,8 @@ Anything you produce that will be read without the current context — code and 
 **Never write a specific number (percentage, count, effect size, measurement) from memory — re-read the source file first.** Treat the impulse to write "~" or "approximately" as a signal to look the value up, not to hedge. The worst form is a from-memory number WITH a citation attached: the citation makes an unverified number look verified. This matters most across session boundaries — a number recalled rather than re-read is often wrong.
 
 Status claims ("X was never done," "results were never analyzed") get a calibrated version of the same rule: SUMMARYs are usually trustworthy, but check their `Last updated` date against more recent work in the INDEX.md conversation index, and when the claim is load-bearing, grep the project for the thing's artifacts as a sanity check. When you find a wrong status or a contradiction between files, fix it or flag it — don't silently pick a side.
+
+Claims that rest on a code or config comment get the same care: such comments sit outside this memory system and may be stale, so the claim is `[assumed]`, and you quote the comment's decisive words rather than paraphrasing them. A paraphrase can drop the comment's own hedge ("an unvalidated guess" becomes "it OOMs beyond that").
 
 ### After a compaction (continuing from a summary)
 

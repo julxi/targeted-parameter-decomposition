@@ -120,6 +120,7 @@ value = config.key
 - Do not write: `if everythingIsOk: continueHappyPath()`. Instead do `assert everythingIsOk`
 - You should have a VERY good reason to handle an error gracefully. If your program isn't working like it should then it shouldn't be running, you should be fixing it.
 - Do not write `try-catch` blocks unless it definitely makes sense
+- **Wrapping an external CLI with captured output:** check its `--help` for interactive prompts first (a hidden confirmation prompt hangs the call), and assert on the expected success output, not the exit code. Some CLIs exit 0 on failure: `vastai destroy` does on "Aborted." and on 404s.
 - **Write for the golden path.** Never let edge cases bloat the code. Before handling them, just raise an exception. If an edge case becomes annoying enough, we'll handle it then — but write first and foremost for the common case.
 
 #### Control Flow
