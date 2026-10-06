@@ -9,7 +9,7 @@ gpu_name: RTX_4090
 max_price: 1.0
 
 # Minimum GPU memory in GB. Note vast.ai filters this in GB but reports it in MB.
-min_gpu_ram: 20
+min_gpu_ram: 40
 
 # Disk to rent in GB. Needs room for the repo, the uv venv (torch is several GB)
 # and checkpoints.
@@ -22,10 +22,9 @@ image: vastai/base-image:cuda-12.8.1-auto
 # Minimum host reliability. Low-reliability hosts drop runs mid-training.
 min_reliability: 0.95
 
-# Rent only datacenter hosts. Most RTX 4090s are on consumer hosts that often fail at ssh or at
-# `uv sync`; on 26-10-05, 7 of 50 matching 4090 offers were datacenter, the cheapest at ~$0.55/h
-# instead of ~$0.36/h. See convos/julian/26-10-05_vast_rentals_SUMMARY.md.
-datacenter_only: true
+# Renting datacenter hosts can be have better reliability (ssh connection / download speed)
+# See convos/julian/26-10-05_vast_rentals_SUMMARY.md.
+datacenter_only: false
 
 # Minimum CUDA version the host supports.
 min_cuda: 12.8

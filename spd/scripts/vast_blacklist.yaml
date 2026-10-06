@@ -1,0 +1,17 @@
+# vast.ai hosts that spd-vast never rents again, whatever the machine config.
+# A host is one operator (host_id), who may run several machines (machine_id). The failures that
+# land a host here - ssh never connecting, `uv sync` or downloads crawling - come from the
+# operator's network, which all of their machines share, so the whole host is excluded.
+# spd-vast appends a host itself when ssh, booting or `uv sync` fails on it. Add hosts by hand
+# when a rental turns out bad later (e.g. a slow Hugging Face download): `spd-vast` prints the
+# host id of every offer and of the rented instance. Delete an entry to rent that host again.
+# Entry format (replace `hosts: []` by a list if it is empty):
+#   hosts:
+#   - host_id: 124072
+#     date: 26-10-06
+#     reason: Hugging Face download at 2 MB/s (instance 1234567)
+# This file is rewritten when spd-vast adds a host: put notes in `reason`, not in comments.
+hosts:
+- host_id: 124072
+  date: 26-10-06
+  reason: not running after 900s (instance 54486536, machine 38442, RTX 4090, Japan, JP)

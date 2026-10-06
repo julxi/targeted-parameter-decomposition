@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, Literal, NamedTuple
 
 import fire
+import yaml
 from dotenv import dotenv_values
 from pydantic import Field
 
@@ -62,6 +63,48 @@ DEAD_STATUSES = frozenset({"missing", "exited"})
 TAKEN_OFFER_ERROR = "no_such_ask"
 # Tracked, but not needed to train, so not worth the upload.
 UNSYNCED_REPO_DIR = "papers"
+BLACKLIST_PATH = REPO_ROOT / "spd/scripts/vast_blacklist.yaml"
+# Rewritten on top of the file whenever spd-vast adds a host, which drops any other comments.
+BLACKLIST_HEADER = """\
+# vast.ai hosts that spd-vast never rents again, whatever the machine config.
+# A host is one operator (host_id), who may run several machines (machine_id). The failures that
+# land a host here - ssh never connecting, `uv sync` or downloads crawling - come from the
+# operator's network, which all of their machines share, so the whole host is excluded.
+# spd-vast appends a host itself when ssh, booting or `uv sync` fails on it. Add hosts by hand
+# when a rental turns out bad later (e.g. a slow Hugging Face download): `spd-vast` prints the
+# host id of every offer and of the rented instance. Delete an entry to rent that host again.
+# Entry format (replace `hosts: []` by a list if it is empty):
+#   hosts:
+#   - host_id: 124072
+#     date: 26-10-06
+#     reason: Hugging Face download at 2 MB/s (instance 1234567)
+# This file is rewritten when spd-vast adds a host: put notes in `reason`, not in comments.
+"""
+
+
+class HostFailure(Exception):
+    """A rental that failed because of the host, not because of us, so the host is blacklisted.
+
+    `reason` is the short form that goes into the blacklist; the exception message is the full
+    explanation shown to the user. `main` blacklists the host and destroys the instance, so the
+    message need not tell the user to.
+    """
+
+    def __init__(self, reason: str, message: str):
+        super().__init__(message)
+        self.reason = reason
+
+
+class BlacklistedHost(BaseConfig):
+    host_id: int = Field(description="vast.ai host id, i.e. the operator, not a single machine")
+    date: str = Field(description="When the host was added, YY-MM-DD")
+    reason: str = Field(description="What failed, and on which instance")
+
+
+class VastBlacklist(BaseConfig):
+    """Hosts excluded from every offer search, loaded from `vast_blacklist.yaml`."""
+
+    hosts: list[BlacklistedHost]
 
 
 class VastConfig(BaseConfig):
@@ -178,8 +221,10 @@ def main(
         },
     )
 
+    blacklisted = _blacklisted_host_ids(_load_blacklist())
+
     if list_offers:
-        _print_offers(_search_offers(vast_config), vast_config.sort, vast_config.disk)
+        _print_offers(_search_offers(vast_config, blacklisted), vast_config.sort, vast_config.disk)
         return
 
     assert experiment is not None or mode == "provision", (
@@ -193,17 +238,21 @@ def main(
     label = f"spd-{launch.experiment if launch else 'provision'}-{run_id}"
 
     env_vars = _forwarded_env_vars()
-    offers = _search_offers(vast_config) if offer_id is None else []
+    offers = (
+        _search_offers(vast_config, blacklisted)
+        if offer_id is None
+        else [_find_offer(offer_id, blacklisted)]
+    )
 
     if dry_run:
-        previewed_offer_id = offer_id if offer_id is not None else int(offers[0]["id"])
         redacted_args = _create_instance_args(
-            previewed_offer_id, vast_config, label, dict.fromkeys(env_vars, "<redacted>")
+            int(offers[0]["id"]), vast_config, label, dict.fromkeys(env_vars, "<redacted>")
         )
         logger.section("Dry run - nothing rented")
         logger.values(
             {
                 "create": shlex.join(["vastai", *redacted_args]),
+                "host": offers[0]["host_id"],
                 "rsync": shlex.join(_rsync_args()),
                 "remote command": launch.remote_script if launch else _build_sync_script(),
                 "wandb": launch.wandb_url if launch else "-",
@@ -211,14 +260,12 @@ def main(
         )
         return
 
-    if offer_id is None:
-        instance_id = _rent_first_available(offers, vast_config, label, env_vars)
-    else:
-        instance_id = _create_instance(
-            _create_instance_args(offer_id, vast_config, label, env_vars)
-        )
-        assert instance_id is not None, f"Offer {offer_id} is no longer on the market."
-    logger.info(f"Created instance {instance_id}, waiting for it to boot")
+    instance_id, offer = _rent_first_available(offers, vast_config, label, env_vars)
+    logger.info(
+        f"Created instance {instance_id} on host {offer['host_id']} (machine "
+        f"{offer['machine_id']}), waiting for it to boot"
+    )
+    destroy = destroy_on_exit
     try:
         _wait_until_running(instance_id)
         _attach_ssh_key(instance_id, identity_file)
@@ -228,9 +275,9 @@ def main(
         _wait_until_ssh_ready(instance_id, identity_file)
         _install_remote_env(env_vars)
         _rsync_repo()
-        _sync_dependencies(vast_config.max_sync_minutes, instance_id)
+        _sync_dependencies(vast_config.max_sync_minutes)
 
-        _log_summary(instance_id, run_id, launch, mode)
+        _log_summary(instance_id, offer, run_id, launch, mode)
 
         match mode:
             case "provision":
@@ -257,14 +304,53 @@ def main(
                     f"| tee {REMOTE_LOG}"
                 )
                 logger.info(f"Training exited with code {exit_code}")
+    except HostFailure as failure:
+        # The failed instance is destroyed (in `finally`) so it stops billing, but intentionally
+        # no next offer is rented: Julian wants to decide on a relaunch himself
+        # (convos/julian/26-10-05_vast_rentals_LOG.md).
+        destroy = True
+        _add_to_blacklist(
+            BlacklistedHost(
+                host_id=int(offer["host_id"]),
+                date=datetime.now().strftime("%y-%m-%d"),
+                reason=f"{failure.reason} (instance {instance_id}, machine {offer['machine_id']}, "
+                f"{offer['gpu_name']}, {offer['geolocation']})",
+            )
+        )
+        raise
     finally:
-        if destroy_on_exit:
-            logger.info(f"Destroying instance {instance_id}")
-            _vastai(["destroy", "instance", str(instance_id)], raw=False)
+        if destroy:
+            _destroy_instance(instance_id)
         else:
             logger.info(
-                f"Instance still running. Destroy it with: vastai destroy instance {instance_id}"
+                f"Instance still running. Destroy it with: vastai destroy instance {instance_id} -y"
             )
+
+
+def _destroy_instance(instance_id: int) -> None:
+    """Destroy an instance, failing loudly unless vast.ai confirms it.
+
+    The CLI exits 0 whatever happens: on success it prints "destroying instance <id>.", on an
+    unknown instance "Failed with error 404: ..." (to stderr), and without `-y` it prompts, reads
+    a closed stdin and prints "Aborted." [all observed with vastai 1.2.0 on 26-10-06]. So the
+    output, both streams, is the only signal. A 404 is the one failure to accept, because an
+    instance whose host dropped it is already gone (see `_show_instance`).
+    """
+    logger.info(f"Destroying instance {instance_id}")
+    result = subprocess.run(
+        ["vastai", "destroy", "instance", str(instance_id), "-y"],
+        check=True,
+        capture_output=True,
+        text=True,
+        stdin=subprocess.DEVNULL,
+    )
+    output = (result.stdout + result.stderr).strip()
+    logger.info(output)
+    assert output == f"destroying instance {instance_id}." or "error 404" in output, (
+        f"vast.ai did not confirm destroying instance {instance_id} ({output!r}), so it may still "
+        f"be billing. Check `vastai show instances` and destroy it with: "
+        f"vastai destroy instance {instance_id} -y"
+    )
 
 
 def _build_config(config_path: Path, project: str) -> Config:
@@ -342,9 +428,16 @@ def _vastai(args: list[str], raw: bool = True) -> Any:
     exiting 0 with an empty stdout, so empty stdout means the command failed rather than that it
     found nothing. Only the leading tokens of a failed command are reported, to keep any
     credentials passed in later arguments out of the error.
+
+    stdin is closed because stdout is captured: a command that prompts for confirmation (e.g.
+    `destroy instance` without `-y`) would otherwise wait on an invisible prompt forever. With
+    no stdin the prompt aborts at once - but the CLI still exits 0, so such commands must check
+    their output (see `_destroy_instance`).
     """
     cmd = ["vastai", *args, "--raw"] if raw else ["vastai", *args]
-    result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+    result = subprocess.run(
+        cmd, check=True, capture_output=True, text=True, stdin=subprocess.DEVNULL
+    )
     if not raw:
         return result.stdout
     stdout = result.stdout.strip()
@@ -383,14 +476,16 @@ def _load_vast_config(config: str, overrides: dict[str, Any]) -> VastConfig:
     return VastConfig(**{**vast_config.model_dump(), **given})
 
 
-def _search_offers(config: VastConfig) -> list[Any]:
+def _search_offers(config: VastConfig, blacklisted: list[int]) -> list[Any]:
     """Search offers in the config's sort order; the caller rents the first one.
 
     `disk_space` is the machine's free disk, which must fit the disk we intend to rent.
     `direct_port_count>=1` is required for the `--direct` ssh this script relies on. `gpu_ram` is
     queried in GB even though offers report it in MB. The datacenter term is added only when
     required, because `datacenter=false` would restrict the search to non-datacenter hosts instead
-    of leaving it open.
+    of leaving it open. Blacklisted hosts are excluded in the query, so `n_offers` still counts
+    rentable ones; `host_id` is missing from the CLI's documented query fields (it worked when
+    tested on 26-10-06), so the result is checked for leaks too.
     """
     query = (
         f"num_gpus=1 gpu_name={config.gpu_name} rentable=true verified=true "
@@ -400,6 +495,8 @@ def _search_offers(config: VastConfig) -> list[Any]:
     )
     if config.datacenter_only:
         query += " datacenter=true"
+    if blacklisted:
+        query += f" host_id notin [{','.join(map(str, blacklisted))}]"
     logger.info(f"Searching offers: {query}")
     offers = _vastai(
         [
@@ -417,26 +514,90 @@ def _search_offers(config: VastConfig) -> list[Any]:
     )
     assert offers, (
         "No offers matched. Raise max_price, lower min_gpu_ram/disk, or change gpu_name - "
-        "in the config or with the matching flag."
+        f"in the config or with the matching flag. {len(blacklisted)} hosts are excluded by "
+        f"{BLACKLIST_PATH.relative_to(REPO_ROOT)}."
+    )
+    leaked = sorted({o["host_id"] for o in offers} & set(blacklisted))
+    assert not leaked, (
+        f"vast.ai ignored the host_id exclusion and returned blacklisted hosts {leaked}"
     )
     return offers
+
+
+def _find_offer(offer_id: int, blacklisted: list[int]) -> Any:
+    """Look up one offer, for --offer_id, so its host is known and checked like a searched one.
+
+    vast.ai's query language has no documented field for the offer id: `id=` matches nothing, and
+    `ask_contract_id=` works but the CLI warns that it does not know the field. `-n` drops the
+    CLI's default terms (rentable, verified, ...) so a hand-picked offer is not filtered out.
+    """
+    found = _vastai(["search", "offers", "-n", f"ask_contract_id={offer_id}"])
+    assert [int(o["id"]) for o in found] == [offer_id], (
+        f"Looking up offer {offer_id} returned {[o['id'] for o in found]} - it is no longer on "
+        f"the market, or vast.ai has changed how offers are looked up by id."
+    )
+    offer = found[0]
+    assert offer["host_id"] not in blacklisted, (
+        f"Offer {offer_id} is on blacklisted host {offer['host_id']}. Remove the host from "
+        f"{BLACKLIST_PATH.relative_to(REPO_ROOT)} to rent it anyway."
+    )
+    return offer
+
+
+def _load_blacklist() -> VastBlacklist:
+    assert BLACKLIST_PATH.exists(), f"Host blacklist not found: {BLACKLIST_PATH}"
+    blacklist = VastBlacklist.from_file(BLACKLIST_PATH)
+    host_ids = [h.host_id for h in blacklist.hosts]
+    assert len(host_ids) == len(set(host_ids)), f"Duplicate host ids in {BLACKLIST_PATH}"
+    return blacklist
+
+
+def _blacklisted_host_ids(blacklist: VastBlacklist) -> list[int]:
+    host_ids = sorted(h.host_id for h in blacklist.hosts)
+    if host_ids:
+        logger.info(
+            f"Excluding {len(host_ids)} blacklisted hosts "
+            f"({BLACKLIST_PATH.relative_to(REPO_ROOT)}): {host_ids}"
+        )
+    return host_ids
+
+
+def _add_to_blacklist(entry: BlacklistedHost) -> None:
+    """Append a host to the git-tracked blacklist, so the next search skips it."""
+    blacklist = _load_blacklist()
+    assert entry.host_id not in {h.host_id for h in blacklist.hosts}, (
+        f"Host {entry.host_id} failed but is already blacklisted - the search should have "
+        f"excluded it"
+    )
+    hosts = [*blacklist.hosts, entry]
+    BLACKLIST_PATH.write_text(
+        BLACKLIST_HEADER
+        + yaml.safe_dump(
+            VastBlacklist(hosts=hosts).model_dump(mode="json"), sort_keys=False, width=100
+        )
+    )
+    logger.info(
+        f"Blacklisted host {entry.host_id} in {BLACKLIST_PATH.relative_to(REPO_ROOT)}: "
+        f"{entry.reason}"
+    )
 
 
 def _print_offers(offers: list[Any], sort: str, disk: int) -> None:
     """Print the offers as a table.
 
-    `gpu_ram` and `cpu_ram` are reported in MB, disk in GB. 'free' is the machine's unallocated
+    'host' is the operator's host id, the unit the blacklist excludes. `gpu_ram` and `cpu_ram` are
+    reported in MB, disk in GB. 'free' is the machine's unallocated
     disk, not the disk we rent - `$/hr` already covers the rented disk.
     """
     logger.section(
         f"{len(offers)} matching offers, sorted by {sort}. $/hr includes the {disk}GB disk"
     )
     header = (
-        f"{'id':>10}  {'gpu':<16} {'vram':>5} {'$/hr':>6} {'free':>6} {'ram':>6} {'cores':>5} "
+        f"{'id':>10} {'host':>7}  {'gpu':<16} {'vram':>5} {'$/hr':>6} {'free':>6} {'ram':>6} {'cores':>5} "
         f"{'cuda':>5} {'net↓':>7} {'dlperf':>7} {'dlperf/$':>8} {'reliab':>7}  location"
     )
     rows = [
-        f"{o['id']:>10}  {o['gpu_name']:<16} {o['gpu_ram'] / 1024:>4.0f}G "
+        f"{o['id']:>10} {o['host_id']:>7}  {o['gpu_name']:<16} {o['gpu_ram'] / 1024:>4.0f}G "
         f"{o['dph_total']:>6.3f} {o['disk_space']:>5.0f}G {o['cpu_ram'] / 1024:>5.0f}G "
         f"{o['cpu_cores_effective']:>5.1f} {o['cuda_max_good']:>5.1f} "
         f"{o['inet_down']:>6.0f}M {o['dlperf']:>7.1f} {o['dlperf_per_dphtotal']:>8.1f} "
@@ -497,8 +658,11 @@ def _create_instance_args(
 
 def _rent_first_available(
     offers: list[Any], config: VastConfig, label: str, env_vars: dict[str, str]
-) -> int:
+) -> tuple[int, Any]:
     """Rent the best offer still on the market, walking down the search order.
+
+    Returns the instance id and the offer it was rented from (whose host gets blacklisted if the
+    rental fails).
 
     vast.ai's offer search serves asks that someone else has already rented, so the top offer is
     regularly gone by the time we ask for it. Only a taken offer moves us on to the next one; any
@@ -508,11 +672,12 @@ def _rent_first_available(
         offer_id = int(offer["id"])
         logger.info(
             f"Renting offer {offer_id}: {offer['gpu_name']} at ${offer['dph_total']:.3f}/hr "
-            f"in {offer['geolocation']} (reliability {offer['reliability']:.4f})"
+            f"in {offer['geolocation']} (reliability {offer['reliability']:.4f}, host "
+            f"{offer['host_id']})"
         )
         instance_id = _create_instance(_create_instance_args(offer_id, config, label, env_vars))
         if instance_id is not None:
-            return instance_id
+            return instance_id, offer
         logger.info(f"Offer {offer_id} was taken before we got it, trying the next one")
     raise AssertionError(
         f"All {len(offers)} matching offers were taken before we could rent one. Launch again - "
@@ -550,11 +715,13 @@ def _show_instance(instance_id: int) -> dict[str, Any]:
     `show instance` answers for it with `{"instances": null}` instead of the flat instance dict.
     """
     shown = _vastai(["show", "instance", str(instance_id)])
-    assert "actual_status" in shown, (
-        f"Instance {instance_id} no longer exists ({shown}). Its host dropped it, which vast.ai "
-        f"reports by forgetting the rental rather than by marking it dead. Launch again to land "
-        f"on a different host."
-    )
+    if "actual_status" not in shown:
+        raise HostFailure(
+            "host dropped the rental",
+            f"Instance {instance_id} no longer exists ({shown}). Its host dropped it, which "
+            f"vast.ai reports by forgetting the rental rather than by marking it dead. Launch "
+            f"again to land on a different host.",
+        )
     return shown
 
 
@@ -565,17 +732,19 @@ def _wait_until_running(instance_id: int) -> None:
         status = instance["actual_status"]
         if status == "running":
             return
-        assert status not in DEAD_STATUSES, (
-            f"Instance {instance_id} is '{status}' "
-            f"({instance.get('status_msg') or 'no message'}). The host has dropped off vast.ai's "
-            f"control plane and will never install your ssh key, however healthy the control "
-            f"plane claims it is. Destroy it with: vastai destroy instance {instance_id}"
-        )
+        if status in DEAD_STATUSES:
+            raise HostFailure(
+                f"instance went '{status}' while booting",
+                f"Instance {instance_id} is '{status}' "
+                f"({instance.get('status_msg') or 'no message'}). The host has dropped off "
+                f"vast.ai's control plane and will never install your ssh key, however healthy "
+                f"the control plane claims it is.",
+            )
         logger.info(f"Instance status: {status} ({instance.get('status_msg') or 'no message'})")
         time.sleep(POLL_INTERVAL_S)
-    raise TimeoutError(
-        f"Instance {instance_id} not running after {READY_TIMEOUT_S}s. "
-        f"Destroy it with: vastai destroy instance {instance_id}"
+    raise HostFailure(
+        f"not running after {READY_TIMEOUT_S}s",
+        f"Instance {instance_id} not running after {READY_TIMEOUT_S}s.",
     )
 
 
@@ -671,23 +840,27 @@ def _wait_until_ssh_ready(instance_id: int, identity_file: Path) -> None:
             reattached = True
         time.sleep(SSH_POLL_INTERVAL_S)
     status = _show_instance(instance_id)["actual_status"]
-    assert status not in DEAD_STATUSES, (
-        f"Instance {instance_id} went '{status}' while we waited for ssh. The host dropped off "
-        f"vast.ai's control plane after reporting itself running, so it never installed your key - "
-        f"the rejection is the host's fault, not your key's. Destroy it with: "
-        f"vastai destroy instance {instance_id}"
-    )
-    raise TimeoutError(
+    if status in DEAD_STATUSES:
+        raise HostFailure(
+            f"instance went '{status}' while waiting for ssh",
+            f"Instance {instance_id} went '{status}' while we waited for ssh. The host dropped "
+            f"off vast.ai's control plane after reporting itself running, so it never installed "
+            f"your key - the rejection is the host's fault, not your key's.",
+        )
+    # Blacklisted although a broken local key would fail the same way: a key that works on other
+    # hosts is far more common, and the first blacklisted host would reveal a broken one.
+    raise HostFailure(
+        f"ssh failing after {SSH_READY_TIMEOUT_S}s: {last_error.splitlines()[-1]}",
         f"ssh to {SSH_HOST_ALIAS} still failing after {SSH_READY_TIMEOUT_S}s while instance "
         f"{instance_id} reports '{status}'.\n"
         f"Last ssh error: {last_error}\n"
         f"'Permission denied (publickey)' means sshd is up but never took the key in "
         f"{identity_file}; a refused or timed out connection means the direct port mapping never "
-        f"came up. Read the entrypoint's own account with: vastai logs {instance_id}"
+        f"came up. Read the entrypoint's own account with: vastai logs {instance_id}",
     )
 
 
-def _sync_dependencies(max_sync_minutes: float, instance_id: int) -> None:
+def _sync_dependencies(max_sync_minutes: float) -> None:
     """Build the venv on the rented machine, rejecting the host if it takes too long.
 
     `uv sync` downloads several GB of torch and CUDA wheels, and how fast that goes depends on the
@@ -701,12 +874,12 @@ def _sync_dependencies(max_sync_minutes: float, instance_id: int) -> None:
     start = time.time()
     returncode = subprocess.run(["ssh", SSH_HOST_ALIAS, command], check=False).returncode
     elapsed_min = (time.time() - start) / 60
-    assert returncode != TIMEOUT_EXIT, (
-        f"`uv sync` was still running after max_sync_minutes={max_sync_minutes}. This host's route "
-        f"to PyPI is too slow to be worth training on. Destroy it with: vastai destroy instance "
-        f"{instance_id}, then launch again to land on a different host (or raise max_sync_minutes "
-        f"to accept this one)."
-    )
+    if returncode == TIMEOUT_EXIT:
+        raise HostFailure(
+            f"`uv sync` over {max_sync_minutes} min",
+            f"`uv sync` was still running after max_sync_minutes={max_sync_minutes}. This host's "
+            f"route to PyPI is too slow to be worth training on.",
+        )
     assert returncode == 0, f"`uv sync` failed on the rented machine with exit {returncode}"
     logger.info(f"Dependencies synced in {elapsed_min:.1f} min")
 
@@ -784,19 +957,20 @@ def _ssh_streaming(remote_command: str) -> int:
 
 
 def _log_summary(
-    instance_id: int, run_id: str, launch: ExperimentLaunch | None, mode: Mode
+    instance_id: int, offer: Any, run_id: str, launch: ExperimentLaunch | None, mode: Mode
 ) -> None:
     logger.section("vast.ai instance ready")
     logger.values(
         {
             "instance": instance_id,
+            "host": f"{offer['host_id']} (machine {offer['machine_id']}, {offer['geolocation']})",
             "mode": mode,
             "run_id": run_id,
             "experiment": launch.experiment if launch else "-",
             "ssh": f"ssh {SSH_HOST_ALIAS}",
             "logs": f"vastai logs {instance_id}",
             "wandb": launch.wandb_url if launch else "-",
-            "destroy": f"vastai destroy instance {instance_id}",
+            "destroy": f"vastai destroy instance {instance_id} -y",
         }
     )
 
