@@ -125,3 +125,4 @@ What tPD can show that a probe can't [concluded: a probe yields a direction; a c
 - See also: [convos/julian/26-10-02_training_run_SUMMARY.md] — the last-token arm was flagged there as needing its own tuning.
 - See also: [convos/julian/26-10-05_vast_rentals_SUMMARY.md] — renting the 48 GB RTX 4090 this topic runs on: host blacklist, A100 alternative (`--config a100`), and the open question why ≥ 40 GB is needed when this topic's plan named a 24 GB 4090.
 - See also: [convos/julian/26-10-06_feedback_review_SUMMARY.md] — reviews the FEEDBACK.md lessons that came out of this topic and which of them become rules.
+- See also: [convos/julian/26-10-06_state_report_SUMMARY.md] — Typst state report covering this topic's results; adds controls for B (matched-effect random trained components, S relative to class spread) and notes the untrained-ablation reference may be weak.
