@@ -1,6 +1,6 @@
 # SUMMARY: Do tPD components write into the truth direction? (follow-up on the UTH and tiu decompositions)
 
-**Last updated:** 26-10-06 (sync: numbers aligned to the LOG, missing UTH A5/G results, design and Open sections added, lint/type status verified; pkill rule adopted into CODING.md)
+**Last updated:** 26-10-08 (A1 distribution-test proposal added to Open)
 
 Julian started this topic from his own notes at the top of the LOG. The first agent response was written against an unsaved shorter version. Julian then supplied the full one, which replaced the opening text; the entry *revision after Julian's full notes* records what changed. The notes ask for clarifications, state a hypothesis, list three ideas, and ask for help designing an experiment on "more specific truthfulness". Julian then commented inline. The answers sit in place beneath each comment, and the entry *answers to Julian's comments; plan for the VM session* collects the result. The entry *analysis script truth_writers.py; first results on tiu arm A* holds the code description and the tiu results; *UTH results (cross-task)* the UTH results and the overall reading.
 
@@ -114,6 +114,7 @@ What tPD can show that a probe can't [concluded: a probe yields a direction; a c
 ## Open
 
 - B (with controls) — proposed, not yet run or ratified.
+- A1 distribution test (Julian's idea, 26-10-08) — proposed, not run: compare the full distribution of |cos(U_c, w)| (not only the max) against the shuffled-label null with the same U; optionally a sign-permutation null for Σ_c S_c. Cheap (CPU, stored data). Static, so weaker evidence than A2/A7; distinguishes "U span tilted toward w" from "alignment only via activations". Entry *A1 distribution test proposal (Julian's idea)*.
 - Loss for a new decomposition: Julian found the point that the KL loss sees only next-token outputs, not hidden computation, important, will think about it and "this might need a different approach" (C: comment under *Q4 rephrased*). Not decided.
 - Before using option (c): check whether `StochasticHiddenActsReconLoss` respects `loss_positions` [assumed: probably not].
 - H100 memory trial for more decomposed layers: waits until the analyses point at layers [decided].

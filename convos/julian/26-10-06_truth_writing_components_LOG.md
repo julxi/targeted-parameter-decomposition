@@ -504,3 +504,19 @@ C: (transcribed from chat) yes
 26-10-06, Claude Opus 5.5 — *pkill rule added to CODING.md*; maintenance session (sync), not the analysis
 
 During this topic, an agent killed its own shell with `pkill -f "truth_writers[.]py extract"` followed by a relaunch in the same Bash call (FEEDBACK.md, 26-10-06). The mechanism: the whole `cmd1; cmd2` string is the shell's command line before `cmd2` starts, so the relaunch's plain `truth_writers.py extract` matched the pattern and the shell died. I demonstrated it with `pgrep` [verified: 26-10-06, the pattern matched two shells before the target process existed]. Julian's "yes" above approves adding the sentence to `docs/CODING.md` (*Kill by a bracket pattern or PID*): it applies to local shells too, the bracket protects only a command line that names the target nowhere else, so kill in a call of its own or by PID. Done; the FEEDBACK entry is marked adopted.
+
+---
+
+C: (transcribed from chat) If I understand this correctly than all those not really aligned c add up to some non-neglible part of S. Maybe a future experimetn could compare the distributions of |cos(U_c,w)| as well. This could also help to show that the components have something to do with w. Does that make sense?
+
+---
+
+26-10-08, Claude Opus 5.5 — *A1 distribution test proposal (Julian's idea)*; I have read the state report's Experiment 4 section and `a1_alignment()` in `truth_writers.py`, not the stored results
+
+Context from chat: Julian asked how A1 ("no U_c aligned with `mm_L19`") fits with A2 (arm A components carry 14.6% of S along `mm_L19`; the 25.0% in the same table is MLP 18 as a whole). The answer: A1 tests only the *maximum* |cos| over the 480 components against a shuffled-label null; A2 sums S_c = (mean_true a_c − mean_false a_c)(U_c·w) over components, where many small cosines add up when the sign of the read difference matches the sign of U_c·w [concluded, from the formula].
+
+Julian's proposal: compare the whole distribution of |cos(U_c, w)|, not just its maximum. Assessment [concluded, agent reasoning, not ratified]:
+- Sound and cheap. `a1_alignment()` already computes all 480 cosines per direction and against each of the 200 null directions, then keeps only the maxima. A distribution statistic (e.g. mean cos², or a rank test of the 480 |cos| against the null pool) is a few lines on the stored U and directions, CPU only. A max-statistic is weak against broad weak enrichment, which is exactly the pattern A2 suggests.
+- Right reference: the shuffled-label null directions with the *same* U, as A1 already does. Comparing trained against untrained U_c distributions is confounded: trained U_c lie in the column space of W_down, which is aligned with the high-variance directions of the residual stream, so they would show larger |cos| with any data-derived direction.
+- Limit: it is static. It tests whether w is over-represented in the span of the U_c, not whether the components *use* it. A2's sum depends also on sign agreement with the read differences. A sharper test of that mechanism: compare Σ_c S_c with a null where the signs of U_c·w are permuted across components (keeps both factors' magnitudes, breaks the matching).
+- As evidence that "components have something to do with w" it ranks below what we already have: A2 (14.6% vs ≈0% for untrained and code control) and A7 (single ablations remove ~27–30% of the separation along `mm_L23`). Its value is in telling apart the two readings: "the U_c span is tilted toward w" vs "alignment arises only through the activations".
