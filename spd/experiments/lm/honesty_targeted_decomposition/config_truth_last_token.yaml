@@ -34,8 +34,12 @@
 # (batch 4 is overhead-bound on an H100: a batch-16 step costs ~1.3x a batch-4 step). A 2x learning
 # rate (1e-3) improved target reconstruction but doubled the Pile reconstruction loss, so 5e-4 was
 # kept. The other arms inherit these settings untested. The last-token arm trains on one position
-# per statement (~16 per batch vs ~160 for all-tokens), so its gradient is much noisier and it may
-# need its own tuning (e.g. a larger batch).
+# per statement (~16 per batch vs ~160 for all-tokens), so its gradient is much noisier.
+# Target batch 64 (26-10-13 H100 trial, this config at 2,000 steps, one seed each): batch 64 beat
+# batch 16 at the same wall time (a step is dominated by the fixed Pile batch): active components
+# per statement 8.9 vs 13.7, rounded target KL 0.135 vs 0.173, PGD KL 1.00 vs 2.04, Pile rounded KL
+# 0.041 vs 0.054 (convos/julian/26-10-10_bolder_experiments_LOG.md, entry *H100 tuning trials:
+# results*). Steps, LR and eval batch unchanged.
 
 # --- WandB ---
 wandb_project: spd
@@ -111,7 +115,7 @@ lr_schedule:
   final_val_frac: 0.1
   fn_type: cosine
 steps: 5_000
-batch_size: 16
+batch_size: 64
 eval_batch_size: 16
 grad_clip_norm_components: 0.01
 grad_clip_norm_ci_fns: null

@@ -15,9 +15,9 @@
 # what the target loss compares at the decomposed position; whether they find the same or different
 # mechanisms is one of the questions (convos/julian/26-10-10_bolder_experiments_LOG.md).
 #
-# Settings inherited from config_truth_last_token.yaml (see its header): batch 16, 5,000 steps,
-# LR 5e-4 were tuned on the all-tokens arm only; at one position per statement the gradient is
-# noisier and may need its own tuning.
+# Settings inherited from config_truth_last_token.yaml (see its header): 5,000 steps and LR 5e-4
+# were tuned on the all-tokens arm; target batch 64 was chosen in a trial of Exp 0 (26-10-13), not
+# of this lens.
 
 # --- WandB ---
 wandb_project: spd
@@ -96,7 +96,7 @@ lr_schedule:
   final_val_frac: 0.1
   fn_type: cosine
 steps: 5_000
-batch_size: 16
+batch_size: 64
 eval_batch_size: 16
 grad_clip_norm_components: 0.01
 grad_clip_norm_ci_fns: null
