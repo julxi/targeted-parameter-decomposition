@@ -327,12 +327,17 @@ class ResidualLens(BaseConfig):
 class StimulusLens(BaseConfig):
     """`stimulus` is appended to every target prompt (tokenized separately, so the prompt's own
     tokens are unchanged), and the target loss compares the next-token logits at the stimulus's
-    last token (KL). Components replace the weights only at the decomposed positions, which lie in
-    the prompt; the stimulus runs on the original weights. The loss is counted once per decomposed
-    position, so with k decomposed positions per prompt each prompt's KL is weighted k times."""
+    last token (KL). Components replace the weights only at the decomposed positions: the prompt
+    positions selected by `loss_positions`, plus with `decompose_stimulus` every stimulus token;
+    otherwise the stimulus runs on the original weights. The loss is counted once per decomposed
+    position, so with k decomposed positions per prompt each prompt's KL is weighted k times (no
+    effect on the mean when every prompt has the same k)."""
 
     type: Literal["stimulus"]
     stimulus: str
+    # Default False: configs and saved runs from before this field (e.g. the first stimulus-lens
+    # run) decompose the prompt only.
+    decompose_stimulus: bool = False
 
 
 TargetLens = Annotated[NextTokenLens | ResidualLens | StimulusLens, Field(discriminator="type")]

@@ -4,19 +4,20 @@ statement's last token runs on parts of a decomposition.
 Topic: convos/julian/26-10-10_bolder_experiments_LOG.md. Each tiu test statement gets a stimulus
 appended (tokenized separately, so the statement's tokens are unchanged). At the statement's last
 token ('.' or "'."; the decomposed position of the runs config_truth_{last_token,residual_lens,
-stimulus_lens}.yaml) the decomposed `down_proj` outputs are replaced, every other position (the
-stimulus included) runs on the original weights. States:
+stimulus_lens}.yaml), and with --decompose_stimulus also at every stimulus token (as in
+config_truth_stimulus_span.yaml), the decomposed `down_proj` outputs are replaced; every other
+position runs on the original weights. States:
   original    no replacement
-  components  components with rounded CI (CI > ROUNDING_THRESHOLD) only, Delta off: what the
-              decomposition itself accounts for
+  components  components with rounded CI (CI > ROUNDING_THRESHOLD, per position) only, Delta
+              off: what the decomposition itself accounts for
   delta_only  all component masks 0, Delta on
   all_off     component masks 0, Delta off (the MLP outputs zero there)
   full        all component masks 1, Delta on: the original weights computed through the
               decomposition. Equal to `original` up to bf16 rounding (on CPU, tiu, arm A: verdict
               scores within 0.25 of the original, separation ~11), which is why single-component
               ablations are compared with this state, not with `original`.
-  minus_<c>   `full` with component c set to 0, for every component active (rounded CI) on at
-              least MIN_ACTIVE_SHARE of the statements. Global component index c = 96 x (position
+  minus_<c>   `full` with component c set to 0, for every component active (rounded CI, at any
+              decomposed position) on at least MIN_ACTIVE_SHARE of the statements. Global component index c = 96 x (position
               of the module in sorted module order, i.e. layers 15..19) + index within the
               module, as in truth_writers.py.
 Verdict score = log P(true-like) - log P(false-like) at the last stimulus token, with the token sets
@@ -26,17 +27,18 @@ the mass after " Is this true or false? Answer:"). Per state: accuracy (score > 
 AUC, separation (mean score of true minus false statements), share predicted true, mean
 KL(original || state) at the stimulus end; per family accuracy for the main states.
 
-The decomposed position is always the last statement token, whatever a run was trained on, so runs
+The decomposed positions are set by --decompose_stimulus, not by the run's config, so runs
 decomposed elsewhere (e.g. the untrained baseline, configured for all tokens) are evaluated at the
-same position as the others.
+same positions as the others.
 
 Usage:
     python verdict_accuracy.py <out_dir> "<stimulus>" <run> [<run> ...] [--cap N] [--batch_size B]
-        [--max_singles K]
+        [--max_singles K] [--decompose_stimulus]
     <run>: a WandB run id of bitt-j-personal/spd (e.g. s-7fad0c14) or a local checkpoint path.
     --cap N keeps the first N test statements per dataset and --max_singles K ablates only the K
     most often active components (both for smoke tests).
-Writes <out_dir>/verdict_<run name>.json and prints a table per run.
+Writes <out_dir>/verdict_<run name>[_span].json (_span with --decompose_stimulus) and prints a
+table per run.
 """
 
 import json
@@ -85,25 +87,32 @@ def run_path(run: str) -> str:
 
 
 class Batches:
-    """Right-padded statement + stimulus batches, with the decomposed position (last statement
-    token) and the stimulus end of every row."""
+    """Right-padded statement + stimulus batches, with the decomposed positions (last statement
+    token, plus every stimulus token if `decompose_stimulus`) and the stimulus end of every row."""
 
     def __init__(
-        self, tokenizer: Any, texts: list[str], stimulus: str, batch_size: int, device: str
+        self,
+        tokenizer: Any,
+        texts: list[str],
+        stimulus: str,
+        decompose_stimulus: bool,
+        batch_size: int,
+        device: str,
     ) -> None:
         stim_ids = tokenizer.encode(stimulus, add_special_tokens=False)
         assert stim_ids, f"empty stimulus {stimulus!r}"
         statement_ids = [tokenizer.encode(t, add_special_tokens=False) for t in texts]
         self.seqs = [s + stim_ids for s in statement_ids]
         self.n_statement = [len(s) for s in statement_ids]
+        self.decompose_stimulus = decompose_stimulus
         self.pad_id = tokenizer.pad_token_id
         assert isinstance(self.pad_id, int)
         self.batch_size = batch_size
         self.device = device
         logger.info(
             f"stimulus {stimulus!r} = {[tokenizer.decode([i]) for i in stim_ids]}; e.g. "
-            f"{tokenizer.decode(self.seqs[0])!r}, decomposed token "
-            f"{tokenizer.decode([statement_ids[0][-1]])!r}"
+            f"{tokenizer.decode(self.seqs[0])!r}, decomposed tokens "
+            f"{[tokenizer.decode([t]) for t in self.seqs[0][self.n_statement[0] - 1 :]] if decompose_stimulus else [tokenizer.decode([statement_ids[0][-1]])]}"
         )
 
     def __iter__(self):
@@ -113,9 +122,11 @@ class Batches:
             ids = torch.tensor(
                 [self.seqs[r] + [self.pad_id] * (width - len(self.seqs[r])) for r in rows]
             )
-            decomposed = torch.zeros(len(rows), width, dtype=torch.bool)
-            decomposed[torch.arange(len(rows)), [self.n_statement[r] - 1 for r in rows]] = True
+            first = torch.tensor([self.n_statement[r] - 1 for r in rows])
             end = torch.tensor([len(self.seqs[r]) - 1 for r in rows])
+            last = end if self.decompose_stimulus else first
+            pos = torch.arange(width)[None, :]
+            decomposed = (pos >= first[:, None]) & (pos <= last[:, None])
             yield (
                 list(rows),
                 ids.to(self.device),
@@ -130,6 +141,7 @@ def evaluate_run(
     labels: np.ndarray,
     families: np.ndarray,
     stimulus: str,
+    decompose_stimulus: bool,
     batch_size: int,
     max_singles: int | None,
     device: str,
@@ -146,7 +158,7 @@ def evaluate_run(
     n_c = [model.module_to_c[m] for m in modules]
     offsets = np.concatenate([[0], np.cumsum(n_c)])
     deltas = model.calc_weight_deltas()
-    batches = Batches(tokenizer, texts, stimulus, batch_size, device)
+    batches = Batches(tokenizer, texts, stimulus, decompose_stimulus, batch_size, device)
     n = len(texts)
 
     def forward_lp(ids: Tensor, end: Tensor, mask_infos: dict[str, Any] | None) -> Tensor:
@@ -164,10 +176,13 @@ def evaluate_run(
         )
         return route_only_selected_positions(infos, decomposed)
 
-    # Pass 1: original verdicts and the rounded CIs at the decomposed position.
+    # Pass 1: original verdicts and the rounded CIs at the decomposed positions.
     # (n, vocab) fp32 on the CPU: ~1 GB for the 1,794 tiu test statements and Qwen's vocabulary.
     lp_orig_parts: list[Tensor] = []
-    rounded = np.zeros((n, int(offsets[-1])), dtype=bool)
+    # per batch (in iteration order): rounded CIs (b, pos, C) per module, for the components state
+    rounded_batches: list[dict[str, Tensor]] = []
+    rounded = np.zeros((n, int(offsets[-1])), dtype=bool)  # active at any decomposed position
+    n_active_per_position: list[float] = []
     for rows, ids, decomposed, end in batches:
         with torch.no_grad(), bf16_autocast(enabled=config.autocast_bf16):
             out = model(ids, cache_type="input")
@@ -176,8 +191,11 @@ def evaluate_run(
             )
         rr = torch.arange(len(rows), device=device)
         lp_orig_parts.append(torch.log_softmax(out.output[rr, end].float(), -1).cpu())
-        at_d = torch.cat([ci.lower_leaky[m][decomposed] for m in modules], dim=-1)
-        rounded[rows] = (at_d > ROUNDING_THRESHOLD).cpu().numpy()
+        on = {m: ci.lower_leaky[m] > ROUNDING_THRESHOLD for m in modules}
+        rounded_batches.append({m: v.cpu() for m, v in on.items()})
+        at_d = torch.cat([on[m] & decomposed[..., None] for m in modules], dim=-1)  # (b, pos, C)
+        rounded[rows] = at_d.any(dim=1).cpu().numpy()
+        n_active_per_position += at_d.sum(-1)[decomposed].float().cpu().tolist()
     lp_orig = torch.cat(lp_orig_parts)  # batches run through the rows in order
     assert lp_orig.shape[0] == n
     active_share = rounded.mean(0)
@@ -186,19 +204,17 @@ def evaluate_run(
     if max_singles is not None:
         singles = sorted(singles, key=lambda c: -active_share[c])[:max_singles]
     logger.info(
-        f"{run}: mean active components at the decomposed position "
-        f"{rounded.sum(1).mean():.1f}; {n_frequent} components active on >= "
+        f"{run}: mean active components per decomposed position "
+        f"{np.mean(n_active_per_position):.1f}; {n_frequent} components active on >= "
         f"{MIN_ACTIVE_SHARE:.0%} of statements, {len(singles)} of them ablated singly"
     )
 
-    def state_masks(state: str, ids: Tensor, rows: list[int]) -> dict[str, Tensor]:
+    def state_masks(state: str, ids: Tensor, i_batch: int) -> dict[str, Tensor]:
         b, pos = ids.shape
         match state:
             case "components":
-                masks = {}
-                for i, m in enumerate(modules):
-                    per_row = torch.from_numpy(rounded[rows, offsets[i] : offsets[i + 1]])
-                    masks[m] = per_row.float().to(device)[:, None, :].expand(b, pos, n_c[i])
+                masks = {m: v.float().to(device) for m, v in rounded_batches[i_batch].items()}
+                assert all(v.shape == (b, pos, c) for v, c in zip(masks.values(), n_c, strict=True))
                 return masks
             case "delta_only" | "all_off":
                 return {
@@ -234,8 +250,8 @@ def evaluate_run(
     for state in states:
         s_out, kl_out = np.zeros(n), np.zeros(n)
         delta_on = state in ("delta_only", "full") or state.startswith("minus_")
-        for rows, ids, decomposed, end in batches:
-            infos = masked(ids, decomposed, state_masks(state, ids, rows), delta_on)
+        for i_batch, (rows, ids, decomposed, end) in enumerate(batches):
+            infos = masked(ids, decomposed, state_masks(state, ids, i_batch), delta_on)
             lp = forward_lp(ids, end, infos)
             s_out[rows] = score(lp)
             p = lp_orig[rows].to(device)
@@ -267,7 +283,8 @@ def evaluate_run(
         "stimulus": stimulus,
         "n_statements": n,
         "components_plus_delta_max_score_dev": max_dev,
-        "mean_active_components": float(rounded.sum(1).mean()),
+        "decompose_stimulus": decompose_stimulus,
+        "mean_active_components": float(np.mean(n_active_per_position)),
         "n_components_active_min_share": n_frequent,
         "states": {st: summary(verdict[st], kl_end[st]) for st in ["original", *states]},
         "active_share": {str(c): float(active_share[c]) for c in singles},
@@ -285,7 +302,8 @@ def evaluate_run(
 def report(result: dict[str, Any]) -> str:
     lines = [
         f"=== {result['run']}  stimulus {result['stimulus']!r}  n={result['n_statements']}  "
-        f"mean active components {result['mean_active_components']:.1f}  "
+        f"decompose_stimulus {result['decompose_stimulus']}  "
+        f"mean active components per decomposed position {result['mean_active_components']:.1f}  "
         f"components+Delta max score dev {result['components_plus_delta_max_score_dev']:.4f}",
         f"{'state':12s} {'acc':>6s} {'AUC':>6s} {'sep':>7s} {'%true':>6s} {'KL':>7s}",
     ]
@@ -319,6 +337,7 @@ def main(
     cap: int | None = None,
     batch_size: int = 64,
     max_singles: int | None = None,
+    decompose_stimulus: bool = False,
 ) -> None:
     assert runs, "give at least one run"
     out = Path(out_dir).expanduser()
@@ -339,10 +358,19 @@ def main(
     logger.info(f"{len(texts)} test statements, {labels.mean():.3f} true")
     for run in runs:
         result = evaluate_run(
-            run, texts, labels, families, stimulus, batch_size, max_singles, device
+            run,
+            texts,
+            labels,
+            families,
+            stimulus,
+            decompose_stimulus,
+            batch_size,
+            max_singles,
+            device,
         )
         name = Path(run).parent.name if Path(run).exists() else run
-        (out / f"verdict_{name}.json").write_text(json.dumps(result, indent=1))
+        suffix = "_span" if decompose_stimulus else ""
+        (out / f"verdict_{name}{suffix}.json").write_text(json.dumps(result, indent=1))
         print(report(result), flush=True)
 
 

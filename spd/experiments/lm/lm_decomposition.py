@@ -42,7 +42,7 @@ def _create_lm_loaders(
     eval_batch_size: int,
     seed: int,
     dist_state: DistributedState | None,
-    stimulus: str | None,
+    stimulus: StimulusLens | None,
 ) -> tuple[LoaderType, LoaderType]:
     """Create train and eval loaders from an LMTaskConfig.
 
@@ -212,9 +212,7 @@ def main(
         eval_batch_size=_rank_batch_size(config.eval_batch_size),
         seed=config.seed,
         dist_state=dist_state,
-        stimulus=(
-            config.target_lens.stimulus if isinstance(config.target_lens, StimulusLens) else None
-        ),
+        stimulus=config.target_lens if isinstance(config.target_lens, StimulusLens) else None,
     )
 
     # --- Nontarget data --- #

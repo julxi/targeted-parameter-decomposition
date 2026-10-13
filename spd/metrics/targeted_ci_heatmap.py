@@ -174,8 +174,9 @@ class TargetedCIHeatmap(Metric):
     def _tokenize_prompts(
         self, prompts: list[str], task_config: LMTaskConfig
     ) -> tuple[Tensor, PositionMask | None]:
-        # No stimulus even under a stimulus lens: the heatmap shows CIs at the decomposed
-        # positions, which lie before any stimulus and cannot see it (causal attention).
+        # No stimulus even under a stimulus lens: the heatmap shows CIs at the prompt's decomposed
+        # positions, which lie before any stimulus and cannot see it (causal attention). With
+        # decompose_stimulus, the stimulus positions are therefore not shown.
         dataset = load_prompts_dataset(
             prompts,
             self._get_tokenizer(),

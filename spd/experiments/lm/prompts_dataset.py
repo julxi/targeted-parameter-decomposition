@@ -11,7 +11,7 @@ from torch import Tensor
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, PreTrainedTokenizer
 
-from spd.configs import AllPositions, LastKPositions, LossPositions, TokenPositions
+from spd.configs import AllPositions, LastKPositions, LossPositions, StimulusLens, TokenPositions
 from spd.log import logger
 from spd.utils.distributed_utils import DistributedState
 from spd.utils.general_utils import (
@@ -116,15 +116,16 @@ def load_prompts_dataset(
     tokenizer: PreTrainedTokenizer,
     max_seq_len: int,
     loss_positions: LossPositions,
-    stimulus: str | None,
+    stimulus: StimulusLens | None,
 ) -> Dataset:
     """Tokenize prompts into an HF Dataset, right-padded to max_seq_len (errors if exceeded).
 
-    With a `stimulus`, its tokens are appended to every prompt's tokens. It is tokenized on its own,
-    so the prompt's tokens are the same as without it (joint tokenization can merge across the
-    boundary, e.g. Qwen merges '.' + '\n' into one token). `loss_positions` then selects among the
-    prompt's tokens only: they are the decomposed positions, and the stimulus is read by the
-    stimulus lens (configs.StimulusLens) at its last token.
+    With a `stimulus` (configs.StimulusLens), its text is appended to every prompt's tokens. It is
+    tokenized on its own, so the prompt's tokens are the same as without it (joint tokenization can
+    merge across the boundary, e.g. Qwen merges '.' + '\n' into one token). `loss_positions` then
+    selects among the prompt's tokens only; with `stimulus.decompose_stimulus` every stimulus token
+    is selected too. The selected positions are the decomposed ones; the stimulus lens reads the
+    model at the stimulus's last token.
 
     Returns:
         HuggingFace Dataset with an 'input_ids' column of shape (n_prompts, max_seq_len), plus a
@@ -143,11 +144,12 @@ def load_prompts_dataset(
         assert not isinstance(loss_positions, AllPositions), (
             "a stimulus needs loss_positions within the prompt, not 'all'"
         )
-        stimulus_ids = tokenizer.encode(stimulus, add_special_tokens=False)
-        assert len(stimulus_ids) > 0, f"empty stimulus {stimulus!r}"
+        stimulus_ids = tokenizer.encode(stimulus.stimulus, add_special_tokens=False)
+        assert len(stimulus_ids) > 0, f"empty stimulus {stimulus.stimulus!r}"
         logger.info(
-            f"Appending stimulus {stimulus!r} = tokens "
-            f"{[tokenizer.decode([i]) for i in stimulus_ids]} to every prompt; e.g. "
+            f"Appending stimulus {stimulus.stimulus!r} = tokens "
+            f"{[tokenizer.decode([i]) for i in stimulus_ids]} to every prompt "
+            f"(decompose_stimulus={stimulus.decompose_stimulus}); e.g. "
             f"{tokenizer.decode(encoded['input_ids'][0] + stimulus_ids)!r}"
         )
         encoded["input_ids"] = [ids + stimulus_ids for ids in encoded["input_ids"]]
@@ -165,6 +167,13 @@ def load_prompts_dataset(
     input_ids = [ids + [pad_token_id] * (max_seq_len - len(ids)) for ids in encoded["input_ids"]]
     columns: dict[str, Any] = {"input_ids": input_ids}
     position_mask = build_position_mask(torch.tensor(prompt_lengths), max_seq_len, loss_positions)
+    if stimulus is not None and stimulus.decompose_stimulus:
+        assert position_mask is not None
+        positions = torch.arange(max_seq_len).unsqueeze(0)
+        in_stimulus = (positions >= torch.tensor(prompt_lengths).unsqueeze(1)) & (
+            positions < torch.tensor(lengths).unsqueeze(1)
+        )
+        position_mask = position_mask | in_stimulus
     if position_mask is not None:
         columns[POSITION_MASK_KEY] = position_mask.tolist()
     if stimulus is not None:
@@ -181,7 +190,7 @@ def create_prompts_data_loader(
     max_seq_len: int,
     loss_positions: LossPositions,
     batch_size: int,
-    stimulus: str | None,
+    stimulus: StimulusLens | None,
     dist_state: DistributedState | None = None,
     seed: int = 0,
 ) -> tuple[DataLoader[Any] | StaticBatchLoader, PreTrainedTokenizer]:
@@ -197,7 +206,7 @@ def create_prompts_data_loader(
         max_seq_len: Maximum sequence length
         loss_positions: Which positions contribute to losses (sets the 'position_mask' column)
         batch_size: Batch size for the DataLoader
-        stimulus: Text appended to every prompt (see load_prompts_dataset), or None
+        stimulus: Stimulus appended to every prompt (see load_prompts_dataset), or None
         dist_state: Distributed state for multi-GPU training
         seed: Random seed for shuffling
 

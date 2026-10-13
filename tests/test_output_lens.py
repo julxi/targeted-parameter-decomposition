@@ -14,7 +14,7 @@ import torch
 import torch.nn.functional as F
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from spd.configs import GlobalCiConfig, LastKPositions, TokenPositions
+from spd.configs import GlobalCiConfig, LastKPositions, StimulusLens, TokenPositions
 from spd.experiments.lm.prompts_dataset import load_prompts_dataset, trim_to_loss_positions
 from spd.models.component_model import ComponentModel
 from spd.models.components import make_mask_infos, route_only_selected_positions
@@ -33,6 +33,7 @@ PROMPTS = [
     "The Spanish word 'uno' means 'one'.",
 ]
 STIMULUS = " Is this true or false? Answer:"
+LENS = StimulusLens(type="stimulus", stimulus=STIMULUS)
 MAX_SEQ_LEN = 32
 
 
@@ -61,7 +62,7 @@ def test_stimulus_batches_keep_prompt_tokens_and_mark_the_stimulus_end() -> None
     tok = AutoTokenizer.from_pretrained(TINY_QWEN)
     stim_ids = tok.encode(STIMULUS, add_special_tokens=False)
     for loss_positions in (LastKPositions(type="last_k", k=1), TokenPositions(type="tokens")):
-        batch = load_prompts_dataset(PROMPTS, tok, MAX_SEQ_LEN, loss_positions, STIMULUS)[:]
+        batch = load_prompts_dataset(PROMPTS, tok, MAX_SEQ_LEN, loss_positions, LENS)[:]
         for row, prompt in enumerate(PROMPTS):
             prompt_ids = tok(prompt)["input_ids"]
             n = len(prompt_ids) + len(stim_ids)
@@ -79,13 +80,26 @@ def test_stimulus_batches_keep_prompt_tokens_and_mark_the_stimulus_end() -> None
         assert torch.equal(trimmed[STIMULUS_END_KEY], batch[STIMULUS_END_KEY])
 
 
+def test_decompose_stimulus_adds_exactly_the_stimulus_tokens() -> None:
+    tok = AutoTokenizer.from_pretrained(TINY_QWEN)
+    n_stim = len(tok.encode(STIMULUS, add_special_tokens=False))
+    lens = StimulusLens(type="stimulus", stimulus=STIMULUS, decompose_stimulus=True)
+    batch = load_prompts_dataset(
+        PROMPTS, tok, MAX_SEQ_LEN, LastKPositions(type="last_k", k=1), lens
+    )[:]
+    for row, prompt in enumerate(PROMPTS):
+        n_prompt = len(tok(prompt)["input_ids"])
+        selected = batch[POSITION_MASK_KEY][row].nonzero().flatten().tolist()
+        # the prompt's last token (the period) and every stimulus token, nothing else
+        assert selected == list(range(n_prompt - 1, n_prompt + n_stim)), selected
+        assert int(batch[STIMULUS_END_KEY][row]) == n_prompt + n_stim - 1
+
+
 def test_stimulus_lens_reads_the_stimulus_end() -> None:
     tok = AutoTokenizer.from_pretrained(TINY_QWEN)
     model = _tiny_model(decomposed_layers=(0, 1))
     batch = trim_to_loss_positions(
-        load_prompts_dataset(
-            PROMPTS, tok, MAX_SEQ_LEN, LastKPositions(type="last_k", k=1), STIMULUS
-        )[:]
+        load_prompts_dataset(PROMPTS, tok, MAX_SEQ_LEN, LastKPositions(type="last_k", k=1), LENS)[:]
     )
     ids, decomposed, end = batch["input_ids"], batch[POSITION_MASK_KEY], batch[STIMULUS_END_KEY]
     # All components off and no delta: the decomposed MLPs output zero at the decomposed position.
