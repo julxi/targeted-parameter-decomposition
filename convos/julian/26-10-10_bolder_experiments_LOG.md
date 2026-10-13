@@ -438,3 +438,47 @@ Julian answered the four open questions with C: comments (above, under *Open que
 - decompose only at the period in all three runs [decided].
 
 The configs need no change. Next: commit (Julian asked in chat to commit before the runs), then the H100 runs. The agent proposed two commits, code and records, so the hash that the runs record contains only code.
+
+---
+
+26-10-13, Claude Opus 5.5 — *H100 tuning trials: plan*; same session. Julian rented the H100 himself and wrote in chat:
+
+C: (transcribed from chat) I've rented the H100 and before you start the runs you can do some simple tuning
+
+Instance: H100 80GB HBM3 at 700 W (no power cap) [verified: `nvidia-smi`]; repo at `56bdf4f`. One tracked file inside a gitignored directory (`spd/scripts/plot_wv_subspace_overlap/out/wv_overlap_writeup.tex`; `.gitignore` has `**/out/`) is skipped by `spd-vast`'s rsync, so git saw it as deleted and every run would have been stamped "uncommitted changes". I marked it `--skip-worktree` on the instance (git status then clean); the launcher fix is in FUTURE_WORK.md.
+
+Trials [assumed: plan], sequential on the instance so the per-step times are clean; configs and runner in `~/spd_out/26-10-10_bolder_experiments/tuning/` (on the instance `/root/trials/`); no checkpoint upload:
+1. `smoke_exp1`, `smoke_exp2`: the Exp 1 / Exp 2 configs for 300 steps (PPGD from step 240). They check what the tiny model could not: memory, the channel-std pass, the loss scales on the real model, per-step time.
+2. `exp0_b16` vs `exp0_b64`: Exp 0 for 2,000 steps at target batch 16 (current) vs 64; the Pile batch stays 16. Question: with one loss position per statement, batch 16 gives 16 loss positions per step, against ~160 in the all-tokens arm where the settings were tuned (training-run topic). If batch 64 reaches clearly better target/PGD reconstruction at similar Pile KL and acceptable cost per step, the three runs use batch 64.
+
+---
+
+26-10-13, Claude Opus 5.5 — *H100 tuning trials: results*; same session. [verified: `~/spd_out/26-10-10_bolder_experiments/tuning/` (configs, logs, `runs/*/metrics.jsonl`, `compare_trials.py`); one H100 at 700 W, one seed per trial; WandB runs s-1c8cd417 (smoke Exp 1), s-6e70a646 (smoke Exp 2), s-50d0c294 (Exp 0 batch 16), s-54d0f743 (Exp 0 batch 64), checkpoints not uploaded]
+
+**Smoke runs on the real model (300 steps; PPGD from step 240).** Both ran without errors.
+- Exp 1 (residual lens): the channel std computed at startup (min/median/max 0.825 / 1.581 / 17.51) agrees with my CPU computation from the stored training residuals (0.824 / 1.581 / 17.46); the two are independent code paths. After 300 steps: 10.8 active components per statement (220 at the start), rounded target loss 0.93 (step 0: 2.91; all-off reference from R3: 2.26), PGD 1.32, Pile rounded KL 0.020. ~345 ms/step without PPGD, ~645 ms with it.
+- Exp 2 (stimulus lens): 4.5 active components, rounded target KL at the stimulus end 0.068 nats (all-off reference from R2: 0.28), Pile 0.031. **The eval PGD loss is very high: 9.7 nats at step 150, 4.7 at step 300**, i.e. ~70× the rounded loss (all-tokens arm: ~2.5×). PPGD had run only 60 steps by then; the full run gives it 1,000. To watch in the full run [assumed: PPGD will bring it down, as it did for Exp 0 below].
+
+**Batch size, Exp 0 (next-token lens at the period), 2,000 steps:**
+
+| step 2,000 | batch 16 | batch 64 |
+|---|---|---|
+| active components per statement (L0) | 13.7 | 8.9 |
+| target rounded KL (nats, at the period) | 0.173 | 0.135 |
+| target stochastic KL | 0.170 | 0.127 |
+| eval PGD KL | 2.04 | 1.00 |
+| all components, no Δ (unmasked) | 0.238 | 0.168 |
+| Pile rounded KL | 0.054 | 0.041 |
+| trial wall time (incl. model load, evals) | 19.5 min | 19.8 min |
+
+Reading [concluded]: batch 64 is better on every metric, and the direction is the same at every eval (steps 500, 1,000, 1,500). The differences exceed the run-to-run noise measured in the training-run topic (up to 10% on target metrics, 15–25% on PGD/Pile), except Pile, which is at the edge. Batch 64 costs nothing: a step is dominated by the fixed Pile batch (16 × 64 tokens) and per-pass overheads. In both trials PGD falls steeply during the PPGD phase (Exp 0 batch 16: 4.58 at step 1,500 → 2.04 at 2,000), consistent with the expectation for Exp 2 above.
+
+**Change:** target `batch_size: 64` in all three configs (`config_truth_{last_token,residual_lens,stimulus_lens}.yaml`), with the reason in their headers; steps (5,000), LR, eval batch and Pile batch unchanged. Batch 128 is untested (it might also be free). Expected time per full run: ~38 min [assumed: 4,000 × ~0.35 s + 1,000 × ~0.57 s + evals and model load].
+
+---
+
+26-10-13, Claude Opus 5.5 — *full runs launched*; same session.
+
+C: (transcribed from chat) plan approved
+
+The plan: commit the batch-64 configs, re-sync the instance, run Exp 0, Exp 1, Exp 2 sequentially (detached), checkpoints to WandB.
