@@ -482,3 +482,58 @@ Reading [concluded]: batch 64 is better on every metric, and the direction is th
 C: (transcribed from chat) plan approved
 
 The plan: commit the batch-64 configs, re-sync the instance, run Exp 0, Exp 1, Exp 2 sequentially (detached), checkpoints to WandB.
+
+---
+
+26-10-13, Claude Opus 5.5 — *Exp 2 finished*; same session. [verified: run `s-05db01ad`, commit `ae7f041`, no uncommitted changes, 47 min on the H100; `model_5000.pth` (238 MB) on WandB; metrics copied to `~/spd_out/26-10-10_bolder_experiments/full/stimulus_lens/`]
+
+Exp 2 (stimulus lens, " Is this true or false? Answer:", period only, batch 64, 5,000 steps), eval on 256 test statements:
+
+| step | active components per statement | target rounded KL (nats, stimulus end) | stochastic KL | Δ only KL | eval PGD KL | Pile rounded KL |
+|---|---|---|---|---|---|---|
+| 1,000 | 1.7 | 0.036 | 0.026 | 0.035 | 1.98 | 0.084 |
+| 4,000 (PPGD starts) | 1.0 | 0.037 | 0.011 | 0.022 | 0.93 | 0.056 |
+| 5,000 | 0.47 | 0.029 | 0.006 | 0.014 | 0.60 | 0.040 |
+
+Reading [assumed: one run, one seed; eval metrics only, before any analysis]:
+- The PGD concern from the smoke run is resolved as far as training goes: 9.7 nats (smoke, step 150) → 0.60 at the end.
+- The decomposition is extremely sparse: fewer than one active component per statement on average. Δ alone (all components off) reproduces the verdict at least as well as the rounded components (0.014 vs 0.029 nats). With the all-off reference at 0.28 nats (R2), the stimulus loss seems to exert little pressure to put anything in the components. Analysis V will show whether the few active components carry verdict information.
+- Pile rounded KL ends at 0.040, the level of the Exp 0 batch-64 trial (0.041).
+
+Exp 1 started 15:46 UTC, then Exp 0.
+
+---
+
+26-10-13, Claude Opus 5.5 — *V on Exp 2; Exp 3 (stimulus decomposed) added*; same session. Julian in chat:
+
+C: (transcribed from chat) Can you add another experiment to the pipeline. That decomposese ". Is this true or fales? Answer:"? Also can you start the evaluation of experiment 2?
+
+## V on Exp 2 [verified: H100, run concurrently with Exp 1; `/root/analysis/v.log` and `verdict_s-05db01ad.json` on the instance, to be copied to `~/spd_out/26-10-10_bolder_experiments/full/`; full tiu test split, n = 1,794; stimulus " Is this true or false? Answer:"; replacement at the period only]
+
+| state | accuracy | AUC | separation | KL to original (nats) |
+|---|---|---|---|---|
+| original | 0.953 | 0.999 | 12.04 | 0 |
+| components only (0.8 active per statement) | 0.958 | 0.998 | 10.88 | 0.033 |
+| Δ only | 0.939 | 0.997 | 11.15 | 0.030 |
+| all off | 0.918 | 0.983 | 10.21 | 0.116 |
+| full (components + Δ) | 0.953 | 0.999 | 12.04 | 0.0007 |
+
+13 components are active on ≥ 1% of the statements; ablating one of them singly changes the separation by −0.38 to +0.09 (largest: component 116, active on 12%, −0.38; components 103 and 39, active on 2%, −0.36 / −0.30).
+
+Reading [assumed: one run; the references (untrained `s-7fad0c14`, arm A `s-bd23f0d1`) are still running]: on the full test split, zeroing MLPs 15–19 at the period removes 15% of the verdict separation and costs 0.116 nats (R2's sample: 26%, 0.28 nats; that sample capped 30 statements per dataset, the full split is dominated by cities and number comparisons). Exp 2's components alone, under one per statement, recover ~70% of that KL (0.116 → 0.033) and a third of the lost separation (10.21 → 10.88 of 12.04).
+
+## Exp 3: decompose the period and the stimulus
+
+Design [assumed: my reading of Julian's request]: as Exp 2 (same stimulus, same loss: KL at the stimulus end), but the decomposed positions are the period **and all 8 stimulus tokens**, ". Is this true or false? Answer:" (9 positions per statement). In Exp 2 the stimulus ran on the original weights and could recompute the verdict itself; here the verdict computation at the stimulus tokens, including the token that outputs the verdict, goes through the components too.
+
+Implementation [verified: unit test (period + exactly the stimulus tokens selected), CPU smoke training on the tiny Qwen2, V smoke test in both modes, `make test` only the known rotgrid failure; 26-10-13]:
+- `StimulusLens.decompose_stimulus: bool` (default false, so Exp 2's saved config still loads). The prompt loader now takes the `StimulusLens` config instead of the bare string; with the flag, `position_mask` = the selected statement positions plus every stimulus token.
+- Config `config_truth_stimulus_span.yaml` (label `tiu_stimulus_span`) = Exp 2's config + `decompose_stimulus: true`; batch 64, 5,000 steps.
+- `verdict_accuracy.py --decompose_stimulus`: replaces at the period and all stimulus tokens; the components state uses the rounded CI per position; output `verdict_<run>_span.json`. Without the flag, the masks are the same as before (rounded CI at the period), so the Exp 2 result above stands.
+- Loss scaling: each statement's KL now counts at 9 positions, but all statements have 9, so the mean (the loss value) is unchanged. Importance minimality now averages over 9 positions per statement, 8 of them stimulus tokens.
+
+Pending: commit and sync, then Exp 3 after Exp 0 in the queue.
+
+C: (transcribed from chat) yes, to the plan
+
+(Plan: commit code/config and records separately, sync the instance while Exp 1 runs, queue Exp 3 after Exp 0; Exp 0 then records the new commit.)
