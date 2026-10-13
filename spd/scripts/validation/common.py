@@ -154,6 +154,7 @@ def build_lm_loader(
             max_seq_len=task_config.max_seq_len,
             loss_positions=task_config.loss_positions,
             batch_size=len(prompts),
+            stimulus=None,
         )
         return loader
 

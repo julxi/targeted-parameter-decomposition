@@ -14,7 +14,12 @@ from transformers import AutoTokenizer, PreTrainedTokenizer
 from spd.configs import AllPositions, LastKPositions, LossPositions, TokenPositions
 from spd.log import logger
 from spd.utils.distributed_utils import DistributedState
-from spd.utils.general_utils import POSITION_MASK_KEY, PositionMask, extract_batch_data
+from spd.utils.general_utils import (
+    POSITION_MASK_KEY,
+    STIMULUS_END_KEY,
+    PositionMask,
+    extract_batch_data,
+)
 
 
 class StaticBatchLoader:
@@ -71,26 +76,30 @@ def build_position_mask(
 
 
 def trim_to_loss_positions(batch: dict[str, Tensor]) -> dict[str, Tensor]:
-    """Cut a right-padded batch after its last loss position (= pad it to its longest sequence).
+    """Cut a right-padded batch after the last position any loss reads: its last loss position, or
+    with an appended stimulus (STIMULUS_END_KEY) the last stimulus token, if that comes later.
 
-    Positions after the last loss position of every row are padding that no loss reads: masked
-    losses select by `position_mask`, unselected positions run on the original weights, and with
-    causal attention padding on the right cannot influence earlier positions. So dropping them only
-    saves compute; tests/test_prompts_padding.py checks that the losses are unchanged. The batch
-    width then varies from batch to batch (at most max_seq_len).
+    Later positions are padding that no loss reads: masked losses select by `position_mask`,
+    unselected positions run on the original weights, the stimulus lens reads only the stimulus end,
+    and with causal attention padding on the right cannot influence earlier positions. So dropping
+    them only saves compute; tests/test_prompts_padding.py checks that the losses are unchanged.
+    The batch width then varies from batch to batch (at most max_seq_len).
     """
     input_ids, position_mask = batch["input_ids"], batch[POSITION_MASK_KEY]
     assert input_ids.shape == position_mask.shape, (input_ids.shape, position_mask.shape)
     positions = torch.arange(1, position_mask.shape[1] + 1)
     width = int((position_mask * positions).max())
     assert width > 0, "batch without loss positions"
-    return {"input_ids": input_ids[:, :width], POSITION_MASK_KEY: position_mask[:, :width]}
+    trimmed = dict(batch)
+    if STIMULUS_END_KEY in batch:
+        width = max(width, int(batch[STIMULUS_END_KEY].max()) + 1)
+    trimmed["input_ids"] = input_ids[:, :width]
+    trimmed[POSITION_MASK_KEY] = position_mask[:, :width]
+    return trimmed
 
 
 def _collate_trimmed(rows: list[dict[str, Tensor]]) -> dict[str, Tensor]:
-    return trim_to_loss_positions(
-        {key: torch.stack([row[key] for row in rows]) for key in ("input_ids", POSITION_MASK_KEY)}
-    )
+    return trim_to_loss_positions({key: torch.stack([row[key] for row in rows]) for key in rows[0]})
 
 
 def read_prompts_file(prompts_file: Path) -> list[str]:
@@ -107,12 +116,20 @@ def load_prompts_dataset(
     tokenizer: PreTrainedTokenizer,
     max_seq_len: int,
     loss_positions: LossPositions,
+    stimulus: str | None,
 ) -> Dataset:
     """Tokenize prompts into an HF Dataset, right-padded to max_seq_len (errors if exceeded).
 
+    With a `stimulus`, its tokens are appended to every prompt's tokens. It is tokenized on its own,
+    so the prompt's tokens are the same as without it (joint tokenization can merge across the
+    boundary, e.g. Qwen merges '.' + '\n' into one token). `loss_positions` then selects among the
+    prompt's tokens only: they are the decomposed positions, and the stimulus is read by the
+    stimulus lens (configs.StimulusLens) at its last token.
+
     Returns:
         HuggingFace Dataset with an 'input_ids' column of shape (n_prompts, max_seq_len), plus a
-        'position_mask' column of the same shape unless loss_positions selects every position.
+        'position_mask' column of the same shape unless loss_positions selects every position, plus
+        with a stimulus a 'stimulus_end' column (index of each row's last stimulus token).
     """
     assert len(prompts) > 0, "No prompts"
 
@@ -121,6 +138,19 @@ def load_prompts_dataset(
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
     encoded: Any = tokenizer(prompts)
+    prompt_lengths = [len(ids) for ids in encoded["input_ids"]]
+    if stimulus is not None:
+        assert not isinstance(loss_positions, AllPositions), (
+            "a stimulus needs loss_positions within the prompt, not 'all'"
+        )
+        stimulus_ids = tokenizer.encode(stimulus, add_special_tokens=False)
+        assert len(stimulus_ids) > 0, f"empty stimulus {stimulus!r}"
+        logger.info(
+            f"Appending stimulus {stimulus!r} = tokens "
+            f"{[tokenizer.decode([i]) for i in stimulus_ids]} to every prompt; e.g. "
+            f"{tokenizer.decode(encoded['input_ids'][0] + stimulus_ids)!r}"
+        )
+        encoded["input_ids"] = [ids + stimulus_ids for ids in encoded["input_ids"]]
     lengths = [len(ids) for ids in encoded["input_ids"]]
     too_long = [(i, length) for i, length in enumerate(lengths) if length > max_seq_len]
     if too_long:
@@ -134,9 +164,11 @@ def load_prompts_dataset(
     pad_token_id = tokenizer.pad_token_id
     input_ids = [ids + [pad_token_id] * (max_seq_len - len(ids)) for ids in encoded["input_ids"]]
     columns: dict[str, Any] = {"input_ids": input_ids}
-    position_mask = build_position_mask(torch.tensor(lengths), max_seq_len, loss_positions)
+    position_mask = build_position_mask(torch.tensor(prompt_lengths), max_seq_len, loss_positions)
     if position_mask is not None:
         columns[POSITION_MASK_KEY] = position_mask.tolist()
+    if stimulus is not None:
+        columns[STIMULUS_END_KEY] = [length - 1 for length in lengths]
     dataset = Dataset.from_dict(columns)
     dataset = dataset.with_format("torch")
 
@@ -149,6 +181,7 @@ def create_prompts_data_loader(
     max_seq_len: int,
     loss_positions: LossPositions,
     batch_size: int,
+    stimulus: str | None,
     dist_state: DistributedState | None = None,
     seed: int = 0,
 ) -> tuple[DataLoader[Any] | StaticBatchLoader, PreTrainedTokenizer]:
@@ -164,6 +197,7 @@ def create_prompts_data_loader(
         max_seq_len: Maximum sequence length
         loss_positions: Which positions contribute to losses (sets the 'position_mask' column)
         batch_size: Batch size for the DataLoader
+        stimulus: Text appended to every prompt (see load_prompts_dataset), or None
         dist_state: Distributed state for multi-GPU training
         seed: Random seed for shuffling
 
@@ -171,7 +205,7 @@ def create_prompts_data_loader(
         Tuple of (DataLoader or StaticBatchLoader, tokenizer)
     """
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
-    dataset = load_prompts_dataset(prompts, tokenizer, max_seq_len, loss_positions)
+    dataset = load_prompts_dataset(prompts, tokenizer, max_seq_len, loss_positions, stimulus)
 
     n_prompts = len(dataset)
 

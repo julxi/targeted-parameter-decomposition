@@ -1,0 +1,200 @@
+# Qwen2.5-7B-Instruct — Exp 2 of the bolder experiments: stimulus lens on Truth-is-Universal
+# statements (Bürger et al. 2024, https://github.com/sciai-lab/Truth_is_Universal).
+#
+# Every target statement is followed by a fixed stimulus asking for a verdict (tokenized
+# separately, so the statement's tokens are unchanged). Target loss: KL between the masked and the
+# original next-token distribution at the stimulus's last token, i.e. the model's verdict. The
+# stimulus itself runs on the original weights, so the loss sees only what the components at the
+# statement end pass on to the verdict.
+#
+# Decomposed positions: the statement's last token ('.' or "'."), as in config_truth_last_token.yaml
+# (task_config.loss_positions last_k 1). All other positions run on the original weights. Model,
+# decomposed modules, data, non-target stream and optimisation are those of that config; this file
+# differs only in target_lens, max_seq_len and label. The three runs (Exp 0 = config_truth_last_token.yaml,
+# Exp 1 = config_truth_residual_lens.yaml, Exp 2 = config_truth_stimulus_lens.yaml) differ only in
+# what the target loss compares at the decomposed position; whether they find the same or different
+# mechanisms is one of the questions (convos/julian/26-10-10_bolder_experiments_LOG.md).
+#
+# Settings inherited from config_truth_last_token.yaml (see its header): batch 16, 5,000 steps,
+# LR 5e-4 were tuned on the all-tokens arm only; at one position per statement the gradient is
+# noisier and may need its own tuning.
+
+# --- WandB ---
+wandb_project: spd
+wandb_run_name: null
+wandb_run_name_prefix: ""
+sync_checkpoints_to_wandb: true
+label: "tiu_stimulus_lens"
+
+# --- General ---
+seed: 0
+n_mask_samples: 1
+ci_config:
+  mode: global
+  fn_type: global_shared_mlp
+  hidden_dims: [512]
+sampling: continuous
+sigmoid_type: leaky_hard
+module_info:
+  - module_pattern: model.layers.15.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.16.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.17.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.18.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.19.mlp.down_proj
+    C: 96
+identity_module_info: null
+use_delta_component: true
+
+# --- Loss config ---
+loss_metric_configs:
+  - classname: ImportanceMinimalityLoss
+    coeff: 1.0e-3
+    pnorm: 2.0
+    beta: 0.2
+    p_anneal_start_frac: 0.0
+    p_anneal_final_p: 1.0
+    p_anneal_end_frac: 1.0
+    eps: 1.0e-12
+    coeff_warmup_frac: 0.2
+    coeff_peak_multiplier: 4.0
+    coeff_anneal_start_frac: 0.2
+    coeff_anneal_end_frac: 1.0
+  - classname: StochasticReconSubsetLoss
+    coeff: 1
+    routing:
+      type: uniform_k_subset
+  - classname: PersistentPGDReconLoss
+    coeff: 0.5
+    optimizer:
+      type: adam
+      beta1: 0.5
+      beta2: 0.99
+      eps: 1.0e-08
+      lr_schedule:
+        start_val: 0.01
+        warmup_pct: 0.025
+        final_val_frac: 0.1
+        fn_type: cosine
+    scope:
+      type: per_batch_per_position
+    use_sigmoid_parameterization: false
+    n_warmup_steps: 2
+    start_frac: 0.8
+output_loss_type: kl  # nontarget (Pile) loss
+target_lens:
+  type: stimulus
+  stimulus: " Is this true or false? Answer:"
+
+# --- Training ---
+lr_schedule:
+  start_val: 5e-4
+  warmup_pct: 0.0
+  final_val_frac: 0.1
+  fn_type: cosine
+steps: 5_000
+batch_size: 16
+eval_batch_size: 16
+grad_clip_norm_components: 0.01
+grad_clip_norm_ci_fns: null
+component_weight_decay: 0.1
+autocast_bf16: true
+
+# --- Faithfulness Warmup ---
+faithfulness_warmup_steps: 0
+
+# --- Logging & Saving ---
+train_log_freq: 100
+eval_freq: 500
+slow_eval_freq: 2500
+# 16 x eval_batch_size = 256 held-out statements per eval; 32 statements were too noisy to
+# compare runs.
+n_eval_steps: 16
+slow_eval_on_first_step: true
+# Final checkpoint only (238 MB each): the WandB account has 5 GB, and intermediate checkpoints
+# have no planned use.
+save_freq: null
+ci_alive_threshold: 0.01
+
+# --- Eval Metrics ---
+eval_metric_configs:
+  - classname: CI_L0
+    groups:
+      total:
+        - "*"
+  - classname: PGDReconLoss
+    init: random
+    step_size: 0.1
+    n_steps: 20
+    mask_scope: shared_across_batch
+  - classname: TargetReconLoss
+    rounding_threshold: 0.01
+  - classname: NontargetReconLoss
+    rounding_threshold: 0.01
+    n_nontarget_batches: 10
+  - classname: TargetedCIHeatmap
+    n_nontarget_examples: 16
+  - classname: WeightMagnitude
+  - classname: UnmaskedReconLoss
+  - classname: CIMeanPerComponent
+  - classname: CIHiddenActsReconLoss
+
+# --- Pretrained model info ---
+pretrained_model_class: transformers.AutoModelForCausalLM
+pretrained_model_path: null
+pretrained_model_name: Qwen/Qwen2.5-7B-Instruct
+# bf16 = the checkpoint's own dtype; matmuls run in bf16 under autocast anyway. Runs before 26-10-03
+# loaded fp32 (only the residual stream between matmuls differs).
+pretrained_model_dtype: bfloat16
+pretrained_model_output_attr: logits
+tokenizer_name: Qwen/Qwen2.5-7B-Instruct
+
+# --- Task Specific (target data) ---
+task_config:
+  task_name: lm
+  max_seq_len: 28  # longest statement 20 Qwen tokens (neg_cities) + 8 stimulus tokens
+  prepared_datasets:
+    - data/tiu/animal_class_false/v1
+    - data/tiu/animal_class_true/v1
+    - data/tiu/cities_false/v1
+    - data/tiu/cities_true/v1
+    - data/tiu/element_symb_false/v1
+    - data/tiu/element_symb_true/v1
+    - data/tiu/larger_than_false/v1
+    - data/tiu/larger_than_true/v1
+    - data/tiu/neg_animal_class_false/v1
+    - data/tiu/neg_animal_class_true/v1
+    - data/tiu/neg_cities_false/v1
+    - data/tiu/neg_cities_true/v1
+    - data/tiu/neg_element_symb_false/v1
+    - data/tiu/neg_element_symb_true/v1
+    - data/tiu/neg_sp_en_trans_false/v1
+    - data/tiu/neg_sp_en_trans_true/v1
+    - data/tiu/smaller_than_false/v1
+    - data/tiu/smaller_than_true/v1
+    - data/tiu/sp_en_trans_false/v1
+    - data/tiu/sp_en_trans_true/v1
+  loss_positions:
+    type: last_k
+    k: 1
+
+# --- Targeted Decomposition (nontarget data: general text) ---
+nontarget_task_config:
+  task_name: lm
+  dataset_name: monology/pile-uncopyrighted
+  max_seq_len: 64
+  column_name: text
+  is_tokenized: false
+  streaming: true
+  train_data_split: train
+  eval_data_split: validation
+  eval_data_files: val.jsonl.zst
+  dataset_seed: 0
+  loss_positions:
+    type: all
+nontarget_batch_size: 16
+nontarget_eval_batch_size: 16  # x n_nontarget_batches 10 x 64 tokens = 10,240 Pile tokens
+nontarget_impmin_coeff_ratio: 2

@@ -11,6 +11,7 @@ from spd.configs import (
     PersistentPGDReconLossConfig,
     PersistentPGDReconSubsetLossConfig,
     RepeatAcrossBatchScope,
+    StimulusLens,
 )
 from spd.data import DatasetConfig, create_data_loader
 from spd.experiments.lm.prepared_datasets import load_prepared_datasets
@@ -41,12 +42,14 @@ def _create_lm_loaders(
     eval_batch_size: int,
     seed: int,
     dist_state: DistributedState | None,
+    stimulus: str | None,
 ) -> tuple[LoaderType, LoaderType]:
     """Create train and eval loaders from an LMTaskConfig.
 
     Supports dataset-based loading (dataset_name), prompts-file-based loading (prompts_file; train
     and eval use the same prompts) and prepared datasets under data/ (prepared_datasets; train on
-    their train splits, eval on their held-out test splits).
+    their train splits, eval on their held-out test splits). `stimulus` (prompt data only) is
+    appended to every prompt, see prompts_dataset.load_prompts_dataset.
     """
     if task_config.prompts_file is not None or task_config.prepared_datasets is not None:
         assert tokenizer_name is not None
@@ -62,6 +65,7 @@ def _create_lm_loaders(
             max_seq_len=task_config.max_seq_len,
             loss_positions=task_config.loss_positions,
             batch_size=train_batch_size,
+            stimulus=stimulus,
             dist_state=dist_state,
             seed=seed,
         )
@@ -71,11 +75,13 @@ def _create_lm_loaders(
             max_seq_len=task_config.max_seq_len,
             loss_positions=task_config.loss_positions,
             batch_size=eval_batch_size,
+            stimulus=stimulus,
             dist_state=dist_state,
             seed=seed + 1,
         )
         return train_loader, eval_loader
 
+    assert stimulus is None, "a stimulus is only supported for prompt data"
     assert task_config.dataset_name is not None, (
         "One of dataset_name, prompts_file and prepared_datasets must be set in LMTaskConfig"
     )
@@ -206,6 +212,9 @@ def main(
         eval_batch_size=_rank_batch_size(config.eval_batch_size),
         seed=config.seed,
         dist_state=dist_state,
+        stimulus=(
+            config.target_lens.stimulus if isinstance(config.target_lens, StimulusLens) else None
+        ),
     )
 
     # --- Nontarget data --- #
@@ -222,6 +231,7 @@ def main(
             eval_batch_size=_rank_batch_size(config.nontarget_eval_batch_size),
             seed=config.seed + 2,
             dist_state=dist_state,
+            stimulus=None,
         )
 
     run_experiment(

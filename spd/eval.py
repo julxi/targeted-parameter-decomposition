@@ -84,6 +84,7 @@ from spd.metrics.targeted_ci_heatmap import TargetedCIHeatmap
 from spd.metrics.uv_plots import UVPlots
 from spd.metrics.weight_magnitude import WeightMagnitude
 from spd.models.component_model import ComponentModel, OutputWithCache
+from spd.models.output_lens import make_target_output_lens
 from spd.persistent_pgd import PersistentPGDState
 from spd.routing import AllLayersRouter, get_subset_router
 from spd.utils.distributed_utils import avg_metrics_across_ranks, is_distributed
@@ -192,16 +193,16 @@ def init_metric(
             metric = CIMaskedReconSubsetLoss(
                 model=model,
                 device=device,
-                output_loss_type=run_config.output_loss_type,
+                output_loss_type=run_config.target_output_loss_type,
                 routing=cfg.routing,
             )
         case CIMaskedReconLayerwiseLossConfig():
             metric = CIMaskedReconLayerwiseLoss(
-                model=model, device=device, output_loss_type=run_config.output_loss_type
+                model=model, device=device, output_loss_type=run_config.target_output_loss_type
             )
         case CIMaskedReconLossConfig():
             metric = CIMaskedReconLoss(
-                model=model, device=device, output_loss_type=run_config.output_loss_type
+                model=model, device=device, output_loss_type=run_config.target_output_loss_type
             )
         case CIMeanPerComponentConfig():
             metric = CIMeanPerComponent(
@@ -247,7 +248,7 @@ def init_metric(
                 sampling=run_config.sampling,
                 use_delta_component=run_config.use_delta_component,
                 n_mask_samples=run_config.n_mask_samples,
-                output_loss_type=run_config.output_loss_type,
+                output_loss_type=run_config.target_output_loss_type,
             )
         case StochasticReconLossConfig():
             metric = StochasticReconLoss(
@@ -256,7 +257,7 @@ def init_metric(
                 sampling=run_config.sampling,
                 use_delta_component=run_config.use_delta_component,
                 n_mask_samples=run_config.n_mask_samples,
-                output_loss_type=run_config.output_loss_type,
+                output_loss_type=run_config.target_output_loss_type,
             )
         case StochasticReconSubsetLossConfig():
             metric = StochasticReconSubsetLoss(
@@ -265,7 +266,7 @@ def init_metric(
                 sampling=run_config.sampling,
                 use_delta_component=run_config.use_delta_component,
                 n_mask_samples=run_config.n_mask_samples,
-                output_loss_type=run_config.output_loss_type,
+                output_loss_type=run_config.target_output_loss_type,
                 routing=cfg.routing,
             )
         case PGDReconLossConfig():
@@ -273,7 +274,7 @@ def init_metric(
                 model=model,
                 device=device,
                 use_delta_component=run_config.use_delta_component,
-                output_loss_type=run_config.output_loss_type,
+                output_loss_type=run_config.target_output_loss_type,
                 pgd_config=cfg,
             )
         case PGDReconSubsetLossConfig():
@@ -281,7 +282,7 @@ def init_metric(
                 model=model,
                 device=device,
                 use_delta_component=run_config.use_delta_component,
-                output_loss_type=run_config.output_loss_type,
+                output_loss_type=run_config.target_output_loss_type,
                 pgd_config=cfg,
                 routing=cfg.routing,
             )
@@ -290,7 +291,7 @@ def init_metric(
                 model=model,
                 device=device,
                 use_delta_component=run_config.use_delta_component,
-                output_loss_type=run_config.output_loss_type,
+                output_loss_type=run_config.target_output_loss_type,
                 pgd_config=cfg,
             )
         case StochasticReconSubsetCEAndKLConfig():
@@ -323,7 +324,7 @@ def init_metric(
                 device=device,
                 effective_sources=matching[0].get_effective_sources(),
                 use_delta_component=run_config.use_delta_component,
-                output_loss_type=run_config.output_loss_type,
+                output_loss_type=run_config.target_output_loss_type,
                 metric_name=cfg.classname,
             )
         case PersistentPGDReconSubsetEvalConfig():
@@ -338,7 +339,7 @@ def init_metric(
                 device=device,
                 effective_sources=matching[0].get_effective_sources(),
                 use_delta_component=run_config.use_delta_component,
-                output_loss_type=run_config.output_loss_type,
+                output_loss_type=run_config.target_output_loss_type,
                 metric_name=cfg.classname,
             )
         case CIMaskedAttnPatternsReconLossConfig():
@@ -366,7 +367,7 @@ def init_metric(
             metric = TargetReconLoss(
                 model=model,
                 device=device,
-                output_loss_type=run_config.output_loss_type,
+                output_loss_type=run_config.target_output_loss_type,
                 sampling=run_config.sampling,
                 rounding_threshold=cfg.rounding_threshold,
             )
@@ -404,7 +405,7 @@ def init_metric(
             metric = UnmaskedReconLoss(
                 model=model,
                 device=device,
-                output_loss_type=run_config.output_loss_type,
+                output_loss_type=run_config.target_output_loss_type,
             )
         case WeightMagnitudeConfig():
             metric = WeightMagnitude(model=model)
@@ -434,8 +435,15 @@ def evaluate(
         Int[Tensor, "..."] | tuple[Float[Tensor, "..."], Float[Tensor, "..."]]
     ]
     | None = None,
+    residual_lens_std: Tensor | None = None,
 ) -> MetricOutType:
-    """Run evaluation and return a mapping of metric names to values/images."""
+    """Run evaluation and return a mapping of metric names to values/images.
+
+    The eval batches are target data: their forwards and metric updates run under the target lens
+    (run_config.target_lens; `residual_lens_std` is required for the residual lens). Metric
+    compute() runs outside it, so NontargetReconLoss, which draws its own nontarget batches there,
+    compares the plain model output.
+    """
 
     # Persistent PGD losses are training-only (sources are coupled to train batch size)
     eval_metric_configs = [
@@ -474,23 +482,27 @@ def evaluate(
             ]
             assert not unsupported, f"{unsupported} do not support a position mask"
 
-        target_output: OutputWithCache = model(batch, cache_type="input")
-        ci = model.calc_causal_importances(
-            pre_weight_acts=target_output.cache,
-            detach_inputs=False,
-            sampling=run_config.sampling,
+        target_lens = make_target_output_lens(
+            run_config.target_lens, batch_raw, residual_lens_std, device
         )
-
-        for metric in metrics:
-            metric.update(
-                batch=batch,
-                target_out=target_output.output,
+        with model.output_lens(target_lens):
+            target_output: OutputWithCache = model(batch, cache_type="input")
+            ci = model.calc_causal_importances(
                 pre_weight_acts=target_output.cache,
-                ci=ci,
-                current_frac_of_training=current_frac_of_training,
-                weight_deltas=weight_deltas,
-                position_mask=position_mask,
+                detach_inputs=False,
+                sampling=run_config.sampling,
             )
+
+            for metric in metrics:
+                metric.update(
+                    batch=batch,
+                    target_out=target_output.output,
+                    pre_weight_acts=target_output.cache,
+                    ci=ci,
+                    current_frac_of_training=current_frac_of_training,
+                    weight_deltas=weight_deltas,
+                    position_mask=position_mask,
+                )
 
     outputs: MetricOutType = {}
     for metric in metrics:

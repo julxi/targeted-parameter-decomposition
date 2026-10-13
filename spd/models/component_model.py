@@ -30,6 +30,7 @@ from spd.models.components import (
     VectorMLPCiFn,
     VectorSharedMLPCiFn,
 )
+from spd.models.output_lens import OutputLens, ResidualOutputLens, StimulusOutputLens
 from spd.models.sigmoids import SIGMOID_TYPES, SigmoidType
 from spd.spd_types import LayerwiseCiFnType, ModelPath
 from spd.utils.general_utils import resolve_class
@@ -116,6 +117,8 @@ class ComponentModel(LoadableModule):
 
         self.target_model = target_model
         self.pretrained_model_output_attr = pretrained_model_output_attr
+        # Set only inside `output_lens(...)`, i.e. while target-data losses are computed.
+        self._output_lens: OutputLens | None = None
         self.module_to_c = {info.module_path: info.C for info in module_path_info}
         self.target_module_paths = list(self.module_to_c.keys())
 
@@ -447,7 +450,8 @@ class ComponentModel(LoadableModule):
         Returns:
             OutputWithCache object if cache_type is not "none", otherwise the model output tensor.
         """
-        if mask_infos is None and cache_type == "none":
+        lens = self._output_lens
+        if mask_infos is None and cache_type == "none" and lens is None:
             # No hooks needed. Do a regular forward pass of the target model.
             return self._extract_output(self.target_model(*args, **kwargs))
 
@@ -469,15 +473,53 @@ class ComponentModel(LoadableModule):
                 cache=cache,
             )
 
+        lens_capture: list[Tensor] = []
+        if isinstance(lens, ResidualOutputLens):
+            assert lens.module_path not in hooks, f"lens module {lens.module_path} is decomposed"
+            hooks[lens.module_path] = partial(self._capture_output_hook, captured=lens_capture)
+
         with self._attach_forward_hooks(hooks):
             raw_out = self.target_model(*args, **kwargs)
 
         out = self._extract_output(raw_out)
+        match lens:
+            case None:
+                pass
+            case ResidualOutputLens():
+                assert len(lens_capture) == 1, f"{lens.module_path} ran {len(lens_capture)} times"
+                out = lens.apply(lens_capture[0])
+            case StimulusOutputLens():
+                out = lens.apply(out)
         match cache_type:
             case "input" | "output" | "component_acts":
                 return OutputWithCache(output=out, cache=cache)
             case "none":
                 return out
+
+    @contextmanager
+    def output_lens(self, lens: OutputLens | None) -> Generator[None]:
+        """Within this context, forward passes return `lens`'s view of the forward pass instead of
+        the model output (see spd/models/output_lens.py). None: the model output, a no-op."""
+        assert self._output_lens is None, "output lenses do not nest"
+        self._output_lens = lens
+        try:
+            yield
+        finally:
+            self._output_lens = None
+
+    @staticmethod
+    def _capture_output_hook(
+        _module: nn.Module,
+        _args: list[Any],
+        _kwargs: dict[Any, Any],
+        output: Any,
+        captured: list[Tensor],
+    ) -> None:
+        """Record a module's output; Hugging Face decoder layers return a tuple whose first element
+        is the residual stream (a plain tensor in newer transformers versions)."""
+        hidden = output[0] if isinstance(output, tuple) else output
+        assert isinstance(hidden, Tensor), f"unexpected module output {type(output)}"
+        captured.append(hidden)
 
     def _components_and_cache_hook(
         self,

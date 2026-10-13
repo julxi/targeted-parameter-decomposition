@@ -303,6 +303,41 @@ LossPositions = Annotated[
 ]
 
 
+class NextTokenLens(BaseConfig):
+    """The target loss compares the next-token logits at each decomposed position (KL)."""
+
+    type: Literal["next_token"] = "next_token"
+
+
+class ResidualLens(BaseConfig):
+    """The target loss compares the residual stream after decoder layer `layer` at each decomposed
+    position, every channel divided by its standard deviation over the decomposed positions of the
+    target training data (computed once on the original model). Loss: mean squared error over
+    channels, i.e. the share of the natural position-to-position variability that masking destroys.
+
+    Per-channel scaling, because a plain MSE would be dominated by a few "massive activation"
+    channels: in Qwen2.5-7B one channel holds 22-29% of the squared norm at the statement end but
+    only 1-3% of its variation across statements (convos/julian/26-10-10_bolder_experiments_LOG.md).
+    """
+
+    type: Literal["residual"]
+    layer: NonNegativeInt
+
+
+class StimulusLens(BaseConfig):
+    """`stimulus` is appended to every target prompt (tokenized separately, so the prompt's own
+    tokens are unchanged), and the target loss compares the next-token logits at the stimulus's
+    last token (KL). Components replace the weights only at the decomposed positions, which lie in
+    the prompt; the stimulus runs on the original weights. The loss is counted once per decomposed
+    position, so with k decomposed positions per prompt each prompt's KL is weighted k times."""
+
+    type: Literal["stimulus"]
+    stimulus: str
+
+
+TargetLens = Annotated[NextTokenLens | ResidualLens | StimulusLens, Field(discriminator="type")]
+
+
 class LMTaskConfig(BaseConfig):
     task_name: Literal["lm"] = Field(
         default="lm",
@@ -950,6 +985,17 @@ class Config(BaseConfig):
     )
 
     @property
+    def target_output_loss_type(self) -> Literal["mse", "kl"]:
+        """Loss type of the reconstruction losses on target data (set by `target_lens`)."""
+        match self.target_lens:
+            case NextTokenLens():
+                return self.output_loss_type
+            case ResidualLens():
+                return "mse"
+            case StimulusLens():
+                return "kl"
+
+    @property
     def all_module_info(self) -> list[ModulePatternInfoConfig]:
         """Combine target and identity patterns with their C values.
 
@@ -990,6 +1036,11 @@ class Config(BaseConfig):
     output_loss_type: Literal["mse", "kl"] = Field(
         ...,
         description="Metric used to measure recon error between model outputs and targets",
+    )
+    target_lens: TargetLens = Field(
+        default=NextTokenLens(),
+        description="What the target-data reconstruction losses compare between the masked and "
+        "the original model. Nontarget data always uses the model output with output_loss_type.",
     )
 
     # --- Training ---
@@ -1315,6 +1366,19 @@ class Config(BaseConfig):
             assert not any(
                 isinstance(cfg, FaithfulnessLossConfig) for cfg in self.loss_metric_configs
             ), "FaithfulnessLoss is incompatible with targeted decomposition"
+
+        if not isinstance(self.target_lens, NextTokenLens):
+            # The lenses read the (batch, pos, ...) output of a Hugging Face causal LM at decomposed
+            # positions; without a position restriction every position would be decomposed,
+            # including an appended stimulus.
+            assert isinstance(self.task_config, LMTaskConfig), "target_lens needs an LM task"
+            assert self.output_loss_type == "kl", "target_lens assumes an LM with KL on nontarget"
+            assert not isinstance(self.task_config.loss_positions, AllPositions), (
+                "target_lens needs loss_positions other than 'all' (the decomposed positions)"
+            )
+            assert self.task_config.prepared_datasets is not None, (
+                "target_lens is implemented for prepared_datasets target data only"
+            )
 
         restricts_positions = any(
             isinstance(task_config, LMTaskConfig)

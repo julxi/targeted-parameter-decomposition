@@ -33,6 +33,7 @@ from spd.configs import (
     PGDMultiBatchConfig,
     PGDMultiBatchReconLossConfig,
     PGDMultiBatchReconSubsetLossConfig,
+    ResidualLens,
     UnmaskedReconLossConfig,
 )
 from spd.data import loop_dataloader
@@ -44,6 +45,8 @@ from spd.log import logger
 from spd.losses import compute_losses
 from spd.metrics import faithfulness_loss
 from spd.models.component_model import ComponentModel, OutputWithCache
+from spd.models.output_lens import assert_lens_after_decomposed_layers, make_target_output_lens
+from spd.models.residual_lens_stats import residual_channel_std
 from spd.persistent_pgd import PersistentPGDState
 from spd.utils.component_utils import apply_ci_scaled_weight_decay, calc_ci_l_zero
 from spd.utils.distributed_utils import (
@@ -183,6 +186,31 @@ def optimize(
 
     model.to(device)
 
+    residual_lens_std: Tensor | None = None
+    if isinstance(config.target_lens, ResidualLens):
+        assert_lens_after_decomposed_layers(config.target_lens, model.target_module_paths)
+        assert get_distributed_state() is None, "residual lens statistics are single-process only"
+        assert isinstance(train_loader, DataLoader), "residual lens needs a finite train loader"
+        # One epoch of the target training data on the original model (components are not used).
+        residual_lens_std = residual_channel_std(
+            model, train_loader, config.target_lens, device, config.autocast_bf16
+        )
+        quantiles = torch.quantile(residual_lens_std, torch.tensor([0.0, 0.5, 1.0], device=device))
+        logger.info(
+            f"Residual lens (layer {config.target_lens.layer}) channel std: min/median/max "
+            f"{quantiles.tolist()}"
+        )
+        if is_main_process():
+            assert out_dir is not None
+            save_file(residual_lens_std.cpu(), out_dir / "residual_lens_channel_std.pt")
+            if config.wandb_project:
+                try_wandb(
+                    wandb.save,
+                    str(out_dir / "residual_lens_channel_std.pt"),
+                    base_path=str(out_dir),
+                    policy="now",
+                )
+
     # Diverge global RNG per rank so stochastic masks/sources differ across DP workers.
     seed_per_rank(config.seed)
 
@@ -274,7 +302,8 @@ def optimize(
             device=device,
             use_delta_component=config.use_delta_component,
             cfg=ppgd_cfg,
-            output_loss_type=config.output_loss_type,
+            # Persistent PGD runs on target data only.
+            output_loss_type=config.target_output_loss_type,
         )
         for ppgd_cfg in persistent_pgd_configs
     }
@@ -346,8 +375,13 @@ def optimize(
         position_mask = extract_position_mask(batch_raw)
         if position_mask is not None:
             position_mask = position_mask.to(device, non_blocking=True)
+        target_lens = make_target_output_lens(
+            config.target_lens, batch_raw, residual_lens_std, device
+        )
 
-        with bf16_autocast(enabled=config.autocast_bf16):
+        # The lens covers every target forward of the step: the original output (target_out) and
+        # all masked forwards in the losses and PPGD. It must not cover the nontarget block below.
+        with bf16_autocast(enabled=config.autocast_bf16), component_model.output_lens(target_lens):
             # NOTE: we need to call the wrapped_model at least once each step in order
             # to setup the DDP gradient syncing for all parameters in the component model.
             # Gradients will sync regardless of whether the parameters are used in this
@@ -391,7 +425,7 @@ def optimize(
                 use_delta_component=config.use_delta_component,
                 n_mask_samples=config.n_mask_samples,
                 ppgd_states=ppgd_states,
-                output_loss_type=config.output_loss_type,
+                output_loss_type=config.target_output_loss_type,
                 position_mask=position_mask,
             )
 
@@ -530,6 +564,7 @@ def optimize(
                     current_frac_of_training=step / config.steps,
                     ppgd_states=ppgd_states,
                     nontarget_eval_iterator=nontarget_eval_iterator,
+                    residual_lens_std=residual_lens_std,
                 )
 
                 dict_safe_update_(metrics, multibatch_pgd_metrics)

@@ -208,6 +208,8 @@ def extract_batch_data(
 
 PositionMask = Bool[Tensor, "batch pos"]
 POSITION_MASK_KEY = "position_mask"
+# Batch key of prompt batches with an appended stimulus: index of each row's last stimulus token.
+STIMULUS_END_KEY = "stimulus_end"
 
 
 def extract_position_mask(
