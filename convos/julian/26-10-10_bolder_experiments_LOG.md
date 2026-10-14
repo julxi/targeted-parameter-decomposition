@@ -61,6 +61,8 @@ Answer (26-10-10, Claude Opus 5.5): Right, I had presumed it. The data discussio
 
 Qwen2.5-7B-Instruct, `down_proj` of layers 15–19 with C = 96, batch 16, 5k steps, LR 5e-4, bf16 frozen model, Pile non-target stream unchanged (your choice; I agree: the non-target loss is what keeps the decomposition harmless on general text, and changing it would change two things at once). tiu rather than UTH because labels are clean, every analysis tool already runs on it and gate G is known; UTH can follow if something works.
 
+OUTDATED (26-10-13): the target batch is 64, not 16, in all configs of this topic (Pile batch still 16); see entry *H100 tuning trials: results*, approved in entry *full runs launched*.
+
 ## Measured: truth is not a small part of the statement-end residual stream
 
 My earlier objection to (c) was "truth is a small part of everything those MLP layers write, so the dilution moves to a different axis" [assumed then, never measured]. I checked it at the residual-stream level with the stored last-token residuals of the 5,260 tiu fit statements (`~/spd_out/26-10-06_truth_writers/tiu/features.npz`; script and output `~/spd_out/26-10-10_bolder_experiments/dilution.{py,out}`) [verified: single CPU run, 26-10-10]:
@@ -97,6 +99,7 @@ C: may become larger, yes. I only want to flag your framing that on UTH we would
 
 Answer (26-10-10, Claude Opus 5.5): Fair flag. The UTH fit was poor (target KL 0.433; all 480 components without Δ 0.479). Too few components is only one of the causes listed there, all `[assumed]`; too few steps, the layer choice and data too diverse for a sparse decomposition are others. And even a better fit would not imply a better truth result. My sentence treated capacity as the cause; it isn't established. The point I meant to keep: the residual lens asks more of the decomposition than the KL does, so its fit may be worse at the same C.
 - The loss scale differs from the KL's, so the balance against importance minimality (the sparsity penalty) is a new tuning knob. Proposal: scale the coefficient so that the "all components off" target loss has the same size as the KL lens's all-off loss at the same positions (G3 below measures both; arm A's all-off KL, 3.54 nats/token, is an average over all tokens, not the last token), then one 150-step trial.
+  OUTDATED (26-10-13): no rescaling. R3 found the two all-off losses within a factor 1.35, and Julian decided that Exp 1 and Exp 2 keep Exp 0's coefficients; see entry *decisions on the four open questions; commit*.
 
 ## Experiment 2: stimulus lens
 
@@ -110,6 +113,7 @@ Answer (26-10-10, Claude Opus 5.5): Fair flag. The UTH fit was poor (target KL 0
 - **Decomposed positions D**: the statement end; the stimulus runs on the original weights.
 - **Loss position**: the last stimulus token only; full next-token KL there.
 - This needs **two position masks** instead of one: D (where components replace the weights; also where importance minimality and the CI statistics are taken) and the loss position (where the KL is read). Today one mask does both. This is the main code change; it touches the batch format, the target losses, PPGD and the target eval metrics.
+  OUTDATED (26-10-13): implemented without a second mask. A *target lens* makes the forward pass return the logits at the stimulus end, repeated at every position, so the existing single-mask losses work unchanged; see entry *R1 stimulus screen, lens implementation, R2/R3, analysis V*, section *Implementation: the target lens*.
 - **Stimuli**: chosen at the gate (below) from a candidate list, e.g. ` This statement is`, ` That is`, ` True or false? The statement is`, ` Is this true? Answer:`, ` In fact,` (the last one invites a correction rather than a verdict). Proposal: mix the 2–3 best; each training sample draws one at random. Since D cannot see the stimulus, mixing does not change what the components can compute; it widens what the loss protects and averages out quirks of a single phrasing.
 
     C: Oh, good that we are talking about the stimulus. So my comment above is resolved. I don' think that mixing the stimulus is a good idea. I'd rather have a little experiment to see which stimulus elicits truthfulness related responses at at a high rate (once we have the dataset)
@@ -118,6 +122,7 @@ Answer (26-10-10, Claude Opus 5.5): Fair flag. The UTH fit was poor (target KL 0
 
 - **Your worry that the stimulus taps categorisation rather than truth**: the gate measures it directly, by comparing the true-vs-false output difference with the difference between two true statements of the same family (gate G's content baseline). And it is acceptable if some categorisation components appear: the per-dataset analysis (A5 of `truth_writers.py`) separates them afterwards.
 - **Variant 2b (bolder)**: a binary verdict loss. Renormalise the output to two token sets (true-like vs false-like answers) and take the KL over that 2-way distribution only. The decomposition must then preserve exactly the model's verdict, nothing else. Risk: the token sets are a hand choice, and a narrow loss may be satisfied by very few components that encode the verdict for these 20 families only. I'd run the full-KL version first.
+  OUTDATED (26-10-13): variant 2b is dropped (Julian: "single one, full KL", open question 3 of this entry); the binary verdict survives only as analysis V.
 
 **The critical risk: mediation** [concluded: causal structure]. The stimulus tokens can re-read the whole statement through attention (those positions run on the original weights) and recompute truth there. The loss only sees the part of the verdict that flows through the MLPs 15–19 at D. If that part is small, the loss carries no truth pressure and the experiment cannot work. The gate below measures it before any training.
 
@@ -297,6 +302,8 @@ Answer (26-10-13, Claude Opus 5.5): Noted.
 
 Decisions taken from Julian's comments (verbatim above): data = tiu; stimulus = his "Is this true or false?. Answer: ", plus a check of the model's natural response; object-token position deferred (now in FUTURE_WORK.md); per-channel normalisation confirmed. Naming: I propose **Exp 0 (next-token lens)** for the former arm B (`config_truth_last_token.yaml`) [assumed: proposal, awaiting Julian].
 
+OUTDATED (26-10-13): the stimulus used is " Is this true or false? Answer:" (Julian's string without the "?." and without the trailing space), chosen after R1 below and decided in entry *decisions on the four open questions; commit*.
+
 ## R1 stimulus screen [verified: `r1_stimulus_screen.{py,out}`, single CPU run, 26-10-13]
 
 546 tiu test statements (up to 30 per dataset, seed 0; 273 true, 273 false). Statement and stimulus tokenized separately; for all five stimuli the ids equal the joint tokenization (0/546 mismatches). Verdict score = log P(true-like) − log P(false-like) at the last stimulus token; true-like = single-token spellings of true/correct/yes/right, false-like = false/incorrect/wrong/no, with and without a leading space (20 tokens each; the script prints them). "Truth mass" = probability on these 40 tokens.
@@ -475,6 +482,8 @@ Reading [concluded]: batch 64 is better on every metric, and the direction is th
 
 **Change:** target `batch_size: 64` in all three configs (`config_truth_{last_token,residual_lens,stimulus_lens}.yaml`), with the reason in their headers; steps (5,000), LR, eval batch and Pile batch unchanged. Batch 128 is untested (it might also be free). Expected time per full run: ~38 min [assumed: 4,000 × ~0.35 s + 1,000 × ~0.57 s + evals and model load].
 
+OUTDATED (26-10-13): Exp 2's full run took 47 min on the H100; see entry *Exp 2 finished*.
+
 ---
 
 26-10-13, Claude Opus 5.5 — *full runs launched*; same session.
@@ -537,3 +546,42 @@ Pending: commit and sync, then Exp 3 after Exp 0 in the queue.
 C: (transcribed from chat) yes, to the plan
 
 (Plan: commit code/config and records separately, sync the instance while Exp 1 runs, queue Exp 3 after Exp 0; Exp 0 then records the new commit.)
+
+---
+
+26-10-13, Claude Opus 5.5 — *V references; Exp 2 report*; same session. Julian asked in chat for a quick report about Exp 2; he preferred waiting for the running V references over starting an extra job.
+
+**V on the references** [verified: `~/spd_out/26-10-10_bolder_experiments/full/v/verdict_{s-05db01ad,s-7fad0c14,s-bd23f0d1}.json`, full test split n = 1,794, replacement at the period, stimulus " Is this true or false? Answer:"]:
+
+| decomposition | active per statement | components-only KL | separation | Δ-only KL | singles ≥ 1% | largest single \|Δsep\| |
+|---|---|---|---|---|---|---|
+| Exp 2 `s-05db01ad` | 0.8 | 0.033 | 10.88 | 0.030 | 13 | 0.38 |
+| arm A `s-bd23f0d1` | 9.3 | 0.092 | 9.84 | 0.044 | 55 | 0.33 |
+| untrained `s-7fad0c14` | 220 | 0.115 | 10.31 | 0.008 | 475 | 0.07 |
+| all off (same for every run) | 0 | 0.116 | 10.21 | – | – | – |
+
+Original: separation 12.04, accuracy 0.953. Per family, the only family with a large effect is the negated Spanish translations (64 test statements): accuracy original 0.86, all off 0.06, Exp 2 components 0.95, arm A 0.50, untrained 0.17. Negated element symbols: 0.55 / 0.36 / 0.59 / 0.50 / 0.23. The affirmative families are at 0.96–1.00 in every state.
+
+Reading [concluded, one seed]: Exp 2's components (under one per statement) recover ~70% of the verdict KL lost by switching the five layers off, arm A's ~20%, the untrained ones nothing. The recovery concentrates in negated statements, so it may be a negation mechanism rather than a truth mechanism (open). The like-for-like reference, Exp 0 at the same position, is still training.
+
+**Report:** `reports/26-10-13_exp2_stimulus_lens.typ` (4 pages; PDF gitignored, `typst compile reports/26-10-13_exp2_stimulus_lens.typ`). Written for Julian, self-contained (method, setup, training, V, per-family, caveats). Self-check done by re-reading the compiled PDF (procedure steps 1–2 by the author, no sub-agent): added definitions of AUC and the Pile, fixed a Typst rendering of "Exp 2's" as a prime. Numbers re-read from the V JSONs, `metrics.jsonl` and the R1 output.
+
+---
+
+26-10-13, Claude Opus 5.5 — *run status check: H100 gone, Exp 0 crashed*; sync session, not the session that launched the runs. I have read this topic's SUMMARY and the last LOG entry, and queried WandB and vast.ai. No GPU used.
+
+C: (transcribed from chat) about 4. please check
+
+(Item 4 of the sync report: the records said Exp 1 training, Exp 0 and Exp 3 queued, as of the last LOG entry, and nobody had checked the instance.)
+
+Findings [verified: WandB API (`bitt-j-personal/spd`) and `vastai`, 26-10-13 ~20:30 UTC]:
+- **Exp 1** (residual lens, `s-cd129592`): finished, 5,000 steps, commit `ae7f041`, created 15:46:35 UTC, last heartbeat 16:41:34 UTC. `model_5000.pth` (238,232,949 bytes) is on WandB. Its `metrics.jsonl` was not copied to `~/spd_out/26-10-10_bolder_experiments/full/` (only `stimulus_lens/` and `v/` are there).
+- **Exp 0** (next-token lens, `s-773bfec6`): state `crashed`, last logged step 1,600 of 5,000, commit `57e7bc7`, created 16:41:54 UTC, last heartbeat 16:54:40 UTC. No checkpoint and no `output.log` on WandB, so the cause is not recorded there.
+- **Exp 3** (stimulus span): no WandB run exists; it never started.
+- **The H100** (vast.ai instance 55752929, per `~/.ssh/config.d/vastai.conf`, written by `spd-vast` at 16:01 local = 14:01 UTC): `vastai show instance 55752929` returns "not found or no longer exists"; ssh to the host is refused. It is no longer rented.
+
+Reading [assumed]: the instance went away while Exp 0 was training (WandB marks a run `crashed` when its heartbeat stops, and no error log was uploaded); a Python error would usually have left an `output.log`. Who or what ended the rental is not recorded: this LOG's previous entry was written at 18:28 local (16:28 UTC), before the crash. Anything only on the instance is lost: `/root/analysis/`, `/root/trials/`, Exp 1's local run directory (the checkpoint survives on WandB).
+
+Consequences:
+- Exp 0, the like-for-like reference for Exp 2's negation result, has to be rerun from scratch, as does Exp 3 (both configs unchanged, batch 64, ~47 min each by Exp 2's time).
+- Exp 1 can be analysed now (V and `truth_writers.py` from the WandB checkpoint).

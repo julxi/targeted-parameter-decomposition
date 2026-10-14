@@ -229,6 +229,7 @@ The catch [concluded: from the loss definition]: the loss at a position is the K
 - Training note: with last_k, a batch of 16 has 16 × k loss positions instead of ~16 × 47 (UTH) or ~16 × 10 (tiu). The gradient is noisier; the last-token arm was flagged as needing its own tuning in `convos/julian/26-10-02_training_run_SUMMARY.md`.
 C: as I said above. My hypothesis is that the truth computation and signal is always present but may be not used for the output.
 Answer (26-10-06, Claude Opus 5.5): Understood, and it changes my recommendation for a new decomposition. Suppose the truth signal is always computed but not used for the output. Then a KL loss gives tPD no reason to decompose it, whether the KL is on all tokens or only on the last k (answer under your second comment in §1). Plain last-k would remove the dilution, but it would leave nothing truth-related to reconstruct. Gate G tests your premise directly: if you are right, it should find little truth in the next-token output at the statement end. The training setups that fit your hypothesis are a hidden-activation loss at the last k positions, or text after the statement that uses its truth. The rephrased Q4 at the bottom lays out the choice.
+OUTDATED (26-10-13): "plain last-k ... would leave nothing truth-related to reconstruct" does not hold on tiu. Gate G found that the next-token output after a bare tiu statement depends strongly on truth (" Is" p 0.58 after false vs 0.005 after true city statements; output log-prob probe 0.996). See entry *analysis script truth_writers.py; first results on tiu arm A*, item 5. Plain last-k at the period now runs as Exp 0 in `convos/julian/26-10-10_bolder_experiments_LOG.md`.
 
 ## The universal direction and "more specific truthfulness"
 
@@ -351,8 +352,10 @@ This only matters once we train a new decomposition; nothing needs deciding now.
 OUTDATED (26-10-06): gate G found that on tiu bare statements the next-token output does depend on truth, so plain last-k would get real truth pressure there; the case against (a) holds less on tiu, more in the UTH format. See entry *analysis script truth_writers.py; first results on tiu arm A*, item 5.
 - **(b) Truth question:** append "Is this statement true? Answer:" and put the KL on the answer position. The output then depends on truth by construction. What gets decomposed is "answer a truth question". It likely reuses the passively computed signal, but adds the querying and verbalising part.
 - **(c) Hidden-activation loss at the last k tokens:** reconstruct the decomposed layers' outputs there, not the next-token output. A computation that is present but unused then has to be kept. Costs: truth is a small part of everything those MLP layers write, so the dilution moves to a different axis; and `StochasticHiddenActsReconLoss` probably ignores `loss_positions` today [assumed], so it needs code work.
+OUTDATED (26-10-13): both costs were checked in `convos/julian/26-10-10_bolder_experiments_LOG.md`, entry *design of both experiments: two lenses on the statement-end computation*. The dilution worry was overstated for a residual-level loss: the truth contrast is 10–15% of the across-statement variance of the statement-end residual stream (between-class / total variance 0.10 after layer 19, 0.12 after layer 23). `StochasticHiddenActsReconLoss` does ignore the position mask [verified there: code read], so option (c) was built instead as a new target lens on the residual stream after layer 23 (Exp 1).
 
 My recommendation: decide after G and A2. If G finds little truth in the output, drop (a). Then (c) targets the passive signal you care about, and (b) targets the model's judgement.
+OUTDATED (26-10-13): decided since, in `convos/julian/26-10-10_bolder_experiments_LOG.md` (entries *answers to Julian's comments; data options; revised plan* and *decisions on the four open questions; commit*): all three options run as tiu decompositions at the statement's period that differ only in the target lens: (a) as Exp 0 (next-token lens), (b) as Exp 2 (stimulus lens, " Is this true or false? Answer:"), (c) as Exp 1 (residual stream after layer 23).
 C: You made a good point about the loss only seeing the actual tokens and not anything in the hidden layers. I will have to think about this and this might need a different approach. As you suggested let's follow through on the probes first. 
 
 ## Open
@@ -494,6 +497,7 @@ B on both decompositions, on the laptop CPU or the next rental:
 - controls: (i) 20 random components with matched mean activity per candidate; (ii) the separation of a non-truth label (domain/family; on UTH, dataset identity), to tell truth-specific effects from general disruption; (iii) on tiu the double dissociation between numeric and factual writers.
 
 On a GPU this takes minutes (a forward pass per ablation), so it fits into `truth_writers.py` as a third subcommand.
+OUTDATED (26-10-13): B is no longer the next step and was never run. New decompositions were trained first (`convos/julian/26-10-10_bolder_experiments_LOG.md`, Exp 0–3). B's controlled ablations are re-proposed with an outcome that needs no truth direction (the model's verdict after " Is this true or false? Answer:" instead of S) as D1 in `convos/julian/26-10-13_direction_free_interventions_LOG.md`, entry *direction-free ablation and steering designs* (proposed, not decided).
 
 ---
 
@@ -520,3 +524,16 @@ Julian's proposal: compare the whole distribution of |cos(U_c, w)|, not just its
 - Right reference: the shuffled-label null directions with the *same* U, as A1 already does. Comparing trained against untrained U_c distributions is confounded: trained U_c lie in the column space of W_down, which is aligned with the high-variance directions of the residual stream, so they would show larger |cos| with any data-derived direction.
 - Limit: it is static. It tests whether w is over-represented in the span of the U_c, not whether the components *use* it. A2's sum depends also on sign agreement with the read differences. A sharper test of that mechanism: compare Σ_c S_c with a null where the signs of U_c·w are permuted across components (keeps both factors' magnitudes, breaks the matching).
 - As evidence that "components have something to do with w" it ranks below what we already have: A2 (14.6% vs ≈0% for untrained and code control) and A7 (single ablations remove ~27–30% of the separation along `mm_L23`). Its value is in telling apart the two readings: "the U_c span is tilted toward w" vs "alignment arises only through the activations".
+
+---
+
+26-10-13, Claude Opus 5.5 — *sync follow-ups: FUTURE_WORK entries, 14.6% left as is*; sync session. I have read the sync agent's report for this pair, the entries *A1 distribution test proposal (Julian's idea)* and *answers to Julian's comments; plan for the VM session*, and FUTURE_WORK.md.
+
+The sync found two open items not filed in FUTURE_WORK.md (the A1 distribution test and the deferred H100 memory trial for more decomposed layers), and a rounding slip: the A1 proposal entry above and `reports/26-10-06_truth_experiments_state.typ` give arm A's component share of S along `mm_L19` as 14.6%, the exact test-split value is 14.49% (14.6 is the sum of rounded per-layer values; the SUMMARY's 14.5% is right). Julian in chat:
+
+C: (transcribed from chat) About 2. Yes into future work
+C: (transcribed from chat) About 3. doesn't matter
+
+Done: both items are in FUTURE_WORK.md (entries dated 26-10-13) [decided: Julian, above]. The 14.6% stays uncorrected in the report and the entry above [decided: Julian, above]; the difference changes no conclusion.
+
+The bare "C: (transcribed from chat) yes" after the UTH *Next (proposal)* section was flagged by the sync agent as possibly approving B. It doesn't: the entry *pkill rule added to CODING.md* right below it records that it approved the CODING.md sentence. B stays unratified.
