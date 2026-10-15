@@ -6,7 +6,7 @@ Julian asked for a detailed Typst report of all tPD (targeted parameter decompos
 
 **Files:**
 - `reports/26-10-06_truth_experiments_state.typ`: the report. The compiled PDF is not in git (`reports/*.pdf` is gitignored, [decided: Julian, 26-10-08 in the LOG]); build it with `typst compile reports/26-10-06_truth_experiments_state.typ`.
-- `reports/template.typ`: shared layout for future reports (title block, "bottom line" box, status tags matching the memory system's markers, callouts, compact tables), used since by `reports/26-10-13_exp2_stimulus_lens.typ` (bolder-experiments topic). Typst pitfalls are listed in the LOG.
+- `reports/template.typ`: shared layout for future reports (title block, "bottom line" box, status tags matching the memory system's markers, callouts, compact tables), used since by `reports/26-10-14_target_lens_experiments.typ` (bolder-experiments topic). Typst pitfalls are listed in the LOG.
 - Julian said "the new `report` folder"; the existing empty folder is `reports/`, which is what was used.
 
 **What the report covers:** tiu CI probes with untrained baseline (Experiment 1), the code-lines control (2), UTH cross-task probes (3), the component-level analyses of `truth_writers.py` (4: A1–A7, gate G), a claim/status table, caveats and a table of next-step options with cost and expected information. Probe and analysis numbers were re-read from the raw result files under `~/spd_out/` [verified: 26-10-06].
@@ -22,4 +22,4 @@ Julian asked for a detailed Typst report of all tPD (targeted parameter decompos
 - See also: [convos/julian/26-10-05_no_truth_baseline_SUMMARY.md] — source of Experiment 2 (code control) and the matched-sparsity numbers.
 - See also: [convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md] — source of Experiment 1 (fp32 runs).
 - See also: [convos/julian/26-10-13_direction_free_interventions_SUMMARY.md] — designs for the report's recommended experiment B with a direction-free outcome (the model's verdict instead of S); notes that the report's A7 table omits L19:54 from the tiu rows (no wrong numbers, fix not made).
-- See also: [convos/julian/26-10-10_bolder_experiments_SUMMARY.md] — the next experiments after this report (decompositions with new target lenses); its Exp 2 report `reports/26-10-13_exp2_stimulus_lens.typ` uses this topic's `reports/template.typ`.
+- See also: [convos/julian/26-10-10_bolder_experiments_SUMMARY.md] — the next experiments after this report (decompositions with new target lenses); its report of Exp 0–3 `reports/26-10-14_target_lens_experiments.typ` uses this topic's `reports/template.typ`.
