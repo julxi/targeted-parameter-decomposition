@@ -3,13 +3,14 @@
 #show: report.with(
   title: "What the target loss selects: four tPD runs on true/false statements",
   subtitle: "Targeted parameter decomposition of Qwen2.5-7B-Instruct at the end of simple statements, with four different target losses",
-  date: "2026-10-14",
+  date: "2026-10-14, updated 2026-10-16",
   author: "Written by Claude Opus 5.5 for Julian Bitterlich",
   summary: [
     - *Setup.* Four decompositions of the same five MLP layers (15–19) of Qwen2.5-7B-Instruct, all at the final period of simple true/false statements, differing only in what the training loss compares: the next token (Exp 0), the residual stream after layer 23 (Exp 1), the model's answer to an appended " Is this true or false? Answer:" (Exp 2), and that answer with the question's tokens decomposed too (Exp 3). One seed each.
     - *The plain next-token loss misses what the verdict needs.* Switching the five layers off at the period costs the verdict 0.116 nats. Exp 0’s components alone recover 8% of that; Exp 1 63%, Exp 2 72%. On negated translations ("The Spanish word 'uno' does not mean 'one'."), where switching the layers off reverses nearly every verdict (accuracy 0.86 → 0.06), Exp 0’s components reach 0.19, Exp 1’s 0.64, Exp 2’s 0.95.
     - *The residual loss puts the truth direction into components.* Only in Exp 1 do components, rather than the unexplained remainder, write most of the true/false separation at layer 19 (71%; other runs ≤ 22%).
     - *Exp 3 found the output end of the verdict.* Its components alone reproduce the verdict over the period and question (KL 0.036 nats; all off 4.19). Among them are components at the answer token that write "True", active almost only on statements the model judges true (component 447: on 97% of true, 1% of false statements). They follow the model's own judgement; they do not compute it. Caveat: the components alone do not reconstruct the MLP outputs; they produce the answer their own way (large writes at the answer token), so these are directions that set the answer, not shown to be what the model's MLPs write.
+    - *Where the components write, the rest of the weights undoes it* (added 2026-10-16). The components need not reproduce the whole MLP output, only its target-relevant part; but except partly in Exp 1, the rest of the output points against what they write. Exp 0 and arm A write vectors of the output's size nearly orthogonal to it (cosine 0.08–0.12); at Exp 3's answer token the components write 5.3 times the output's norm at cosine 0.06. Exp 1 is compatible with its components being a part of the output (cosine 0.56).
     - *No truth hidden from the output.* Within each negated family the original model already ranks true above false almost perfectly (e.g. AUC 1.00 at accuracy 0.73). Its errors are a bias towards "False". Exp 3’s components alone answer more accurately than the model (0.977 vs 0.953) only by shifting that bias, through two of the "True" components.
     - *Open:* where the judgement that gates these components is computed, and whether the negated-statement effects are truth or negation. Comparing components across runs found nothing beyond their shared initialisation.
   ],
@@ -156,9 +157,62 @@ Accuracy, AUC and share answered "true", over all statements and over the negate
   The original model already ranks true above false almost perfectly within each negated family (AUC 1.00 on negated animal classes, where its accuracy is 0.73; the exception is negated element symbols, AUC 0.91). Its errors on negated statements are a bias towards "False", not missing information. Exp 3’s components alone answer "true" more often, and two "True" writers (371, 396) carry that shift: without them, accuracy falls below the original while the AUC barely moves. #concluded
 ]
 
-*Caveat: the components-only state is a re-implementation.* At the 9 positions, Exp 3's active components do not reconstruct the MLP outputs (100 test statements). At 6 of the 8 question tokens none is active, so the MLP outputs are zero there. At ":", about 30 active components write a vector five times the norm of the real MLP output and nearly orthogonal to it (cosine 0.06); in the full model, inactive components and Δ carry its negative. The target loss only asked for the right answer at ":", so the decomposition writes the answer directly. The "True" writers are therefore shown to control the answer and to be gated by the model's judgement. They are not shown to be what the model's own MLPs write #concluded. A check: project the original MLP output at ":" onto component 447's write direction.
+*Caveat: the components-only state is a re-implementation.* At the 9 positions, what Exp 3's active components write is largely undone by the rest of the MLP output (next section). At 6 of the 8 question tokens none is active, so the MLP outputs are zero there. At ":", about 28 active components (5.6 per layer) write a vector five times the norm of the real MLP output (169 vs 32) and nearly orthogonal to it (cosine 0.06); in the full model, inactive components and Δ carry its negative. The target loss only asked for the right answer at ":", so the decomposition writes the answer directly. The "True" writers are therefore shown to control the answer and to be gated by the model's judgement. They are not shown to be what the model's own MLPs write #concluded. A check: project the original MLP output at ":" onto component 447's write direction.
 
 Caveat on the method: CI values come from a trained network that reads the activations; even an untrained CI network reads truth from them (earlier result: a probe on untrained CIs reaches 0.998). CI selectivity alone is therefore weak evidence. The ablations above are the causal part.
+
+= Are the components a part of the MLP outputs?
+
+_Added 2026-10-16; measured 2026-10-15._ At every decomposed position, each decomposed MLP's output $y$ splits exactly into three parts, because components and Δ sum to the original weights: $y = A + I + D$, with $A$ the write of the *active* components (CI above 0.01, the "components only" state used throughout this report), $I$ that of the inactive components, and $D$ that of Δ.
+
+*What to expect.* The goal is not that $A$ reproduces all of $y$. At these positions the MLPs may also compute things the target computation doesn't use. The hope is $y = t + r$, with $t$ the part that matters for the target (e.g. the truth check) and $r$ an unrelated rest, and that the components recover $t$. Then $A$ need not be aligned with $y$. What the measurements can test is whether the rest $y - A$ behaves like unrelated other work or *undoes* what the components write. At a single position, $|y - A| > |y|$ holds exactly when $y - A$ points against $A$ by more than half of $A$'s length ($A dot (y - A) < -|A|^2 \/ 2$). An unrelated rest gives no reason for that: if $t$ and $r$ are orthogonal, the error is $|r| \/ |y| < 1$ and the cosine between $A$ and $y$ equals $|A| \/ |y|$. An error above 1, the more so with a large $|A|$, means the rest of the weights cancels the components' write, i.e. the components produce the target output through writes the model itself does not make there.
+
+Measures, per layer and position, then averaged:
+- *relative error* $|y - A| \/ |y|$: below 1 = compatible with $A$ being a part of $y$; exactly 1 where no component is active ($A = 0$), the same as switching the MLP off; above 1 = the rest points against $A$ (see above);
+- *cosine* between $A$ and $y$: 1 = same direction, 0 = orthogonal; likewise between $A + I$ (all components, Δ off) and $y$;
+- *norm ratios* $|A| \/ |y|$, $|I| \/ |y|$, $|D| \/ |y|$ (sums over layers 15–19 of the mean norms, divided by the sum of the mean $|y|$), the cosine between $I$ and $D$ (−1 = they cancel each other), and the relative error of the Δ-only state, $|y - D| \/ |y|$.
+
+At the period, all 1,794 test statements (mean $|y|$ = 30.5, the same for every run since it is the original model's output):
+
+#tbl(
+  columns: (1.6fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr, 1fr),
+  [run], [active per layer], [relative error], [cosine A, y], [cosine A+I, y], [$|A| \/ |y|$], [$|I| \/ |y|$], [$|D| \/ |y|$], [cosine I, D], [error of Δ only],
+  [Exp 0, next token], [1.56], [1.26], [0.12], [0.11], [0.85], [0.53], [1.36], [−0.36], [1.02],
+  [*Exp 1, residual*], [2.09], [*0.83*], [*0.56*], [*0.58*], [0.76], [0.19], [0.82], [−0.12], [0.79],
+  [Exp 2, stimulus], [0.17], [1.18], [0.00], [−0.01], [0.21], [1.65], [2.07], [−0.78], [1.78],
+  [Exp 3, at the period], [0.40], [1.07], [0.00], [0.01], [0.11], [1.95], [2.24], [−0.84], [2.05],
+  [Exp 3, all 9 positions], [0.73], [1.54], [0.01], [0.02], [0.67], [2.01], [2.55], [−0.79], [2.36],
+  [arm A], [1.86], [1.24], [0.08], [0.08], [0.77], [0.58], [1.36], [−0.41], [0.99],
+  [untrained], [44.0], [1.03], [0.00], [0.00], [0.25], [0.28], [1.07], [−0.26], [0.37],
+)
+#verified[`cancel_split.py` on an RTX 4090, all test statements, per-layer logs; the active counts reproduce the verdict analysis. Cosine A+I, y added 2026-10-16 in a rerun on an H100 that reproduces all other numbers within bf16 noise]
+
+Exp 3 per position over its span (pooled over the five layers):
+
+#tbl(
+  columns: 6,
+  [position], [active per layer], [$|A|$], [$|y|$], [cosine A, y], [cosine A+I, y],
+  [period], [0.40], [3.3], [30.5], [0.00], [0.01],
+  [" Is", " this", " true", " or", "?", " Answer"], [0.00–0.01], [0.0], [29.4–34.7], [–], [≤ 0.02],
+  [" false"], [0.49], [16.1], [31.8], [0.01], [0.01],
+  [":" (answer token)], [5.6], [*169.2*], [31.7], [0.06], [0.05],
+)
+
+#finding(title: "Where the components write, the rest of the weights undoes it (except partly in Exp 1)")[
+  - *Exp 0 and arm A* write a vector of about $y$'s size (0.77–0.85 of its norm), nearly orthogonal to it (cosine 0.08–0.12), with error 1.24–1.26: on average the rest $y - A$ cancels more than half of the components' write. That is not what a truth part $t$ next to an unrelated rest would look like.
+  - *Exp 2 and Exp 3 at the period* write little (0.17 and 0.40 active components per layer; at about 90% of position–layer pairs none is active, where the error is exactly 1). Their mean errors (1.18, 1.07) then imply errors of about 2.7–2.9 and 1.6–1.7 where components are active (arithmetic from the logged means): the little they write is also undone. Separately, their inactive components and Δ are each about twice the size of $y$ and point in nearly opposite directions (cosine −0.78 / −0.84). Both are off in the components-only state, so this doesn't affect it, but the full model is then a near-cancellation of large terms, which matters for every ablation from the full model.
+  - *Exp 3 at the answer token ":"*: the components write 5.3 times the norm of $y$ (169 vs 32) at cosine 0.06, so the rest of the weights must carry nearly all of $-A$.
+  - *Exp 1* is the only run compatible with "the components are a part of $y$": error 0.83, cosine 0.56, little cancellation between $I$ and $D$ (cosine −0.12).
+  - *All components together are no closer to $y$ than the active ones*: the cosine of $A + I$ with $y$ is within 0.02 of that of $A$ in every run (0.58 in Exp 1, 0.11 or less elsewhere). So the inactive components are not the rest $r$ of the MLP output either. Outside Exp 1, since $y = (A + I) + D$ with $A + I$ nearly orthogonal to $y$, Δ's write carries the whole component along $y$, and its remaining, orthogonal part is what cancels the components ($y - (A + I) = D$).
+  #concluded
+]
+
+*Why.* Every training loss in these runs compares only the model's output at the lens (next token, layer-23 residual, verdict); nothing constrains what the components write inside the MLP, only its effect downstream. Since components + Δ = the original weights by construction, whatever the active components write beyond the MLP's own output must be undone by the inactive components and Δ in the full model. The residual lens constrains the MLP writes most, because layer 23 is only four layers downstream and all of its channels count; a KL on a next-token distribution can be met by many different writes (reasoned from the training objective, not tested by changing the loss) #concluded.
+
+*Consequences.*
+- Except partly for Exp 1, the "components only" numbers in this report describe the decomposition's own way of producing the target output, not a part of the computation the MLPs perform. The same holds for arm A, whose single-component ablations were the basis of an earlier truth-writing result.
+- The cancellation explains why removing all components (Δ only) is so destructive: in Exp 2 and 3, Δ alone is a write 2.1–2.6 times the size of the MLP output (relative error 1.78–2.36, against 1 for switching the MLPs off).
+- A fix under test (Exp 4b, 2026-10-16): a reconstruction term that asks the components to reproduce each decomposed MLP's whole output at the decomposed positions. This asks for more than the goal $A approx t$ requires: it also makes the components cover the rest $r$. A weaker condition matching the goal would only forbid the rest from undoing the components' write, e.g. a penalty on negative $A dot (y - A)$ (an untested idea) #assumed.
 
 = Where truth is written
 
@@ -185,6 +239,7 @@ For each component active on ≥ 1% of statements in run A: the most similar com
 
 #caveat[
   - *One seed per run.*
+  - *Components only ≠ part of the MLP computation.* Except partly in Exp 1, the rest of the MLP output undoes what the active components write (section "Are the components a part of the MLP outputs?"), so every components-only and single-ablation result describes the decomposition's own way of producing the output.
   - *Truth or negation?* The verdict effects at the period concentrate in negated statements, where the five layers reverse the answer. The components may implement "negation flips the answer" rather than truth; Exp 0 does not separate the two.
   - *Small families.* The negated families have 37–64 test statements each, except negated cities (332).
   - *One question, one scoring.* All verdict numbers depend on " Is this true or false? Answer:" and on the token sets used to score it.
@@ -200,5 +255,5 @@ For each component active on ≥ 1% of statements in run A: the most similar com
 = Files
 
 #text(size: 9pt)[#set par(justify: false)
-Runs: WandB `bitt-j-personal/spd/<id>` (configs `spd/experiments/lm/honesty_targeted_decomposition/config_truth_{last_token,residual_lens,stimulus_lens,stimulus_span}.yaml`). Local outputs: `~/spd_out/26-10-10_bolder_experiments/` (`full/`: training; `full/v/`, `analysis/out/v/`: verdict; `analysis/out/{tw_tiu,overlap,lead}/`: truth direction, overlap, answer-token components). Project record: `convos/julian/26-10-10_bolder_experiments_LOG.md`.
+Runs: WandB `bitt-j-personal/spd/<id>` (configs `spd/experiments/lm/honesty_targeted_decomposition/config_truth_{last_token,residual_lens,stimulus_lens,stimulus_span}.yaml`). Local outputs: `~/spd_out/26-10-10_bolder_experiments/` (`full/`: training; `full/v/`, `analysis/out/v/`: verdict; `analysis/out/{tw_tiu,overlap,lead}/`: truth direction, overlap, answer-token components; `dist_shift/cancel_all/`: components vs MLP outputs). Project record: `convos/julian/26-10-10_bolder_experiments_LOG.md`.
 ]

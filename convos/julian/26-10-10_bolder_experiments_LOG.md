@@ -1544,3 +1544,235 @@ Change: `loss_positions` in both configs is now `last_k: 1`, the prompt's last t
 One consequence from the scan, noted in the config headers, not an objection: mean-ablating MLPs 11–17 at the end token alone keeps 82% of the verdict separation (KL 0.11), so the verdict lens sees only part of the judgement through this position, as in Exp 2 (period only, 15% of the separation lost all-off there). 4b's reconstruction term does not depend on that.
 
 The 300-step trials ran with all statement tokens except the first; the full runs are not trialled at the end-token setting [assumed: fewer positions per batch, so faster and lighter, nothing that should fail].
+
+Launch [verified: `/root/bolder/exp4/sf_verdict_recon.log` on the instance, 26-10-16]: commits `8165035` (code, configs, tests) and `cabc4b8` (records); instance synced to `cabc4b8`. As before, the rsync gap of `wv_overlap_writeup.tex` (FUTURE_WORK.md) stamps the runs `uncommitted_changes: true` with code identical to the commit. Pipeline `~/spd_out/26-10-10_bolder_experiments/exp4/run_full.sh` (on the instance `/root/bolder/exp4/`, detached): 4b, then 4a; each finished run's final checkpoint goes straight into `exp4_analysis.py` (4b's analysis runs while 4a trains). **Exp 4b = WandB run `s-717b50c9`**, started 07:51 UTC; the logged config has `LastKPositions(k=1)`, `tokenize_jointly=True` and the relative reconstruction term.
+
+---
+
+26-10-16, Claude Opus 5.5 — *report updated: components vs MLP outputs*; same session, while Exp 4b trains. Julian in chat:
+
+C: (transcribed from chat) Can you add to @reports/26-10-14_target_lens_experiments.typ the results about the orthogonality of the decomposition output and the mlp output and also the magnitude differences?
+
+Done: new section "Do the components reproduce the MLP outputs?" in `reports/26-10-14_target_lens_experiments.typ` (definitions of y = A + I + D, relative error, cosine and norm ratios; the per-run table at the period plus Exp 3 over its span; Exp 3 per span position; a finding box, why, consequences), a summary bullet, a caveat, and the source folder in *Files*; date line "2026-10-14, updated 2026-10-16". Numbers re-read from `~/spd_out/26-10-10_bolder_experiments/dist_shift/cancel_all/*.log` (ratios recomputed from the per-layer norms; they match the table of entry *cancellation test on the other runs*). The Exp 3 caveat paragraph now quotes the full-split numbers at ":" (|A| 169 vs |y| 32, 5.6 active per layer) instead of the 100-statement CPU check (156, "about 30"). Self-check: read the two compiled pages; fixed the measuring GPU (RTX 4090, not H100) and a wrapped column header.
+
+Julian in chat, on the new report section:
+
+C: (transcribed from chat) I have an issue with this sentence: "If the decomposition explained what the MLPs compute, 𝐴 alone would be close to 𝑦". The hope and goal is to detect mechanisms for the checking truth. The setup is aimed to be dependend on the truth computation. If the model computes other stuff in an MLP that might not be relevant for the position, this doesn't matter for us. So in my mind the hope would be that if y has a truth component t and a rest r that the tPD uncovers t. So they don't have to be highly aligned. However, being orthogonal and having hughe magnitude is not a good sign.
+
+Agreed; the section was framed against the wrong yardstick. Rewritten as "Are the components a part of the MLP outputs?" around Julian's y = t + r. The criterion that fits it [concluded: algebra]: at a single position, |y − A| > |y| holds exactly when y − A points against A by more than half of A's length (A·(y − A) < −|A|²/2). An unrelated rest has no reason to do that; with t ⟂ r the error is |r|/|y| < 1 and cos(A, y) = |A|/|y|. So an error above 1 means the rest of the weights undoes the components' write, which is what "orthogonal and huge" amounts to. Readings per run unchanged in substance: Exp 0 and arm A (error 1.24–1.26, |A| 0.77–0.85 of |y|) and Exp 3 at ":" (|A| 5.3 × |y|) are undone by the rest; Exp 1 (0.83, cosine 0.56) is compatible with its components being a part of y. New, derived from the logged means (no active component at about 90% of position–layer pairs, error exactly 1 there): where Exp 2 / Exp 3 components are active at the period, their error is about 2.7–2.9 / 1.6–1.7 [concluded: arithmetic]. The I–D cancellation of Exp 2/3 is now described as irrelevant to the components-only state (both off) but relevant to every ablation from the full model.
+
+Consequence for Exp 4b (running), raised in the report's *Consequences* [assumed: not discussed]: its reconstruction term asks the components to reproduce the *whole* output y at the decomposed position, more than Julian's goal A ≈ t requires; it also makes them cover r, which may spread the truth part over many components. A condition matching the goal would only forbid the rest from undoing the components' write, e.g. a penalty on negative A·(y − A). Untested idea; not changing the running run.
+
+---
+
+26-10-16, Claude Opus 5.5 — *Exp 4b finished: components reproduce the MLP outputs at the statement end*; same session. [verified: run `s-717b50c9`, exit 0, 07:51–08:49 UTC (58 min), checkpoint on WandB; `exp4_analysis.py` on its final checkpoint, all 1,794 test statements; outputs copied to `~/spd_out/26-10-10_bolder_experiments/exp4/full/` (`analysis/exp4_model_5000.{json,npz}`, logs, `s-717b50c9/metrics.jsonl`); one seed]
+
+**Training** (eval on 256 test statements; L0 = active components per statement, all 7 layers, one decomposed position):
+
+| step | L0 | verdict KL rounded / stochastic | Δ only | PGD | reconstruction term (relative) | Pile rounded KL |
+|---|---|---|---|---|---|---|
+| 0 | 300 | 0.167 / 0.177 | 0.015 | 1.90 | 0.524 | 0.012 |
+| 2,500 | 13.1 | 0.030 / 0.026 | 0.235 | 0.61 | 0.126 | 0.042 |
+| 5,000 | 10.4 | 0.015 / 0.009 | 0.085 | 0.13 | **0.088** | 0.021 |
+
+The reconstruction term did come down over the full run (0.52 → 0.088). The 300-step trial (0.51 → 0.50, at the earlier all-tokens setting) gave no hint of this.
+
+**Verdict at the answer digit**, replacement at `'.\n'` only:
+
+| state | accuracy (affirmative / negated) | AUC | separation share | KL to original (nats) |
+|---|---|---|---|---|
+| original | 0.978 (0.985 / 0.959) | 0.996 | 1 | 0 |
+| full (components + Δ) | 0.976 | 0.996 | 1.00 | 0.000 |
+| components only (10.8 active per statement) | 0.968 (0.984 / 0.924) | 0.991 | 0.92 | 0.023 |
+| Δ only | 0.909 | 0.978 | 0.84 | 0.109 |
+| all off (MLPs 11–17 zeroed at `'.\n'`) | 0.855 (0.890 / 0.761) | 0.958 | 0.73 | 0.193 |
+
+The all-off row agrees with the layer scan's zero ablation of 11–17 at the end token (accuracy 0.856, separation share 0.73, KL 0.19), which used independent code.
+
+**Cancellation test** at `'.\n'`:
+
+| layer | 11 | 12 | 13 | 14 | 15 | 16 | 17 |
+|---|---|---|---|---|---|---|---|
+| active components | 1.52 | 1.92 | 2.12 | 1.54 | 1.23 | 1.29 | 1.18 |
+| \|y − A\| / \|y\| | 0.39 | 0.41 | 0.40 | 0.47 | 0.41 | 0.52 | 0.45 |
+| cosine A, y | 0.90 | 0.90 | 0.90 | 0.86 | 0.90 | 0.83 | 0.87 |
+| \|A\| / \|y\| | 0.96 | 0.94 | 0.92 | 0.85 | 0.83 | 0.81 | 0.82 |
+| \|D\| / \|y\| | 0.36 | 0.40 | 0.37 | 0.44 | 0.35 | 0.44 | 0.41 |
+| cosine I, D | −0.06 | −0.10 | −0.08 | −0.03 | −0.09 | 0.04 | −0.06 |
+
+Pooled: relative error 0.435, cosine 0.879 (Exp 0–3 and arm A: 1.07–1.54 and ≤ 0.12; Exp 1: 0.83 and 0.56).
+
+Reading [concluded unless tagged; one seed]:
+- **The reconstruction term works**: about 1.5 active components per layer write a vector pointing along the real MLP output (cosine 0.83–0.90) at 0.8–0.96 of its size; the rest y − A is small and there is no cancellation (Δ is a third of y's size, cos(I, D) ≈ 0). This is the first decomposition in the topic whose components are a part of the MLP output in the sense of the report's criterion (error well below 1).
+- **And the components still carry the verdict's dependence on this position**: components only recovers 88% of the all-off KL ((0.193 − 0.023) / 0.193) and keeps 0.92 of the separation, against 0.73 all off; on negated statements 0.924 against 0.761 all off.
+- Caveat in Julian's y = t + r terms [assumed]: the components reproduce most of y, so t and r are not separated yet. Which of the ~11 components carry the truth-relevant part needs single-component ablations (verdict, truth gap along the native direction) and their CI by label; not run yet. And at this position the verdict depends only partly on MLPs 11–17 (all off keeps 73% of the separation), as the scan predicted.
+
+Exp 4a (`config_truth_sf_verdict.yaml`, no reconstruction term) started 08:49 UTC.
+
+---
+
+26-10-16, Claude Opus 5.5 — *Exp 4a finished: verdict reproduced through a huge write at layer 11*; same session. [verified: run `s-4cd6abe5`, exit 0, 08:49–09:37 UTC (48 min), checkpoint on WandB; `exp4_analysis.py`, all 1,794 test statements; outputs in `~/spd_out/26-10-10_bolder_experiments/exp4/full/` (`analysis/exp4_<run>.{json,npz}`, logs, `s-4cd6abe5/metrics.jsonl`); one seed]
+
+Bookkeeping: the analysis script named its output after the checkpoint file (`model_5000.pth`), so 4a's analysis overwrote 4b's JSON/NPZ. Fixed (output now named by run id), 4a's files renamed, 4b's analysis rerun; its printed tables are identical to the first run's [verified: diff of the two logs].
+
+**Training** (eval, 256 test statements): step 5,000: L0 2.0 active components per statement (all 7 layers), verdict KL rounded 0.007 / stochastic 0.006, Δ only 0.060, PGD 1.20, Pile rounded KL 0.083 (4b: 10.4, 0.015 / 0.009, 0.085, 0.13, 0.021).
+
+**Verdict at the answer digit**, replacement at `'.\n'` only (original and all off as for 4b):
+
+| state | accuracy (affirmative / negated) | AUC | separation share | KL to original (nats) |
+|---|---|---|---|---|
+| components only, 4a (2.2 active per statement) | 0.980 (0.985 / 0.965) | 0.997 | 0.94 | 0.011 |
+| components only, 4b (10.8 active) | 0.968 (0.984 / 0.924) | 0.991 | 0.92 | 0.023 |
+| Δ only, 4a | 0.933 | 0.980 | 0.85 | 0.091 |
+| all off | 0.855 (0.890 / 0.761) | 0.958 | 0.73 | 0.193 |
+
+**Cancellation test** at `'.\n'`, 4a:
+
+| layer | 11 | 12 | 13 | 14 | 15 | 16 | 17 |
+|---|---|---|---|---|---|---|---|
+| active components | 1.34 | 0.41 | 0.13 | 0.10 | 0.09 | 0.09 | 0.08 |
+| \|y − A\| / \|y\| | **12.7** | 1.75 | 1.04 | 1.01 | 1.01 | 1.02 | 1.04 |
+| cosine A, y | 0.03 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| \|A\| / \|y\| | **12.9** | 0.97 | 0.07 | 0.03 | 0.02 | 0.05 | 0.08 |
+| \|I\| / \|y\| | 6.6 | 6.9 | 5.2 | 5.3 | 3.5 | 4.8 | 3.3 |
+| \|D\| / \|y\| | 13.7 | 7.4 | 5.3 | 5.4 | 3.6 | 4.9 | 3.5 |
+| cosine I, D | −0.36 | −0.92 | −0.96 | −0.97 | −0.94 | −0.96 | −0.94 |
+
+Pooled: relative error 2.80, cosine 0.004, Δ-only error 6.1.
+
+Reading [concluded unless tagged; one seed each]:
+- **The prediction held** (answer of 26-10-15: "without the reconstruction term I'd expect the same re-implementation result in any layers", `[assumed]` there). 4a reproduces the verdict even better than 4b (KL 0.011 vs 0.023, with 2.2 instead of 10.8 active components), but it does so through a write at layer 11 of 13 times the MLP output's norm, orthogonal to it, undone in the full model by the inactive components and Δ (each 3–14 times y). Layers 13–17 have almost no active component. Inactive components and Δ cancel at every layer (cosine −0.92 to −0.97 at 12–17), so the full model is a near-cancellation of terms 3–14 times the size of the output. It is the most extreme re-implementation in the topic (Exp 3 at ":": 5.3×).
+- **The only difference between 4a and 4b is the reconstruction term**, so it is what turns a re-implementation into a decomposition whose components are part of the MLP output (error 2.80 → 0.44, cosine 0.004 → 0.88) [concluded: same data, layers, position, seed and settings]. Cost: about 5× as many active components (10.8 vs 2.2) and a slightly weaker components-only verdict (KL 0.023 vs 0.011); in exchange PGD 0.13 vs 1.20 and Pile 0.021 vs 0.083, i.e. 4b is also more robust.
+- The verdict lens alone at this position is thus no evidence about the model's mechanism; 4b is the run to analyse further.
+
+**Proposed next** [assumed: not discussed]:
+1. Exp 4b's components: single-component ablations from the full model (verdict and the truth gap along the native direction after layer 17, at `'.\n'` and the object token), each component's CI by label and family, and how much of the truth direction each writes. This is the step from "the components are part of y" to "which of them is t".
+2. Optionally a 4b variant with the weaker condition matching Julian's y = t + r (forbid the rest from undoing the components' write instead of asking for all of y), or 4b at all statement tokens (Julian: "maybe later").
+
+The H100 (vast.ai 56214400) is idle; both checkpoints are on WandB and all outputs are copied locally.
+
+---
+
+26-10-16, Claude Opus 5.5 — *cos(A + I, y) added to the report*; same session. Julian in chat:
+
+C: (transcribed from chat) Can you write into @reports/26-10-14_target_lens_experiments.typ  also the cosine similarity of A+I and y?
+
+It was not in the logs (only cos(A + I, D)), so the cancellation test was rerun with it on the idle H100: `~/spd_out/26-10-10_bolder_experiments/dist_shift/cancel_all2/` (script = `cancel_split.py` plus the cosine of A + I with y, per layer and per span position; same 7 runs and settings as *cancellation test on the other runs*) [verified: all 7 exit 0, 26-10-16 09:43–09:46 UTC; every previously logged number reproduced within bf16 noise across GPUs (largest relative difference 0.08 vs 0.07 on a near-zero norm)]. Note: y − (A + I) = D, so the matching error |y − (A + I)| / |y| equals the |D| / |y| column already in the table.
+
+cos(A + I, y), mean over layers 15–19 (cos(A, y) in brackets): Exp 0 0.11 (0.12), **Exp 1 0.58 (0.56)**, Exp 2 −0.01 (0.00), Exp 3 at the period 0.01 (0.00), Exp 3 over its 9 positions 0.02 (0.01), arm A 0.08 (0.08), untrained 0.00 (0.00); Exp 3 at ":" 0.05 (0.06).
+
+Reading [concluded]: all components together are no closer to y than the active ones (difference ≤ 0.02 in every run), so the inactive components are not the rest r of the MLP output either. Outside Exp 1, since y = (A + I) + D with A + I nearly orthogonal to y, Δ carries the whole component of the output along y, and its orthogonal remainder is what cancels the components.
+
+Report: new column in the per-run table and in Exp 3's per-position table, the measure added to the definitions, one bullet in the finding box; table layout fixed; compiled and checked page 6.
+
+---
+
+26-10-16, Claude Opus 5.5 — *options for the idle H100*; same session. Julian asked in chat whether there is another experiment to run on the machine. Options [assumed: proposals, costs estimated from today's runs]:
+1. **Which of 4b's components are the truth part t** (recommended first; ~30 min to write, minutes to run). For the ~11 active components of `s-717b50c9` at `'.\n'`: each one's CI by label and family; its write along the native truth direction (statement-first prompt, after its own layer); single-component ablations (verdict separation and accuracy, truth gap after layer 17 at `'.\n'`). Ablating from the full model is meaningful for 4b, unlike for Exp 0–3, because there is no cancellation there; also ablate from the components-only state as a cross-check.
+2. **4b at all statement tokens** (Julian: "maybe later"; ~60–75 min training + 1 min analysis). The scan says the judgement lives at all statement tokens (end token alone: 82% of the separation survives). Can run in parallel with option 1 (4b peaked well under half of the 80 GB).
+3. **4b with a second seed** (~60 min): are the same components found again? Component overlap between runs so far could not be read because all runs shared seed 0.
+4. **The weaker "no undoing" condition** instead of full reconstruction (penalise negative A·(y − A)): closer to Julian's y = t + r goal, but needs new loss code and tests first (~1 h) before a run.
+
+Julian chose option 2:
+
+C: (transcribed from chat) 4b at all statement tokens (also include the first one, i hope the decomposition does the giant activations right)
+
+---
+
+26-10-16, Claude Opus 5.5 — *Exp 4c launched: 4b at all statement tokens*; same session.
+
+- Config `spd/experiments/lm/honesty_targeted_decomposition/config_truth_sf_verdict_recon_alltok.yaml` = 4b's config with `loss_positions: {type: tokens, start: 0}`: every statement token is decomposed, the first one included; the question tokens run on the original weights. 6–20 decomposed positions per statement [verified: Qwen token counts of all 8,354 tiu statements]. The loader selects exactly the statement's tokens, `'.\n'` included [verified: one statement printed]. The KL weighting caveat applies again (long statements weigh more). Not committed (the WandB run stores the full config); the code is unchanged since `8165035`.
+- **Exp 4c = WandB run `s-5ecb5791`**, started 09:57 UTC on the H100, logged config shows `TokenPositions(start=0)`; 35 GB GPU memory. Pipeline `~/spd_out/26-10-10_bolder_experiments/exp4/run_4c.sh` runs `exp4_analysis.py` on the final checkpoint.
+- For Julian's question about the giant activations, `exp4_analysis.py` now also breaks the cancellation test down by position type (first token / middle tokens / end token) and by massive vs normal positions (|y| > 5× the layer's median |y| at the decomposed positions), with cos(A + I, y) added [verified: CPU smoke on the tiny model].
+
+---
+
+26-10-16, Claude Opus 5.5 — *Exp 4c finished: all statement tokens, giant activations reproduced*; same session. [verified: run `s-5ecb5791`, exit 0, 09:57–10:55 UTC (58 min), checkpoint on WandB; `exp4_analysis.py` with the position breakdown, all 1,794 test statements, replacement at every statement token; outputs in `~/spd_out/26-10-10_bolder_experiments/exp4/full/` (`analysis/exp4_s-5ecb5791.{json,npz}`, logs, metrics); one seed]
+
+**Training** (eval, 256 test statements), step 5,000: 9.0 active components per decomposed position (all 7 layers), verdict KL rounded 0.169 / stochastic 0.137, Δ only 0.763, PGD 1.25, reconstruction term 0.279 (step 0: 0.499; 4b: 0.088), Pile rounded KL 0.028.
+
+**Verdict at the answer digit**, replacement at all statement tokens:
+
+| state | accuracy (affirmative / negated) | AUC | separation share | KL to original (nats) |
+|---|---|---|---|---|
+| original | 0.978 (0.985 / 0.959) | 0.996 | 1 | 0 |
+| full | 0.978 | 0.996 | 1.00 | 0.000 |
+| components only (91 active per statement over positions and layers) | 0.919 (0.920 / 0.914) | 0.971 | 0.48 | 0.171 |
+| Δ only | 0.609 | 0.644 | 0.12 | 0.762 |
+| all off (MLPs 11–17 zeroed at the statement tokens) | 0.540 (0.538 / 0.546) | 0.646 | 0.08 | 0.647 |
+
+All off agrees with the scan's zero ablation of 11–17 at all statement tokens (0.531, 0.08, 0.65; independent code). Components only recovers 74% of the all-off KL ((0.647 − 0.171) / 0.647) and lifts accuracy from chance to 0.919, negated statements included (0.914).
+
+**Cancellation test**, pooled over all decomposed positions: relative error 0.81, cos(A, y) 0.48 (per layer 0.78–0.84 and 0.33–0.60, better in layers 11–14 than 15–17), no cancellation (cos(I, D) −0.01 to −0.07).
+
+**By position type** (pooled over layers; "massive" = |y| > 5× the layer's median |y|, 2.8% of position–layer pairs):
+
+| group | position × layer pairs | mean \|y\| | mean \|A\| | \|y − A\| / \|y\| | cos(A, y) | cos(A + I, y) | active per layer |
+|---|---|---|---|---|---|---|---|
+| first token | 12,558 | 65.5 | 46.7 | 0.58 | 0.63 | 0.80 | 1.01 |
+| middle tokens | 101,241 | 28.1 | 13.3 | 0.83 | 0.46 | 0.60 | 1.26 |
+| end token `'.\n'` | 12,558 | 22.5 | 10.8 | 0.88 | 0.44 | 0.57 | 1.88 |
+| massive | 3,588 | 250.7 | 173.9 | 0.67 | 0.74 | 0.86 | 1.49 |
+| not massive | 122,769 | 24.8 | 11.8 | 0.82 | 0.47 | 0.61 | 1.29 |
+
+Reading [concluded unless tagged; one seed]:
+- **The giant activations are handled well** (Julian's hope): at the massive positions the components write 174 of a mean output norm of 251, at cosine 0.74 and error 0.67, better than at ordinary tokens (0.47, 0.82). The first token likewise (0.63, 0.58). One active component per layer suffices at the first token. No cancellation anywhere.
+- **Components are a part of the MLP output everywhere, but a smaller part than in 4b**: error 0.81 pooled (4b at the end token: 0.44; Exp 1: 0.83; Exp 0–3: 1.07–1.54). At the end token itself 4c's components are further from y than 4b's (0.88 vs 0.44), with about the same number active there (1.9 vs 1.5 per layer) [assumed: the reconstruction task across ~13 positions per statement with C = 96 per layer is harder; the term ended at 0.28 vs 0.088].
+- **cos(A + I, y) is clearly above cos(A, y)** (0.60 vs 0.46 at ordinary tokens), unlike in Exp 0–3 (difference ≤ 0.02): the inactive components carry further parts of y, and together they point more along y. That is the pattern Julian's y = t + r picture expects (the active components a part, the inactive ones other parts, Δ the remainder) [assumed: interpretation].
+- **The components carry about half of what the verdict needs from the statement tokens** (separation 0.48 vs 0.08 all off; accuracy 0.919 vs 0.540). 4b, at the end token only, kept 0.92 of a dependence that was much smaller to begin with (all off there: 0.73).
+- Δ only (0.609) is not better than all off on accuracy and worse on KL (0.762 vs 0.647): Δ's write (0.63–0.75 of |y|) alone is no useful part of the output.
+
+Next proposed [assumed]: the component analysis of option 1 (which components are t), on 4b and 4c together.
+
+Julian in chat, answering whether to run the component analysis on 4b and 4c:
+
+C: (transcribed from chat) yes, do that
+
+---
+
+26-10-16, Claude Opus 5.5 — *component analysis of 4b and 4c: which components are the truth part?*; same session. [verified: `~/spd_out/26-10-10_bolder_experiments/exp4/component_analysis.py` on the H100, all 1,794 test statements, runs' own loader; outputs `exp4/full/components/` (`components_<run>.{json,npz}`, logs, `family_selectivity_<run>.out` from `family_selectivity.py`); one seed per run]
+
+**Method.** Truth direction = native mass-mean on the statement-first prompt after layer 17 (train split, original model), at the end token `'.\n'` and the object token; truth gap after L17: end 12.84, object 17.90; verdict separation 8.65. For each component active on ≥ 1% of statements: activity by label within each family (share of true / false statements on which it is active at any decomposed position; AUC of its max CI); its direct write along the truth direction at that token, as a share of the gap (direct effect only, later layers ignored); removal from the full model (all components + Δ = original weights) at the decomposed positions: change of separation, accuracy, KL, truth gaps; removal from the components-only state: change of separation. Groups: "on/off by label" = within some family the active shares on true and false differ by ≥ 0.5; "graded" = only the CI strength separates the labels (|AUC − 0.5| ≥ 0.4; weak evidence, since untrained CI networks also read truth).
+
+**Direct writes along the truth direction** (share of the gap after L17, MLPs 11–17 only; y = their whole write):
+
+| | end: A / I / D / y | object: A / I / D / y |
+|---|---|---|
+| 4b (end token decomposed) | 0.155 / 0.226 / 0.377 / 0.758 | – (not decomposed; y 0.984) |
+| 4c (all statement tokens) | 0.130 / −0.098 / 0.726 / 0.758 | 0.249 / 0.007 / 0.727 / 0.984 |
+
+So even with the reconstruction term, most of the MLPs' direct truth write stays in Δ (4c: 0.73 of the gap at both tokens); the active components write 0.13–0.25. Components-only state: 4b separation 7.92, end gap 5.53 (object untouched 17.90); 4c separation 4.11, end gap 2.71, object gap 2.52.
+
+**Exp 4b** (45 components active on ≥ 1%; 17 on/off by label, 14 graded, 14 not selective). The large ones are task detectors: five on exactly the number comparisons (L11:87, L12:76, L13:60, L14:43, L15:36), one on cities + animal classes (L11:54), one on negated animal classes + negated cities (L14:40), one on every statement (L13:5). Removing any of them changes the separation by at most −0.51 (6%). Within-family label switches, mostly small: cities true (L16:90: true 1.00 / false 0.03; L17:36: 1.00 / 0.26), cities/animal/translations false (L15:39: cities 0.05 / 1.00; it is the largest direct writer, 9.5% of the end gap, but removing it leaves the separation unchanged, +0.04); true negated translations (L16:4 0.97 / 0.00, L17:22 0.91 / 0.03, L16:76). None on the number comparisons. All single removals are small: the object token, not decomposed in 4b, carries the truth too.
+
+**Exp 4c** (200 components; 68 on/off by label, 4 graded, 128 not selective). Largest effects:
+
+| component | activity by label (true / false) | direct write, share of gap end / object | full-model removal: Δ separation, accuracy, Δ gap end / object | components-only removal: Δ separation |
+|---|---|---|---|---|
+| **L17:5** | off on true statements of the affirmative fact families (cities 0.04 / 0.63, animal classes 0.56 / 1.00, translations 0.44 / 1.00); on in all number-comparison and negated statements, there with stronger CI on false (AUC 0.00–0.19) | +0.051 / **+0.221** | **−1.30**, 0.880, −0.65 / **−3.96** | **−2.16** |
+| L11:70 | always on, no selectivity | −0.005 / −0.004 | −1.22, 0.979, −1.16 / −3.56 | −0.23 |
+| L11:29 | always on (except true negated translations) | 0.000 / 0.000 | −1.09, 0.952, −1.38 / −0.42 | −0.45 |
+| L15:52, L14:56 | number comparisons: larger_than true 0.98 / 0.30 and smaller_than 0.59 / 1.00 (L15:52) | ≈ 0 | −0.56 / −0.53 separation | ≈ 0 |
+| **L15:51** | **false negated statements, across all four negated families** (neg. animal 0.00 / 1.00, neg. cities 0.00 / 0.92, neg. element symbols 0.18 / 1.00, neg. translations 0.06 / 1.00) | +0.014 / +0.001 | −0.27, 0.968, −0.65 / +0.02 | −0.05 |
+
+Further members of the "false negated" group, same profile: L16:28, L14:34, L15:84, L13:60, L16:20, L11:91 (each removal: separation −0.05 to −0.21, end gap up to −0.96 for L14:34).
+
+Reading [concluded unless tagged; one seed per run, CI- and ablation-based]:
+- **4c has the first cross-family truth-related component in this topic: L17:5.** It is switched off on true affirmative fact statements and active (or more strongly active) on false ones in eight of ten families; it writes 22% of the truth gap at the object token, and removing it costs 15% of the verdict separation (−1.30 of 8.65; accuracy 0.978 → 0.880) and 22% of the object-token gap. It is the only component in either run with both label selectivity and a sizeable causal effect. Reading [assumed]: a "this doesn't fit / false" writer at the object token. Caveat: on number comparisons and negated statements it is always on and differs only in CI strength.
+- **A group of "false negated statement" components** (L15:51 and six others) is on/off by label across all four negated families. For negated statements "false" means the relation does fit ("X is not in Y" with X in Y), so these components fire on negation combined with a fitting relation, i.e. exactly the combination that makes a negated statement false. They write little directly and each removal is small (redundant group) [concluded: activity profiles; that they compute the combination rather than read it is assumed].
+- **Number comparisons get comparison-result components, not truth components**: L15:52 and L14:56 are active on "larger_than true" and "smaller_than false", i.e. when the first number is larger, whatever the claim. Truth then needs the claimed relation on top [concluded: activity profile].
+- **Most components are task or family detectors** (always on within a family, both labels), several with sizeable causal effects (L11:70, L11:29: −1.2 / −1.1 separation). They are machinery the judgement needs, not the judgement.
+- **The truth part is still mostly in Δ**: the active components write 13% (end) / 25% (object) of the truth gap directly, Δ 73%. In y = t + r terms, the decomposition recovered part of t (L17:5, the "false negated" group, the within-family switches) but most of the direct write along the truth direction is not in components [concluded: direct writes; indirect paths through later layers not counted].
+- 4b at the end token alone shows within-family switches (cities true/false) but no component with a sizeable effect, consistent with the end token carrying only part of the judgement.
+
+Caveats: one seed; selectivity is read from CIs (the CI network sees the activations, which already encode truth); single removals are small for redundant groups, so "small effect" does not mean "unused"; direct writes ignore later layers.
+
+Proposed next [assumed]: (1) L17:5 in detail: where it is active within the statement (object token vs others), its write direction compared with the native truth direction, and its removal per family; (2) remove the "false negated" group together; (3) a second seed of 4c, to see whether L17:5-like and "false negated" components reappear (the strongest test that they are not artefacts of one run).
+
+---
+
+26-10-16, Claude Opus 5.5 — *report of Exp 4*; same session. Julian in chat:
+
+C: (transcribed from chat) Can you make a rport of the experiments 4?
+
+Report: `reports/26-10-16_exp4_statement_first.typ` (6 pages; PDF gitignored, `typst compile reports/26-10-16_exp4_statement_first.typ`). Written for Julian, self-contained: method, prompt and measures, why layers 11–17, the causal layer scan, the three decompositions (verdict states, components vs MLP outputs incl. the position breakdown), the component analysis of 4b and 4c, caveats, next steps, files. Numbers re-read from the output files (`exp4/full/analysis/*.json`, `exp4/full/components/*.json`, metrics, `layer_scan/full/summary.out`), not from this LOG. Self-check: steps 1–2 of the self-contained procedure by the author on the compiled PDF; fixed `<statement>` being swallowed as a Typst label, a too-narrow table column, and `~` rendered as a space.
