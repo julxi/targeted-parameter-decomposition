@@ -1306,6 +1306,15 @@ Answer (26-10-15, Claude Opus 5.5): The native direction of that position: the m
 - **Reflections over all statement tokens at early layers are collapses, not flips** [verified: `focus.out`]: flip_mid/flip_zero flip 0.3–0.5 already at L3–L16, but always one class only (e.g. L12 0.96 true → 0, 0.01 false → 1; L8 0.00 / 1.00). The content control and the shuffled-label controls reach 0.17–0.31 in the same cells. The examples show the mechanism: after the L16 midpoint reflection over all statement tokens the model no longer reads the statement (" 0, and I will explain why: … the difference between displaying characters in different"). These cells measure destruction of the statement, not truth.  
 C: I'm a bit confudes that the mass-mean distinction does not go through 0. Is that normal? Do you know more about this behaviour?
 
+Answer (26-10-15, Claude Opus 5.5): Yes, it's normal, and there are two separate effects here. Numbers from a check I ran for this comment [verified: `~/spd_out/26-10-10_bolder_experiments/steering_sf/probe_questions.py` → `full/probe_questions.out`, local CPU run 26-10-15, directions recomputed as in the sweep from the 6,560 train statements; per-token projections on the 200 test statements].
+
+**1. At single positions (object, statement end): the residual stream has a large mean that all statements share.** The mass-mean direction only fixes the difference between the class means, not where 0 lies. The mean residual of all statements has a component along the direction, and both class means sit around it. At L17 statement end: that component is −16.3 (cosine −0.22 between the mean residual and the direction), class means −10.0 (true) and −22.7 (false). At L17 object token: −10.7, class means −1.8 / −19.6. Nothing in the construction centres the data. Linear probes absorb this with a bias term, and the add operation (move by α·Δ along the direction) doesn't depend on where 0 is; only reflection about 0 does. That explains the reflection-about-0 cells: at the statement end it mirrors the class means to +10 and +22.7, both on the "true" side. So false statements flip (0.27 at L15) and true ones never do (0.00).
+
+**2. The "all statement tokens" group: a few tokens with huge activations.** The midpoint of −1,118 at L8 (class gap 0.67) has a different cause. The prompt's first token (position 0, the statement's first word) has a residual norm of ~5,600–6,000, against a mean of ~1,000 over the other statement tokens. Its mean projection on the group direction is −4,291 at L8 (min −11,690); at L15–17 it is −1,456 to −1,797. A few other statement tokens are similarly extreme (99th percentile of |projection| over the other tokens: 11,307 at L8, 3,811–4,706 at L15–17), while the class gap is 0.67–3.9. These are the "massive activations" known in LLMs: a few channels at the first token and some delimiter tokens take values thousands of times larger than usual and act like attention sinks [assumed: from memory of the literature, e.g. Sun et al. 2024, *Massive activations in large language models*; not re-checked]. Earlier in this topic, channel 2570 held 22–29% of the squared norm at the period (entry *design of both experiments*).
+
+The group's direction and midpoint come from the per-statement average over its positions, so the midpoint is dominated by those tokens. My reflection was then applied token by token: each token is moved by 2 × (its projection − midpoint), so ordinary tokens get pushed by hundreds to thousands of units. That destroys the statement, which is the "collapse" in the early-layer cells. So the collapse is an artifact of how I defined reflection for a group, not something about truth or the model [concluded: from the projections above]. On the framing prompt the statement didn't start at position 0, so its group did not include the first token. The add operation on groups is unaffected: it moves every token by the same α·Δ, which is small.
+
+
 ## Stage 2: stored tiu direction vs native vs controls (flipkeep; true → 0 / false → 1 in brackets)
 
 | layer, slot, intervention | native | tiu | content | shuffled-label controls, median / max of 5 |
@@ -1348,6 +1357,20 @@ One consequence of the statement-first prompt: everything before the end token i
 
 - **The object token carries truth in a different direction**: the native direction there steers best of all single tokens (0.76 at L17), the tiu direction (fit at the period) much less (0.05 at L16, 0.48 at L17; cosine 0.31–0.47).  
 C: I'm comming back to the point that I don't know how the native direction is calculated. But could it be that we're not stearing truth here but the relation of the concepts themselves (so maybe the truth of the relation?)?
+
+Answer (26-10-15, Claude Opus 5.5): (How it is calculated: answer under your first comment above.) Mostly no, but there is something to it. The two can be told apart on the negated statements: in "The city of Yaroslavl is not in India." the object does *not* fit the subject, yet the statement is true. So "relation fits" ("match") = label for affirmative statements and = NOT label for negated ones. Check [verified: `~/spd_out/26-10-10_bolder_experiments/steering_sf/probe_questions.py` → `full/probe_questions.out`, local CPU run 26-10-15, directions recomputed as in the sweep from the 6,560 train statements; per-token projections on the 200 test statements]:
+
+| L17, object token | affirmative: true / false | negated: true / false |
+|---|---|---|
+| projection on the native truth direction | −0.4 / −20.1 | −5.7 / −18.1 |
+| projection on a relation-match direction (mass-mean of match minus mismatch) | −5.3 / −26.5 | −27.2 / −2.0 |
+
+- **The steered direction orders negated statements by their truth, not by the relation**: true above false in both kinds of statement (gap 19.7 affirmative, 12.4 negated at L17; 8.9 / 8.3 at L15, 12.5 / 8.9 at L16). A pure relation direction would reverse the order on negated statements. Steering agrees: at the L17 object token the native direction flips negated statements about as often as affirmative ones (0.73 vs 0.77, add α = 4).
+- **A relation-match direction exists at the object token too**, and it is strong early: at L8 it separates match from mismatch by 7–20 units, while the truth direction there separates by 1–3. On negated statements it reverses the label order, as expected.
+- **The two overlap**: cosine 0.27 / 0.37 / 0.51 at L15 / 16 / 17 (object token), 0.58–0.65 at the statement end. Part of the reason: 74% of the train statements are affirmative (1,708 of 6,560 negated), and there match = truth, so a label mass-mean picks up some of the match direction [concluded: from the projections; how much of the steering effect comes through that overlap is not measured].
+
+So: at the object token the model represents both whether the relation fits (early) and whether the statement is true (it combines the relation with the negation, by layers 15–17). The direction we steer with is mostly the latter. A direct test, not done: steer with the relation-match direction itself. It should flip affirmative statements and push negated ones the wrong way.
+
 - **The asymmetry is back at the statement end**: true → 0 is easy (0.70–1.00), false → 1 hard (0.16–0.40), for native and tiu alike. **At the object token and over all statement tokens, false → 1 works much better** (L17 object native 0.51, all tokens α = 8 0.83). The examples show the same: the false city statement "…Maiduguri is in China." and the false number comparison flip to " 100%" under object-token steering but not under statement-end steering. So "false → true is hard" is a property of the statement-end slot, not of the prompt or the model's answer [concluded: same prompt, same statements, only the slot differs].
 - **The read-out window takes only the native direction**: at the final space and " is" (L18–23) tiu does nothing (≤ 0.24, at the level of the controls' median), as on the framing prompt. The controls are not clean at the final space at L18–19 (median 0.14–0.27, max 0.45–0.86 at α = 2–4; their cosine with the native direction is 0.53–0.63 there).
 
@@ -1378,3 +1401,146 @@ In total 6 follow, 15 contradict, 2 neither (out of 23). "Follows" happened only
 - Open: why false → 1 is hard at the statement end but works at the object token; whether the controls at the read-out tokens can be cleaned (random directions orthogonal to the native one).
 
 The 4090 (vast.ai 56119768) is still rented; nothing on it is needed any more.
+
+C: I think I'm more interested in where the truth signal gets written than read. So if I understood everything correctly so far this means that I have decomposed the wrong layers. We could repeat the stimulus lense experiment and try to decompose lower layers and see if we get any usable results. Do you have any remarks?
+
+Answer (26-10-15, Claude Opus 5.5): I don't think the steering shows that layers 15–19 are wrong. It shows they cover the middle and end of the writing but miss its start. And the layer choice was not the main reason the stimulus-lens runs gave nothing usable. Details:
+
+**What steering does and doesn't say.** Steering at layer l works if the layers *after* l read the direction. So the statement window (layers ~13–17) says: from layer ~13 the truth direction exists at the statement tokens and is used downstream; from ~18 the answer tokens no longer read it from there (statement end: 0.41 at L18, 0.15 at L19, 0.00 from L20). It doesn't say which layers wrote it.
+
+**Where it is written, measured directly** [verified: `~/spd_out/26-10-10_bolder_experiments/write_location/direct_writes.{py,out}`, CPU 26-10-15, from the truth-writing topic's stored per-sublayer outputs; bare tiu statements at the period, fit and test split agree within 0.01]. The residual after layer R is the embedding plus all attention and MLP outputs up to R, so the true-minus-false gap along the truth direction of layer R splits exactly into per-sublayer shares:
+
+| read along the truth direction of | layers 0–10 | 11–14 attn / MLP | 15–19 attn / MLP | 20–23 attn / MLP |
+|---|---|---|---|---|
+| layer 15 (gap 10.1) | 0.04 | 0.14 / 0.38 | L15 only: 0.05 / 0.40 | – |
+| layer 17 (gap 15.6) | 0.01 | 0.08 / 0.15 | L15–17: 0.13 / 0.64 | – |
+| layer 19 (gap 29.6) | 0.01 | 0.01 / 0.04 | 0.13 / 0.82 | – |
+| layer 23 (gap 73.5) | 0.00 | 0.00 / 0.01 | 0.02 / 0.13 | 0.02 / 0.82 |
+
+Reading [concluded unless tagged]:
+- **Writing starts around layer 11–12** (nothing before layer 10 contributes more than 0.01 per sublayer), **and MLPs do most of it; attention contributes 0.14–0.20 in total** along the layer-15/17/19 directions (0.04 along layer 23), at the period.
+- **But no single place is "where it is written"**: whichever layer's direction is used, the MLPs just before it write most of the gap (the layer-R MLP alone: 0.40 at R = 15, 0.35 at 17, 0.41 at 19, 0.32 at 23). The truth signal is rewritten and amplified layer by layer, with the direction drifting, so a direct-write count always credits the most recent layers. A2 of the truth-writing topic hit the same issue ("direct writes depend on the readout layer"). Where it *originates* needs a causal test (below).
+- **Affirmative vs negated**: along the layer-15 direction, negated statements get 0.62 of the gap from MLPs 8–14 (affirmative 0.32) [verified: same output, exact block sums at its end]. Negation needs earlier MLP work, as one would expect.
+- Caveat: bare statements, period token. On the statement-first prompt all statement tokens before the end are identical (attention looks only back), but the end token is `'.\n'` there. The object token, the best single steering slot, isn't in the stored data.
+
+So, against the steering windows: layers 15–17 sit in the middle of both the writing and the window. Layers 11–14 (the onset) are not decomposed. Layers 18–19 at the statement tokens come after the handover to the answer tokens, so on this prompt what they write there is probably not what the answer reads [assumed].
+
+**Why the stimulus-lens runs gave little, independent of layers:**
+1. **Cancellation** (entry *cancellation test on the other runs*): with a loss on the output only, the active components re-implemented the output instead of decomposing the MLP outputs (components-only error ≥ the all-off level in every run except Exp 1, 0.83). That would happen in lower layers too.
+2. **Mediation**: Exp 2 decomposed only the period; the stimulus tokens re-read the statement from the other positions on the original weights (R2: 26% of the verdict separation passes through MLPs 15–19 at the period, 60% at all statement tokens).
+
+**My remarks for a lower-layer run** [assumed: proposal]:
+- First a causal layer scan, no training: on the statement-first prompt, ablate one MLP layer at a time (layers ~6–19) at all statement tokens, and measure the digit verdict and the truth gap at the statement end and object token at a later layer (e.g. 17). This shows where removing the write hurts, which the direct-write count can't. Zero-ablation is tPD's all-off state; mean-ablation is the gentler version. Cost: ~15 layers × 2 ablations × 200 statements, minutes on a GPU, perhaps half an hour on this machine's CPU.
+- Then the decomposition: layers chosen from the scan (my guess: ~11–17) [assumed]; decomposed positions = all statement tokens; target loss = the digit verdict at the final space of the statement-first prompt (the stimulus-lens analogue); **plus a per-layer reconstruction term**, so the active components must reproduce each decomposed MLP's output at the decomposed positions (the fix proposed after the cancellation test; `StochasticHiddenActsReconLoss` exists but ignores the position mask and needs that change first); and the cancellation test right after training.
+- Without the reconstruction term I'd expect the same re-implementation result in any layers [assumed].
+
+C: I'd like to do both the causal layer scan and then the experiments regardless of the resluts. Again, these are experiments that might strengthen our theory or suprise us, so we have to do them. I'd say mean ablation is better (we've already seen that 0 might lie in the false space)
+
+
+Answer (26-10-16, Claude Opus 5.5): Both are underway. The layer scan is done (entry *causal layer scan* below), and the decomposition is being set up on the H100 you rented (vast.ai 56214400). The scan uses mean ablation as the main variant, as you asked. I also ran zero ablation as a reference, because zero is tPD's "all off" state. The scan showed that the mean variant has its own artifact in a few layers (massive activations), so having both helped.
+
+---
+
+26-10-16, Claude Opus 5.5 — *causal layer scan: mean ablation of single MLP layers and blocks at the statement tokens*; new session. I have read INDEX.md, this whole LOG, its SUMMARY and `docs/CODING.md`. Task: Julian's comment directly above (scan first, then the lower-layer decomposition regardless of the result; mean ablation preferred).
+
+Instance: vast.ai 56214400, H100 SXM 80 GB (power limit 575 W), provisioned by Julian with `spd-vast` (`s-783ffa5a`), repo at `cc4dc8a`. Julian in chat:
+
+C: (transcribed from chat) You can use the H100
+
+**Setup** [assumed: my design; mean ablation per Julian]. Script `~/spd_out/26-10-10_bolder_experiments/layer_scan/layer_scan.py` (imports the prompt/slot code of `steering_sf/steer_sf.py`), tables `summarize_scan.py` → `layer_scan/full/summary.out`.
+- Prompt: the statement-first prompt chosen by Julian, `<statement>\nThe amount of truth in this statement is `, tokenized as a whole (statement end = `'.\n'`). Verdict score s = log P('1') − log P('0') at the next token.
+- Data: the full tiu test split (1,794 statements, 897 true, 489 negated). Means and directions from the train split (6,560).
+- Intervention: the output of `model.layers[l].mlp` (= the `down_proj` output tPD decomposes) is replaced at all statement tokens (or at the end token only), for one layer or a block of layers. **Mean** (main): the train-split mean of that MLP output, separately for the statement's first token, its end token and the tokens in between. **Zero** (reference): tPD's all-off state.
+- Outcomes: verdict accuracy, AUC, separation (mean s of true minus false; original 8.66), digit mass, KL over the full vocabulary at the answer position; truth gap (true minus false mean projection) along the native truth direction (train mass-mean on this prompt, unablated model) after layers 15, 17, 19, 23 at the end token and the object token.
+
+[verified: single run 26-10-16, 191 s on the H100; a no-op condition reproduces the original exactly; original accuracy 0.977, AUC 0.996, digit mass 0.984 (R5 on 546 statements: 0.963 / 0.994 / 0.976)]
+
+**Results, mean ablation at all statement tokens** (shares relative to the original):
+
+| ablated MLP layers | accuracy (affirmative / negated) | separation share | digit mass | KL (nats) | truth gap share after L17, end / object | after L23, end |
+|---|---|---|---|---|---|---|
+| none (original) | 0.977 (0.985 / 0.957) | 1 | 0.984 | 0 | 1 / 1 | 1 |
+| single layers 8–14 | 0.957–0.977 | 0.86–0.97 | 0.979–0.985 | 0.02–0.05 | 0.67–0.82 / 0.73–0.89 | 0.77–0.95 |
+| single layer 15 | 0.915 (0.919 / 0.904) | 0.89 | 0.985 | 0.10 | 0.66 / 0.78 | 0.85 |
+| single layer 16 | 0.963 | 0.93 | 0.984 | 0.02 | 0.72 / 0.74 | 0.85 |
+| single layer 17 | 0.904 (0.951 / 0.779) | 0.77 | 0.980 | 0.08 | 0.76 / 0.48 | 0.63 |
+| single layers 18–24 | 0.972–0.977 | 0.91–1.02 | 0.984–0.985 | ≤ 0.01 | (after L17: 1) | 0.64–1.00 |
+| block 6–10 | 0.715 (0.728 / 0.679) | 0.18 | 0.952 | 0.44 | 0.13 / 0.16 | 0.25 |
+| block 11–14 | 0.876 (0.893 / 0.828) | 0.38 | 0.979 | 0.23 | 0.22 / 0.22 | 0.38 |
+| **block 11–17** | **0.541 (0.544 / 0.532)** | **0.05** | **0.977** | 0.68 | **0.03 / 0.01** | 0.03 |
+| block 15–19 (the old decomposed layers) | 0.662 (0.709 / 0.538) | 0.34 | 0.982 | 0.49 | 0.32 / 0.15 | 0.06 |
+
+Zero ablation gives the same picture for layers 5–19 and for the blocks 11–14 (separation share 0.47), 11–17 (0.08, accuracy 0.531) and 15–19 (0.27); block 6–10 under zero ablation also drops the digit mass (0.758, KL 1.02), i.e. it leaves the answer format, mean ablation doesn't (0.952).
+
+**Statement end only** (mean ablation at the `'.\n'` token only): single layers change nothing (separation share 0.92–1.08); block 11–17 removes 81% of the truth gap at the end token after layer 17 (share 0.19), but the verdict keeps 82% of its separation (accuracy 0.924); block 15–19: 0.38 / 0.76.
+
+**Artifact of the mean ablation at layers 3, 4 and 26** [verified: `layer_scan/mean_norms.{py,out}`, 1,000 train statements]: mean ablation at these single layers takes the verdict to chance (layers 3, 4: accuracy 0.499 / 0.506) or out of the format (layer 26: digit mass 0.031), while zero ablation of the same layers does much less (layer 26: nothing). Cause: there, the first token of 40% of the statements and 7.6% of the other statement tokens get MLP outputs of norm up to ~11,600 (layer 3; median 9.5); these are the massive activations of the earlier entry. The pooled mean of the "middle tokens" group then has norm 815 at layer 3 (728 at layer 26), and mean ablation writes that at every token. Layers 12–19 are clean (group-mean norms 11–33 against medians 17–40); layer 11 is mildly affected (middle-group mean 32.8 vs median 23.2; p99 317). So mean-ablation numbers for layers 3, 4, 25–27 and the block 20–27 are artifacts and are left out of the table.
+
+**Reading** [concluded unless tagged; one run, n = 1,794]:
+- **No single MLP layer is necessary for the judgement.** Every single layer from 5 to 24 leaves ≥ 0.77 of the verdict separation, and each of the layers 9–17 removes 18–34% of the truth gap at the end token after layer 17. The truth signal is built up across many layers, which fits the direct-write table of the previous entry (each layer's MLP writes part of the gap; rewritten layer by layer).
+- **The block 11–17 is sufficient to remove it**: with these seven MLPs mean-ablated at the statement tokens, the verdict is at chance (0.541, AUC 0.578) for affirmative and negated statements alike, the truth gap is gone at the end and object tokens (0.03 / 0.01), and the model still answers with a digit (digit mass 0.977). So its effect is on the judgement, not on the answer format.
+- **The old layers 15–19 cover part of it** (separation share 0.34, i.e. ablating them removes about two-thirds), as do 11–14 (0.38). Neither is wrong; each misses the other half. This agrees with my previous answer ("they cover the middle and end of the writing but miss its start").
+- **Block 6–10 matters too** (separation share 0.18 under mean ablation). Whether that is truth-specific or the processing of the statement's content (recognising the entities, recalling the fact) is not separated here [assumed: likely content processing, since without the content no truth can be computed].
+- **The truth at the end token is not needed when the other statement tokens carry it**: removing the block's writes at the end token alone removes most of the end token's truth gap, but the verdict keeps 82% of its separation, because the answer also reads the object token (truth gap there unchanged). A decomposition at the statement end only would miss most of the judgement; all statement tokens are needed.
+
+**Choice for the decomposition** [assumed: my proposal, carried out per Julian's "regardless of the results"]: the `down_proj` of layers **11–17** (the smallest block in the scan whose removal takes the verdict to chance with the format intact), at **all statement tokens except the first**. The first token sees only the first word, so it can't carry the statement's truth, and at layer 11 it carries massive outputs in 40% of statements; it runs on the original weights. Layers 6–10 stay out: they would make it 12 layers, and their role may be content rather than truth.
+
+---
+
+26-10-16, Claude Opus 5.5 — *Exp 4a/4b: design, implementation, 300-step trials; questions before the full runs*; same session. Julian asked in chat to put the question about committing and launching here (it is question 1 below).
+
+## Design [assumed: my proposal from the answer of 26-10-15, with the layers from the scan above]
+
+Two decompositions that differ only in one loss term:
+- **Exp 4a, verdict lens**: Exp 3's loss (KL of the next-token distribution at the answer position) on the statement-first prompt `<statement>\nThe amount of truth in this statement is `, tokenized as one string (statement end `'.\n'`); the answer position is after the final space, where the model writes '1' or '0'. Decomposed: the `down_proj` of layers 11–17 (C = 96 each, as before), at every statement token except the first; the first token and the question run on the original weights. This is the experiment Julian proposed ("repeat the stimulus lens experiment and decompose lower layers"). It also tests my prediction that without a reconstruction term the components re-implement the verdict again.
+- **Exp 4b**: 4a plus a **per-layer reconstruction term**. At the decomposed positions, each decomposed module's output under the training's stochastic masks (components masked by their CI, Δ by a random mask) must match the original output. Per position, the squared error is divided by the squared norm of the original output (1 = as far off as an all-zero output). It is relative per position because a plain MSE would be dominated by the few massive-activation tokens (at layer 11 some statement tokens have MLP outputs of norm ~300 against a median of 23; scan entry above). Coefficient 1 (all-off value 1 against the verdict KL in nats; not tuned). It acts on target batches only; the Pile loss is unchanged.
+- Everything else as Exp 3: 5,000 steps, LR 5e-4, target batch 64, Pile batch 16, the same importance-minimality and PPGD settings, seed 0.
+- Caveat inherited from the stimulus lens: the KL is counted once per decomposed position, so a statement with 19 decomposed tokens weighs about 4× one with 5 (documented in `StimulusLens`).
+
+## Implementation [verified: unit tests incl. a mutation check, `make check` (only the 6 known rotgrid type errors), `make test` (87 passed, only the known rotgrid failure), CPU smoke training and the analysis script on the tiny Qwen2, 26-10-16]
+
+- `spd/configs.py`: `TokenPositions.start` (default 0; `start: 1` leaves the first token out); `StimulusLens.tokenize_jointly` (default false); `StochasticHiddenActsReconLossConfig.relative` (default false); this loss is now position-mask-supported.
+- `spd/experiments/lm/prompts_dataset.py`: `_tokenize_jointly`. Prompt + stimulus are tokenized as one string, and the token holding the prompt's last character (`'.\n'`, or `"'.\n"` after a quote) counts as the prompt's last token. It asserts that the tokens before it equal the prompt's own and that the stimulus tokens are the same after every prompt.
+- `spd/metrics/hidden_acts_recon_loss.py`: the stochastic loss now passes the position mask through (before, it ignored it, as noted in the first design entry), plus the `relative` option. `spd/losses.py` and `spd/eval.py` pass them on.
+- `spd/run_spd.py`: the hidden-activation loss is excluded from the Pile (nontarget) loss list.
+- Configs `config_truth_sf_verdict.yaml` (4a), `config_truth_sf_verdict_recon.yaml` (4b); tests in `tests/test_output_lens.py` (joint tokenization) and `tests/test_hidden_acts_recon_positions.py`.
+- Analysis script (outside the repo): `~/spd_out/26-10-10_bolder_experiments/exp4/exp4_analysis.py`. It runs the verdict states (original, full, components only, Δ only, all off) on the test split with the training loader's own batches, plus the cancellation test (|y − A| / |y| per layer, as in *cancellation test on the other runs*).
+
+## 300-step trials on the H100 [verified: WandB `s-ad22ae02` (4b), `s-4c0fff71` (4a), no checkpoints; metrics in `~/spd_out/26-10-10_bolder_experiments/exp4/trials/runs/`; PPGD from step 240]
+
+| step 300 | 4a | 4b |
+|---|---|---|
+| L0 (active components per decomposed position, all 7 layers; step 0: 311) | 15.6 | 6.5 |
+| target KL, rounded / stochastic (nats) | 0.31 / 0.47 | 0.53 / 0.43 |
+| target KL, Δ only | 0.60 | 1.15 |
+| reconstruction term (relative; step 0: 0.51) | – | 0.50 |
+| eval PGD | 7.6 | 3.2 |
+| Pile rounded KL | 0.051 | 0.033 |
+
+Both run without errors. Peak GPU memory ~35 GB; ~1.2 steps/s before PPGD. Expected full run: 70–80 min each [assumed: from the trial's step rate, PPGD and eval phases not measured at full length].
+
+Reading [assumed: 300 of 5,000 steps]: the reconstruction term barely moves in 300 steps (0.51 → 0.50), although it dominates 4b's loss. The coefficient therefore isn't what limits it. Possible limits: the component gradient clip (0.01, as in all runs) or the capacity of 96 rank-one components per layer for all statement tokens. Whether 4b ends up faithful will show in the cancellation test after the full run; if it stays around 0.5, the components only half reproduce the MLP outputs.
+
+## Questions for Julian
+
+1. Commit before the full runs? My proposal, as last time: one commit of code, configs and tests, then one of the records, so the runs record a clean hash. Or launch uncommitted (runs stamped `uncommitted_changes: true`), or you review the diff first.
+C: yes. You can do the commits for this occasion
+2. Launch both full runs one after the other, 4b first (it is the new idea), then 4a, ~2.5 h on the H100 in total ($3.91/h)? Then the analysis (verdict states, cancellation test) on both, a few minutes each.
+C: Yes, the plan is fine
+3. Any objection to the choices I made without asking: layers 11–17, first token excluded, reconstruction coefficient 1 in relative form, and running 4b at the trial settings although its reconstruction term barely moved?
+C: No, please use the decomposition only on the end of statement token. We can try your idea later maybe.
+
+The H100 (vast.ai 56214400) is idle until you answer.
+
+---
+
+26-10-16, Claude Opus 5.5 — *Exp 4 decisions; configs moved to the statement end; commits and launch*; same session. Julian answered the three questions with C: comments above [decided]:
+- commit before the runs, done by the agent this time;
+- both full runs one after the other, 4b first, then the analysis on both;
+- **decompose only the statement-end token** (`'.\n'`), not all statement tokens ("We can try your idea later maybe"). The other choices (layers 11–17, reconstruction coefficient 1 in relative form, trial settings) stand.
+
+Change: `loss_positions` in both configs is now `last_k: 1`, the prompt's last token. With joint tokenization that is the token holding the period: `'.\n'`, or `"'.\n"` after a closing quote [verified: loader output on two statements, 26-10-16]. Config headers rewritten accordingly. The KL-weighting caveat of the previous entry no longer applies (one decomposed position per statement); the first-token exclusion is moot.
+
+One consequence from the scan, noted in the config headers, not an objection: mean-ablating MLPs 11–17 at the end token alone keeps 82% of the verdict separation (KL 0.11), so the verdict lens sees only part of the judgement through this position, as in Exp 2 (period only, 15% of the separation lost all-off there). 4b's reconstruction term does not depend on that.
+
+The 300-step trials ran with all statement tokens except the first; the full runs are not trialled at the end-token setting [assumed: fewer positions per batch, so faster and lighter, nothing that should fail].
