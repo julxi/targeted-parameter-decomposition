@@ -1,0 +1,214 @@
+# Qwen2.5-7B-Instruct — Exp 4b of the bolder experiments: verdict lens on the statement-first prompt,
+# MLP layers 11-17, on Truth-is-Universal statements (Bürger et al. 2024,
+# https://github.com/sciai-lab/Truth_is_Universal). Topic: convos/julian/26-10-10_bolder_experiments_LOG.md
+# (entries *causal layer scan* and *Exp 4a/4b*).
+#
+# Prompt: "<statement>\nThe amount of truth in this statement is " (chosen by Julian), tokenized as
+# one string, so the statement ends with the merged token '.\n'. The model answers with a digit:
+# '1' (true) or '0' (false); accuracy 0.977 on the tiu test split. Target loss: KL between the
+# masked and the original next-token distribution after the final space (the verdict digit).
+# Decomposed: down_proj of layers 11-17, chosen by the causal layer scan (26-10-16): mean-ablating
+# these seven MLP outputs at all statement tokens takes the verdict to chance (0.541) while the
+# model still answers with a digit; layers 15-19 alone remove only two-thirds of the separation.
+# Position: the statement-end token '.\n' only (Julian's decision; the agent had proposed all
+# statement tokens). Every other position, the question included, runs on the original weights.
+# Note from the scan: mean-ablating 11-17 at the end token alone keeps 82% of the verdict
+# separation (the object token carries the judgement too), so the verdict lens sees only part of
+# the judgement through this position.
+#
+# 4b: as 4a plus a per-layer reconstruction term (StochasticHiddenActsReconLoss, relative): at the
+# decomposed positions, each decomposed module's output under the stochastic masks (components
+# masked by their CI, delta by a random mask) must match the original output; per position the
+# squared error is divided by the squared norm of the original output (1 = as far off as an all-zero
+# output). It forces the active components to reproduce the MLP outputs instead of re-implementing
+# the verdict. Target batches only (run_spd.py excludes it from the Pile losses). Coefficient 1:
+# all-off relative error 1 against the verdict KL in nats; not tuned [assumed].
+
+# --- WandB ---
+wandb_project: spd
+wandb_run_name: null
+wandb_run_name_prefix: ""
+sync_checkpoints_to_wandb: true
+label: "tiu_sf_verdict_recon_L11_17"
+
+# --- General ---
+seed: 0
+n_mask_samples: 1
+ci_config:
+  mode: global
+  fn_type: global_shared_mlp
+  hidden_dims: [512]
+sampling: continuous
+sigmoid_type: leaky_hard
+module_info:
+  - module_pattern: model.layers.11.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.12.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.13.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.14.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.15.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.16.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.17.mlp.down_proj
+    C: 96
+identity_module_info: null
+use_delta_component: true
+
+# --- Loss config ---
+loss_metric_configs:
+  - classname: ImportanceMinimalityLoss
+    coeff: 1.0e-3
+    pnorm: 2.0
+    beta: 0.2
+    p_anneal_start_frac: 0.0
+    p_anneal_final_p: 1.0
+    p_anneal_end_frac: 1.0
+    eps: 1.0e-12
+    coeff_warmup_frac: 0.2
+    coeff_peak_multiplier: 4.0
+    coeff_anneal_start_frac: 0.2
+    coeff_anneal_end_frac: 1.0
+  - classname: StochasticReconSubsetLoss
+    coeff: 1
+    routing:
+      type: uniform_k_subset
+  - classname: StochasticHiddenActsReconLoss
+    coeff: 1
+    relative: true
+  - classname: PersistentPGDReconLoss
+    coeff: 0.5
+    optimizer:
+      type: adam
+      beta1: 0.5
+      beta2: 0.99
+      eps: 1.0e-08
+      lr_schedule:
+        start_val: 0.01
+        warmup_pct: 0.025
+        final_val_frac: 0.1
+        fn_type: cosine
+    scope:
+      type: per_batch_per_position
+    use_sigmoid_parameterization: false
+    n_warmup_steps: 2
+    start_frac: 0.8
+output_loss_type: kl  # nontarget (Pile) loss
+target_lens:
+  type: stimulus
+  stimulus: "\nThe amount of truth in this statement is "
+  decompose_stimulus: false
+  tokenize_jointly: true  # '.' + '\n' -> '.\n' as the model reads the text
+
+# --- Training ---
+lr_schedule:
+  start_val: 5e-4
+  warmup_pct: 0.0
+  final_val_frac: 0.1
+  fn_type: cosine
+steps: 5_000
+batch_size: 64
+eval_batch_size: 16
+grad_clip_norm_components: 0.01
+grad_clip_norm_ci_fns: null
+component_weight_decay: 0.1
+autocast_bf16: true
+
+# --- Faithfulness Warmup ---
+faithfulness_warmup_steps: 0
+
+# --- Logging & Saving ---
+train_log_freq: 100
+eval_freq: 500
+slow_eval_freq: 2500
+# 16 x eval_batch_size = 256 held-out statements per eval; 32 statements were too noisy to
+# compare runs.
+n_eval_steps: 16
+slow_eval_on_first_step: true
+# Final checkpoint only (238 MB each): the WandB account has 5 GB, and intermediate checkpoints
+# have no planned use.
+save_freq: null
+ci_alive_threshold: 0.01
+
+# --- Eval Metrics ---
+eval_metric_configs:
+  - classname: CI_L0
+    groups:
+      total:
+        - "*"
+  - classname: PGDReconLoss
+    init: random
+    step_size: 0.1
+    n_steps: 20
+    mask_scope: shared_across_batch
+  - classname: TargetReconLoss
+    rounding_threshold: 0.01
+  - classname: NontargetReconLoss
+    rounding_threshold: 0.01
+    n_nontarget_batches: 10
+  - classname: TargetedCIHeatmap
+    n_nontarget_examples: 16
+  - classname: WeightMagnitude
+  - classname: UnmaskedReconLoss
+  - classname: CIMeanPerComponent
+  - classname: CIHiddenActsReconLoss
+
+# --- Pretrained model info ---
+pretrained_model_class: transformers.AutoModelForCausalLM
+pretrained_model_path: null
+pretrained_model_name: Qwen/Qwen2.5-7B-Instruct
+# bf16 = the checkpoint's own dtype; matmuls run in bf16 under autocast anyway. Runs before 26-10-03
+# loaded fp32 (only the residual stream between matmuls differs).
+pretrained_model_dtype: bfloat16
+pretrained_model_output_attr: logits
+tokenizer_name: Qwen/Qwen2.5-7B-Instruct
+
+# --- Task Specific (target data) ---
+task_config:
+  task_name: lm
+  max_seq_len: 30  # longest statement 20 Qwen tokens (neg_cities) + 9 tokens after '.\n'
+  prepared_datasets:
+    - data/tiu/animal_class_false/v1
+    - data/tiu/animal_class_true/v1
+    - data/tiu/cities_false/v1
+    - data/tiu/cities_true/v1
+    - data/tiu/element_symb_false/v1
+    - data/tiu/element_symb_true/v1
+    - data/tiu/larger_than_false/v1
+    - data/tiu/larger_than_true/v1
+    - data/tiu/neg_animal_class_false/v1
+    - data/tiu/neg_animal_class_true/v1
+    - data/tiu/neg_cities_false/v1
+    - data/tiu/neg_cities_true/v1
+    - data/tiu/neg_element_symb_false/v1
+    - data/tiu/neg_element_symb_true/v1
+    - data/tiu/neg_sp_en_trans_false/v1
+    - data/tiu/neg_sp_en_trans_true/v1
+    - data/tiu/smaller_than_false/v1
+    - data/tiu/smaller_than_true/v1
+    - data/tiu/sp_en_trans_false/v1
+    - data/tiu/sp_en_trans_true/v1
+  loss_positions:  # the statement's last token, '.\n' (see header)
+    type: last_k
+    k: 1
+
+# --- Targeted Decomposition (nontarget data: general text) ---
+nontarget_task_config:
+  task_name: lm
+  dataset_name: monology/pile-uncopyrighted
+  max_seq_len: 64
+  column_name: text
+  is_tokenized: false
+  streaming: true
+  train_data_split: train
+  eval_data_split: validation
+  eval_data_files: val.jsonl.zst
+  dataset_seed: 0
+  loss_positions:
+    type: all
+nontarget_batch_size: 16
+nontarget_eval_batch_size: 16  # x n_nontarget_batches 10 x 64 tokens = 10,240 Pile tokens
+nontarget_impmin_coeff_ratio: 2

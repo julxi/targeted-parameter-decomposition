@@ -212,6 +212,8 @@ def compute_losses(
                     batch=batch,
                     ci=ci.lower_leaky,
                     weight_deltas=weight_deltas if use_delta_component else None,
+                    position_mask=position_mask,
+                    relative=cfg.relative,
                 )
             case PersistentPGDReconLossConfig() | PersistentPGDReconSubsetLossConfig():
                 if current_frac_of_training < cfg.start_frac:

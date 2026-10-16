@@ -286,9 +286,12 @@ class AllPositions(BaseConfig):
 
 
 class TokenPositions(BaseConfig):
-    """Every non-padding position contributes to the losses."""
+    """Every non-padding position from index `start` on contributes to the losses."""
 
     type: Literal["tokens"]
+    # start > 0 leaves the first tokens out, e.g. start = 1 for the first token, which sees only
+    # itself and in Qwen2.5-7B carries the massive activations (attention sink).
+    start: NonNegativeInt = 0
 
 
 class LastKPositions(BaseConfig):
@@ -326,7 +329,7 @@ class ResidualLens(BaseConfig):
 
 class StimulusLens(BaseConfig):
     """`stimulus` is appended to every target prompt (tokenized separately, so the prompt's own
-    tokens are unchanged), and the target loss compares the next-token logits at the stimulus's
+    tokens are unchanged, unless `tokenize_jointly`), and the target loss compares the next-token logits at the stimulus's
     last token (KL). Components replace the weights only at the decomposed positions: the prompt
     positions selected by `loss_positions`, plus with `decompose_stimulus` every stimulus token;
     otherwise the stimulus runs on the original weights. The loss is counted once per decomposed
@@ -338,6 +341,11 @@ class StimulusLens(BaseConfig):
     # Default False: configs and saved runs from before this field (e.g. the first stimulus-lens
     # run) decompose the prompt only.
     decompose_stimulus: bool = False
+    # True: prompt + stimulus are tokenized as one string, as the model would see the text, so
+    # tokens may merge across the boundary (Qwen: '.' + '\n' -> '.\n'). The token holding the
+    # prompt's last character then counts as the prompt's last token. Default False keeps earlier
+    # configs and runs unchanged.
+    tokenize_jointly: bool = False
 
 
 TargetLens = Annotated[NextTokenLens | ResidualLens | StimulusLens, Field(discriminator="type")]
@@ -729,7 +737,14 @@ class PersistentPGDReconSubsetLossConfig(_PersistentPGDBaseConfig):
 
 
 class StochasticHiddenActsReconLossConfig(LossMetricConfig):
+    """Squared error between each decomposed module's output under stochastic masks and its
+    original output, at the positions selected by the position mask. With `relative`, each
+    position's squared error is divided by the squared norm of that position's original output
+    (error 1 = as far off as an all-zero output), so positions with very large outputs (massive
+    activations) don't dominate; the loss is then the mean over positions and modules."""
+
     classname: Literal["StochasticHiddenActsReconLoss"] = "StochasticHiddenActsReconLoss"
+    relative: bool = False
 
 
 class CIHiddenActsReconLossConfig(BaseConfig):
@@ -908,6 +923,7 @@ POSITION_MASK_SUPPORTED_METRIC_CONFIGS = (
     | PersistentPGDReconLossConfig
     | PersistentPGDReconSubsetLossConfig
     | CIHiddenActsReconLossConfig
+    | StochasticHiddenActsReconLossConfig
     | CI_L0Config
     | CIMeanPerComponentConfig
     | NontargetReconLossConfig

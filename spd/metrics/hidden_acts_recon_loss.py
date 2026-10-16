@@ -28,9 +28,14 @@ def calc_hidden_acts_mse(
     mask_infos: dict[str, ComponentsMaskInfo],
     target_acts: dict[str, Float[Tensor, "..."]],
     position_mask: PositionMask | None = None,
+    relative: bool = False,
 ) -> tuple[PerModuleMSE, Float[Tensor, "..."]]:
     """Forward with mask_infos and compute per-module MSE against target output activations, over
     the positions selected by `position_mask` (all if None).
+
+    With `relative`, each position's summed squared error is divided by the squared norm of its
+    target vector, and the count is the number of positions, so sum / count is the mean relative
+    squared error per position (StochasticHiddenActsReconLossConfig).
 
     Returns the per-module MSE dict and the component model's output tensor.
     """
@@ -44,8 +49,14 @@ def calc_hidden_acts_mse(
         assert layer_name in result.cache, f"{layer_name} not in comp_cache"
         target = select_positions(target_all_positions, position_mask)
         pred = select_positions(result.cache[layer_name], position_mask)
-        mse = F.mse_loss(pred, target, reduction="sum")
-        per_module[layer_name] = (mse, target.numel())
+        if relative:
+            err = (pred - target).pow(2).sum(-1)
+            norm = target.pow(2).sum(-1)
+            assert (norm > 0).all(), f"{layer_name}: zero target output at a selected position"
+            per_module[layer_name] = ((err / norm).sum(), err.numel())
+        else:
+            mse = F.mse_loss(pred, target, reduction="sum")
+            per_module[layer_name] = (mse, target.numel())
     return per_module, result.output
 
 
@@ -75,6 +86,8 @@ def _stochastic_hidden_acts_recon_loss_update(
     batch: Int[Tensor, "..."] | Float[Tensor, "..."],
     ci: dict[str, Float[Tensor, "... C"]],
     weight_deltas: dict[str, Float[Tensor, "d_out d_in"]] | None,
+    position_mask: PositionMask | None,
+    relative: bool,
 ) -> PerModuleMSE:
     assert ci, "Empty ci"
 
@@ -96,6 +109,8 @@ def _stochastic_hidden_acts_recon_loss_update(
             batch=batch,
             mask_infos=stoch_mask_infos,
             target_acts=target_acts,
+            position_mask=position_mask,
+            relative=relative,
         )
         _accumulate_per_module(accum, per_module)
 
@@ -134,6 +149,8 @@ def stochastic_hidden_acts_recon_loss(
     batch: Int[Tensor, "..."] | Float[Tensor, "..."],
     ci: dict[str, Float[Tensor, "... C"]],
     weight_deltas: dict[str, Float[Tensor, "d_out d_in"]] | None,
+    position_mask: PositionMask | None,
+    relative: bool,
 ) -> Float[Tensor, ""]:
     per_module = _stochastic_hidden_acts_recon_loss_update(
         model=model,
@@ -142,6 +159,8 @@ def stochastic_hidden_acts_recon_loss(
         batch=batch,
         ci=ci,
         weight_deltas=weight_deltas,
+        position_mask=position_mask,
+        relative=relative,
     )
     sum_mse, n_examples = _sum_per_module_mse(per_module)
     return _hidden_acts_recon_loss_compute(sum_mse, n_examples)
@@ -160,11 +179,13 @@ class StochasticHiddenActsReconLoss(Metric):
         sampling: SamplingType,
         use_delta_component: bool,
         n_mask_samples: int,
+        relative: bool,
     ) -> None:
         self.model = model
         self.sampling: SamplingType = sampling
         self.use_delta_component: bool = use_delta_component
         self.n_mask_samples: int = n_mask_samples
+        self.relative: bool = relative
         self.device = device
         self.per_module_sum_mse: dict[str, Tensor] = {}
         self.per_module_n_examples: dict[str, Tensor] = {}
@@ -176,6 +197,7 @@ class StochasticHiddenActsReconLoss(Metric):
         batch: Int[Tensor, "..."] | Float[Tensor, "..."],
         ci: CIOutputs,
         weight_deltas: dict[str, Float[Tensor, "d_out d_in"]],
+        position_mask: PositionMask | None,
         **_: Any,
     ) -> None:
         per_module = _stochastic_hidden_acts_recon_loss_update(
@@ -185,6 +207,8 @@ class StochasticHiddenActsReconLoss(Metric):
             batch=batch,
             ci=ci.lower_leaky,
             weight_deltas=weight_deltas if self.use_delta_component else None,
+            position_mask=position_mask,
+            relative=self.relative,
         )
         for key, (mse, n) in per_module.items():
             if key not in self.per_module_sum_mse:

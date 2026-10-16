@@ -34,6 +34,7 @@ from spd.configs import (
     PGDMultiBatchReconLossConfig,
     PGDMultiBatchReconSubsetLossConfig,
     ResidualLens,
+    StochasticHiddenActsReconLossConfig,
     UnmaskedReconLossConfig,
 )
 from spd.data import loop_dataloader
@@ -313,7 +314,9 @@ def optimize(
     nontarget_train_iterator: Iterator[Any] | None = None
     nontarget_eval_iterator: Iterator[Any] | None = None
     if config.nontarget_task_config is not None:
-        # Exclude losses that are trivially zero or PPGD-coupled for nontarget data
+        # Exclude losses that are trivially zero or PPGD-coupled for nontarget data, and the
+        # hidden-activation reconstruction: it asks the components to reproduce each module's
+        # output, which is the target data's job; on nontarget data delta carries the computation.
         nontarget_loss_configs = [
             cfg.model_copy(update={"coeff": cfg.coeff * config.nontarget_impmin_coeff_ratio})
             if isinstance(cfg, ImportanceMinimalityLossConfig) and cfg.coeff is not None
@@ -323,7 +326,8 @@ def optimize(
                 cfg,
                 UnmaskedReconLossConfig
                 | PersistentPGDReconLossConfig
-                | PersistentPGDReconSubsetLossConfig,
+                | PersistentPGDReconSubsetLossConfig
+                | StochasticHiddenActsReconLossConfig,
             )
         ]
         assert nontarget_train_loader is not None, (

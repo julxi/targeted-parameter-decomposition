@@ -143,3 +143,26 @@ def test_residual_lens_matches_hidden_states() -> None:
         with model.output_lens(ResidualOutputLens("model.layers.0", std)):
             lens_out = model(ids)
     torch.testing.assert_close(lens_out, hidden / std)
+
+
+def test_joint_tokenization_counts_the_merged_period_as_prompt() -> None:
+    """With `tokenize_jointly`, the batch holds exactly the joint tokenization of prompt + stimulus;
+    the token holding the prompt's last character (Qwen merges '.' + '\\n' into '.\\n') is the
+    prompt's last token; `TokenPositions(start=1)` selects the prompt's tokens without the first."""
+    tok = AutoTokenizer.from_pretrained(TINY_QWEN)
+    stimulus = "\nThe amount of truth in this statement is "
+    lens = StimulusLens(type="stimulus", stimulus=stimulus, tokenize_jointly=True)
+    batch = load_prompts_dataset(
+        PROMPTS, tok, MAX_SEQ_LEN, TokenPositions(type="tokens", start=1), lens
+    )[:]
+    for row, prompt in enumerate(PROMPTS):
+        joint = tok.encode(prompt + stimulus, add_special_tokens=False)
+        own = tok.encode(prompt, add_special_tokens=False)
+        assert batch["input_ids"][row, : len(joint)].tolist() == joint
+        assert int(batch[STIMULUS_END_KEY][row]) == len(joint) - 1
+        n_prompt = len(own)  # '.' + '\n' merge, so the prompt keeps its token count
+        # '.\n', or "'.\n" after a quote
+        assert tok.decode([joint[n_prompt - 1]]).endswith(".\n"), tok.decode([joint[n_prompt - 1]])
+        assert joint[: n_prompt - 1] == own[:-1]
+        selected = batch[POSITION_MASK_KEY][row].nonzero().flatten().tolist()
+        assert selected == list(range(1, n_prompt)), selected

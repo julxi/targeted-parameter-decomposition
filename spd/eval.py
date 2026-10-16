@@ -311,6 +311,7 @@ def init_metric(
                 sampling=run_config.sampling,
                 use_delta_component=run_config.use_delta_component,
                 n_mask_samples=run_config.n_mask_samples,
+                relative=cfg.relative,
             )
         case CIHiddenActsReconLossConfig():
             metric = CIHiddenActsReconLoss(model=model, device=device)

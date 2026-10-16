@@ -66,8 +66,11 @@ def build_position_mask(
     match loss_positions:
         case AllPositions():
             return None
-        case TokenPositions():
-            return is_token
+        case TokenPositions(start=start):
+            assert (n_tokens > start).all(), (
+                f"tokens from start={start}: a sequence has only {int(n_tokens.min())} tokens"
+            )
+            return is_token & (positions >= start)
         case LastKPositions(k=k):
             assert (n_tokens >= k).all(), (
                 f"last_k={k} exceeds the shortest sequence ({int(n_tokens.min())} tokens)"
@@ -111,6 +114,36 @@ def read_prompts_file(prompts_file: Path) -> list[str]:
     return prompts
 
 
+def _tokenize_jointly(
+    prompts: list[str], stimulus: str, tokenizer: PreTrainedTokenizer
+) -> tuple[list[list[int]], list[int]]:
+    """Token ids of each prompt + stimulus as one string, and each prompt's length in tokens = the
+    index of the token holding the prompt's last character, plus one. That token may also hold the
+    stimulus's first characters (Qwen: '.' + '\n' -> '.\n'); it counts as the prompt's. All tokens
+    before it must equal the prompt's own tokens, and the tokens after it must be the same for
+    every prompt (checked)."""
+    ids_all, lengths, suffixes = [], [], set()
+    for prompt in prompts:
+        enc: Any = tokenizer(
+            prompt + stimulus, return_offsets_mapping=True, add_special_tokens=False
+        )
+        ids, offsets = enc["input_ids"], enc["offset_mapping"]
+        last_char = len(prompt) - 1
+        holding = [i for i, (start, end) in enumerate(offsets) if start <= last_char < end]
+        assert len(holding) == 1, (prompt, holding)
+        n_prompt = holding[0] + 1
+        own = tokenizer.encode(prompt, add_special_tokens=False)
+        assert ids[: n_prompt - 1] == own[: n_prompt - 1], (prompt, ids, own)
+        assert n_prompt < len(ids), (
+            f"stimulus fully merged into the prompt's last token: {prompt!r}"
+        )
+        suffixes.add(tuple(ids[n_prompt:]))
+        ids_all.append(ids)
+        lengths.append(n_prompt)
+    assert len(suffixes) == 1, f"stimulus tokenized differently after different prompts: {suffixes}"
+    return ids_all, lengths
+
+
 def load_prompts_dataset(
     prompts: list[str],
     tokenizer: PreTrainedTokenizer,
@@ -140,7 +173,20 @@ def load_prompts_dataset(
 
     encoded: Any = tokenizer(prompts)
     prompt_lengths = [len(ids) for ids in encoded["input_ids"]]
-    if stimulus is not None:
+    if stimulus is not None and stimulus.tokenize_jointly:
+        assert not isinstance(loss_positions, AllPositions), (
+            "a stimulus needs loss_positions within the prompt, not 'all'"
+        )
+        encoded["input_ids"], prompt_lengths = _tokenize_jointly(
+            prompts, stimulus.stimulus, tokenizer
+        )
+        logger.info(
+            f"Stimulus {stimulus.stimulus!r} tokenized jointly with every prompt "
+            f"(decompose_stimulus={stimulus.decompose_stimulus}); e.g. "
+            f"{[tokenizer.decode([i]) for i in encoded['input_ids'][0]]}, prompt = the first "
+            f"{prompt_lengths[0]} tokens"
+        )
+    elif stimulus is not None:
         assert not isinstance(loss_positions, AllPositions), (
             "a stimulus needs loss_positions within the prompt, not 'all'"
         )
