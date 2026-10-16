@@ -1,6 +1,6 @@
 # SUMMARY: vast.ai rentals — RTX 4090 hosts failing at ssh / `uv sync`
 
-**Last updated:** 26-10-06 (sync, then the publickey flag resolved: the two blacklisted hosts were bad, per Julian)
+**Last updated:** 26-10-16 (debugged the "offer was taken" error: the offer was unavailable, not rented)
 
 Julian's 4090 rentals often fail: ssh never accepts the connection, or `uv sync` exceeds the 10-min budget. H100 rentals usually work. The 4090 was first meant for UTH stage 0 probes (inference only; a 24 GB 4090 cannot run tPD training, which peaked at ~27 GB at batch 16) — see `convos/julian/26-10-05_uth_experiments_SUMMARY.md`. It is now also the machine for the truth-writing analyses (`convos/julian/26-10-06_truth_writing_components_SUMMARY.md`).
 
@@ -15,6 +15,7 @@ Julian's 4090 rentals often fail: ssh never accepts the connection, or `uv sync`
 - **Host ids shown** in the offer table, the rent/created log lines, the "instance ready" summary and `--dry_run`.
 - **A100 config** `spd/scripts/vast_a100_config.yaml` (`--config a100`): A100_SXM4, ≥ 40 GB, ≤ $1/h, reliability > 0.98, no datacenter filter; 10 offers from $0.422/h on 26-10-06.
 - **GPU alternatives with ≥ 40 GB** [verified: offer search 26-10-06]: 48 GB 4090 has only 6 offers on 5 hosts, none datacenter, from $0.43/h. A100 SXM4 40 GB: 12 offers from $0.42/h (server-only hardware). RTX PRO 5000 48 GB (Blackwell): 15 offers, 4 datacenter, from $0.63/h (dc $0.75/h). Recommendation [concluded]: A100 40 GB if 40 GB suffices (training peaked at ~27 GB), else RTX PRO 5000 (no config yet).
+- **"Offer taken" error is often wrong** [verified: reproduced 26-10-16]: vast.ai answers `no_such_ask … Instance type by id X is not available` both for an offer someone rented and for one that is unavailable. The launcher reports both as "taken". In the reproduction, offer 53867746 (host 371998, 48 GB 4090, Zhejiang) failed this way but stayed `rented: False, rentable: False` for 2 min afterwards: nobody rented it. The same create arguments rented the next offer (host 60400, Texas) at once, so our call is fine; that test instance was destroyed. The launcher already moves on to the next offer after such a failure; Julian's run had only one offer. Done: the message now reads "Offer N (host H) is not available - rented by someone else or withdrawn by its host" [decided: Julian, transcribed chat in the LOG]; no re-query, no auto-blacklist. The error does not suggest blacklisting the host, because Julian cannot keep track of which host keeps failing [decided: Julian, transcribed chat in the LOG]. To rent past such an offer: launch again, or pick another offer with `--offer_id`. No search field predicts such offers [concluded, from one example]: the offer passed `rentable=true` seconds before failing. Minutes later all GPU offers of host 371998 (3 machines) were `rentable: False`, so the whole host went down. Only a reactive filter (skip/blacklist after the failure) works.
 - **Open**:
   - (a) Why Julian needs ≥ 40 GB (the truth-writing plan said a 24 GB 4090); unanswered in the LOG.
   - (b) `min_reliability` for the 4090 config (0.95 now; the A100 and H100 configs use 0.98).

@@ -59,7 +59,8 @@ TIMEOUT_EXIT = 124
 # vast.ai reports these when the host has dropped off its control plane. It keeps claiming
 # intended_status "running", but the container never finishes provisioning.
 DEAD_STATUSES = frozenset({"missing", "exited"})
-# vast.ai's error for an ask that has already been rented by someone else.
+# vast.ai's error for an ask it will not rent out: one already rented by someone else, or one
+# that is unavailable although the search listed it as rentable (e.g. its host went offline).
 TAKEN_OFFER_ERROR = "no_such_ask"
 # Tracked, but not needed to train, so not worth the upload.
 UNSYNCED_REPO_DIR = "papers"
@@ -664,8 +665,9 @@ def _rent_first_available(
     Returns the instance id and the offer it was rented from (whose host gets blacklisted if the
     rental fails).
 
-    vast.ai's offer search serves asks that someone else has already rented, so the top offer is
-    regularly gone by the time we ask for it. Only a taken offer moves us on to the next one; any
+    vast.ai's offer search serves asks that are no longer available - rented by someone else, or
+    withdrawn without being rented (e.g. the host went offline) - so the top offer is regularly
+    gone by the time we ask for it. Only an unavailable offer moves us on to the next one; any
     other create failure is ours and is raised.
     """
     for offer in offers:
@@ -678,20 +680,25 @@ def _rent_first_available(
         instance_id = _create_instance(_create_instance_args(offer_id, config, label, env_vars))
         if instance_id is not None:
             return instance_id, offer
-        logger.info(f"Offer {offer_id} was taken before we got it, trying the next one")
+        logger.info(
+            f"Offer {offer_id} (host {offer['host_id']}) is not available - rented by someone "
+            f"else or withdrawn by its host - trying the next one"
+        )
     raise AssertionError(
-        f"All {len(offers)} matching offers were taken before we could rent one. Launch again - "
-        f"the search index lags the marketplace by minutes, so a fresh search lists different asks."
+        f"None of the {len(offers)} matching offers was available: each was rented by someone "
+        f"else or withdrawn by its host. Launch again - the search index lags the marketplace by "
+        f"minutes, so a fresh search lists different asks."
     )
 
 
 def _create_instance(create_args: list[str]) -> int | None:
-    """Rent an offer, returning None if it was already taken. Nothing is rented on failure.
+    """Rent an offer, returning None if it is not available. Nothing is rented on failure.
 
-    `--cancel-unavail` makes vast.ai reject a taken ask outright instead of parking a stopped
-    instance on us, and it reports that as `no_such_ask`. This does not go through `_vastai`
-    because a taken ask is an expected outcome here rather than an error to report, and because
-    the command carries the WandB key in its `--env` argument.
+    `--cancel-unavail` makes vast.ai reject an unavailable ask outright instead of parking a
+    stopped instance on us, and it reports that as `no_such_ask` - both for an ask someone else
+    rented and for one that is unavailable without being rented. This does not go through
+    `_vastai` because an unavailable ask is an expected outcome here rather than an error to
+    report, and because the command carries the WandB key in its `--env` argument.
     """
     result = subprocess.run(
         ["vastai", *create_args, "--raw"], check=True, capture_output=True, text=True
