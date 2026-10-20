@@ -10,7 +10,14 @@ All datasets of one build share a train/test split by subject (the city, the Spa
 element, the animal, or the unordered number pair): every statement about a subject, whether true,
 false or negated, lands in the same split.
 
+With `val_frac > 0` a third split `val.jsonl` holds a further share of the subjects, taken from what
+would otherwise be train: for tuning hyperparameters without touching test. The subject's hash
+decides all three splits (u < test_frac: test; u < test_frac + val_frac: val), so for the same
+test_frac and split_seed the test split is identical to a build without val, and train + val equals
+that build's train.
+
     python spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py --version v1
+    python spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py --version v2 --val_frac 0.12
 
 An existing version is never overwritten; build a new version instead.
 """
@@ -81,9 +88,14 @@ def _subject(namespace: str, row: dict[str, Any]) -> str:
             return match.group(1)
 
 
-def _is_test(namespace: str, subject: str, test_frac: float, split_seed: int) -> bool:
+def _split_of(
+    namespace: str, subject: str, test_frac: float, val_frac: float, split_seed: int
+) -> str:
     digest = hashlib.sha256(f"{split_seed}/{namespace}/{subject}".encode()).digest()
-    return int.from_bytes(digest[:8]) / 2**64 < test_frac
+    u = int.from_bytes(digest[:8]) / 2**64
+    if u < test_frac:
+        return "test"
+    return "val" if u < test_frac + val_frac else "train"
 
 
 def _records(
@@ -116,8 +128,9 @@ def _write_jsonl(path: Path, records: list[dict[str, Any]]) -> str:
     return _sha256(content)
 
 
-def main(version: str, test_frac: float = 0.2, split_seed: int = 0) -> None:
+def main(version: str, test_frac: float = 0.2, val_frac: float = 0.0, split_seed: int = 0) -> None:
     assert re.fullmatch(r"v\d+", version), f"version must look like v1, v2, ...; got {version!r}"
+    assert val_frac >= 0 and test_frac + val_frac < 1, (test_frac, val_frac)
     script_sha256 = _sha256(SCRIPT_PATH.read_bytes())
     built_at = datetime.now(UTC).isoformat(timespec="seconds")
 
@@ -134,13 +147,15 @@ def main(version: str, test_frac: float = 0.2, split_seed: int = 0) -> None:
             out_dir = OUT_ROOT / name / version
             assert not out_dir.exists(), f"{out_dir} exists; versions are immutable"
 
-            splits: dict[str, list[dict[str, Any]]] = {"train": [], "test": []}
+            split_names = ["train", "val", "test"] if val_frac > 0 else ["train", "test"]
+            splits: dict[str, list[dict[str, Any]]] = {s: [] for s in split_names}
             for subject, record in _records(
                 df.loc[df["label"] == int(label)], namespace, upstream_file
             ):
-                split = "test" if _is_test(namespace, subject, test_frac, split_seed) else "train"
-                splits[split].append(record)
-            assert splits["train"] and splits["test"], f"{name}: empty split"
+                splits[_split_of(namespace, subject, test_frac, val_frac, split_seed)].append(
+                    record
+                )
+            assert all(splits.values()), f"{name}: empty split"
 
             out_dir.mkdir(parents=True)
             split_info = {
@@ -157,7 +172,7 @@ def main(version: str, test_frac: float = 0.2, split_seed: int = 0) -> None:
                 "format": "text",
                 "description": (
                     f"{'True' if label else 'False'} statements from Truth-is-Universal "
-                    f"datasets/{upstream_file}.csv, split train/test by {namespace}."
+                    f"datasets/{upstream_file}.csv, split {'/'.join(split_names)} by {namespace}."
                 ),
                 "source": {
                     "reference": REFERENCE,
@@ -175,6 +190,7 @@ def main(version: str, test_frac: float = 0.2, split_seed: int = 0) -> None:
                     "params": {
                         "label": label,
                         "test_frac": test_frac,
+                        **({"val_frac": val_frac} if val_frac > 0 else {}),
                         "split_seed": split_seed,
                         "split_by": namespace,
                     },
