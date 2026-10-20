@@ -1,0 +1,8 @@
+{"text": "The kangaroo is not a crustacean.", "label": true, "subject": "kangaroo", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 17}
+{"text": "The tuna is not a mammal.", "label": true, "subject": "tuna", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 27}
+{"text": "The panda is not a bird.", "label": true, "subject": "panda", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 35}
+{"text": "The sea turtle is not a fish.", "label": true, "subject": "sea turtle", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 45}
+{"text": "The armadillo is not a reptile.", "label": true, "subject": "armadillo", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 59}
+{"text": "The lion is not a bird.", "label": true, "subject": "lion", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 61}
+{"text": "The otter is not a fish.", "label": true, "subject": "otter", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 70}
+{"text": "The lobster is not a mammal.", "label": true, "subject": "lobster", "upstream_file": "datasets/neg_animal_class.csv", "upstream_row": 104}

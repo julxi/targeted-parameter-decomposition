@@ -1,0 +1,38 @@
+name: tiu/neg_sp_en_trans_true
+version: v2
+format: text
+description: True statements from Truth-is-Universal datasets/neg_sp_en_trans.csv,
+  split train/val/test by spanish_word.
+source:
+  reference: 'Bürger, Hamprecht & Nadler (2024). Truth is Universal: Robust Detection
+    of Lies in LLMs. NeurIPS 2024. arXiv:2407.12831'
+  url: https://github.com/sciai-lab/Truth_is_Universal
+  commit: 605ef00514415deb4806969a172f6e13e0798df7
+  file: datasets/neg_sp_en_trans.csv
+  file_sha256: bec33e37047135b15cdd18c0cb0c66b65fb435ace08910cbcc220ce1ef610c96
+  license: MIT (Copyright (c) 2024 Scientific AI)
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py
+  script_sha256: bbe328cd2c078cf99239d3b009f026fa9458689859e7e100a6e13f3fac377fed
+  repo_commit: b1192cb858fbf5b801ed515d462a919511197dc4
+  built_at: '2026-10-20T17:24:39+00:00'
+  params:
+    label: true
+    test_frac: 0.2
+    val_frac: 0.12
+    split_seed: 0
+    split_by: spanish_word
+  dropped_duplicate_statements: 3
+splits:
+  train:
+    file: train.jsonl
+    n_records: 130
+    sha256: 11cc0be881203e2b4a6a4d0500175a4cedde15cef087f77c1feabcd250c0843b
+  val:
+    file: val.jsonl
+    n_records: 15
+    sha256: 63968bc1dd9a87950cfab5db1237d39c475eeead33a7b4b08ba391d461b1a9d5
+  test:
+    file: test.jsonl
+    n_records: 32
+    sha256: 99de283c481abb19c1a6618564a137a89ed2374133a40fecfee10e8c57995b14

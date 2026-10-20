@@ -1,0 +1,38 @@
+name: tiu/neg_animal_class_false
+version: v2
+format: text
+description: False statements from Truth-is-Universal datasets/neg_animal_class.csv,
+  split train/val/test by animal.
+source:
+  reference: 'Bürger, Hamprecht & Nadler (2024). Truth is Universal: Robust Detection
+    of Lies in LLMs. NeurIPS 2024. arXiv:2407.12831'
+  url: https://github.com/sciai-lab/Truth_is_Universal
+  commit: 605ef00514415deb4806969a172f6e13e0798df7
+  file: datasets/neg_animal_class.csv
+  file_sha256: 03676e51600e8357e4e200d08eca7c38952b07a5aef807d5aaefbedc7f257256
+  license: MIT (Copyright (c) 2024 Scientific AI)
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py
+  script_sha256: bbe328cd2c078cf99239d3b009f026fa9458689859e7e100a6e13f3fac377fed
+  repo_commit: b1192cb858fbf5b801ed515d462a919511197dc4
+  built_at: '2026-10-20T17:24:39+00:00'
+  params:
+    label: false
+    test_frac: 0.2
+    val_frac: 0.12
+    split_seed: 0
+    split_by: animal
+  dropped_duplicate_statements: 0
+splits:
+  train:
+    file: train.jsonl
+    n_records: 55
+    sha256: 165d9dd6739f726d9e16e194e5c9010190fa21f510910e624428bad638ec296e
+  val:
+    file: val.jsonl
+    n_records: 7
+    sha256: b489b05ec8c5283fe13ba65abecd019ab29bb5ae671d88e6a13a2674c3e5f24b
+  test:
+    file: test.jsonl
+    n_records: 18
+    sha256: 3677060627c596d4e26718b9f5be677dddecbc11df53720d0d335901e5a3abb1

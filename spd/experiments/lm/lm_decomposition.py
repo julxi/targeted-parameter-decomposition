@@ -48,14 +48,16 @@ def _create_lm_loaders(
 
     Supports dataset-based loading (dataset_name), prompts-file-based loading (prompts_file; train
     and eval use the same prompts) and prepared datasets under data/ (prepared_datasets; train on
-    their train splits, eval on their held-out test splits). `stimulus` (prompt data only) is
-    appended to every prompt, see prompts_dataset.load_prompts_dataset.
+    their train splits, eval on the split named by eval_data_split, "test" or "val"). `stimulus`
+    (prompt data only) is appended to every prompt, see prompts_dataset.load_prompts_dataset.
     """
     if task_config.prompts_file is not None or task_config.prepared_datasets is not None:
         assert tokenizer_name is not None
         if task_config.prepared_datasets is not None:
             train_prompts = load_prepared_datasets(task_config.prepared_datasets, "train")
-            eval_prompts = load_prepared_datasets(task_config.prepared_datasets, "test")
+            eval_split = task_config.eval_data_split
+            assert eval_split in ("val", "test"), f"prepared datasets: eval split {eval_split!r}"
+            eval_prompts = load_prepared_datasets(task_config.prepared_datasets, eval_split)
         else:
             assert task_config.prompts_file is not None
             train_prompts = eval_prompts = read_prompts_file(Path(task_config.prompts_file))

@@ -10,7 +10,8 @@ task_config:
     - data/tiu/sp_en_trans_true/v1
 ```
 
-The train splits of all listed datasets are concatenated for training, the test splits for eval.
+The train splits of all listed datasets are concatenated for training, the test splits for eval
+(or the val splits, with `eval_data_split: val` in the task config, for datasets that have one).
 
 ## Layout
 
@@ -18,6 +19,7 @@ The train splits of all listed datasets are concatenated for training, the test 
 data/<family>/<dataset>/<version>/
     manifest.yaml                      # provenance, build params, split hashes
     train.jsonl
+    val.jsonl                          # optional: held out from train for tuning (e.g. tiu v2)
     test.jsonl
 ```
 
@@ -55,6 +57,7 @@ build:
   params: {...}             # generator arguments
 splits:
   train: {file: train.jsonl, n_records: <int>, sha256: <hash>}
+  val: {file: val.jsonl, n_records: <int>, sha256: <hash>}   # optional
   test: {file: test.jsonl, n_records: <int>, sha256: <hash>}
 ```
 
@@ -68,7 +71,8 @@ splits:
 ## Families
 
 - `tiu/`: true/false statements from Truth-is-Universal (Bürger et al., NeurIPS 2024), one dataset
-  per (upstream file, label), split by subject. Build with
+  per (upstream file, label), split by subject. v1: train/test. v2 (`--val_frac 0.12`): the same
+  test split, v1's train divided into train and val. Build with
   `python spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py --version vN`.
 - `pile_code/github_lines`: single lines of source code from the Pile's GitHub subset, length-matched
   to tiu v1; a low-truth control target. Build with

@@ -377,8 +377,8 @@ class LMTaskConfig(BaseConfig):
         default=None,
         min_length=1,
         description="Prepared dataset version dirs under data/ (e.g. data/tiu/cities_true/v1). "
-        "Their train splits are concatenated for training, their test splits for eval. Texts are "
-        "tokenized and padded to max_seq_len.",
+        "Their train splits are concatenated for training, their `eval_data_split` splits ('test' "
+        "or 'val') for eval. Texts are tokenized and padded to max_seq_len.",
     )
     loss_positions: LossPositions = Field(
         default=AllPositions(),

@@ -11,7 +11,10 @@ from pydantic import BaseModel
 from spd.log import logger
 from spd.settings import REPO_ROOT
 
-Split = Literal["train", "test"]
+# "val" exists only in datasets built with a validation split (e.g. tiu v2): a held-out part of the
+# former train split for hyperparameter tuning, so that the test split stays untouched until the
+# final configurations. Datasets without it fail loudly on a "val" request (manifest.splits key).
+Split = Literal["train", "val", "test"]
 
 
 class SplitFile(BaseModel):
@@ -41,6 +44,7 @@ def load_prepared_split(dataset_dir: str, split: Split) -> list[str]:
     manifest_path = path / "manifest.yaml"
     assert manifest_path.exists(), f"No manifest.yaml in {path}"
     manifest = PreparedDatasetManifest(**yaml.safe_load(manifest_path.read_text()))
+    assert split in manifest.splits, f"{path}: no {split!r} split (has {sorted(manifest.splits)})"
     split_file = manifest.splits[split]
 
     content = (path / split_file.file).read_bytes()

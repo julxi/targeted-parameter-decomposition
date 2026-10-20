@@ -1,0 +1,25 @@
+{"text": "The Spanish word 'palabra' means 'word'.", "label": true, "subject": "palabra", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 4}
+{"text": "The Spanish word 'tres' means 'three'.", "label": true, "subject": "tres", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 14}
+{"text": "The Spanish word 'espalda' means 'back'.", "label": true, "subject": "espalda", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 38}
+{"text": "The Spanish word 'escribir' means 'to write'.", "label": true, "subject": "escribir", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 53}
+{"text": "The Spanish word 'ver' means 'to see'.", "label": true, "subject": "ver", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 57}
+{"text": "The Spanish word 'persona' means 'person'.", "label": true, "subject": "persona", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 60}
+{"text": "The Spanish word 'caballo' means 'horse'.", "label": true, "subject": "caballo", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 95}
+{"text": "The Spanish word 'abierto' means 'open'.", "label": true, "subject": "abierto", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 98}
+{"text": "The Spanish word 'caminar' means 'to walk'.", "label": true, "subject": "caminar", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 101}
+{"text": "The Spanish word 'rojo' means 'red'.", "label": true, "subject": "rojo", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 114}
+{"text": "The Spanish word 'viento' means 'wind'.", "label": true, "subject": "viento", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 126}
+{"text": "The Spanish word 'potencia' means 'power'.", "label": true, "subject": "potencia", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 157}
+{"text": "The Spanish word 'caer' means 'to fall'.", "label": true, "subject": "caer", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 159}
+{"text": "The Spanish word 'desarrollar' means 'to develop'.", "label": true, "subject": "desarrollar", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 164}
+{"text": "The Spanish word 'diez' means 'ten'.", "label": true, "subject": "diez", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 176}
+{"text": "The Spanish word 'sencilla' means 'simple'.", "label": true, "subject": "sencilla", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 177}
+{"text": "The Spanish word 'hablar' means 'to speak'.", "label": true, "subject": "hablar", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 188}
+{"text": "The Spanish word 'vaca' means 'cow'.", "label": true, "subject": "vaca", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 202}
+{"text": "The Spanish word 'elegir' means 'to choose'.", "label": true, "subject": "elegir", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 219}
+{"text": "The Spanish word 'hijo' means 'son'.", "label": true, "subject": "hijo", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 222}
+{"text": "The Spanish word 'veinte' means 'twenty'.", "label": true, "subject": "veinte", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 236}
+{"text": "The Spanish word 'esclavo' means 'slave'.", "label": true, "subject": "esclavo", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 292}
+{"text": "The Spanish word 'concha' means 'shell'.", "label": true, "subject": "concha", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 299}
+{"text": "The Spanish word 'higo' means 'fig'.", "label": true, "subject": "higo", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 304}
+{"text": "The Spanish word 'abrigo' means 'coat'.", "label": true, "subject": "abrigo", "upstream_file": "datasets/sp_en_trans.csv", "upstream_row": 308}
