@@ -34,3 +34,6 @@ hosts:
   date: 26-10-15
   reason: 'ssh failing after 300s: root@83.195.246.217: Permission denied (publickey). (instance 56118997,
     machine 120270, RTX 4090, France, FR)'
+- host_id: 638511
+  date: 26-10-20
+  reason: '`uv sync` over 10.0 min (instance 56886647, machine 150625, H100 SXM, Germany, DE)'
