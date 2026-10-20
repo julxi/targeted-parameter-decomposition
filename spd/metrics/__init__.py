@@ -31,6 +31,8 @@ from .hidden_acts_recon_loss import (
 from .identity_ci_error import IdentityCIError as IdentityCIError
 from .importance_minimality_loss import ImportanceMinimalityLoss as ImportanceMinimalityLoss
 from .importance_minimality_loss import importance_minimality_loss as importance_minimality_loss
+from .orthogonality_loss import ComponentOrthogonalityLoss as ComponentOrthogonalityLoss
+from .orthogonality_loss import component_orthogonality_loss as component_orthogonality_loss
 from .permuted_ci_plots import PermutedCIPlots as PermutedCIPlots
 from .pgd_masked_recon_layerwise_loss import PGDReconLayerwiseLoss as PGDReconLayerwiseLoss
 from .pgd_masked_recon_layerwise_loss import (

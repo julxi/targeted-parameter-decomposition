@@ -112,6 +112,7 @@ def test_losses_unchanged_by_trimming() -> None:
             model=model,
             batch=batch["input_ids"],
             ci=ci,
+            pre_weight_acts=out.cache,
             target_out=out.output,
             weight_deltas=weight_deltas,
             current_frac_of_training=0.9,  # after the PPGD start (start_frac 0.8)

@@ -8,6 +8,7 @@ from spd.configs import (
     CIMaskedReconLayerwiseLossConfig,
     CIMaskedReconLossConfig,
     CIMaskedReconSubsetLossConfig,
+    ComponentOrthogonalityLossConfig,
     FaithfulnessLossConfig,
     ImportanceMinimalityLossConfig,
     LossMetricConfigType,
@@ -27,6 +28,7 @@ from spd.metrics import (
     ci_masked_recon_layerwise_loss,
     ci_masked_recon_loss,
     ci_masked_recon_subset_loss,
+    component_orthogonality_loss,
     faithfulness_loss,
     importance_minimality_loss,
     pgd_recon_layerwise_loss,
@@ -48,6 +50,7 @@ def compute_losses(
     model: ComponentModel,
     batch: Int[Tensor, "..."],
     ci: CIOutputs,
+    pre_weight_acts: dict[str, Float[Tensor, "... d_in"]],
     target_out: Tensor,
     weight_deltas: dict[str, Float[Tensor, "d_out d_in"]],
     current_frac_of_training: float,
@@ -214,6 +217,14 @@ def compute_losses(
                     weight_deltas=weight_deltas if use_delta_component else None,
                     position_mask=position_mask,
                     relative=cfg.relative,
+                )
+            case ComponentOrthogonalityLossConfig():
+                loss = component_orthogonality_loss(
+                    model=model,
+                    pre_weight_acts=pre_weight_acts,
+                    ci=ci.lower_leaky,
+                    position_mask=position_mask,
+                    state=cfg.state,
                 )
             case PersistentPGDReconLossConfig() | PersistentPGDReconSubsetLossConfig():
                 if current_frac_of_training < cfg.start_frac:

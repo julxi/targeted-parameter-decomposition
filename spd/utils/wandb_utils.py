@@ -60,6 +60,7 @@ METRIC_CONFIG_SHORT_NAMES: dict[str, str] = {
     "PersistentPGDReconSubsetLoss": "PersistPGDReconSub",
     "StochasticHiddenActsReconLoss": "StochHiddenActRecon",
     "CIHiddenActsReconLoss": "CIHiddenActRecon",
+    "ComponentOrthogonalityLoss": "CompOrtho",
     "StochasticAttnPatternsReconLoss": "StochAttnRecon",
     "CIMaskedAttnPatternsReconLoss": "CIAttnRecon",
     "UnmaskedReconLoss": "UnmaskedRecon",

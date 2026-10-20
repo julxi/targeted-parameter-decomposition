@@ -747,6 +747,24 @@ class StochasticHiddenActsReconLossConfig(LossMetricConfig):
     relative: bool = False
 
 
+class ComponentOrthogonalityLossConfig(LossMetricConfig):
+    """(<A, y - A> / |y|^2)^2 per decomposed module and selected position, with y the module's
+    original output and A a sum of the components' writes (delta off), both on the original
+    model's input to the module; mean over positions and modules. Zero when A is the orthogonal
+    projection of y onto A's own direction (|A| <= |y|, and then |y - A| <= |y|). Target batches
+    only.
+
+    state: which sum A is.
+      ci_weighted: sum_c CI_c * write_c (Exp 4d): the active components must be a part of y.
+      all_components: sum_c write_c, no CI (Exp 4e), so y - A = delta's write and the condition
+        says delta does not cancel the components. Independent of which components the CIs call
+        active, which a learned CI could otherwise use to move a cancellation into the inactive
+        components (as 4d did)."""
+
+    classname: Literal["ComponentOrthogonalityLoss"] = "ComponentOrthogonalityLoss"
+    state: Literal["ci_weighted", "all_components"]
+
+
 class CIHiddenActsReconLossConfig(BaseConfig):
     classname: Literal["CIHiddenActsReconLoss"] = "CIHiddenActsReconLoss"
 
@@ -883,6 +901,7 @@ ReconLossConfigType = (
     | PGDReconSubsetLossConfig
     | PGDReconLayerwiseLossConfig
     | StochasticHiddenActsReconLossConfig
+    | ComponentOrthogonalityLossConfig
     | PersistentPGDReconLossConfig
     | PersistentPGDReconSubsetLossConfig
 )
@@ -924,6 +943,7 @@ POSITION_MASK_SUPPORTED_METRIC_CONFIGS = (
     | PersistentPGDReconSubsetLossConfig
     | CIHiddenActsReconLossConfig
     | StochasticHiddenActsReconLossConfig
+    | ComponentOrthogonalityLossConfig
     | CI_L0Config
     | CIMeanPerComponentConfig
     | NontargetReconLossConfig

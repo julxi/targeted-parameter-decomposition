@@ -23,6 +23,7 @@ from spd.configs import (
     CompletenessCIPlotsConfig,
     CompletenessTaskConfig,
     ComponentActivationDensityConfig,
+    ComponentOrthogonalityLossConfig,
     Config,
     FaithfulnessLossConfig,
     IdentityCIErrorConfig,
@@ -70,6 +71,7 @@ from spd.metrics.faithfulness_loss import FaithfulnessLoss
 from spd.metrics.hidden_acts_recon_loss import CIHiddenActsReconLoss, StochasticHiddenActsReconLoss
 from spd.metrics.identity_ci_error import IdentityCIError
 from spd.metrics.importance_minimality_loss import ImportanceMinimalityLoss
+from spd.metrics.orthogonality_loss import ComponentOrthogonalityLoss
 from spd.metrics.permuted_ci_plots import PermutedCIPlots
 from spd.metrics.pgd_masked_recon_layerwise_loss import PGDReconLayerwiseLoss
 from spd.metrics.pgd_masked_recon_loss import PGDReconLoss
@@ -315,6 +317,8 @@ def init_metric(
             )
         case CIHiddenActsReconLossConfig():
             metric = CIHiddenActsReconLoss(model=model, device=device)
+        case ComponentOrthogonalityLossConfig():
+            metric = ComponentOrthogonalityLoss(model=model, device=device, state=cfg.state)
         case PersistentPGDReconEvalConfig():
             matching = [
                 s for k, s in ppgd_states.items() if isinstance(k, PersistentPGDReconLossConfig)

@@ -23,6 +23,7 @@ from tqdm import tqdm
 
 from spd.base_config import BaseConfig
 from spd.configs import (
+    ComponentOrthogonalityLossConfig,
     Config,
     ImportanceMinimalityLossConfig,
     LMTaskConfig,
@@ -315,8 +316,9 @@ def optimize(
     nontarget_eval_iterator: Iterator[Any] | None = None
     if config.nontarget_task_config is not None:
         # Exclude losses that are trivially zero or PPGD-coupled for nontarget data, and the
-        # hidden-activation reconstruction: it asks the components to reproduce each module's
-        # output, which is the target data's job; on nontarget data delta carries the computation.
+        # hidden-activation reconstruction and orthogonality terms: they constrain the components'
+        # share of each module's output, which is the target data's job; on nontarget data delta
+        # carries the computation.
         nontarget_loss_configs = [
             cfg.model_copy(update={"coeff": cfg.coeff * config.nontarget_impmin_coeff_ratio})
             if isinstance(cfg, ImportanceMinimalityLossConfig) and cfg.coeff is not None
@@ -327,7 +329,8 @@ def optimize(
                 UnmaskedReconLossConfig
                 | PersistentPGDReconLossConfig
                 | PersistentPGDReconSubsetLossConfig
-                | StochasticHiddenActsReconLossConfig,
+                | StochasticHiddenActsReconLossConfig
+                | ComponentOrthogonalityLossConfig,
             )
         ]
         assert nontarget_train_loader is not None, (
@@ -422,6 +425,7 @@ def optimize(
                 model=component_model,
                 batch=batch,
                 ci=ci,
+                pre_weight_acts=target_model_output.cache,
                 target_out=target_model_output.output,
                 weight_deltas=weight_deltas,
                 current_frac_of_training=step / config.steps,
@@ -485,6 +489,7 @@ def optimize(
                     model=component_model,
                     batch=nontarget_batch,
                     ci=nontarget_ci,
+                    pre_weight_acts=nontarget_output.cache,
                     target_out=nontarget_output.output,
                     weight_deltas=weight_deltas_recomputed,
                     current_frac_of_training=step / config.steps,
