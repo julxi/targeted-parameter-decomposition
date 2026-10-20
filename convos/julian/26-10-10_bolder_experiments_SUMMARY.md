@@ -105,6 +105,8 @@ Julian wants to be less methodical and more exploratory: run fairly principled e
 
 ## See also
 
+- See also: [convos/julian/26-10-16_faithful_targeting_SUMMARY.md] — brainstorm on a loss between 4a and 4b: Julian's orthogonality penalty (A = projection of y onto its own direction), its per-component form, a weaker reconstruction coefficient, sensitivity-weighted and within-family difference reconstruction.
+- See also: [convos/julian/26-10-16_component_steering_SUMMARY.md] — continues Exp 4b/4c: steering the verdict by reversing component writes (mask −1), singles and sets incl. L17:5 and the "false negated" group. Revises the "cross-family 'false' writer" reading of L17:5: its causal effect is confined to negated statements and smaller_than (reversed, it inverts the verdict in negated translations).
 - See also: [convos/julian/26-10-06_truth_writing_components_SUMMARY.md] — source of the KL-blindness argument, the Q4 loss options this topic implements, gate G (on tiu the next token already depends on truth), the analysis script `truth_writers.py` and its stored features (R3 uses their layer-23 residuals), and the single-component ablation numbers R2 is compared with.
 - See also: [convos/julian/26-10-13_direction_free_interventions_SUMMARY.md] — proposes extending analysis V (ablation at all statement tokens, random-component controls, a non-truth control question, interchange patching) as a direction-free test of the A7 lead; the same code would compare Exp 0–3.
 - See also: [convos/julian/26-10-06_state_report_SUMMARY.md] — the Typst state report of all earlier truth experiments; its `reports/template.typ` is the layout of this topic's Exp 2 report.

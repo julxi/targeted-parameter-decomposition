@@ -1,6 +1,6 @@
 # SUMMARY: WandB storage (5 GB cap)
 
-**Last updated:** 26-10-04 (sync: final-checkpoint policy tagged as Julian's request; e2b no longer matches the arm config exactly (bf16 frozen model); added spd-vast forcing and not-done items; counter re-check still not recorded)
+**Last updated:** 26-10-20 (tier 1 of the second cleanup deleted, 1.43 GB; counter re-check pending)
 
 Julian's WandB account (`bitt-j-personal`) has 5 GB of storage, and the website showed ~9.9 GB. Two goals: free space, and keep future runs under the cap.
 
@@ -50,13 +50,24 @@ The topic also started a convention [decided: Julian, this LOG's opening and a t
 - Real usage now: 1.50 GB in `spd` [verified: API listing].
 - Not chosen: option A, deleting all checkpoints except e2b's final (~0.56 GB left).
 
-## Open
+## Second cleanup (26-10-20): tier 1 deleted
 
-- All C: comments in the LOG are answered.
-- Re-check `entity.storageBytes` (not yet recorded in the LOG as of 26-10-04). Expected ~1.55 GB. If a ~3.6 GB excess persists a day later: *Manage storage* page (`https://wandb.ai/account-settings/bitt-j-personal/usage/manage/`), then WandB support.
+[verified: WandB API, 26-10-20 13:27 UTC] Usage 4.73 GB, equal to the listed files, so the 26-10-03 counter excess was lag and is gone. 17 checkpoints hold ~4.4 GB: 14 × 238.2 MB (tiu-style) and 3 × 333.5 MB (Exp 4a/4b/4c, MLPs 11–17). 14 of them have byte-identical local copies under `~/spd_out/`; UTH `s-d2ded461` and Exp 4a/4b/4c do not.
+
+Urgent because the two Exp 4d runs (`s-5c284ebb` running, second to follow) upload ~334 MB each [assumed: same settings as 4a–4c], which would reach ≈ 5.40 GB.
+
+Ranking (the tiers are the agent's proposal; deleting tier 1 was Julian's decision):
+- **Tier 1, deleted 26-10-20 (1.43 GB)** [decided: Julian, chat transcribed in the LOG; verified: no `.pth` left in these runs, local copies kept]: tuning runs run 1 `s-c2562082`, e2c `s-b3401a03`, e3a `s-a77ae04e`, e3b `s-83033a96`; e2b `s-ba5f9dd5` (fp32 twin of arm A); fp32 untrained `s-286aa6a9` (replaced by bf16 `s-7fad0c14`). All closed, local copies exist, nothing uses them. Afterwards with both 4d uploads ≈ 3.97 GB.
+- **Tier 2 (238 MB each, local copies exist, still referenced):** Exp 0 `s-aeaa70d8`, Exp 2 `s-05db01ad`, Exp 3 `s-161f8a7b`, code control `s-b6cce5de`. Cost of deleting: instance-side re-analysis needs an upload from the laptop.
+- **Keep:** arm A `s-bd23f0d1`, untrained `s-7fad0c14`, Exp 1 `s-cd129592`, Exp 4a/4b/4c, UTH `s-d2ded461` (no local copy).
+
+Open: re-check `entity.storageBytes` (still 4.73 GB right after deletion because the counter lags; expected ≈ 3.30 GB, ≈ 3.97 GB with both 4d checkpoints).
+
+Details and per-run reasons: this LOG, entries *second cleanup: deletion ranking 26-10-20* and *tier 1 deleted 26-10-20*.
 
 - See also: [convos/julian/26-10-02_training_run_SUMMARY.md] — the runs whose checkpoints fill the storage, and the tuning verdict that makes them disposable.
 - See also: [convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md] — probe test accuracies of the finished decompositions; runs on the laptop CPU.
 - See also: [convos/julian/26-10-02_epistemic_memory_setup_SUMMARY.md] — set up the memory conventions; this topic added one (*Topic starts from a file* in CLAUDE.md).
 - See also: [convos/julian/26-10-02_overview_of_goal_SUMMARY.md] — designed the tiu arm configs whose `save_freq` this topic set to final-checkpoint-only, and set `sync_checkpoints_to_wandb: true` in them.
 - See also: [convos/julian/26-10-05_no_truth_baseline_SUMMARY.md] — uploaded three new final checkpoints (bf16 arm A, code control, untrained; ~238 MB each), budgeted against this topic's 5 GB cap and post-cleanup usage.
+- See also: [convos/julian/26-10-16_faithful_targeting_SUMMARY.md] — the Exp 4d runs whose checkpoint uploads made the 26-10-20 cleanup urgent.

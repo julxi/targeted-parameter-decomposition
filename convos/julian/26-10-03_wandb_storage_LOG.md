@@ -132,3 +132,61 @@ In the CODING.md can you add that agents shouldn't delet checkpoints themselves 
   So 82% of a checkpoint is the CI function's input layer; the components are 43 MB. The delta component is not stored. [concluded] The size grows with the summed input width of the decomposed modules times the CI hidden width, and only weakly with `C`.
 
 Recorded in this topic's SUMMARY. Earlier entries still state "238 MB per Qwen-7B checkpoint" without the settings; they are accurate for the tiu arms only.
+
+---
+
+My WandB storage is getting full. I want to know which decompositions I should delete first
+
+---
+
+26-10-20, Claude Opus 5.5 — *second cleanup: deletion ranking 26-10-20*
+
+I have read INDEX.md, this topic's SUMMARY and LOG tail, the WandB rules in `docs/CODING.md`, and the SUMMARYs that name each run. Nothing deleted (CODING.md rule: list, then Julian decides).
+
+**Inventory** [verified: WandB API over all projects of `bitt-j-personal`, 26-10-20 13:27 UTC; script and JSON in the session scratchpad, not kept]:
+- `entity.storageBytes` = 4.73 GB; the listed files also total 4.73 GB, so the ~3.6 GB unexplained excess from 26-10-03 is gone (the counter had lagged).
+- 17 checkpoints hold ~4.4 GB of that: 14 at 238.2 MB (tiu-style, layers 15–19) and 3 at 333.5 MB (Exp 4a/4b/4c, layers 11–17). Everything else (toy rotgrid runs, metrics) is < 8 MB per run.
+- Local copies under `~/spd_out/runs/spd-<id>/` or `~/spd_out/spd/<id>/` exist for 14 of the 17, each byte-identical in size to the WandB file [verified: byte counts compared]. No local copy: UTH stage 1 `s-d2ded461`, Exp 4a/4b/4c.
+
+**Why now:** the Exp 4d full run `s-5c284ebb` (running since 13:03 UTC) has `sync_checkpoints_to_wandb: true`, and per `convos/julian/26-10-16_faithful_targeting_SUMMARY.md` a second 4d run (coefficient 10) follows. With 7 layers × `C: 96` like 4a–4c, each final checkpoint should be ~334 MB [assumed: same settings as 4a–4c]. 4.73 + 0.67 ≈ 5.40 GB, over the 5 GB cap.
+
+**Tier 1 — delete first** (6 checkpoints, 1.43 GB). Each experiment is closed, its numbers are in the records, a local copy exists, and no code or open plan uses it:
+
+| run | what | why disposable |
+|---|---|---|
+| `s-c2562082` | run 1, all-tokens arm, batch 4, 10k steps | tuning run; verdict (batch 16, 5k, LR 5e-4) applied to the configs |
+| `s-b3401a03` | e2c, batch 4, 10k | tuning run (same verdict) |
+| `s-a77ae04e` | e3a, LR 1e-3, 2.5k | tuning run |
+| `s-83033a96` | e3b, LR 1e-3, 5k | tuning run |
+| `s-ba5f9dd5` | e2b, fp32 frozen model, final arm-A settings | replaced by the bf16 arm A `s-bd23f0d1`, which matches it within run-to-run noise |
+| `s-286aa6a9` | untrained baseline, fp32 | replaced by the bf16 untrained `s-7fad0c14`; untrained checkpoints regenerate in ~2 min on the laptop CPU anyway |
+
+After tier 1 and both 4d uploads: ≈ 3.97 GB [concluded: 4.73 − 1.43 + 0.67].
+
+**Tier 2 — closed experiments, local copy exists, but a script or record still points at them** (each 238 MB). Deleting costs convenience, not data: analyses on a vast.ai instance fetch checkpoints from WandB (CODING.md), so a later re-analysis would need an upload from the laptop.
+- `s-aeaa70d8` Exp 0 (next-token lens, recovered 8% of the verdict KL; the weakest lens).
+- `s-05db01ad` Exp 2 and `s-161f8a7b` Exp 3 (both re-implement the lens per the 26-10-15 cancellation test; Julian read Exp 3 as no truth-mechanism evidence).
+- `s-b6cce5de` code control (topic closed; named in `truth_writers.py`).
+
+**Keep:**
+- `s-bd23f0d1` arm A and `s-7fad0c14` untrained bf16: reference runs in `truth_writers.py`, `verdict_accuracy.py`, and the A1 test filed in FUTURE_WORK.md.
+- `s-cd129592` Exp 1: the only run whose components partly decompose the MLP outputs (cancellation test 0.83).
+- `s-4cd6abe5` / `s-717b50c9` / `s-5ecb5791` Exp 4a/4b/4c: current work (steering, 4d comparison), no local copy.
+- `s-d2ded461` UTH stage 1: series closed, but no local copy. If you want its space, download it first.
+
+Recommendation [concluded]: delete tier 1 now (before the first 4d checkpoint uploads); leave tier 2 until space is short again.
+
+---
+
+C: (transcribed from chat) ok, so can you delte the 6 checkpoints (1.43 GB) from above?
+
+---
+
+26-10-20, Claude Opus 5.5 — *tier 1 deleted 26-10-20*
+
+Deleted on WandB (project `spd`), the checkpoint file only; runs and their metrics stay [decided: Julian, chat above]:
+`s-c2562082` `model_10000.pth`, `s-b3401a03` `model_10000.pth`, `s-a77ae04e` `model_2500.pth`, `s-83033a96` `model_5000.pth`, `s-ba5f9dd5` `model_5000.pth`, `s-286aa6a9` `model_0.pth` (238.2 MB each, 1.43 GB total).
+
+[verified: file listing after deletion] None of the six runs holds a `.pth` file anymore. The local copies under `~/spd_out/runs/spd-<id>/` and `~/spd_out/spd/s-286aa6a9/` are untouched.
+
+`entity.storageBytes` right after deletion: still 4.73 GB (the counter lags deletions by hours, as on 26-10-03). Expected after the lag: ≈ 3.30 GB, then ≈ 3.97 GB once both Exp 4d checkpoints are in. Not yet re-checked.
