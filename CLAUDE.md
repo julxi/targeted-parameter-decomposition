@@ -2,7 +2,7 @@
 
 This file is the always-loaded core of the Epistemic Memory system: a set of file conventions that give agent-assisted projects a persistent, human-auditable memory. Reference material is read on demand:
 
-- **`docs/PROJECT_REFERENCE.md`** and the subpackage **`spd/**/REFERENCE.md`** files — legacy project references (this repository's former `CLAUDE.md` files), being phased out in favour of this memory system. Do not read them by default. Consult the relevant section only when a task needs a project fact (a command, a config path, a cluster rule) that the `convos/` files don't cover. Every claim in them is `[assumed]`: when you rely on one, check it against the code, and record the fact with its status tag in the topic LOG/SUMMARY where you used it, so the knowledge moves into the memory system. Never add new information to them. When you find wrong content there, don't fix it: mark the passage with an `OUTDATED (<date>): <reason>` line that points to where the current fact is recorded in `convos/` (record it there first). Do not add or keep pointers to the legacy references in code or active docs: when you find one that sends readers there as the authority, remove it (don't repoint it) and record the fact where it belongs.
+- **`docs/PROJECT_REFERENCE.md`** and the subpackage **`spd/**/REFERENCE.md`** files — legacy project references (this repository's former `CLAUDE.md` files), being phased out in favour of this memory system. Do not read them by default. Consult the relevant section only when a task needs a project fact (a command, a config path, a cluster rule) that the `convos/` files don't cover. Every claim in them is `[assumed]`: when you rely on one, check it against the code, and record the fact with its status tag in the topic LOG/SUMMARY where you used it, so the knowledge moves into the memory system. Never add new information to them. When you find wrong content there, don't fix it: mark the passage `OUTDATED`, pointing to where the current fact is recorded in `convos/` (record it there first). Do not add or keep pointers to the legacy references in code or active docs: when you find one that sends readers there as the authority, remove it (don't repoint it) and record the fact where it belongs.
 - **`docs/CODING.md`** — read in full before writing code or running an experiment.
 - **`docs/procedures/`** — one file per procedure; read the relevant file in full when you start that task:
   - `sync.md` — synchronize LOG/SUMMARY pairs (the user writes `!sync`, or you suspect drift)
@@ -36,7 +36,7 @@ LLM agents lose all context between sessions, so all important information must 
 
 The split is the point: the LOG guarantees a record that cannot be quietly rewritten, the SUMMARY spares new agents from reading it in full. A project needs both — without the LOG there is no provenance, and without the SUMMARY every new session starts with a dig through the full history.
 
-**LOGs are append-only.** Never edit an earlier section of a LOG to revise content. If a decision changes, append a new section that says so. This guarantees that reading top-to-bottom always gives the true sequence of events.
+**LOGs are append-only:** don't edit or delete existing text, so the record can't be quietly changed. New entries go at the bottom; the only exceptions, inserted in place, are `C:` comments, answers beneath them, and `OUTDATED` markers. When your entry corrects or contradicts an earlier passage, mark that passage `OUTDATED` in the same turn.
 
 **Authorship:** begin each LOG entry with date, author (model name), a short **distinctive title**, and what context you have. Example: `26-09-14, Claude Fable 5 — *live verification re-run*; I have read the docs but not the code yet`. The title is the anchor by which the entry gets referenced and grep-located later, so make it unique within the file.
 
@@ -123,7 +123,7 @@ Always use these markers when recording claims, conclusions, or decisions in LOG
 - `[concluded]` — derived through reasoning but not ratified. Use conservatively: only when the supporting reasoning is stated next to the tag and would survive a critical reviewer. If the derivation is thin, use `[assumed]`. Predictions about experiments not yet run are `[assumed]`, however strong the argument.
 - `[assumed]` — taken as a working assumption; may need revisiting.
 - `[superseded]` — was active, has been replaced. Include a pointer to the replacement.
-- `OUTDATED: <reason>` — inline warning that specific claims in a passage are wrong or superseded. This is how you warn readers inside an append-only LOG without editing history: place it directly before or after the outdated content.
+- `OUTDATED (<date>): <reason, pointer to the replacement>` — inline warning that specific claims in a passage are wrong or superseded. This is how you warn readers inside an append-only LOG without editing history: place it directly before or after the outdated content.
 
 Procedure files may define additional tags scoped to their task (e.g. `[blocking]` in `multi_agent_debate.md`); ad-hoc tags are fine when self-explanatory in context.
 

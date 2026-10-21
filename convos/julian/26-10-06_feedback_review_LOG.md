@@ -162,3 +162,82 @@ Recommendation [concluded: one clear instance in three syncs]: (a) if Julian wan
 **(3) How the agent knows which topic owns rentals.** At present nothing tells it: topics are named after discussions, not objects, and the only route is recognising the INDEX row "vast.ai rentals: …" while recording something else. That route failed in the observed case. Proposal: the rule itself names the owners, in `docs/CODING.md` *Running jobs on a rented vast.ai GPU* (it already points into `convos/julian/`):
 > **Status changes reach the owning topic.** When you rent or destroy an instance, change the launcher or a vast config, record it in `convos/julian/26-10-05_vast_rentals_LOG.md` too; when you launch a WandB run, change or delete a checkpoint, add or update its row in `convos/julian/26-10-03_wandb_storage_RUNS.md` and record deletions in `convos/julian/26-10-03_wandb_storage_LOG.md`. Update that topic's SUMMARY and INDEX row in the same turn.
 If other objects later show the same drift, they are added to this list. Alternative: a short "standing topics" list (object → topic) in INDEX.md, which every session reads; more general, but always-loaded tokens. Recommendation [assumed: Julian's call]: the CODING.md version.
+
+---
+
+C: (transcribed from chat) that's sounds reasonable can you update the rule
+
+(Context: Julian had asked what the concrete suggestion of the FEEDBACK entry *reversed passages without markers, again — evidence for revisiting F5a* is; the agent explained the narrow same-turn rule in chat.)
+
+---
+
+26-10-21, Claude Opus 5.5 — *narrow F5a adopted*; new session; I have read CLAUDE.md, INDEX.md, the FEEDBACK entries for F5a, and this LOG's round-2 entries
+
+Adopted [decided: Julian, transcribed above] the narrow version of F5a. CLAUDE.md, append-only paragraph, after "If a decision changes, append a new section that says so.":
+> When your entry says it corrects or contradicts an earlier passage, put an `OUTDATED (<date>): <reason, pointer to your entry>` line next to that passage in the same turn.
+
+Difference from the F5a that Julian set aside on 26-10-06 for cognitive load: F5a applied to any reversal, so the agent had to notice on its own that its change invalidated some passage elsewhere. This rule applies only when the agent's entry already names the passage it corrects, so the passage is already located and the cost is one edit. Reversals that no entry calls out still rely on the sync (F5b). FEEDBACK.md: resolution notes added to the 26-10-04 entry and the 26-10-21 entry.
+
+Still open from round 2: (2) stale tags, (3) cross-topic status changes and placement; the 26-10-21 FEEDBACK entries on the detach pattern and on conventions recorded only where they happened.
+
+---
+
+C: (transcribed from chat) Is it true that LOGs are append-only? I mean sometimes I write comments and claude answers right under them. And tags are also excluded from append-only. Maybe there's a better formulation?
+
+---
+
+26-10-21, Claude Opus 5.5 — *append-only wording: proposal "never rewritten"*; same session
+
+Julian is right that "append-only" is inaccurate. What actually happens in LOGs:
+- In-place insertions, all sanctioned by CLAUDE.md: `C:` comments (anywhere), answers directly beneath them (*Where to write*), `OUTDATED` markers next to superseded passages (the `OUTDATED` bullet, sync.md step 2, and since today the same-turn rule).
+- Deletions or rewrites of existing text: none by the three syncs [verified: `git show 7bfb785 abc9c0b 4afa65d -- 'convos/*_LOG.md'` contains no removed lines]. That includes tags: I found no rule or practice that changes a tag inside a LOG; tags are updated in SUMMARYs, and a superseded LOG passage gets an `OUTDATED` marker or a later entry. (If Julian had a case of retagging inside a LOG in mind, that would be a deviation worth flagging.)
+
+So the real invariant is "existing text is never edited or deleted", not "text is only added at the end". The paragraph's closing sentence ("reading top-to-bottom always gives the true sequence of events") is also only true of the entries, since in-place answers sit earlier in the file than their date; they are dated for that reason.
+
+Proposed replacement for the CLAUDE.md paragraph [assumed: awaiting Julian]:
+> **LOGs are never rewritten.** Do not edit or delete existing text in a LOG; this guarantees that the record cannot be quietly changed. New entries go at the bottom, so the entries read chronologically. Three kinds of text are inserted in place instead: humans' `C:` comments, answers directly beneath them, and `OUTDATED` markers next to passages that are no longer true; the answers and markers carry their date. If a decision changes, append a new entry that says so; when your entry corrects or contradicts an earlier passage, put an `OUTDATED (<date>): <reason, pointer to your entry>` line next to that passage in the same turn.
+
+Follow-up wording changes so the term stays consistent: CLAUDE.md DRAFT paragraph ("keeps the LOG's append-only guarantee intact" → "no-rewrite guarantee"), the `OUTDATED` bullet ("inside an append-only LOG" → "inside a LOG"), `docs/procedures/multi_agent_debate.md` line 28 ("append-only, answers inline with `C:`, nothing rewritten" → "never rewritten, answers inline beneath `C:` comments"). Historical mentions in LOGs and FEEDBACK.md stay as they are.
+
+---
+
+C: (transcribed from chat) Your new proposal. can it be shortened?
+
+---
+
+26-10-21, Claude Opus 5.5 — *append-only wording: shortened proposal*; same session
+
+Shortened version of the proposal in *append-only wording: proposal "never rewritten"* (that one is superseded by this) [assumed: awaiting Julian]:
+> **LOGs are never rewritten:** don't edit or delete existing text, so the record can't be quietly changed. Besides new entries at the bottom, only `C:` comments, answers beneath them, and dated `OUTDATED` markers go in place. When your entry corrects or contradicts an earlier passage, mark that passage `OUTDATED (<date>): <reason, pointer to your entry>` in the same turn.
+
+Dropped, because other paragraphs already say it: "If a decision changes, append a new entry that says so" (follows from never-rewrite plus entries at the bottom); "the answers carry their date" (the `C:` paragraph prescribes `Answer (date, author)`); "entries read chronologically" (*Where to write*). Follow-up wording changes as in the previous entry.
+
+---
+
+C: (transcribed from chat) The part about format of OUTDATED does it also live somewhere else?
+
+---
+
+26-10-21, Claude Opus 5.5 — *OUTDATED format: one definition*; same session
+
+Yes, in four places, and they disagree [verified: `grep -rn OUTDATED CLAUDE.md docs/`, 26-10-21]:
+- CLAUDE.md, legacy-references paragraph: `OUTDATED (<date>): <reason>` plus "points to where the current fact is recorded in `convos/`".
+- CLAUDE.md, append-only paragraph (added today): `OUTDATED (<date>): <reason, pointer to your entry>`.
+- CLAUDE.md, *Epistemic Status Markers*, `OUTDATED` bullet: `OUTDATED: <reason>`, no date, no pointer. This is the definition, and it is the incomplete one.
+- `docs/procedures/sync.md` step 2: `OUTDATED (<date>): <reason, pointer to the newer entry>`.
+
+Proposal [assumed: awaiting Julian]: the bullet becomes the only place with the format, `OUTDATED (<date>): <reason, pointer to the replacement>`; the others just say "mark it `OUTDATED`". The paragraph from *append-only wording: shortened proposal* then ends: "When your entry corrects or contradicts an earlier passage, mark that passage `OUTDATED` in the same turn." Legacy-references paragraph: "mark the passage `OUTDATED`, pointing to where the current fact is recorded in `convos/` (record it there first)". sync.md: "insert an `OUTDATED` marker next to it". CLAUDE.md is always loaded, so sync.md can rely on the bullet.
+
+---
+
+C: (transcribed from chat) Let's keep LOGs are append-only and then write the exceptions as you did. Also Yes there should be one definition
+
+---
+
+26-10-21, Claude Opus 5.5 — *append-only paragraph and OUTDATED definition applied*; same session
+
+Applied [decided: Julian, transcribed above]. The name "append-only" stays, so the follow-up wording changes to the DRAFT paragraph, the `OUTDATED` bullet and `multi_agent_debate.md` from *append-only wording: proposal "never rewritten"* are dropped.
+- CLAUDE.md, append-only paragraph (replaces the version from *narrow F5a adopted*; the rule's content is unchanged): "**LOGs are append-only:** don't edit or delete existing text, so the record can't be quietly changed. New entries go at the bottom; the only exceptions, inserted in place, are `C:` comments, answers beneath them, and `OUTDATED` markers. When your entry corrects or contradicts an earlier passage, mark that passage `OUTDATED` in the same turn."
+- CLAUDE.md, `OUTDATED` bullet, now the single definition: `OUTDATED (<date>): <reason, pointer to the replacement>`.
+- CLAUDE.md, legacy-references paragraph: "mark the passage `OUTDATED`, pointing to where the current fact is recorded in `convos/` (record it there first)".
+- `docs/procedures/sync.md` step 2: "insert an `OUTDATED` marker next to it".
