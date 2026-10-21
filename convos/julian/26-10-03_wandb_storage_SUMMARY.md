@@ -1,6 +1,6 @@
 # SUMMARY: WandB storage (5 GB cap)
 
-**Last updated:** 26-10-20 (tier 1 of the second cleanup deleted, 1.43 GB; counter re-check pending)
+**Last updated:** 26-10-21 (Exp 4d checkpoint and incomplete runs deleted; listed files 3.31 GB; counter re-check pending)
 
 Julian's WandB account (`bitt-j-personal`) has 5 GB of storage, and the website showed ~9.9 GB. Two goals: free space, and keep future runs under the cap.
 
@@ -61,9 +61,13 @@ Ranking (the tiers are the agent's proposal; deleting tier 1 was Julian's decisi
 - **Tier 2 (238 MB each, local copies exist, still referenced):** Exp 0 `s-aeaa70d8`, Exp 2 `s-05db01ad`, Exp 3 `s-161f8a7b`, code control `s-b6cce5de`. Cost of deleting: instance-side re-analysis needs an upload from the laptop.
 - **Keep:** arm A `s-bd23f0d1`, untrained `s-7fad0c14`, Exp 1 `s-cd129592`, Exp 4a/4b/4c, UTH `s-d2ded461` (no local copy).
 
-Open: re-check `entity.storageBytes` (still 4.73 GB right after deletion because the counter lags; expected ≈ 3.30 GB, ≈ 3.97 GB with both 4d checkpoints).
+## Third deletion (26-10-21): Exp 4d
 
-Details and per-run reasons: this LOG, entries *second cleanup: deletion ranking 26-10-20* and *tier 1 deleted 26-10-20*.
+- Deleted [decided: Julian, C: comment in `convos/julian/26-10-16_faithful_targeting_LOG.md`; verified: re-listing]: the 4d checkpoint `s-5c284ebb/model_5000.pth` (333.5 MB, no local copy; the run and its metrics stay) and the three incomplete 4d runs `s-b8c8c610`, `s-37397e7d`, `s-15cc0844` (whole runs, 3.3 MB). The second 4d run never uploaded a checkpoint.
+- Usage [verified: API listing over all projects, 26-10-21]: listed files **3.31 GB** (11 checkpoints, 3.04 GB: the 8 × 238.2 MB and 3 × 333.5 MB of the *Keep* and *Tier 2* lists above). No Exp 4e checkpoint is on WandB. The counter showed 3.65 GB right after; the excess equals the file just deleted, so it is lag [concluded].
+- Open: re-check `entity.storageBytes` (expected ≈ 3.31 GB, 1.69 GB under the cap). Tier 2 stays until space is short again.
+
+Details and per-run reasons: this LOG, entries *second cleanup: deletion ranking 26-10-20*, *tier 1 deleted 26-10-20* and *4d checkpoint and incomplete runs deleted 26-10-21*.
 
 - See also: [convos/julian/26-10-02_training_run_SUMMARY.md] — the runs whose checkpoints fill the storage, and the tuning verdict that makes them disposable.
 - See also: [convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md] — probe test accuracies of the finished decompositions; runs on the laptop CPU.

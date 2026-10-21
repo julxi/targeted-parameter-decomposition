@@ -303,3 +303,160 @@ Done:
 Next: the analysis script into the repo (with `--split`, ⟨C, Δx⟩/|y|², |C|/|y|, cos(A, I), CI-weighted parts and the share of all-off KL recovered), checked against 4a's stored numbers on the H100; the two 4e configs; trials.
 
 Commits (26-10-20, at Julian's request in chat: "can you write commits and then go to the next step"): `6cdf196` orthogonality penalty (4d and 4e states, tests, 4d config), `ffd6be0` val split support + tiu v2 data + `data/README.md`, `143e35b` vast blacklist host 638511, then the records. Before committing: `make check` clean except the 6 pre-existing basedpyright errors in `rank_rotgrid_decompositions.py`; `make test` 144 passed, 1 failed (the pre-existing `test_the_checked_in_sweep_expands_to_distinct_runs`) [verified].
+
+---
+
+26-10-20, Claude Opus 5.5 — *4e implementation, part 2: analysis script, configs, trials launched*; same session.
+
+- **Analysis script in the repo**: `spd/experiments/lm/honesty_targeted_decomposition/verdict_lens_analysis.py` (successor of `exp4d_analysis.py`, which lived in `~/spd_out/`). `--split val|test` (required), reads data, lens and positions from the run's config, output `verdict_<run id>_<split>.{json,npz}`. Added to the earlier numbers: `kl_recovered` = 1 − KL(state)/KL(all off) per verdict state (the tuning objective is that of `components_ci`); per layer |C|/|y|, ⟨C, Δx⟩/|y|² (mean and RMS; the 4e penalty's inner product), cos(C, y), cos(A, I); the CI-weighted split A_ci, I_ci = C − A_ci with norms, cos(A_ci, I_ci), |y − A_ci|/|y|. basedpyright and ruff clean. Not yet verified: it runs on the H100 now against 4a (`s-4cd6abe5`, test split), to be compared with the stored `exp4_s-4cd6abe5.json`.
+- **Configs** `config_truth_sf_verdict_ortho_global.yaml` (statement end) and `config_truth_sf_verdict_ortho_global_alltok.yaml` (all statement tokens, as 4c): 4a's settings plus the global term at coefficient 1 (untuned starting point), tiu v2, `eval_data_split: val`, checkpoints not synced. Loss metrics are evaluated automatically, so the term's per-layer numbers appear in the training evals without an extra eval entry.
+- **Trials** (300 steps, PGD off as in screening; `~/spd_out/26-10-16_faithful_targeting/e4/`, on the instance `/root/e4/`): end token, then all statement tokens, each followed by the analysis on val. Launched 17:32 UTC. The new configs and the analysis script are not committed yet, so the runs are stamped "uncommitted changes" (code = working tree synced at `094db84` + these files). I will commit them once the 4a check passes.
+
+**Proposed tuning order** [assumed: proposal] (Julian, F2: not orthogonality first, because the other hyperparameters were never tuned either):
+1. LR ∈ {1e-4, 5e-4 (now), 2e-3} × positions {end, all statement tokens}, orthogonality coefficient 1: the LR decides whether any comparison afterwards means anything.
+2. Importance-minimality coefficient ∈ {1e-4, 1e-3 (now), 1e-2}: it sets the trade-off between few active components and verdict recovery, which is directly the objective.
+3. Orthogonality coefficient ∈ {0.1, 1, 10}, plus a warm-up if the trials show the term dominating the start.
+4. C per layer ∈ {48, 96, 192}; then stochastic-loss routing (random layer subset vs all layers) and CI-function width (512 vs 1024).
+5. Full runs (5,000 steps, PGD; PGD coefficient as in 4a, 0.5, varied only if the PGD loss stays high).
+One parameter at a time from the best configuration so far; interactions are missed by design. Each round is about 3–6 screening runs.
+
+---
+
+26-10-20, Claude Opus 5.5 — *4e: analysis check and end-token trial*; same session. Julian is away for 1–2 hours and asked me to keep the H100 busy with experiments.
+
+**Analysis script check** [verified: `~/spd_out/26-10-16_faithful_targeting/e4/analysis/check4a.log` and `verdict_s-4cd6abe5_test.json`, H100, 26-10-20]: `verdict_lens_analysis.py` on 4a (`s-4cd6abe5`, test split) reproduces every verdict-state number of the stored `exp4_s-4cd6abe5.json` exactly, and the cancellation numbers within 0.2%. Committed with the two 4e configs as `40bfe88`. The exact per-position mean ⟨C, Δx⟩/|y|² of 4a is −194 at L11, −64 to −12 at L12–17 (my estimate from mean norms in the answer to the y − C comment: −183 to −11).
+
+**End-token trial** (`s-16271b38`, 300 steps, PGD off, coefficient 1, LR 5e-4; val split, 986 statements) [verified: one run]:
+- Start-up: the term starts small, not at 10²–10⁴ as I had predicted (F3): penalty 0.022 at step 0, |C|/|y| 0.34–0.42 at initialisation. The large I/Δ writes in 4d's trial arose during training, without this term. **No warm-up needed**; F3 is moot.
+- Training: penalty 0.022 → 0.003 at step 300; stochastic verdict loss 0.022 → 0.013; L0 2.5 → 1.5.
+- Analysis: no cancellation (|Δx| 0.99–1.01 |y|, |C| 0.26–0.33 |y|, ⟨C, Δx⟩/|y|² −0.04 to −0.05 per layer, cos(I, Δ) −0.11 to −0.16), but the components are almost all inactive (1.6 active per statement) and write nothing (|A| ≤ 0.02 |y|). Verdict: components only (CI-weighted) KL 0.175, i.e. **14% of the all-off KL 0.204 recovered** (rounded 21%); Δ only 84%. Original accuracy on val 0.966 (test 0.978).
+- Reading [assumed: 300 steps is far from converged]: the global term does what it should against cancellation, and at this point the trial sits in the trivial corner C ≈ small, Δ ≈ y. Whether training pulls the verdict into components later is what the 3,000-step round shows.
+
+Plan while Julian is away: the all-token trial runs now; afterwards round 1 (LR ∈ {1e-4, 5e-4, 2e-3} × {end, all statement tokens}, 3,000 steps, PGD off, two runs at a time) starts automatically. Scripts: `make_round.py`, `run_round.sh` in `~/spd_out/26-10-16_faithful_targeting/e4/` (instance `/root/e4/rounds/<round>/`).
+
+**All-token trial** (`s-294c4acf`, same settings, all statement tokens decomposed; val) [verified: one run]: 2.53 it/s (end token 2.61). All off now takes the verdict to chance (accuracy 0.511, KL 0.669; at the end token alone 0.838, KL 0.204), so the loss has much more signal here. Components only (CI-weighted) recover 24% of the all-off KL (rounded 25%), **Δ only 39%** (accuracy 0.777): unlike the end-token trial, Δ does not carry the verdict alone. No cancellation (|Δx| 1.02–1.03 |y|, |C| 0.21–0.27 |y|, ⟨C, Δx⟩/|y|² −0.06 to −0.10); 2.3 active components at the end token, 0.7 per middle token, none at the first token. 300 steps only.
+
+Round 1 (LR) started 17:46 UTC, two runs in parallel.
+Parallel throughput (question 10) [verified: step 300 of round 1's first pair]: two runs at once 1.49 + 1.48 = 2.97 it/s in total, vs 2.53–2.61 it/s for one run alone: about 15% more, at 64.5 GB and 100% GPU utilisation. Kept at two. A 3,000-step screening run then takes ~34 min plus evals; round 1 (three pairs) should end around 19:30 UTC.
+
+---
+
+26-10-20, Claude Opus 5.5 — *4e round 1 (LR): first pair*; same session. Numbers from `verdict_lens_analysis.py` on val (986 statements), summarised with `~/spd_out/26-10-16_faithful_targeting/e4/summarize.py`; JSONs in `e4/analysis/r1_lr/` [verified: one seed each]. Objective = KL recovered by the CI-weighted components (1 = original verdict distribution, 0 = all decomposed outputs off).
+
+| run | positions, LR | KL recovered: CI-weighted / rounded / Δ only | accuracy (CI-weighted) | active per statement | max over layers: \|I\|, \|Δx\|, \|C\| (/\|y\|) | min ⟨C, Δx⟩/\|y\|² | max \|A\|/\|y\| |
+|---|---|---|---|---|---|---|---|
+| trial `s-16271b38` | end, 5e-4, 300 steps | 0.14 / 0.21 / 0.84 | 0.848 | 1.6 | 0.33, 1.01, 0.33 | −0.05 | 0.02 |
+| trial `s-294c4acf` | all, 5e-4, 300 steps | 0.24 / 0.25 / 0.39 | 0.739 | 54.7 | 0.26, 1.03, 0.27 | −0.10 | 0.03 |
+| `s-c706fefb` | end, 1e-4 | 0.25 / 0.35 / 0.88 | 0.863 | 1.9 | 0.35, 0.97, 0.35 | −0.02 | 0.03 |
+| `s-114f2c0e` | all, 1e-4 | 0.29 / 0.48 / 0.42 | 0.674 | 60.5 | 0.19, 1.01, 0.20 | −0.03 | 0.03 |
+
+(All off: end token accuracy 0.838, KL 0.204; all tokens accuracy 0.511, KL 0.669. Original on val 0.966.)
+
+Reading so far [concluded unless tagged]: the global term prevents cancellation in every run (Δ ≈ |y|, all components together ≤ 0.35 |y|). The components write very little (|A| ≤ 0.03 |y|) and still recover a quarter to half of the verdict's KL, so whatever they write lies in directions the verdict reads [assumed: interpretation, not tested]. At all tokens the rounded state (48%) is well ahead of the CI-weighted one (29%): many active CIs are below 1, so the objective penalises half-on components. The accuracy of the CI-weighted state at all tokens (0.674) is lower than at the end token although its KL recovery is higher, because the all-token all-off baseline is at chance.
+
+C: Can you explain this some more: "At all tokens the rounded state (48%) is well ahead of the CI-weighted one (29%): many active CIs are below 1, so the objective penalises half-on components"?
+What are the percentages and where do you get the rounded state from? I only saw CI-weighted runs above.
+
+Answer (26-10-20, Claude Opus 5.5): "CI-weighted" and "rounded" are not two kinds of runs. They are two ways the analysis evaluates **the same trained decomposition** afterwards. Every run is trained the same way: the CI-weighted active term no longer exists, only the global term ⟨C, Δx⟩ = 0 is trained. After training, `verdict_lens_analysis.py` takes the run's checkpoint, computes the CIs for each validation statement, and runs the model in several *states*. In each state the decomposed MLP outputs (at the decomposed positions) are replaced by a masked sum of the components, with Δ off:
+- **CI-weighted** (`components_ci`): component c gets mask = its CI (a component with CI 0.3 contributes 30% of its write). This is the objective you chose.
+- **Rounded** (`components`): mask = 1 if CI > 0.01, else 0, so every active component contributes its full write. This is the "components only" state of all earlier Exp 4 analyses, and the same rule as the training eval `TargetReconLoss`.
+- For reference, **Δ only** (components off, Δ on) and **all off** (decomposed outputs 0).
+
+The percentages are "KL recovered" = 1 − KL(state)/KL(all off), with KL = KL(original ∥ state) of the next-token distribution at the answer, averaged over statements. 100% = the state gives the original verdict distribution, 0% = no better than switching the decomposed MLP outputs off. For the all-token run at LR 1e-4 (`s-114f2c0e`): all off KL 0.669; CI-weighted KL 0.475 → 1 − 0.475/0.669 = 29%; rounded KL 0.348 → 48%; Δ only KL 0.390 → 42%. Verdict accuracy in the same states: 0.674, 0.818, 0.766 (all off 0.511, original 0.966).
+
+Why they differ: the two states differ only where an active component's CI lies strictly between 0.01 and 1. In this run that is 13–18% of the active CIs per layer, but those components carry a large part of the write: the CI-weighted write |A_ci| is about half the rounded one |A| in every layer (e.g. L17 0.017 vs 0.029 |y|). So the CI-weighted state applies roughly half of what the active components write, and recovers less of the verdict. My sentence above ("many active CIs are below 1") overstated the count: it is a minority of the CIs, but a large share of the write. "Penalises half-on components" meant: under the CI-weighted objective, a component that is only half on also counts only half, whereas the rounded state counts it fully.
+
+Relevance for tuning: training never uses exactly the CI-weighted masks (the stochastic masks are CI + (1 − CI)·uniform noise), so nothing pushes the CIs of useful components to 1. If the CI-weighted state stays well behind the rounded one, the importance-minimality settings (they shape the CIs) are where it would change [assumed].
+
+---
+
+26-10-20, Claude Opus 5.5 — *4e round 1 (LR): second pair (5e-4)*; same session [verified: one seed each, val].
+
+| run | positions, LR | KL recovered: CI-weighted / rounded / Δ only | accuracy CI-weighted / rounded / Δ only | active per statement | max \|I\|, \|Δx\|, \|C\| (/\|y\|) | min ⟨C, Δx⟩/\|y\|² |
+|---|---|---|---|---|---|---|
+| `s-e6688f03` | end, 5e-4 | 0.08 / 0.08 / 0.79 | 0.844 / 0.841 / 0.947 | 0.7 | 0.60, 0.86, 0.60 | −0.01 |
+| `s-348832ad` | all, 5e-4 | **0.37 / 0.38 / 0.12** | 0.756 / 0.778 / 0.684 | 19.7 | 0.36, 0.98, 0.36 | −0.04 |
+
+Reading [concluded unless tagged]:
+- **All tokens at LR 5e-4 is the best run so far**: the CI-weighted components recover 37% of the all-off KL and, for the first time in Exp 4d/4e, **more than Δ alone (12%)**. So the verdict-relevant part of the MLP outputs is carried by the components rather than by Δ, and without cancellation (|Δx| ≤ 0.98 |y|, |C| ≤ 0.36 |y|). The CI-weighted and rounded states now agree (5–9% of the active CIs in between), unlike at LR 1e-4. About 1 active component per layer at the statement end, 0.2 per middle token, none at the first token.
+- At the end token the higher LR made things worse (8% vs 25% at 1e-4): the components are nearly all off (0.7 active per statement) and Δ carries the verdict, as in 4d.
+- Caveat: one seed each, and 37% is still far from 4b's 88% (4b reconstructed y; rounded state; test split, so not directly comparable).
+
+The LR 2e-3 pair runs now (end ~19:45 UTC).
+
+---
+
+26-10-20, Claude Opus 5.5 — *ablations of the best 4e run: plan*; same session. Julian asked whether there is room for ablations of `s-348832ad` (all tokens, LR 5e-4). GPU memory was 65.3 of 81.6 GB (the LR 2e-3 pair), too little for a third 7B job; the checkpoint (only on the instance, tuning runs don't sync) is now also copied to `~/spd_out/26-10-16_faithful_targeting/e4/checkpoints/s-348832ad/`. Options offered: (1) wait until the LR 2e-3 pair ends (~19:45 UTC), then ablations next to one round-2 run; (2) stop the end-token 2e-3 run now.
+
+C: (transcribed from chat) Yes, option 1 and your measurement A1, A2 and A3
+
+Measurements (val split, 986 statements; replacement at all statement tokens as in training):
+- A1: single-component removal from the full model (mask 0 for one component at all decomposed positions, everything else original): change of verdict separation, accuracy, KL, by label and family, for every component active (rounded CI) on ≥ 1% of statements; control: size-matched random sets of rarely active components.
+- A2: the same removals from the CI-weighted components-only state (Δ off).
+- A3: per component, where it is active (CI by label, family, position) and how much it writes along the truth direction.
+
+Implementation: `~/spd_out/26-10-16_faithful_targeting/e4/ablate_4e.py` (adapted from the steering topic's `flip_components.py`; on the instance `/root/e4/`). Details fixed while writing [assumed: my choices]: A1 in two variants, removal at every decomposed position ("ungated", a weight edit W − u_c v_cᵀ) and only where the component is active ("gated"); A2 removal from the CI-weighted state (mask = CI, Δ off), reported as the change of KL recovered; candidates = active (rounded CI) at some statement token in ≥ 1% of the val statements; controls = 30 single removals of rare components (active in > 0 and < 1% of statements) and 10 size-matched random rare sets vs removing all candidates. A3's "truth direction" = each layer's own mass-mean direction of the MLP output at the statement end (mean y over true minus false statements), and the component's share of that gap (CI-weighted write); Δ's share alongside. Chained on the instance to start when round 1 ends; round 2 then runs one job at a time next to it.
+
+---
+
+26-10-20, Claude Opus 5.5 — *4e round 1 complete: LR 2e-3*; same session [verified: one seed each, val, 3,000 steps, PGD off].
+
+| run | positions, LR | KL recovered: CI-weighted / rounded / Δ only | accuracy CI-weighted / Δ only | active per statement | max \|I\|, \|Δx\|, \|C\| (/\|y\|) | min ⟨C, Δx⟩/\|y\|² | min cos(A, I) | max \|A\|, \|A_ci\| (/\|y\|) |
+|---|---|---|---|---|---|---|---|---|
+| `s-9dc19f9f` | end, 2e-3 | 0.86 / 0.72 / 0.84 | 0.947 / 0.961 | 2.1 | 0.66, 0.88, 0.66 | −0.02 | −0.28 | 0.22, 0.10 |
+| **`s-eb1c20d5`** | **all, 2e-3** | **0.91 / 0.87 / −0.34** | **0.974** / 0.556 | 27.5 | 0.46, 0.97, 0.45 | −0.04 | −0.23 | 0.16, 0.08 |
+
+(Original on val: accuracy 0.966. All off: end 0.838 / KL 0.204, all tokens 0.511 / KL 0.669.)
+
+Reading [concluded unless tagged]:
+- **`s-eb1c20d5` is the first decomposition in Exp 4 whose components carry the verdict without cancellation and without Δ.** CI-weighted components alone: KL 0.060 (91% of the all-off KL recovered), accuracy 0.974, at or above the original. Δ alone, i.e. the MLP outputs with the components' write removed: KL 0.897, *worse* than switching the MLPs off (0.669), accuracy 0.556. So removing a small part of y (the components write |A_ci| ≤ 0.08 |y|, all components together |C| 0.19–0.45 |y|) destroys the verdict, and that small part alone restores it. The global term holds (⟨C, Δx⟩/|y|² −0.015 to −0.038 per layer, RMS ≤ 0.09), so along C's direction Δ has (almost) nothing: Δ-only is close to a directional ablation of C from y. This is the y = t + r picture: components ≈ the verdict-relevant part t, Δ ≈ the rest r [assumed: interpretation; A3 and the ablations test it].
+- Weak spots: active and inactive components partly oppose at L13 and L17 (cos(A, I) −0.23 and −0.12; |A| 0.16 and 0.12 |y|, |I| 0.42 and 0.47 |y|), so a small A-vs-I cancellation exists, the loophole the global term allows; small in size. The CI-weighted state fails on element_symb_true (accuracy 0.21, 14 statements; original 1.00 there) and neg_element_symb_true (0.57).
+- At the end token the components also recover 86%, but Δ alone does too (84%): the verdict is carried twice, so that setting does not separate them.
+- LR mattered most: at all tokens 1e-4 → 29%, 5e-4 → 37%, 2e-3 → 91%. The best LR is the largest tried, so round 2 extends it.
+- Caveats: one seed; 3,000 steps without PGD; val split.
+
+**Decision without asking** [assumed: my call, Julian can stop it]: the ablations Julian approved were for `s-348832ad` (5e-4). That job is running but slow (377 candidate components active in ≥ 1% of statements → 1,197 conditions, ~1.7 h), and its A3 shows its components write ≈ 0% of the end-token truth gap (Δ 95–98%). I started the same ablations on `s-eb1c20d5` in parallel (candidates active in ≥ 2% of statements, to shorten it), and round 2 = LR ∈ {1e-3, 5e-3, 1e-2} at all tokens, one job at a time (GPU memory 73 of 81.6 GB with the three jobs). Checkpoint of `s-eb1c20d5` copied to `~/spd_out/26-10-16_faithful_targeting/e4/checkpoints/s-eb1c20d5/`.
+OUTDATED: in the bullet *Weak spots* above, "original 1.00 there" is wrong. The original model's val accuracy is 0.57 on element_symb_true (14 statements) and 0.79 on neg_element_symb_true, so the CI-weighted state (0.21, 0.57) is worse than the original there, but the original is weak on these families too [verified: `verdict_s-eb1c20d5_val.json`, state original].
+
+---
+
+26-10-20, Claude Opus 5.5 — *all runs stopped; partial A3 of `s-eb1c20d5`*; same session.
+
+C: (transcribed from chat) Actually can you stop all runs. I want to stop for today
+
+Stopped at 19:55 UTC [verified: no python processes left, GPU 0 MiB]: both ablation jobs (`s-348832ad` at ~100 of 1,197 conditions, `s-eb1c20d5` at ~50 of 323; neither wrote its npz/json, those are written at the end) and round 2's first run (`s-2db4e79d`, LR 1e-3, killed during training, exit 143; LR 5e-3 and 1e-2 never started). Logs, configs and analysis JSONs of everything on the instance copied to `~/spd_out/26-10-16_faithful_targeting/e4/instance_copy/` (no checkpoints). Checkpoints: `s-348832ad` and `s-eb1c20d5` are copied to `e4/checkpoints/`; the other six (two trials, four round-1 runs, 319 MB each) exist only on the instance and are lost when it is destroyed. The instance itself is still rented; I did not destroy it.
+
+**Partial A3 of `s-eb1c20d5`** (printed before the conditions; `instance_copy/ablate_s-eb1c20d5.log`) [verified: one run, val]: 79 components active in ≥ 2% of the statements. Share of each layer's truth gap at the statement end along that layer's own mass-mean direction (mean y over true minus false statements): CI-weighted components 0.1–6.6% per layer (L11 6.6%, L15 3.7%, others ≤ 2.2%), Δ 87–97%. The most active components are task-generic: L13:62 and L17:37 are active in every statement (true and false alike, at 43% of first tokens, ~62% of middle tokens and every statement end) and write the most (mean write 2.07 and 0.62); L17:5, L12:59 and L11:36 are active in 64–77% of statements, mostly negated families, at the statement end.
+
+This **contradicts my reading in the entry *4e round 1 complete: LR 2e-3*** ("components ≈ the verdict-relevant part t, Δ ≈ the rest r", tagged [assumed] there): at the statement end the components write almost none of y's truth gap along its mass-mean direction, Δ writes nearly all of it. Yet the components alone give the verdict (accuracy 0.974) and Δ alone does not (0.556). One possible explanation [assumed, untested]: the verdict needs something the components write that is not the mass-mean truth difference (e.g. the always-active L13:62 / L17:37 write a task-generic signal that later layers need to read the truth computed elsewhere), or the truth difference the verdict uses is written at other statement tokens (A3 measured only the statement end) or along other directions. The single-component removals (A1/A2), which did not finish, are what would tell.
+
+Open for the next session [assumed: proposals]:
+- Rerun the ablations of `s-eb1c20d5` (≈ 25 min alone on the H100); the `s-348832ad` ablations are probably not worth their 1.5 h.
+- A3 at the other statement tokens (object token, all tokens pooled), and removal of L13:62 / L17:37 alone.
+- Round 2: LR beyond 2e-3 (1e-3, 5e-3, 1e-2) at all statement tokens, then the importance-minimality coefficient; a second seed of `s-eb1c20d5`.
+- Still pending from earlier: the WandB deletion Julian approved (three incomplete runs, the 4d checkpoint) was blocked by the permission check.
+
+---
+
+26-10-21, Claude Opus 5.5 — *WandB deletion retried, blocked again*; new session, I have read INDEX.md, this topic's SUMMARY, the WandB storage SUMMARY and the deletion rule in `docs/CODING.md`.
+
+Julian asked in chat whether I can do the approved WandB deletion now (approval: his C: comment under question 1 of the entry *4e restart: questions before tuning*).
+
+State before deletion [verified: WandB API, 26-10-21, project `bitt-j-personal/spd`]: `s-5c284ebb` finished, 5,000 steps, files 336.2 MB of which `model_5000.pth` 333,524,341 bytes; `s-b8c8c610` failed, 0.0 MB; `s-37397e7d` finished, 300 steps, 2.4 MB; `s-15cc0844` crashed, 200 steps, 0.9 MB. Matches the record.
+
+**Not done**: the auto-mode permission check denied the deletion script again ("Cloud Storage Mass Delete"). The script deletes only `model_5000.pth` from `s-5c284ebb` (run and metrics stay) and the three incomplete runs whole, asserting the file size and run states first, then re-lists to confirm. Julian can run it himself; it is not part of the repo.
+OUTDATED (26-10-21): "the script ... Julian can run it himself" above is wrong: the script file was never written, because writing it was part of the denied command. See the next entry.
+
+---
+
+C: (transcribed from chat) I changed the mode to manual. Run the script again
+
+---
+
+26-10-21, Claude Opus 5.5 — *WandB deletion done 26-10-21*; same session.
+
+The script did not exist (see the OUTDATED note above); I wrote it and ran it. Deleted from WandB project `bitt-j-personal/spd` [decided: Julian, C: comment under question 1 of *4e restart: questions before tuning*; verified: re-listing after deletion]:
+- `s-5c284ebb` (4d, coefficient 1): `model_5000.pth`, 333,524,341 bytes. The run, its metrics, figures and `output.log` stay. No copy exists anywhere now; the analysis outputs `~/spd_out/26-10-16_faithful_targeting/full/analysis/exp4_s-5c284ebb.{json,npz}` remain.
+- Whole runs `s-b8c8c610`, `s-37397e7d`, `s-15cc0844`: the API no longer finds them.
+
+Storage after deletion: in `convos/julian/26-10-03_wandb_storage_LOG.md`, entry *4d checkpoint and incomplete runs deleted 26-10-21*.

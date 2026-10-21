@@ -190,3 +190,13 @@ Deleted on WandB (project `spd`), the checkpoint file only; runs and their metri
 [verified: file listing after deletion] None of the six runs holds a `.pth` file anymore. The local copies under `~/spd_out/runs/spd-<id>/` and `~/spd_out/spd/s-286aa6a9/` are untouched.
 
 `entity.storageBytes` right after deletion: still 4.73 GB (the counter lags deletions by hours, as on 26-10-03). Expected after the lag: ≈ 3.30 GB, then ≈ 3.97 GB once both Exp 4d checkpoints are in. Not yet re-checked.
+
+---
+
+26-10-21, Claude Opus 5.5 — *4d checkpoint and incomplete runs deleted 26-10-21*; I have read INDEX.md, this SUMMARY and the LOG tail.
+
+Deleted on Julian's approval, recorded in `convos/julian/26-10-16_faithful_targeting_LOG.md` (C: comment under question 1 of *4e restart: questions before tuning*; deletion in entry *WandB deletion done 26-10-21*): the Exp 4d checkpoint `s-5c284ebb/model_5000.pth` (333.5 MB, no local copy) and the three incomplete 4d runs `s-b8c8c610`, `s-37397e7d`, `s-15cc0844` (3.3 MB together). The second 4d run (coefficient 10) was stopped early and never uploaded a checkpoint, so "both 4d uploads" from the tier-1 estimate did not happen.
+
+[verified: WandB API listing over all projects, 26-10-21, right after deletion]:
+- Listed files total **3.310 GB**, of which checkpoints 3.042 GB: 8 × 238.2 MB (untrained `s-7fad0c14`, arm A `s-bd23f0d1`, code control `s-b6cce5de`, UTH `s-d2ded461`, Exp 2 `s-05db01ad`, Exp 1 `s-cd129592`, Exp 3 `s-161f8a7b`, Exp 0 `s-aeaa70d8`) and 3 × 333.5 MB (Exp 4a `s-4cd6abe5`, 4b `s-717b50c9`, 4c `s-5ecb5791`); the rest is toy runs (≤ 3.1 MB each) and metrics. No Exp 4e checkpoint is on WandB.
+- `entity.storageBytes` = 3.650 GB. The 0.34 GB above the listed files matches the 4d checkpoint just deleted [concluded: the counter lags deletions by hours, seen twice before], so tier 1's 1.43 GB has already left the counter. Expected after the lag: ≈ 3.31 GB, 1.69 GB under the cap. Not yet re-checked.
