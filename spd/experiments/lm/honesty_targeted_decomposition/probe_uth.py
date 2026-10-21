@@ -167,7 +167,7 @@ def length_batches(lengths: list[int], max_tokens: int) -> list[list[int]]:
     return batches
 
 
-@torch.no_grad()
+@torch.no_grad()  # pyright: ignore[reportUntypedFunctionDecorator]
 def extract_features(
     comp_model: ComponentModel,
     ci_fns: dict[str, torch.nn.Module],

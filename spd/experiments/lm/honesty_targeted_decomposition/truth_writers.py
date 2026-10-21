@@ -279,7 +279,7 @@ def load_component_weights(run_info: SPDRunInfo, module_order: list[str]) -> Run
     )
 
 
-@torch.no_grad()
+@torch.no_grad()  # pyright: ignore[reportUntypedFunctionDecorator]
 def choose_vocab(
     comp_model: ComponentModel, token_ids: list[list[int]], pad_id: int, capture: LastTokenCapture
 ) -> Tensor:
@@ -298,7 +298,7 @@ def choose_vocab(
     return torch.topk(total, VOCAB_K).indices.sort().values
 
 
-@torch.no_grad()
+@torch.no_grad()  # pyright: ignore[reportUntypedFunctionDecorator]
 def extract_split(
     comp_model: ComponentModel,
     ci_fns: dict[str, torch.nn.Module],

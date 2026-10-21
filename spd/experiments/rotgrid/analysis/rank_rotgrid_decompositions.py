@@ -822,7 +822,7 @@ def stage_match_inputs(
 ) -> MatchInputs:
     path = run.cache_dir / "match_inputs.pt"
     if path.exists():
-        return MatchInputs(**_load(path)["inputs"])
+        return MatchInputs(**_load(path)["inputs"])  # pyright: ignore[reportCallIssue]
     total = sum(float(v.float().sum()) for v in ablation.values())
     inputs = MatchInputs(
         mechanisms={layer: _mechanisms(cm, layer) for layer in cm.module_to_c},
@@ -980,13 +980,13 @@ def gate_report(configs: list[dict[str, object]]) -> list[dict[str, object]]:
         values = [(row["config"], row.get(field, float("nan"))) for row in configs]
         order = sorted(
             values,
-            key=lambda kv: (np.isnan(kv[1]), -kv[1] if higher_is_better else kv[1]),  # pyright: ignore[reportArgumentType]
+            key=lambda kv: (np.isnan(kv[1]), -kv[1] if higher_is_better else kv[1]),  # pyright: ignore[reportArgumentType, reportCallIssue, reportOperatorIssue]
         )
         for position, (config_label, _) in enumerate(order):
             ranks.setdefault(config_label, []).append(position + 1)
     for row in configs:
         row["mean_rank"] = float(np.mean(ranks[row["config"]]))
-    return sorted(configs, key=lambda r: r["mean_rank"])  # pyright: ignore[reportArgumentType]
+    return sorted(configs, key=lambda r: r["mean_rank"])  # pyright: ignore[reportArgumentType, reportCallIssue]
 
 
 def write_tsv(path: Path, rows: list[dict[str, object]]) -> None:
@@ -1064,7 +1064,7 @@ def print_report(
     print()
     survivors = [row for row in configs if row["gates_failed"] == "-"]
     if survivors:
-        best = max(survivors, key=lambda r: r["EXPL"])  # pyright: ignore[reportArgumentType]
+        best = max(survivors, key=lambda r: r["EXPL"])  # pyright: ignore[reportArgumentType, reportCallIssue]
         print(f"PICK: {best['config']} -- the only gate-passing config with the highest EXPL.")
     else:
         print("No config passes every gate. Falling back to mean rank across the four axes,")

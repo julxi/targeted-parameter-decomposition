@@ -129,7 +129,7 @@ def readouts(x: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tensor, torc
     return last, mean
 
 
-@torch.no_grad()
+@torch.no_grad()  # pyright: ignore[reportUntypedFunctionDecorator]
 def extract_features(
     comp_model: ComponentModel,
     ci_fns: dict[str, torch.nn.Module],
