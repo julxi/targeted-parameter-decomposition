@@ -460,3 +460,467 @@ The script did not exist (see the OUTDATED note above); I wrote it and ran it. D
 - Whole runs `s-b8c8c610`, `s-37397e7d`, `s-15cc0844`: the API no longer finds them.
 
 Storage after deletion: in `convos/julian/26-10-03_wandb_storage_LOG.md`, entry *4d checkpoint and incomplete runs deleted 26-10-21*.
+
+---
+
+C: (transcribed from chat) Can you do the follow up experiments? Just continue from where you have left of and maybe adjust your approach to reflect the preliminary results you've gathered so far.
+Also because of an H100 shortage and to see if it's cheaper I have rented an RTX pro 6000. I think it has more vram so you should check again how many decomposition trainings you can run in parallel and if it's worth it. Also write down the training runs somewhere so I can delete them from wandb from time to time.
+
+---
+
+26-10-21, Claude Opus 5.5 — *what do the components carry: extended ablations*; new session. I have read INDEX.md, this LOG in full, its SUMMARY, the vast-rentals and WandB-storage SUMMARYs, the end of the vast-rentals LOG and `docs/CODING.md`.
+
+**Adjusted plan** [assumed: my call]. Round 1's best run `s-eb1c20d5` (all statement tokens, LR 2e-3) restores the verdict through its components alone, but the partial A3 said the components write almost none of y's truth gap at the statement end and its most active components fire on every statement. So the first question is no longer "can tuning push 91% higher" but "do the components carry the statement's truth, or a generic signal the rest of the model needs?" Order: (1) the stopped ablations of `s-eb1c20d5`, extended by tests that separate the two readings; (2) round 2 in parallel: a second seed of `s-eb1c20d5` first (before tuning on small differences, the run-to-run spread must be known), then LR 5e-3 and 1e-2. LR 1e-3 dropped: it lies between two measured points (5e-4: 37%, 2e-3: 91%). Importance-minimality coefficient after that.
+
+**Machine** [verified: `nvidia-smi`, 26-10-21]: vast.ai RTX PRO 6000 Blackwell (96 GB, power limit 420 W), torch 2.8.0+cu128 runs on it (compute capability 12.0). The repo there is at `5bffe1f` plus the RTX PRO 6000 config.
+
+**Parallel training on this card** [verified: step counters 120 s apart, steps 1,011–1,108 and 172–269, no eval in the window; one measurement]: one 4e all-token run alone 1.72 it/s at 30 GB; two at once 0.81 + 0.81 = 1.62 it/s at 60 GB. So a second training job gains nothing here (−6%), while on the H100 it gave +15% (2.97 vs 2.53–2.61 it/s, entry *4e implementation, part 2*). The card runs at its 420 W cap with 95% utilisation from one job. Per job it is 0.68× an H100 (1.72 vs 2.53 it/s), so a 3,000-step screening run takes ~30 min plus evals and analysis. Consequence: training runs one at a time; the free memory is used for inference jobs (ablations, analyses) next to it. Memory would allow three trainings (30 GB each).
+
+**WandB run register**: `convos/julian/26-10-03_wandb_storage_RUNS.md` lists every run since 26-10-02 with checkpoint, local copy and where its results are recorded; agents add a row per launched run. Screening configs now set `wandb_run_name` to the label (`make_round.py`), so the runs are recognisable on the website.
+
+**Ablation script extended** (`~/spd_out/26-10-16_faithful_targeting/e4/ablate_4e.py`; docstring has the definitions):
+- A3 at three sites: the statement end (as before), the token before it (last content token, usually the object's last token) and the mean over all statement tokens.
+- A4: the "always-on" set (components active in ≥ 90% of statements: L13:62, L17:37): keep only it in the CI-weighted components-only state; remove it from that state and from the full model.
+- A5: frozen activations. Each component's CI-weighted activation CI_c (v_c · x) is replaced by its val mean per position type (first / middle / end; true and false pooled), i.e. a fixed write per type. Alone (Δ off) and with Δ. Reference: the decomposed outputs replaced by the per-type mean of y (the layer scan's mean ablation). Built as a fixed vector added by a forward hook on each layer's `mlp` on top of the all-off state; check of that path: the hook-built components-only state reproduces the mask-built one exactly (KL 0.0599 both, max score difference 0.000) [verified].
+- A1/A2 unchanged (79 candidates active in ≥ 2% of statements, 331 conditions).
+
+**Results, special conditions** (`s-eb1c20d5`, val, 986 statements; original accuracy 0.966) [verified: one run, `instance /root/e4/ablate_s-eb1c20d5.log`]:
+
+| state | accuracy | separation share | KL recovered | T→0 | F→1 |
+|---|---|---|---|---|---|
+| CI-weighted components only | 0.974 | 0.69 | 0.910 | 0.019 | 0.002 |
+| all off | 0.506 | 0.07 | 0 | 0.190 | 0.742 |
+| Δ only | 0.557 | 0.07 | −0.339 | 0.067 | 0.789 |
+| A5 frozen components | 0.576 | 0.06 | 0.070 | 0.231 | 0.562 |
+| A5 frozen components + Δ | 0.565 | 0.08 | −0.328 | 0.081 | 0.763 |
+| A5 mean y | 0.508 | 0.04 | −0.063 | 0.438 | 0.484 |
+| A4 always-on only | 0.576 | 0.04 | −0.032 | 0.475 | 0.370 |
+| A4 components only without always-on | 0.953 | 0.75 | 0.902 | 0.023 | 0.023 |
+| A4 full model without always-on | 0.817 | 0.72 | 0.438 | 0.015 | 0.304 |
+
+(Separation share = (mean score true − mean score false) relative to the original's; T→0 / F→1 = share of the originally correct true / false statements whose verdict flips.)
+
+A3, share of each layer's truth gap along its own mass-mean direction, CI-weighted components / Δ:
+
+| layer | statement end | last content token | mean over statement tokens |
+|---|---|---|---|
+| L11 | 0.07 / 0.87 | **0.33** / 0.66 | **0.28** / 0.67 |
+| L12 | −0.02 / 0.96 | 0.01 / 0.93 | 0.01 / 0.94 |
+| L13 | 0.02 / 0.96 | 0.02 / 0.92 | 0.02 / 0.93 |
+| L14 | 0.00 / 0.97 | 0.02 / 0.92 | 0.01 / 0.95 |
+| L15 | 0.04 / 0.95 | 0.01 / 0.96 | 0.02 / 0.96 |
+| L16 | 0.00 / 0.96 | 0.02 / 0.94 | 0.03 / 0.92 |
+| L17 | 0.00 / 0.94 | **0.19** / 0.80 | **0.12** / 0.81 |
+
+**Reading** [concluded unless tagged]:
+1. **The generic-signal reading is out.** Components with frozen activations (a fixed write per position type) restore 7% of the verdict KL, against 91% with their real activations. So what restores the verdict is the components' statement-specific activity. The always-on components are no enabler either: alone they restore nothing, and without them the components-only state still recovers 90%.
+2. **The components supply a "false" signal.** Every state without the components' real activity (all off, Δ only, frozen, with or without Δ) calls most false statements "true" (F→1 0.56–0.79, T→0 ≤ 0.23). With the components alone, F→1 is 0.002. So switching MLPs 11–17 off leaves the model at a "true" default, and the components carry what moves false statements away from it [concluded: from the flip rates; which components do it is what A1/A2 show].
+3. **The mass-mean truth gap is not what the verdict reads, or not alone.** Δ only keeps 66–97% of every layer's mass-mean truth gap, yet gives a worse verdict than all off. The components hold a real share only at L11 and L17 at the last content token (33% and 19%). So most of the truth-correlated variance of the MLP outputs (along the mass-mean direction) is not used by the verdict without the components [concluded: from Δ only]. Measuring "truth" by the mass-mean direction therefore misjudges what the components carry. A better measure would weight y by what the verdict is sensitive to: a gradient × activation attribution of the verdict score to components vs Δ, per layer and position [assumed: proposal, A6 below].
+4. **The always-on components oppose Δ in the full model.** Removing L13:62 and L17:37 from the full model (Δ stays) flips 30% of the false statements to "true", while removing them from the components-only state costs almost nothing. So in the full model they cancel a "true"-pushing part of Δ: a small, verdict-relevant component-Δ cancellation that the global term allows (it constrains ⟨C, Δx⟩ only along C summed over all components) [concluded: from the two removals; the cos(A, I) of −0.23 / −0.12 at L13 / L17 fits].
+
+A1/A2 (single removals) are running; round 2 (seed 1 of LR 2e-3 = `s-52b2abc7`, LR 5e-3 = `s-9d172777`) is training.
+
+---
+
+26-10-21, Claude Opus 5.5 — *single-component ablations of `s-eb1c20d5`*; same session. Outputs copied to `~/spd_out/26-10-16_faithful_targeting/e4/r2/` (`ablate_s-eb1c20d5.log`, `ablate/ablate_s-eb1c20d5.{json,npz}`) [verified: one run, val, 986 statements; 79 candidates = components active in ≥ 2% of statements].
+
+**A1, removal from the full model** (separation share 1.00 = original):
+- All 79 candidates removed: accuracy 0.441, separation share −0.07 (gated: 0.499, −0.07). Ten size-matched sets of rarely active components: accuracy 0.967–0.980, separation 0.94–1.05. Single rare components (30): separation change at most −0.013. So the candidates as a set are necessary in the full model, and the controls show that removing components as such does nothing.
+- Single removals with a real effect (ungated; gated gives the same):
+
+| component | separation share | accuracy | F→1 | T→0 | most affected families | active in (A3) |
+|---|---|---|---|---|---|---|
+| L11:34 | 0.69 | 0.831 | 0.17 | 0.12 | smaller_than −0.44 | 44% of statements: all smaller_than and neg_animal_class, half of larger_than and animal_class; middle tokens |
+| L13:62 | 0.71 | 0.825 | 0.29 | 0.02 | neg_sp_en_trans −0.50, smaller_than −0.44 | every statement (always-on) |
+| L11:36 | 0.80 | 0.823 | 0.30 | 0.00 | neg_sp_en_trans −0.38, smaller_than −0.33 | all negated families, at the statement end |
+| L11:87 | 0.81 | 0.918 | 0.11 | 0.00 | larger_than −0.19 | **false statements only** (T 0.00, F 0.27): half of larger_than |
+| L17:5 | 0.82 | 0.911 | 0.10 | 0.02 | neg_element_symb −0.36 | all negated families, at the statement end |
+| L12:59 | 0.93 | 0.940 | 0.06 | 0.00 | neg_sp_en_trans −0.38 | all negated families, at the statement end |
+
+Every other single removal changes the separation by ≤ 5%.
+
+**A2, removal from the CI-weighted components-only state** (its own separation share 0.69): the largest single drop is L12:59 (0.69 → 0.58, accuracy 0.927); every other single removal costs ≤ 0.06 of separation and ≤ 0.005 of accuracy. Removing all candidates gives the all-off state (accuracy 0.512). Random sets and single rare removals: no change (≤ 0.0001).
+
+**Reading** [concluded unless tagged]:
+1. **In the components-only state the verdict is spread over many components** (redundant: no single removal matters much, all together everything). **In the full model a handful matter individually**, and each of them mostly moves false statements away from "true" (F→1 0.10–0.30, T→0 ≤ 0.12). This fits the A4 result: in the full model Δ pushes towards "true", and a few components oppose that push.
+2. **What these components are**: mostly sentence-form detectors, as in 4b/4c. L11:36, L12:59 and L17:5 are active on every negated statement, true and false alike, at the statement end; L11:34 on the comparison and animal families. One is label-selective: L11:87 fires only on false statements (half of the false larger_than ones), and removing it costs 19% of larger_than's accuracy. So by component *identity* this run looks like 4c ("negation × relation" detectors plus a few truth-selective ones; steering topic), not like a set of truth components. Note: a negation detector can still carry the truth computation in *how much* it writes (its activation varies with x); A5 showed that the activations' statement-specific part is necessary. What A1/A3 cannot tell is whether that variation is the truth itself or a precondition for computing it later.
+3. Coincidence to keep in mind [assumed]: L17:5 was also the main "false negated" component of 4c (steering topic). 4c and this run share seed 0, C = 96 and layers 11–17, so the same index may come from the shared initialisation; the component-overlap analysis of the bolder-experiments topic found nothing beyond that initialisation. A cosine between the two runs' L17:5 would settle it (cheap, not done).
+
+Running next (queue `chain_r2.sh` on the instance): A6 attribution of `s-eb1c20d5`, then ablations + attribution of seed 1 (`s-52b2abc7`); training LR 5e-3, then LR 1e-2.
+
+---
+
+26-10-21, Claude Opus 5.5 — *is this run's L17:5 4c's L17:5?*; same session. Script `~/spd_out/26-10-16_faithful_targeting/e4/compare_4c.py` (CPU; 4c's checkpoint `s-5ecb5791` fetched from WandB on the instance), |cosine| between the two runs' component vectors, U = write (3,584-d), V = read (18,944-d) [verified: one comparison].
+
+- Every component's write vector U stays close to its seed-0 initialisation: the same-index |cos| between the two runs averages 0.21 (L11) to 0.49 (L17), and the best match is almost always the same index. (Two random 3,584-d vectors: ~0.02.) Read vectors V share less: 0.15 (L11) to 0.055 (L17).
+- L17:5: U 0.36 (below its layer's mean 0.49), V **0.24 (4× its layer's mean 0.055)**, both best matches at index 5. L12:59 and L13:62 are at their layers' means; L11:36, L11:34, L11:87 match nothing in particular.
+
+Reading [concluded: from the numbers above]: the shared index comes from the shared initialisation. Beyond it, L17:5 reads a more similar input direction in both runs than an average component does, so both runs turned the same starting vector into a similar negation reader. That is weak evidence for a convergent component, not an independent rediscovery; a run with another seed (seed 1 is training) is the real test.
+
+---
+
+26-10-21, Claude Opus 5.5 — *round 2: seed 1 of `s-eb1c20d5` replicates*; same session. `s-52b2abc7` = `s-eb1c20d5`'s config with `seed: 1` (all statement tokens, LR 2e-3, 3,000 steps, PGD off), trained 08:06–09:17 UTC on the RTX PRO 6000 (half of it sharing the GPU with the LR 5e-3 run). `verdict_lens_analysis.py` on val; JSON copied to `~/spd_out/26-10-16_faithful_targeting/e4/r2/analysis_r2/` [verified: one run per seed].
+
+| state | seed 0 `s-eb1c20d5`: accuracy / separation share / KL recovered | seed 1 `s-52b2abc7` |
+|---|---|---|
+| CI-weighted components only (objective) | 0.974 / 0.69 / **0.910** | 0.971 / 0.78 / **0.912** |
+| rounded components only | 0.966 / 0.64 / 0.872 | 0.977 / 0.79 / 0.915 |
+| Δ only | 0.556 / 0.07 / −0.340 | 0.601 / 0.07 / 0.126 |
+| all off | 0.511 / 0.07 / 0 | 0.506 / 0.07 / 0 |
+
+Cancellation: max |I|, |Δx|, |C| = 0.46, 0.96, 0.46 |y| (seed 0: 0.46, 0.97, 0.45); min ⟨C, Δx⟩/|y|² −0.05 (−0.04); min cos(A, I) −0.04 (seed 0: −0.23, so less opposition between active and inactive components); 24.0 active components per statement (27.5).
+
+Reading [concluded]: the headline result replicates across two seeds: the CI-weighted components alone restore 91% of the all-off verdict KL without cancellation, and Δ alone carries no truth separation (separation share 0.07, the all-off level, in both seeds). The Δ-only KL differs (−0.34 vs +0.13) because of calibration, not truth: Δ only answers "1" for 85% vs 70% of statements (original 51%). So "Δ alone is worse than all off" (round-1 entry) was a seed-0 detail; "Δ alone has no verdict" holds in both. The ablations and A6 of seed 1 follow in the queue.
+
+---
+
+26-10-21, Claude Opus 5.5 — *A6 attribution: first-order version fails, switched to integrated gradients*; same session.
+
+The first version of A6 (`~/spd_out/26-10-16_faithful_targeting/e4/attrib_4e_linear.py`: one gradient g = ds/dy in the original model, attribution g · part) failed its own linearity check on `s-eb1c20d5` [verified: instance `/root/e4/attrib_linear/`]: switching MLPs 11–17 off at the statement tokens changes the true/false score gap by 8.20 (8.80 → 0.60), while the first-order terms sum to −0.65. So the verdict depends on these outputs far from linearly, and the per-part shares it printed (e.g. A_ci −10.3, I_ci +5.1, D +6.2 of a near-zero total) are meaningless. Not used.
+
+`attrib_4e.py` now uses integrated gradients along the path "all decomposed outputs scaled by α", α from 0 (all off) to 1 (original), 16 midpoint steps; at each α, g is taken at the scaled state and the parts (A_ci, I_ci, Δ) are computed from the current inputs. The attributions then sum to s(original) − s(all off) per statement, which the script checks. Caveat [assumed]: the split depends on the path. Scaling all layers together is one choice, and parts that only matter jointly (e.g. a component that opposes Δ) get credit shared along it. Running for seed 0 now, for seed 1 after its ablations.
+
+---
+
+C: (transcribed from chat) What was A6 exactly? Can you also explain in more detail what was wrong about it? And then what the fix is?
+
+Answer (26-10-21, Claude Opus 5.5):
+
+*What A6 is for.* A3 measured "truth" in each MLP output y along the mass-mean direction (mean y over true minus false statements). That direction weights every feature by how much it differs between true and false, not by whether the verdict reads it. A3 found that Δ holds 66–97% of that truth gap, yet Δ alone gives no verdict. A6 asks the same question weighted by what the verdict is sensitive to.
+
+*The first version.* Score s = log P("1") − log P("0") per statement. For each decomposed layer L and statement token t, y = A_ci + I_ci + D exactly: the CI-weighted active components, the remaining components, and Δ. With g = ∂s/∂y (taken in the original model, including the effect through later layers), the attribution of a part P is Σ_t g · P. That is a first-order Taylor estimate of how much s changes if P is removed: s(without P) ≈ s − g · P. For each part, A6 then compares that estimate between true and false statements.
+
+*What was wrong.* A Taylor estimate is only valid for small changes, and removing these outputs is not small: switching all seven MLPs off at the statement tokens moves the true/false score gap from 8.80 to 0.60, a change of 8.20. The first-order terms summed to −0.65 (wrong sign, a tenth of the size). Two reasons: the network is strongly nonlinear in these outputs (normalisation, gated MLPs and attention later on, a saturated softmax at the answer), and many signals act like switches. A signal far above its threshold has gradient ≈ 0 (nudging it changes nothing) although removing it flips the verdict. The gradient at the original point therefore misses most of what the outputs do. The per-part shares were ratios to a near-zero total (per layer ±0.3), hence values like −22 or +148: meaningless. The script compared the linear sum with the real all-off change, and that check caught it. I should have expected it, since all off was already known to be a large change.
+
+*The fix: integrated gradients.* Walk along a path from all off (α = 0) to the original (α = 1), scaling all decomposed MLP outputs by α together. At 16 points along it, take the gradient g(α) and the parts at that point, and average g(α) · part. Because ds/dα = Σ g(α) · y(α), integrating gives s(original) − s(all off) exactly, and since y = A_ci + I_ci + D at every α, that total splits exactly into the three parts. Switches are handled because the gradient is large where along the path the signal crosses its threshold. The script checks per statement that the parts add up to the real change (only discretisation error from 16 steps should remain).
+
+*What it still is not* [concluded]: the split depends on the path. Scaling all layers together is one choice; scaling one layer at a time would split interactions differently. Effects that need two parts together (e.g. a component and the part of Δ it opposes) get their credit shared along the path. So A6 is an attribution, not an intervention: the ablations (A1/A2/A5) stay the causal evidence, and A6 adds where (layer, token) and through which part the verdict's dependence runs.
+
+---
+
+26-10-21, Claude Opus 5.5 — *A6 (integrated gradients) on `s-eb1c20d5`: per-part split is path-dependent*; same session. Output copied to `~/spd_out/26-10-16_faithful_targeting/e4/r2/` (`attrib_s-eb1c20d5.log`, `attrib/attrib_s-eb1c20d5.{json,npz}`) [verified: one run, val, 16 α-steps].
+
+- **Completeness holds**: the true/false gap of the integrated attributions sums to 8.23 against the real all-off change 8.20; per statement the median residual is 0.10 against a median change of 4.19.
+- **Per layer** (truth gap of the attribution of y, all statement tokens; total 8.23): L11 1.42, L12 0.40, L13 0.52, L14 1.20, L15 0.87, L16 1.16, **L17 2.65**. By site, the last content token carries more than the statement end in most layers (e.g. L17 1.38 vs 0.57).
+- **Per part** (all layers and tokens, share of the 8.23): active components (CI-weighted) **+3.37**, inactive components −1.16, Δ −1.21. Per layer the same pattern, strongest at L13 (+13.1 / −8.3 / −3.8) and weakest at L17 (+0.79 / +0.02 / +0.19). Per-site shares of a near-zero layer total (L13 and L15 at the statement end, gap ≈ 0.00) are meaningless and not read.
+
+**Reading** [concluded unless tagged]: taken at face value, the per-part split says the components overshoot the verdict and Δ plus the inactive components pull it back, i.e. a verdict-relevant opposition. But the state ablations do not show it: combining the four states as a two-player Shapley split on the separation share (all off 0.07, CI-weighted components only 0.69, Δ only 0.07, full 1.00) gives the active components ½[(0.69 − 0.07) + (1.00 − 0.07)] = 0.78 and the rest ½[(0.07 − 0.07) + (1.00 − 0.69)] = 0.16, with no overshoot. The two splits answer different questions: integrated gradients credits along the path where all parts shrink together, a regime (every MLP output at a fraction of its size) the model never sees; the Shapley split credits by switching whole parts on or off. Where they disagree, the state-based split is the one tied to real interventions. So **A6's per-part shares are not usable as evidence of cancellation**. Its per-layer profile (largest dependence at L17, then L11, L14, L16; the last content token at least as important as the statement end) is the usable part, with the caveat that it is path-dependent too [assumed: not tested with another path].
+
+If a per-layer, per-part answer is needed, the clean way is states, not gradients: components only at one layer with every other layer original, and Δ only at one layer (7 × 2 extra conditions in `ablate_4e.py`) [assumed: proposal, not run]. The seed-1 A6 run stays in the queue (~10 min) only to check whether the per-layer profile replicates.
+
+---
+
+26-10-21, Claude Opus 5.5 — *A7: per-layer states of `s-eb1c20d5`*; same session. `ablate_4e.py --layer_states_only` (uploaded as `/root/e4/ablate_4e_a7.py`): one decomposed layer in a given state at all statement tokens, every other layer original. Output `~/spd_out/26-10-16_faithful_targeting/e4/r2/ablate_layers_s-eb1c20d5.{json,log}` [verified: one run, val]. KL recovered is relative to the all-layers-off KL (0.669), so the full model = 1. Shapley split of each layer's loss (1 − KL recovered with that layer off) between the components (CI-weighted) and Δ: components ½[(comp − off) + (1 − Δ)], Δ ½[(Δ − off) + (1 − comp)].
+
+| layer | KL recovered: layer off / components only / Δ only | accuracy with layer off | Shapley: components / Δ (share of the layer's loss) |
+|---|---|---|---|
+| L11 | 0.812 / 0.970 / **0.379** | 0.891 | +207% / **−107%** |
+| L12 | 0.917 / 0.965 / 0.811 | 0.966 | +143% / −43% |
+| L13 | 0.952 / 0.965 / 0.849 | 0.957 | +170% / −70% |
+| L14 | 0.904 / 0.973 / 0.733 | 0.937 | +175% / −75% |
+| L15 | 0.719 / 0.937 / 0.852 | 0.862 | +65% / +35% |
+| L16 | 0.886 / 0.974 / 0.891 | 0.899 | +86% / +14% |
+| L17 | 0.794 / 0.955 / 0.931 | 0.864 | +56% / +44% |
+
+**Reading** [concluded unless tagged]:
+1. **No single layer is necessary by much**: switching one layer off costs at most 0.11 accuracy (L15, L17), as the causal layer scan found for the original model. **The components of any single layer suffice for that layer** (KL recovered 0.94–0.97, accuracy 0.946–0.973).
+2. **At L11–L14, Δ alone is worse than the layer off.** At L11 it flips 25% of the false statements to "true" (neg_sp_en_trans −0.62, smaller_than −0.44), the same families and direction as removing L11:34 / L11:36 in A1. So at these layers the part of y left after removing the components pushes towards "true", and the components outweigh it. At L15–L17 both parts help, the components more.
+3. **Correction to the entry *A6 (integrated gradients) on `s-eb1c20d5`***: there I dismissed A6's per-part opposition as a path artefact because the whole-model Shapley split showed none. Per layer, the interventions show the same sign pattern as A6 at L11–L14 (components above 100%, Δ negative), so that part of A6 was real. The whole-model split hid it, because with every layer in "Δ only" the verdict is already at the all-off level (separation 0.07). Where A6 and A7 disagree (L15, L16: A6 gave Δ ≤ 0), A7 is the intervention and wins.
+4. **Is this cancellation?** Not in the 4a sense: the components write ≤ 0.16 |y| and Δ ≈ |y|, so nothing large is cancelled. The pattern "y = a falsity signal + a remainder that alone pushes towards 'true'" is also what a genuine part of y would look like, if the original MLP output combines a default push towards "true" with a falsity detector. The interventions cannot tell the two apart. What would tell [assumed: proposal]: whether the original model's own MLP output at L11 shows the same split without any decomposition, e.g. projecting out of y the components' write directions and comparing that with projecting out random directions of the same rank. If random directions of that rank do nothing comparable, the components found something specific in y.
+
+---
+
+26-10-21, Claude Opus 5.5 — *round 2: LR 5e-3 worse, LR 1e-2 stopped; round 3 (importance-minimality coefficient) started*; same session [verified: one run, val; JSON in `~/spd_out/26-10-16_faithful_targeting/e4/r2/analysis_r2/`].
+
+| run | KL recovered: CI-weighted / rounded / Δ only | accuracy (CI-weighted) | separation share | active per statement | min cos(A, I) | max \|A\| / \|y\| |
+|---|---|---|---|---|---|---|
+| LR 2e-3 seed 0 `s-eb1c20d5` | 0.910 / 0.872 / −0.340 | 0.974 | 0.69 | 27.5 | −0.23 | 0.16 |
+| LR 2e-3 seed 1 `s-52b2abc7` | 0.912 / 0.915 / 0.126 | 0.971 | 0.78 | 24.0 | −0.04 | 0.05 |
+| LR 5e-3 `s-9d172777` | 0.855 / 0.828 / −0.529 | 0.948 | 0.67 | 90.1 | −0.36 | 0.30 |
+
+LR 5e-3 is worse than 2e-3 on the objective (−5.5 points), uses 3.5× as many active components, and has stronger active-vs-inactive opposition. Its training losses had already lagged (orthogonality penalty 0.5–0.6 vs 0.07–0.10 at step ~1,000). So the LR optimum is at or near 2e-3 [concluded: one seed per LR]. **Decision without asking** [assumed: my call, as announced in chat]: LR 1e-2 stopped right after its start (`s-7944818e`, killed at 09:38:57 UTC, exit 143, no checkpoint), because a still higher LR is very unlikely to reverse that trend.
+
+**Round 3** (`rounds/r3_impmin/`, started 09:39 UTC, run sequentially by `e4/run_seq.sh`): importance-minimality coefficient ∈ {1e-2, 3e-3, 3e-4} (now 1e-3) at LR 2e-3, all statement tokens, seed 0, otherwise `s-eb1c20d5`'s config. Why this parameter [assumed]: it sets how many components are active, and the current ~25 per statement with redundancy in the components-only state (A2) make single components hard to read; a sparser decomposition with the same verdict recovery would be easier to analyse. Order: the sparsest first.
+
+Still in the queue: ablations of seed 1 (275 of 707 conditions at 09:37 UTC), then A6 of seed 1.
+
+---
+
+26-10-21, Claude Opus 5.5 — *seed-1 ablations (`s-52b2abc7`): the picture replicates, the components do not*; same session. Same script and settings as for seed 0 (A1–A5, candidates active in ≥ 2% of statements); outputs `~/spd_out/26-10-16_faithful_targeting/e4/r2/ablate_s-52b2abc7.{log,json,npz}` [verified: one run, val].
+
+Replicates (seed 0 values in brackets):
+- **Frozen activations**: accuracy 0.543, KL recovered 0.046 (0.576, 0.070). The components' statement-specific activity is necessary in both seeds.
+- **A3**: the components hold little of the mass-mean truth gap, with the exception of L11 (22% at the last content token; seed 0 33%) and L17 (11%; 19%).
+- **A1**: all 211 candidates removed from the full model: accuracy 0.538 (0.441); random rare sets and single rare removals change nothing (≤ 0.009). **A2**: the components-only state is redundant (largest single drop of separation 0.03).
+- The individually necessary components are again comparison and negation detectors plus false-selective ones, with the same most affected families (smaller_than, neg_sp_en_trans). Top removals: L11:89 (separation −19%; active on every smaller_than and half of the larger_than statements), L11:59 (−12.5%, F→1 0.19; every smaller_than statement), then ≤ 6% each: L13:6 (comparisons, neg_sp_en_trans), L17:6 (**false-leaning**: active in 8% of true vs 39% of false statements, negated families), L12:78 (**false only**: 1% vs 25%, half of smaller_than), L15:80 (negated families).
+
+Differs:
+- **No always-on components** in seed 1 (none active in ≥ 90% of statements), so seed 0's L13:62 / L17:37 were a seed-specific solution.
+- The verdict is spread more thinly: 211 candidates (seed 0: 79), and the largest single removal costs 19% of the separation (seed 0: 31%).
+- **L17:5 is never active in seed 1.** So the L17:5 shared by `s-eb1c20d5` and 4c is not a convergent component; the shared index comes from the shared seed (entry *is this run's L17:5 4c's L17:5?*) [concluded].
+
+**Reading** [concluded]: across seeds the robust result is functional, not component-level: in both, a statement-specific set of components restores the verdict, every state without its activity collapses to the "true" default, and the individually necessary components are sentence-form detectors (comparison, negation) plus a few false-selective ones (seed 0: L11:87 on larger_than; seed 1: L12:78 on smaller_than, L17:6 on negated statements). Which component plays which role is not stable across seeds.
+
+---
+
+26-10-21, Claude Opus 5.5 — *A6/A7 on seed 1: replicate*; same session. Outputs `~/spd_out/26-10-16_faithful_targeting/e4/r2/{attrib_s-52b2abc7.log, attrib/attrib_s-52b2abc7.json, ablate_layers_s-52b2abc7.{log,json}}` [verified: one run each, val].
+
+- **A6** (integrated gradients): the per-layer totals equal seed 0's exactly (L17 2.65, L11 1.42, …; they attribute the original model's MLP outputs, so they cannot depend on the decomposition: a consistency check passed). The per-part split over all layers is also nearly identical: active components +3.40, inactive −1.16, Δ −1.23 (seed 0: +3.37, −1.16, −1.21).
+- **A7** (one layer in a state, the others original), Shapley share of each layer's loss, components / Δ, seed 1 (seed 0):
+
+| layer | KL recovered: off / components / Δ (seed 1) | Shapley components / Δ, seed 1 | seed 0 |
+|---|---|---|---|
+| L11 | 0.809 / 0.967 / 0.517 | +168% / −68% | +207% / −107% |
+| L12 | 0.917 / 0.960 / 0.787 | +154% / −54% | +143% / −43% |
+| L13 | 0.952 / 0.963 / 0.768 | +253% / −153% | +170% / −70% |
+| L14 | 0.904 / 0.971 / 0.797 | +140% / −40% | +175% / −75% |
+| L15 | 0.723 / 0.964 / 0.857 | +69% / +31% | +65% / +35% |
+| L16 | 0.885 / 0.981 / 0.900 | +85% / +15% | +86% / +14% |
+| L17 | 0.795 / 0.969 / 0.895 | +68% / +32% | +56% / +44% |
+
+Reading [concluded]: the per-layer structure replicates across seeds: at L11–L14 the remainder Δ alone is harmful (worse than the layer off, flipping false statements to "true"), at L15–L17 both parts help. Running now: A8, the test whether this split exists in the original y (removal of span(U) vs random subspaces of the same dimension), both seeds.
+
+---
+
+26-10-21, Claude Opus 5.5 — *A8: the L11 split exists in the original MLP output*; same session. `ablate_4e.py --layer_states_only` with A8 (uploaded as `ablate_4e_a8b.py`; outputs `~/spd_out/26-10-16_faithful_targeting/e4/r2/ablate_a8b/` and `ablate_a8b_<run>.log`) [verified: one run per seed, val]. At one layer, all other layers and everything else original, the **original** MLP output y loses its orthogonal projection onto (a) span(U), the layer's 96 component write vectors; (b) three random 96-dimensional subspaces; (c) the 96 top principal directions of y (uncentred, val decomposed positions). No decomposition term enters these states; only the subspace comes from the decomposition.
+
+Energy: span(U) holds 35–50% of |y|² (both seeds), a random 96-d subspace 2.3–2.9%, the top 96 principal directions 86–99%. So (c) removes almost all of y and is an upper-bound control, not an energy-matched one.
+
+KL recovered (relative to the all-layers-off KL; 1 = original), seed 0 / seed 1:
+
+| layer | layer off | Δ only (A7) | − span(U) | − top-96 PCs | − random (3 draws) | F→1 for − span(U) |
+|---|---|---|---|---|---|---|
+| L11 | 0.812 / 0.809 | 0.379 / 0.517 | **0.767 / 0.493** | 0.839 / 0.836 | ≥ 0.996 | 0.22 / 0.28 |
+| L12 | 0.917 / 0.917 | 0.811 / 0.787 | 0.923 / 0.911 | 0.930 / 0.930 | ≥ 0.993 | 0.07 / 0.02 |
+| L13 | 0.952 / 0.952 | 0.849 / 0.768 | 0.969 / **0.841** | 0.959 / 0.958 | ≥ 0.996 | 0.01 / 0.16 |
+| L14 | 0.904 / 0.904 | 0.733 / 0.797 | 0.923 / 0.925 | 0.882 / 0.882 | ≥ 0.997 | 0.07 / 0.08 |
+| L15 | 0.719 / 0.723 | 0.852 / 0.857 | 0.981 / 0.974 | 0.739 / 0.745 | ≥ 0.998 | 0.01 / 0.00 |
+| L16 | 0.886 / 0.885 | 0.891 / 0.900 | 0.926 / 0.989 | 0.899 / 0.900 | ≥ 0.999 | 0.07 / 0.00 |
+| L17 | 0.794 / 0.795 | 0.931 / 0.895 | 0.945 / **0.703** | 0.813 / 0.815 | ≥ 0.999 | 0.09 / 0.25 |
+
+**Reading** [concluded unless tagged]:
+1. **L11, both seeds: the split is a property of the model.** Removing span(U) from the original output (35–43% of its energy) is worse than removing 99% of it or the whole output, and flips 22–28% of the false statements to "true". So in the original model, L11's output contains a part inside span(U) that carries a "false" signal, and outside it a remainder that alone pushes towards "true". The Δ-only harm at L11 (A7) therefore does not need a hidden cancellation between components and Δ; the decomposition found a real division of L11's output. Random subspaces of the same dimension do nothing, so the decomposition's subspace is specific, not just "large".
+2. **L12 and L14, both seeds: Δ only hurts more than removing span(U)** (e.g. L14 seed 0: 0.733 vs 0.923, which is no worse than the layer off). There, part of Δ-only's harm comes from the decomposition itself (C is not the orthogonal projection of y onto span(U)), i.e. a small decomposition-specific opposition between components and Δ [concluded: from the comparison; its size is the gap between the two columns].
+3. **L13 and L17 differ by seed**: in seed 1, removing span(U) is harmful (0.841, 0.703), in seed 0 not. So which subspaces the two decompositions picked there differs, consistent with the seed-specific components found earlier.
+4. Caveat: span(U) is the span of all 96 components, including the inactive ones, and the projection is not the components' actual write. A sharper version would project onto the span of the components active on each statement.
+
+A finding about the model itself, independent of tPD [assumed: one prompt, val split only]: MLP 11's output at the statement tokens is needed for the verdict mainly as a "this is false" signal (switching it off flips 17% of false statements to "true", T→0 0.2%), and this signal lives in a subspace that holds under half of the output's energy.
+
+---
+
+26-10-21, Claude Opus 5.5 — *round 3, importance-minimality coefficient 1e-2 (`s-e9552de2`): sparse and readable*; same session. LR 2e-3, all statement tokens, seed 0, coefficient 1e-2 (10× the earlier 1e-3), 3,000 steps. `verdict_lens_analysis.py` and `ablate_4e.py` (A1–A5, candidates active in ≥ 1% of statements); outputs `~/spd_out/26-10-16_faithful_targeting/e4/r3/` [verified: one run, val].
+
+Verdict states: CI-weighted components only KL recovered **0.599** (accuracy 0.740, separation 0.52), Δ only 0.350 (accuracy 0.777, separation 0.12), **2.1 active components per statement** (coefficient 1e-3: 27.5); no cancellation (max |C| 0.48, |Δx| 0.96 |y|, min ⟨C, Δx⟩/|y|² −0.07, min cos(A, I) −0.03). Frozen activations: 0.004 (all-off level).
+
+Only 8 components are active in ≥ 1% of statements, all at middle tokens only (none at the first token or the statement end):
+
+| component | active (all / true / false) | families | removal from the full model: separation share, accuracy, T→0 / F→1 |
+|---|---|---|---|
+| L12:19 | 0.39 / 0.52 / 0.26 | all larger_than, half of smaller_than | 0.78, 0.925, 0.09 / 0.01 |
+| L11:22 | 0.26 / 0.26 / 0.26 | all larger_than | **0.38, 0.741, 0.21 / 0.26; larger_than accuracy −0.88** |
+| L14:27 | 0.26 / 0.26 / 0.26 | all larger_than | 0.82, 0.912, 0.01 / 0.11 |
+| L11:87, L13:32 | 0.13 / **0.26 / 0.002** | half of smaller_than | 0.95–0.98 |
+| L15:77, L16:42, L17:1 | 0.10 / **0.21 / 0.004** | about half of neg_animal_class, neg_cities, neg_sp_en_trans | ≥ 0.98 |
+
+All 8 removed from the full model: separation 0.58, accuracy 0.835; random rare removals ≤ 0.005. In the components-only state, removing L11:22 alone sends it to the all-off level (F→1 0.74).
+
+**Reading** [concluded unless tagged]:
+1. With 10× the sparsity pressure, the decomposition keeps components only where switching the MLPs off hurts most: the comparison families (all off: smaller_than −0.67, larger_than −0.50 accuracy) and part of the negated families. Families without any component fall back to the "true" default in the components-only state, hence its 0.74 accuracy and F→1 0.47. The objective's drop from 0.91 to 0.60 is the price of leaving those families out.
+2. **L11:22 is necessary for the larger_than verdict**: removing this single component from the full model inverts larger_than's verdicts (accuracy −0.88; true → "0" and false → "1" both rise). It fires on every larger_than statement, true or false, so it does not encode truth but something the comparison needs [assumed: e.g. the direction of the relation; without it the model may read "larger" as "smaller". Testable by swapping the statements' relation word or by steering with L11:22 on smaller_than].
+3. **Truth-selective components exist but matter little**: L11:87 and L13:32 fire only on true smaller_than statements, L15:77 / L16:42 / L17:1 only on true negated statements (false: ≤ 0.4%). Their CIs therefore read the statement's truth, but removing them changes the verdict by ≤ 5% (full model) or less (components-only state), so they write little that the verdict uses [concluded: A1/A2]. This is the arm-A lesson again: a CI that tracks truth is not a component that carries it.
+4. This run is the most readable 4e decomposition so far (8 components) and a candidate for mechanism analysis of comparison statements; it says nothing yet about the other families. Note: the index L11:87 recurs (seed-0 coefficient 1e-3 run: false larger_than only; here: true smaller_than only); same seed 0, so shared initialisation, not the same function [concluded: different families and opposite labels].
+
+Coefficient 3e-3 is training (started 10:34 UTC), then 3e-4.
+
+---
+
+C: (transcribed from chat) It is not clear that fewer componst is better. I don't have an idea for a clear number for "right amount of components"
+
+Answer (26-10-21, Claude Opus 5.5): Agreed, and I should be explicit that I drifted from the objective you set. You chose the KL recovered by the CI-weighted components; by that objective, coefficient 1e-3 (0.91) beats 3e-3 (0.70) and 1e-2 (0.60), and 3e-4 (training now) may beat it. "Readable" was my own added criterion, not yours.
+
+I don't think a right number of components exists either [concluded]: the coefficient trades coverage of the verdict against how few components explain it, and tPD itself defines no optimum on that front (the paper's practice, as far as I know, is the sparsest setting whose reconstruction loss stays acceptable, with "acceptable" set by hand) [assumed: not re-checked in the paper]. What the front does give, without choosing a point on it:
+1. **An ordering.** As the pressure rises, the decomposition keeps the parts of the verdict that are most expensive to lose and drops the rest. At 1e-2 only the comparison families and true negated statements keep components; what 3e-3 adds is in its ablations (running). That order says which parts of the verdict depend most on MLPs 11–17 at the statement tokens, independent of any chosen point.
+2. **Stability across the front.** A component that reappears (same families, same role) at several coefficients is less likely an artefact of one setting. Checkable by matching components across the three runs (same seed, so by write/read vector cosines as in the L17:5 check, plus activity patterns).
+3. **Per-question choice instead of one winner.** For "does tPD capture the verdict at all", use the objective's best (1e-3 or 3e-4). For a mechanism study of one family (e.g. L11:22 and larger_than), the sparse run is easier, because its components are not redundant (A2: single removals matter there, unlike at 1e-3).
+
+Proposal [assumed]: stop tuning this coefficient as a search for one best value; finish 3e-4 (it tests your objective's side of the front), then report the front and the family ordering, and choose by question. If you prefer one number anyway, the objective you set picks the lowest coefficient that does not lose KL recovery.
+
+---
+
+C: (transcribed from chat) can you do some further analysis or report some numbers that can help to decide which decomposition does what. For example maybe one of these decompositions allows for some partial reprogramming of the target model so that it swaps the verdict.
+
+---
+
+26-10-21, Claude Opus 5.5 — *which decomposition does what: comparison table; the 3e-3 run isolates a "false" signal*; same session. Script `~/spd_out/26-10-16_faithful_targeting/e4/compare_decomps.py` over the `ablate_4e.py` JSONs (val, 986 statements) [verified: one run per decomposition]. Runs: importance-minimality coefficient 1e-3 seed 0 (`s-eb1c20d5`), 1e-3 seed 1 (`s-52b2abc7`), 3e-3 (`s-8ec00fb3`; verdict analysis: CI-weighted components KL recovered 0.701, 7.4 active per statement, no cancellation: max |C| 0.45, |Δx| 0.96 |y|), 1e-2 (`s-e9552de2`); all LR 2e-3, all statement tokens, 3,000 steps.
+
+**Coverage**: verdict accuracy per family in the CI-weighted components-only state:
+
+| family | original | all off | 1e-3 s0 | 1e-3 s1 | 3e-3 | 1e-2 |
+|---|---|---|---|---|---|---|
+| animal_class | 1.00 | 0.80 | 1.00 | 0.87 | 0.87 | 0.80 |
+| cities | 0.97 | 0.71 | 0.99 | 0.97 | 0.97 | 0.71 |
+| element_symb | 0.79 | 0.64 | 0.61 | 0.68 | 0.64 | 0.64 |
+| larger_than | 1.00 | 0.50 | 1.00 | 1.00 | 0.99 | 1.00 |
+| neg_animal_class | 1.00 | 0.53 | 1.00 | 1.00 | 1.00 | 0.53 |
+| neg_cities | 0.96 | 0.53 | 0.98 | 0.98 | 0.97 | 0.53 |
+| neg_element_symb | 0.86 | 0.46 | 0.79 | 0.93 | 0.79 | 0.46 |
+| neg_sp_en_trans | 0.90 | 0.35 | 1.00 | 0.90 | 0.97 | 0.42 |
+| smaller_than | 0.98 | 0.31 | 0.99 | 0.98 | 0.60 | 0.71 |
+| sp_en_trans | 1.00 | 0.82 | 0.95 | 1.00 | 0.93 | 0.82 |
+
+**Character** (components active in ≥ 2% of statements; label-selective = active on one label ≥ 4× as often as on the other; individually necessary = removal from the full model costs ≥ 5% of the separation):
+
+| run | components-only accuracy / KL recovered | frozen activations accuracy | active | label-selective (true-side / false-side) | individually necessary |
+|---|---|---|---|---|---|
+| 1e-3 s0 | 0.974 / 0.910 | 0.576 | 79 | 24 (12 / 12) | 7: L11:34 0.69, L13:62 0.71, L11:36 0.80, L11:87 0.80, L17:5 0.82, … |
+| 1e-3 s1 | 0.971 / 0.912 | 0.543 | 211 | 159 (29 / 130) | 5: L11:89 0.81, L11:59 0.88, … |
+| 3e-3 | 0.863 / 0.701 | 0.582 | 41 | **40 (0 / 40)** | 11: L14:81 0.85, L12:45 0.87, L17:5 0.87, … |
+| 1e-2 | 0.740 / 0.599 | 0.507 | 8 | 5 (5 / 0) | 4: L11:22 0.38, L12:19 0.78, L14:27 0.82, L11:87 0.95 |
+
+**The 3e-3 run** (`ablate_s-8ec00fb3.{log,json}` in `e4/r3/`): every one of its 40 label-selective components fires on false statements only, in clusters of 10–20 components with identical activity across layers 11–17: one cluster on the false smaller_than statements (active on 50% of the family = all its false ones, 0% of its true ones), one on false larger_than, and one on false negated statements (neg_element_symb, neg_sp_en_trans fully, neg_cities half; at the middle tokens and the statement end). **Removing all 41 from the full model: F→1 0.753, T→0 0.017** (accuracy 0.600, separation 0.21): three quarters of the false statements are then called "true", the true ones stay "true". Single removals cost at most 15% of the separation (the clusters are redundant within themselves).
+
+**Reading** [concluded unless tagged]:
+1. **What each decomposition does.** 1e-3 (both seeds) covers every family (components-only accuracy at or above the original in most) with a mix of sentence-form detectors and false-selective components. 3e-3 keeps only false-selective components, so its components-only state is a "false detector" added to the "true" default: it covers the families whose false statements it detects (negated, larger_than, cities) and loses smaller_than's true side (0.60). 1e-2 keeps the comparison machinery (L11:22) and a few true-selective components, and covers almost nothing else.
+2. **The 3e-3 run is the most truth-specific decomposition of Exp 4 so far**: its components are selected by the statement's truth (via the CI function, which sees the original model's MLP inputs) and they carry the verdict's "false" side causally. But in fact families without negation (animal_class, cities, element_symb, sp_en_trans affirmative) it has no false-selective components, and those families lose little when all off (0.64–0.82), so this "false signal" is located where MLPs 11–17 matter most: comparisons and negation [concluded: from the coverage table].
+3. Removing the false-side set is a one-directional edit (false → "true"), not a swap. Whether any decomposition supports a swap is the mask search (running).
+
+---
+
+26-10-21, Claude Opus 5.5 — *reprogramming: mask search on `s-eb1c20d5` and a random-basis control*; same session. Script `~/spd_out/26-10-16_faithful_targeting/e4/mask_search_4e.py` (the steering topic's `mask_search.py`, adapted: evaluation on val, default objectives invert and twin, `--random_basis`). One learned d_c per component, a fixed weight edit W + Σ_c d_c u_c v_cᵀ at every statement token, fit on train (5,574 statements, 400 steps, Adam lr 0.05, L1 penalty on d), evaluated on val (986). Objectives: **invert** (every verdict to the opposite digit) and **twin** (true affirmative → "0" with its negated twin → "1": belief-shaped). Both keep the answer a digit via −log(P(0)+P(1)). Controls: the sparsified mask's values on random other components (10 draws); and the **random basis**: the same search after replacing every u_c, v_c by random vectors of the same norms (Δ recomputed, so the weights are unchanged) — "could any 7 × 96 rank-1 edits do this?". Logs `instance /root/e4/mask/log_*.log`, npz alongside [verified: one fit per setting, seed 0].
+
+| edit | rank-1 terms with \|d\| ≥ 0.1 | val accuracy (separation) | T→0 / F→1 affirmative · negated · comparisons | digit mass |
+|---|---|---|---|---|
+| original | — | 0.967 (8.80) | — | 0.986 |
+| decomposition, invert, L1 0.001 | 454 | **0.052** (−11.0) | 0.93 / 0.93 · 0.78 / 1.00 · 0.98 / 0.99 | 0.991 |
+| random basis, invert, L1 0.001 | 322 | **0.095** (−8.4) | 0.73 / 0.74 · 0.92 / 0.92 · 0.97 / 0.99 | 0.980 |
+| decomposition, invert, L1 0.01 | 63 | **0.112** (−6.5) | 0.77 / 0.57 · 0.94 / 0.91 · 0.99 / 0.96 | 0.979 |
+| same 63 values on random components (10 draws) | 63 | 0.950–0.974 | — | — |
+| random basis, invert, L1 0.01 | 32 (\|d\| up to 7.2) | 0.516 (0.28) | 0.02 / 0.30 · 0.54 / 0.35 · 0.51 / 0.62 | 0.919 |
+| decomposition, twin, L1 0.01 | 39 | 0.470 | 1.00 / 0.00 · 0.15 / 0.98 · 0.99 / 0.03 | 0.985 |
+| random basis, twin, L1 0.01 | 37 | 0.700 | 0.94 / 0.00 · 0.00 / 0.92 · 0.15 / 0.08 | 0.988 |
+
+**Reading** [concluded unless tagged]:
+1. **The verdict can be swapped by a fixed weight edit at the statement tokens, held out, in every family group**, with the answer still a digit: 454 decomposition components give accuracy 0.052. Unlike 4c's search (steering topic), the affirmative fact families invert too.
+2. **But a large edit is generic**: a random basis of the same size inverts almost as well (0.095 with 322 terms). So "this decomposition allows swapping the verdict" says nothing by itself; any few hundred rank-1 edits of MLPs 11–17 at the statement tokens do it.
+3. **Where the decomposition differs is efficiency**: at the stronger L1 penalty, 63 decomposition components still invert (0.112), while the random basis keeps only 32 terms, needs much larger coefficients, and gets to chance (0.516) instead of inversion. The same 63 values on random components of the decomposition do nothing (≥ 0.95). So the decomposition's write/read directions are much better aligned with what the verdict uses than random directions [concluded; the comparison is at equal L1 penalty, not at equal count — a sweep over L1 for both would give the full efficiency curve].
+4. **Twin is generic and is not a belief change**: decomposition and random basis both produce "verdict by sentence form" (affirmative → "0", negated → "1"), as 4c did. No evidence of a belief lever.
+5. Open on what the swap is [assumed]: an inversion of the readout ("1" and "0" swap meaning, knowledge intact) or of what the statement is taken to say. A transfer test would separate them: apply the same fixed edit under a different verdict prompt (e.g. a True/False question) and in a recall prompt; the steering topic's recall test is the template.
+
+Running: the same search on seed 1, 3e-3 and 1e-2.
+
+---
+
+26-10-21, Claude Opus 5.5 — *reprogramming: all four decompositions*; same session. Same search as in the entry *reprogramming: mask search on `s-eb1c20d5` …*; logs and npz copied to `~/spd_out/26-10-16_faithful_targeting/e4/mask/` [verified: one fit per setting].
+
+| decomposition | invert, L1 0.001: terms → val accuracy | invert, L1 0.01: terms → val accuracy | same values on random components (L1 0.01, 10 draws) | twin, L1 0.01 |
+|---|---|---|---|---|
+| 1e-3 seed 0 `s-eb1c20d5` | 454 → 0.052 | 63 → 0.112 | 0.95–0.97 | sentence form (0.47) |
+| 1e-3 seed 1 `s-52b2abc7` | 411 → 0.041 | 103 → 0.134 | 0.84–0.97 | sentence form (0.60) |
+| 3e-3 `s-8ec00fb3` | 424 → **0.032** | 95 → **0.083** | 0.94–0.98 | sentence form (0.53) |
+| 1e-2 `s-e9552de2` | 407 → **0.026** | 84 → 0.104 | 0.72–0.96 | sentence form (0.60) |
+| random basis (norms of seed 0) | 322 → 0.095 | 32 → 0.516 | — | sentence form (0.70) |
+
+**Reading** [concluded unless tagged]:
+1. Every trained decomposition supports a held-out verdict swap with 60–100 of its 672 rank-1 terms, the random basis does not (at equal L1 penalty). Between the trained decompositions the differences are small (accuracy 0.08–0.13 at L1 0.01) and within what one fit per setting can resolve [assumed].
+2. **The swap does not use the decomposition's active components specifically**: the 1e-2 run has only 8 components active on these statements, yet its 84-term edit is mostly made of components that are inactive there (largest: L17:15, L13:2, L15:24, none of its 8). So "swappable" measures the direction set U, V as a whole, not what the decomposition says the model uses on these inputs.
+3. That raises a confound: trained V directions are aligned with where the MLP inputs have energy; random 18,944-d vectors barely touch the inputs. Control running: a data-aligned, untrained basis (v_c = top-96 principal directions of each layer's input x, u_c = W v_c; `mask_search_4e.py --pca_basis`). If it swaps as efficiently, the decompositions add nothing beyond "data-aligned directions" for this purpose.
+4. Twin: every basis, random included, produces verdict by sentence form; no belief lever anywhere.
+
+So for deciding "which decomposition does what", the reprogramming numbers do not separate the decompositions; the ablation comparison (entry *which decomposition does what*) does.
+
+---
+
+26-10-21, Claude Opus 5.5 — *round 3 complete: the importance-minimality front*; same session. `s-a55b67a4` = coefficient 3e-4 (LR 2e-3, all statement tokens, seed 0, 3,000 steps); analysis JSON in `~/spd_out/26-10-16_faithful_targeting/e4/r3/` [verified: one run per coefficient, val].
+
+| coefficient | run | KL recovered: CI-weighted / rounded / Δ only | accuracy (CI-weighted) | active per statement | max \|C\|, \|Δx\| (/\|y\|) | min cos(A, I) |
+|---|---|---|---|---|---|---|
+| 3e-4 | `s-a55b67a4` | 0.903 / 0.833 / −0.019 | 0.946 | 105.2 | 0.45, 0.96 | −0.13 |
+| 1e-3 | `s-eb1c20d5` / `s-52b2abc7` | 0.910 / 0.912 (CI-weighted) | 0.974 / 0.971 | 27.5 / 24.0 | 0.45–0.46, 0.96–0.97 | −0.23 / −0.04 |
+| 3e-3 | `s-8ec00fb3` | 0.701 / 0.703 / −0.775 | 0.863 | 7.4 | 0.45, 0.96 | −0.02 |
+| 1e-2 | `s-e9552de2` | 0.599 / 0.599 / 0.350 | 0.740 | 2.1 | 0.48, 0.96 | −0.03 |
+
+Reading [concluded: one seed per coefficient except 1e-3]: by the objective Julian set (KL recovered by the CI-weighted components), **1e-3 is the best coefficient**: recovery plateaus at ~0.91 there, and 3e-4 adds 4× the active components without gain (and more half-on components: rounded 0.833 vs CI-weighted 0.903). No setting shows cancellation. With this, LR (2e-3) and the importance-minimality coefficient (1e-3) are tuned; the earlier proposed next parameters (orthogonality coefficient, C, routing, CI width) were not run. Ablations of 3e-4 are running.
+
+---
+
+26-10-21, Claude Opus 5.5 — *reprogramming: L1 sweep and the PCA-basis control*; same session. Invert objective only, L1 penalties 0.003 and 0.03 added to the earlier 0.001 and 0.01 (`e4/mask2/`); PCA basis: v_c = the 96 top principal directions of each layer's input x (uncentred, statement tokens of 512 train statements), u_c = W v_c, i.e. d_c scales the MLP's response to input direction v_c (`mask_search_4e.py --pca_basis`, `e4/mask3/`). Numbers: terms with |d| ≥ 0.1 → val accuracy of the sparsified edit (original 0.967; 0 = every verdict swapped) [verified: one fit per cell].
+
+| basis | L1 0.001 | L1 0.003 | L1 0.01 | L1 0.03 |
+|---|---|---|---|---|
+| 1e-3 seed 0 `s-eb1c20d5` | 454 → 0.050 | 257 → 0.059 | 63 → 0.116 | 19 → 0.280 |
+| 1e-3 seed 1 `s-52b2abc7` | 411 → 0.037 | 269 → 0.041 | 103 → 0.134 | 9 → 0.438 |
+| 3e-3 `s-8ec00fb3` | 424 → 0.033 | 220 → 0.047 | 95 → 0.090 | 20 → 0.340 |
+| 1e-2 `s-e9552de2` | 407 → 0.026 | 207 → 0.054 | 84 → 0.115 | 13 → 0.461 |
+| **PCA basis (untrained, data-aligned)** | 234 → 0.045 | **129 → 0.057** | 47 → 0.158 | 11 → 0.575 |
+| random basis | 322 → 0.094 | 150 → 0.124 | 32 → 0.542 | 3 → 0.693 |
+
+Random-component controls (the edit's values on other components of the same basis): ≥ 0.90 in every PCA-basis cell, as for the decompositions. The PCA edits concentrate on L17 (largest terms L17:70, L17:85, L17:69, …).
+
+**Reading** [concluded unless tagged; one fit per cell]:
+1. **Swapping the verdict is not evidence for any decomposition.** An untrained basis aligned with the MLP inputs swaps it as efficiently as the trained decompositions: with ~130 terms better than they do with ~200–270, with ~50 about as well as they do with 60–100. Only at the smallest budgets (≤ 20 terms) are the trained bases ahead (0.28–0.46 vs 0.58), a small edge.
+2. So the earlier "decomposition beats random basis" (entry *reprogramming: all four decompositions*, reading 1) was mostly data alignment: random 18,944-d read vectors barely touch the inputs.
+3. **The reprogramming numbers do not separate the decompositions**; what separates them is the ablation comparison (entry *which decomposition does what*): coverage per family, label selectivity (3e-3: all false-side), and which components are individually necessary.
+4. What the reprogramming result does say about the model [assumed: one prompt, val only]: a fixed rank-~50–130 edit of MLPs 11–17 at the statement tokens swaps the verdict on held-out statements of every family, with the answer still a digit. Whether that is a readout inversion or a change in what the statement is taken to say is untested (transfer to another verdict prompt and a recall prompt would tell).
+
+---
+
+C: (transcribed from chat) Can you give me a more detailed overview of swapping. Are there any numbers that tell untrainde basis and the decompositions apart. Also what do you mean by untrained basis or by random edits?
+
+---
+
+26-10-21, Claude Opus 5.5 — *swapping in detail*; same session. Script `~/spd_out/26-10-16_faithful_targeting/e4/swap_details.py` over the saved fits (`e4/mask*/mask_search_*.npz`) [verified: one fit per cell, val].
+
+**What an edit is.** In each of MLPs 11–17, at the statement tokens only, the down-projection W becomes W + Σ_c d_c u_c v_cᵀ. Each term u_c v_cᵀ is a rank-1 matrix: it reads the MLP's hidden activation x along v_c and writes along u_c. A *basis* is the set of 672 pairs (u_c, v_c) (96 per layer). The search learns one number d_c per pair, the same for every statement, on the train split, to make the answer the opposite digit (with an L1 penalty that sets most d_c to 0, and a term that keeps the answer a digit). d_c = −1 removes the term's contribution, +1 doubles it. Evaluated on the 986 val statements.
+
+**The three kinds of basis.**
+- *Decomposition*: (u_c, v_c) = the trained components of a tPD run (4 runs).
+- *Random basis* ("random edits"): every u_c, v_c replaced by a random Gaussian direction of the same length as the decomposition's. Untrained and blind to the data: a random 18,944-d read direction v_c sees almost nothing of the actual x.
+- *PCA basis* (what I called "untrained basis"): v_c = the 96 directions in which x varies most over 512 train statements (principal components), u_c = W v_c, i.e. the MLP's own response to input direction v_c. So d_c = −1 removes the MLP's response to the c-th main input direction. No tPD training and no use of the verdict; only data statistics. "Untrained" meant "not trained by tPD", in contrast to the decompositions; "data-aligned but untrained" is the precise term.
+
+**Per edit** (sparsified, |d| ≥ 0.1): terms, val accuracy (0.967 original, 0 = every verdict swapped), digit mass, share of Σ|d| on L17, and for decompositions the share of Σ|d| on components active (in ≥ 2% of statements) in that decomposition:
+
+| basis | ≈ 10–20 terms | ≈ 50–100 terms | ≈ 130–270 terms |
+|---|---|---|---|
+| 1e-3 s0 | 19 → 0.280; on active 0.62 | 63 → 0.116; mass 0.980; on active 0.37 | 257 → 0.059 |
+| 1e-3 s1 | 9 → 0.438; on active 0.89 | 103 → 0.134; mass 0.972; on active 0.60 | 269 → 0.041 |
+| 3e-3 | 20 → 0.340; on active 0.86 | 95 → 0.090; mass 0.981; on active 0.38 | 220 → 0.047 |
+| 1e-2 | 13 → 0.461; on active 0.11 | 84 → 0.115; mass 0.981; on active 0.10 | 207 → 0.054 |
+| PCA | 11 → 0.575 | 47 → 0.158; mass 0.964 | 129 → 0.057; L17 share 0.47 |
+| random | 3 → 0.693 | 32 → 0.542; mass 0.920 | 150 → 0.124 |
+
+Share of statements answered opposite to the truth, per family (original: element_symb 0.21, others ≤ 0.14):
+
+| edit | animal_class | cities | element_symb | larger_than | neg_animal | neg_cities | neg_element | neg_sp_en | smaller_than | sp_en_trans |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1e-3 s0, 63 terms | **0.53** | 0.85 | 0.25 | 0.96 | 0.93 | 0.94 | 0.86 | 0.88 | 0.96 | **0.38** |
+| 3e-3, 95 | 0.20 | 0.89 | 0.36 | 0.96 | 0.87 | 0.97 | 1.00 | 1.00 | 0.96 | 0.55 |
+| 1e-2, 84 | 0.40 | 0.81 | 0.18 | 0.99 | 0.53 | 0.93 | 0.96 | 0.97 | 0.98 | 0.42 |
+| PCA, 47 | **0.07** | 0.89 | 0.36 | 0.91 | 0.87 | 0.95 | 0.79 | 0.60 | 0.94 | **0.07** |
+| PCA, 129 | 0.67 | 0.99 | 0.39 | 0.98 | 1.00 | 0.97 | 0.82 | 0.88 | 1.00 | 0.68 |
+| random, 150 | 0.33 | 0.95 | 0.32 | 0.97 | 0.33 | 0.94 | 0.71 | 0.90 | 0.97 | 0.05 |
+| 1e-3 s0, 257 | 0.53 | 0.96 | 0.25 | 0.97 | 1.00 | 0.99 | 1.00 | 1.00 | 0.98 | 0.78 |
+
+**Numbers that separate PCA basis and decompositions** [concluded unless tagged; one fit per cell, comparisons at unequal term counts]:
+1. *Very small budgets*: with 9–20 terms the decompositions reach 0.28–0.46, the PCA basis 0.58 with 11. A modest edge.
+2. *Which families swap at mid budget*: with 50–100 terms the easy families (comparisons, cities, negated) swap in every basis; the affirmative fact families separate them. 1e-3 s0 (63 terms) swaps 53% of animal_class and 38% of sp_en_trans, the PCA basis (47 terms) 7% and 7%. At ~130 terms the PCA basis catches up (0.67, 0.68). element_symb resists every edit (≤ 0.39; the original already errs on 21%).
+3. *Where the edit sits*: the PCA edits put 44–47% of their weight on L17; the decompositions spread it evenly over L11–L17 (L11 0.08–0.21), the random basis avoids L11–L12. So the same behaviour is reached through different layers [concluded: from the layer shares; whether L11 edits act like A8's "false" subspace is untested].
+4. *Side effects*: digit mass at mid budget 0.972–0.981 (decompositions) vs 0.964 (PCA) vs 0.920 (random): the decomposition edits disturb the answer format least, by a small margin.
+5. *Consistency with the decomposition itself*: at small budgets the decompositions' edits are built mostly from their own active components (62–89% of Σ|d| for 1e-3 and 3e-3), at large budgets mostly from inactive ones (≤ 34%). The 1e-2 run is the exception (≤ 11% at every budget: its 8 active components are too few for the job).
+
+Not separating: accuracy at ≥ 130 terms, the size of the inverted margin (separation −7 to −11 everywhere), the belief-shaped twin objective (sentence-form verdicts for every basis).
+
+Overall reading: the decompositions are somewhat better swapping bases than a data-aligned one at small budgets and in the affirmative fact families, but the gap is small, measured with one fit per cell, and closes as the budget grows. Swapping is a weak tool for telling decompositions apart; the ablation comparison is the stronger one.
+
+---
+
+C: (transcribed from chat) d_c = -1 removes the terms contribution? Why is it not d_c = 0?
+
+Answer (26-10-21, Claude Opus 5.5): clarification of the entry *swapping in detail*, whose wording "d_c = −1 removes the term's contribution" was ambiguous. The search multiplies each component by a mask 1 + d_c, and since W = Σ_c u_c v_cᵀ + Δ, every component's contribution u_c v_cᵀ is already inside W. So d_c = 0 is no edit (mask 1, weights stay W); d_c = −1 is mask 0, i.e. the added term −u_c v_cᵀ cancels the component's existing contribution and removes the component from W; d_c = +1 doubles it. "Removes the contribution" meant the component's contribution to the original weights; the edit term d_c u_c v_cᵀ itself is zero at d_c = 0. PCA basis: u_c v_cᵀ = W v_c v_cᵀ is the part of W acting on input direction v_c, so −1 removes the MLP's response to that direction. Random basis: there u_c v_cᵀ is not a meaningful part of W (Δ absorbs the difference), so −1 merely subtracts a random rank-1 matrix of that size.
+
+---
+
+26-10-21, Claude Opus 5.5 — *3e-4 ablations; pause*; same session. Ablations of `s-a55b67a4` (coefficient 3e-4; 1,523 conditions; `e4/r3/ablate_s-a55b67a4.{log,json}`) [verified: one run, val]: components-only accuracy 0.946 (KL recovered 0.903), frozen activations 0.559; 483 components active in ≥ 2% of statements, 248 label-selective (43 true-side); individually necessary (separation share ≤ 0.95): L12:3 0.88, L11:93 0.89, L11:22 0.90, L11:87 0.92, L14:53 0.93, L12:59 0.94, L12:30 0.95. Coverage per family like 1e-3 (neg_cities 0.87, neg_element_symb 0.68, element_symb 0.54 slightly lower). Reading [concluded]: the same function as at 1e-3, spread over 6× as many components, none individually important. The indices L11:22, L11:87 and L12:59 recur across the seed-0 runs (shared initialisation; their roles differ between runs).
+
+C: (transcribed from chat) I'd want to pause after that. I need to understand the current results first.
+
+Done before pausing [verified]: nothing else is queued or running on the instance; the 3e-4 checkpoint and all logs, scripts and analysis outputs of 26-10-21 are copied to `~/spd_out/26-10-16_faithful_targeting/e4/` (checkpoints of all six analysed 4e runs in `checkpoints/`, instance files in `instance_copy_26-10-21/`, 49 MB). Only the checkpoints of discarded tuning runs remain solely on the instance (`s-9d172777` LR 5e-3, round-1 runs other than `s-348832ad` / `s-eb1c20d5`, the trials), which the checkpoint policy lets die with it. The instance is still rented; stopping it is Julian's call. The SUMMARY now opens with an overview of where 4e stands.

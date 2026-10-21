@@ -1,8 +1,10 @@
 # SUMMARY: WandB storage (5 GB cap)
 
-**Last updated:** 26-10-21 (Exp 4d checkpoint and incomplete runs deleted; listed files 3.31 GB; counter re-check pending)
+**Last updated:** 26-10-21 (run register added; Exp 4d checkpoint and incomplete runs deleted; listed files 3.31 GB; counter re-check pending)
 
 Julian's WandB account (`bitt-j-personal`) has 5 GB of storage, and the website showed ~9.9 GB. Two goals: free space, and keep future runs under the cap.
+
+**Run register:** [26-10-03_wandb_storage_RUNS.md](26-10-03_wandb_storage_RUNS.md) lists every WandB run since 26-10-02 (checkpoint, local copy, where its results are recorded, deletion advice), so Julian can delete runs from time to time [decided: Julian asked for it in chat 26-10-21, transcribed in `convos/julian/26-10-16_faithful_targeting_LOG.md`]. Agents add a row per launched run. Screening runs launched from 26-10-21 on carry their label as WandB name.
 
 The topic also started a convention [decided: Julian, this LOG's opening and a transcribed chat message]. A topic may begin as a file the user writes. If it is not already named `{date}_{topic}_LOG.md` (here it was `new_topic.md`), the agent renames it to that pattern. Recorded in CLAUDE.md (*Topic starts from a file*) and `docs/HOW_TO_USE.md`.
 
