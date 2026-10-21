@@ -226,3 +226,44 @@ C: (transcribed from chat) please don't suggest blacklisting it. That's somethin
 26-10-16, Claude Opus 5.5 — *blacklist hint removed from the error*
 
 The final error in `_rent_first_available` no longer tells the user to add the host to `vast_blacklist.yaml`. It ends with "Launch again - the search index lags the marketplace by minutes, so a fresh search lists different asks." Reason: Julian cannot keep track of which host keeps failing, so the hint is not actionable for him. [verified: ruff check, format check, basedpyright clean]
+
+---
+
+C: (transcribed from chat) I want to rent another H100, but right now the prices are just too high. When I run `spd-vast --list_offers --config h100` I see only one result for 7.5$. About twice as much what I usually pay. Can you check if there are configurations that work? I'm also willing to try a blacklisted host again
+
+---
+
+26-10-21, 07:55 UTC, Claude Opus 5.5 — *H100 shortage: cheaper alternatives*; I read INDEX.md, this topic's SUMMARY and the search code of `spd/scripts/run_vast.py`
+
+Market snapshot 26-10-21 ~07:50 UTC [verified: `vastai search offers`; offers change within minutes]:
+
+- `spd-vast --list_offers --config h100` now shows **2** offers: 48704106 (host 214845, Czechia, datacenter, $4.04/h incl. 100 GB disk, reliability 0.997) and the $7.53/h one Julian saw (host 260094). The $4.04 offer is about the earlier price ($3.91/h in the 26-10-10 bolder-experiments LOG), so it had appeared after Julian's search.
+- **All** single-GPU H100s on the market (any variant, default CLI filters only): 6. The four the config drops, and the one filter that drops each:
+  - 29019371, host 125728, H100 SXM, Czechia datacenter, $2.30/h, rel 0.997: `cuda_max_good` 12.5 < `min_cuda` 12.8. The image is `cuda-12.8.1`; whether it starts on a 12.5 driver is untested [assumed: likely refused by the container's CUDA requirement check].
+  - 56442966, host 389020, H100 SXM, Montana, $2.34/h: reliability 0.969 < 0.98.
+  - 56488186, host 364425, H100 PCIE, Maryland, $2.59/h, rel 0.996: `gpu_name`. PCIe H100: lower memory bandwidth (offer reports 1.77 vs ~2.9 TB/s), DLPerf 256 vs 345–363 for the SXM offers.
+  - 57018354, H100 NVL, Virginia, $3.03/h: reliability 0.904.
+- **Blacklisted host 638511** (Germany, H100 SXM, `uv sync` timeout on 26-10-20): all 5 of its offers are currently `rentable: false` (taken), so removing it from the blacklist would not help today.
+- **RTX PRO 6000 (Blackwell, 96 GB)**: 18+ offers at $1.05–2.34/h with reliability ≥ 0.98, e.g. 54578567 (host 583980, Ontario, $1.43/h, rel 0.989), 45500105 (host 37035, Japan, $1.56/h, rel 0.995); datacenter ones from $1.77/h (host 120840, Texas, "S" variant). vast.ai DLPerf ~280 vs 345–363 for H100 SXM. Memory 96 GB > 80 GB; the two-job 7B setup used 65.3 of 81.6 GB on the H100 (26-10-16 faithful-targeting LOG). Untested here: the speed of our workload on Blackwell [assumed: slower per step than an H100, since the offer reports 1.4 vs ~2.9 TB/s memory bandwidth; DLPerf suggests ~0.8×, a synthetic score], and torch 2.8.0+cu128 on its compute capability sm_120 [assumed: supported by cu128 wheels]. Almost all hosts are non-datacenter, the class whose 4090 rentals often failed at ssh / `uv sync`.
+- **H200 NVL (140 GB)**: from $3.74/h (rel 0.969) / $3.97/h (rel 0.992); no cheaper than the $4.04 H100.
+
+How to rent each, with no code change [verified: `--gpu_name` listing run; `--offer_id` read in code: `_find_offer` uses `search offers -n`, so the config's reliability/CUDA/price filters do not apply, only the blacklist]:
+- `spd-vast --list_offers --config h100 --gpu_name RTX_PRO_6000_WS` (or `RTX_PRO_6000_S`), then launch the same way.
+- The Montana H100 or the PCIe H100: `--offer_id 56442966` / `--offer_id 56488186` with `--config h100`.
+
+There is no `--min_reliability` / `--min_cuda` flag; `--offer_id` covers them for one launch.
+
+---
+
+C: (transcribed from chat) please create the config
+
+---
+
+26-10-21, Claude Opus 5.5 — *RTX PRO 6000 config added*
+
+New file `spd/scripts/vast_rtxpro6000_config.yaml` (`spd-vast --config rtxpro6000`). Values are my choice [concluded, reasons in the file's comments]:
+- `gpu_name: RTX_PRO_6000_WS`. vast.ai lists the workstation (WS) and server (S) variants under separate names, and the query takes one name. WS had more offers (12 vs 7 at reliability > 0.98) and higher reported TFLOPS (119 vs 94). For S: `--gpu_name RTX_PRO_6000_S`.
+- `max_price: 2.0`: covers all but the priciest offers; above ~$2.3/h an H100 SXM (when on offer) is the better buy.
+- `min_gpu_ram: 90`, `disk: 100` (as the H100 config), `min_reliability: 0.98`, `datacenter_only: false` (3 of 19 offers are datacenter-labelled), `min_cuda: 12.8`, sort `dlperf_per_dphtotal-`, `max_sync_minutes: 10`.
+
+[verified: `spd-vast --list_offers --config rtxpro6000` 26-10-21: 9 offers, $1.37–1.76/h, reliability 0.984–0.998, none on blacklisted hosts]. Not yet rented: torch on sm_120 and per-step speed remain untested (see the entry *H100 shortage: cheaper alternatives* above). One offer (53871957, host 168410) reports half the DLPerf of the others (152 vs ~283), and the perf-per-dollar sort puts it last.

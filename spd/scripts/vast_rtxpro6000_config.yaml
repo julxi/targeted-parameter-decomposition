@@ -1,0 +1,50 @@
+# Machine selection for `spd-vast --config rtxpro6000` (see VastConfig in spd/scripts/run_vast.py).
+# RTX PRO 6000 (Blackwell, 96 GB), added on 26-10-21 as a cheaper stand-in for the H100 when H100
+# offers are scarce: many offers at ~$1.05-1.8/h against $2.3-7.5/h for the few H100s that day.
+# More memory than an H100 (two parallel Qwen2.5-7B tPD jobs used 65 of 82 GB on one), but about
+# half its memory bandwidth (offers report ~1.4 vs ~2.9 TB/s), so expect slower steps; vast.ai's
+# DLPerf puts it at ~0.8x an H100 SXM. Not yet tested with this repo: per-step speed, and torch
+# (cu128 wheels) on its compute capability sm_120. Most hosts are not datacenter-labelled - the
+# host class whose RTX 4090 rentals often failed at ssh / `uv sync`.
+# See convos/julian/26-10-05_vast_rentals_SUMMARY.md.
+
+# vast.ai GPU name, spaces as underscores. WS (workstation) rather than RTX_PRO_6000_S (server):
+# more offers on 26-10-21 (12 vs 7) and higher reported TFLOPS (119 vs 94). For the server
+# variant, launch with `--gpu_name RTX_PRO_6000_S`.
+gpu_name: RTX_PRO_6000_WS
+
+# Maximum total price in $/hour, including storage. On 26-10-21 the cheapest H100 SXM cost
+# ~$2.3/h; near that price the faster H100 is the better buy, when one is on offer.
+max_price: 2.0
+
+# Minimum GPU memory in GB. Note vast.ai filters this in GB but reports it in MB.
+min_gpu_ram: 90
+
+# Disk to rent in GB, as for the H100: repo, uv venv, Qwen2.5-7B weights (~15 GB), checkpoints of
+# several jobs.
+disk: 100
+
+# Docker image. Must be CUDA >= 12.8 to match the torch wheels in uv.lock (12.8 is also the first
+# CUDA release with Blackwell support).
+image: vastai/base-image:cuda-12.8.1-auto
+
+# Minimum host reliability. Low-reliability hosts drop runs mid-training.
+min_reliability: 0.98
+
+# Few datacenter-labelled offers (3 of 19 at reliability > 0.98 on 26-10-21), so the filter is off.
+datacenter_only: false
+
+# Minimum CUDA version the host supports.
+min_cuda: 12.8
+
+# Sort order; the first offer is the one rented.
+#   dlperf_per_dphtotal-  best deep-learning performance per dollar
+#   dph_total             cheapest first
+#   reliability-          most reliable first
+sort: dlperf_per_dphtotal-
+
+# How many offers to fetch and show.
+n_offers: 20
+
+# How long `uv sync` may take on the rented machine before the host is rejected (and blacklisted).
+max_sync_minutes: 10.0
