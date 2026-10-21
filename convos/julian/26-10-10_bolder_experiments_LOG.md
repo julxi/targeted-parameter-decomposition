@@ -566,6 +566,8 @@ Reading [concluded, one seed]: Exp 2's components (under one per statement) reco
 
 **Report:** `reports/26-10-13_exp2_stimulus_lens.typ` (4 pages; PDF gitignored, `typst compile reports/26-10-13_exp2_stimulus_lens.typ`). Written for Julian, self-contained (method, setup, training, V, per-family, caveats). Self-check done by re-reading the compiled PDF (procedure steps 1–2 by the author, no sub-agent): added definitions of AUC and the Pile, fixed a Typst rendering of "Exp 2's" as a prime. Numbers re-read from the V JSONs, `metrics.jsonl` and the R1 output.
 
+OUTDATED (26-10-21): this report was deleted on 26-10-14 at Julian's request (recoverable from git history); its content is in `reports/26-10-14_target_lens_experiments.typ`. See entry *report of Exp 0–3*.
+
 ---
 
 26-10-13, Claude Opus 5.5 — *run status check: H100 gone, Exp 0 crashed*; sync session, not the session that launched the runs. I have read this topic's SUMMARY and the last LOG entry, and queried WandB and vast.ai. No GPU used.
@@ -783,6 +785,8 @@ Reading [concluded: the AUCs barely move while accuracy and the share answered "
 - In the full model, 371 and 396 are "True" writers like 447 (ablating 371: share "true" 0.454 → 0.341, accuracy 0.840).
 - Overall: Exp 3 found the output end of the verdict: components at the answer token, gated by the model's own true/false judgement, that write "True" (447, 319, 371, 396), plus task components such as 380 for number comparisons. They read a judgement made earlier. The lead is real as verdict-writing machinery, but it is not the truth computation itself, and it doesn't show truth hidden from the output. Caveat: CI-based selectivity alone would be weak evidence (untrained CI networks read truth too, arm A topic); the ablations above are the causal part.
 
+OUTDATED (26-10-21): "components at the answer token … that write 'True'" holds only inside the decomposition. Exp 3's components-only state re-implements the answer at ":" (a write about 5× the real MLP output's norm, nearly orthogonal to it), so 447 and the other "True" writers are not shown to be what the original MLPs write. See entry *cancellation explained*.
+
 ---
 
 26-10-14, Claude Opus 5.5 — *report of Exp 0–3*; same session. Julian in chat:
@@ -864,6 +868,8 @@ Reading:
 - **Most single removals of always-active components take the model out of the answer format**, not to the other answer: after "Answer:" it continues the prompt as text (− 381: " for", − 231: " the"/" such", − 402: " \"/" is"/" &", − 140: " continue", − 410: " (") with 74–99% of the mass outside both answer sets. These components are needed for the model to answer at all at ":" [verified: table]. Three keep the format in another form: − 53 switches to " Yes"/"No" (true-like/false-like mass stays high, accuracy 0.759 judged by P(true-like) > P(false-like)); − 28 to fill-in-the-blank " __" alongside True/False; − 8 to reasoning (" To" 63%).
 - − 258 and − 447 shift *within* the format towards "False": − 447 leaves P(F|F) at 0.754 and moves true statements' mass to " False" (0.337) and a bare " " token; P(T|T) 0.491 → 0.011. That is the "True"-writer reading of the entry *lead check* in distribution form.
 - **Δ only and "all ten removed" produce garbage** (digits, CJK, code tokens; entropy ~7 nats, KL 15–17), while switching the MLPs off entirely (all off) leaves fluent text (" The", " Yes"; entropy 2.7, KL 4.2). So removing components is far more destructive than removing the whole MLP output: removing a single always-active component (KL up to 11.0) does more than zeroing all five MLP outputs at all 9 positions (4.18). My explanation [assumed: not measured]: components and Δ are individually large and partly cancel; removing a component leaves its counterpart in the other part as a large write into the residual stream. Check: norm of each component's write U_c (V_c · x) at the decomposed positions against the norm of the MLP output there (minutes on the GPU).
+
+  OUTDATED (26-10-21): the explanation holds for all components together (components' part and Δ's part each 2.0–2.9× the MLP output) but not for single components: their writes are 0.2–0.8× their layer's MLP output, so a single removal leaves the format through the direction of its write, not its size. See entry *flipped components and the cancellation check*.
 - Consequence for "breaks the output": the KLs of V measure, for most of the ten, leaving the answer format, possibly through an oversized write, not a change of verdict. Ablating a component from `full` is not the same as "the model without this mechanism" when components and Δ cancel [concluded: Δ-only and all-off differ by 11 nats KL; the size of the cancellation itself is not measured].
 
 ---
@@ -1485,6 +1491,8 @@ Zero ablation gives the same picture for layers 5–19 and for the blocks 11–1
 
 **Choice for the decomposition** [assumed: my proposal, carried out per Julian's "regardless of the results"]: the `down_proj` of layers **11–17** (the smallest block in the scan whose removal takes the verdict to chance with the format intact), at **all statement tokens except the first**. The first token sees only the first word, so it can't carry the statement's truth, and at layer 11 it carries massive outputs in 40% of statements; it runs on the original weights. Layers 6–10 stay out: they would make it 12 layers, and their role may be content rather than truth.
 
+OUTDATED (26-10-21): the position set was changed by Julian before the full runs. Exp 4a/4b decompose only the statement-end token `'.\n'` (his C: comment under *Questions for Julian* in the next entry; entry *Exp 4 decisions; configs moved to the statement end; commits and launch*). All statement tokens, the first one included, were run later as Exp 4c (entry *Exp 4c launched: 4b at all statement tokens*).
+
 ---
 
 26-10-16, Claude Opus 5.5 — *Exp 4a/4b: design, implementation, 300-step trials; questions before the full runs*; same session. Julian asked in chat to put the question about committing and launching here (it is question 1 below).
@@ -1520,6 +1528,8 @@ Two decompositions that differ only in one loss term:
 Both run without errors. Peak GPU memory ~35 GB; ~1.2 steps/s before PPGD. Expected full run: 70–80 min each [assumed: from the trial's step rate, PPGD and eval phases not measured at full length].
 
 Reading [assumed: 300 of 5,000 steps]: the reconstruction term barely moves in 300 steps (0.51 → 0.50), although it dominates 4b's loss. The coefficient therefore isn't what limits it. Possible limits: the component gradient clip (0.01, as in all runs) or the capacity of 96 rank-one components per layer for all statement tokens. Whether 4b ends up faithful will show in the cancellation test after the full run; if it stays around 0.5, the components only half reproduce the MLP outputs.
+
+OUTDATED (26-10-21): over the full run (statement-end setting) the term fell from 0.52 to 0.088, so the trial's flat 0.51 → 0.50 said nothing about a limit. See entry *Exp 4b finished: components reproduce the MLP outputs at the statement end*.
 
 ## Questions for Julian
 
@@ -1759,6 +1769,8 @@ Further members of the "false negated" group, same profile: L16:28, L14:34, L15:
 
 Reading [concluded unless tagged; one seed per run, CI- and ablation-based]:
 - **4c has the first cross-family truth-related component in this topic: L17:5.** It is switched off on true affirmative fact statements and active (or more strongly active) on false ones in eight of ten families; it writes 22% of the truth gap at the object token, and removing it costs 15% of the verdict separation (−1.30 of 8.65; accuracy 0.978 → 0.880) and 22% of the object-token gap. It is the only component in either run with both label selectivity and a sizeable causal effect. Reading [assumed]: a "this doesn't fit / false" writer at the object token. Caveat: on number comparisons and negated statements it is always on and differs only in CI strength.
+
+  OUTDATED (26-10-21): "cross-family" rested on L17:5's activity, not its effect. Reversing its write (mask −1) flips false statements to "1" only in the four negated families and smaller_than (affirmative fact families ≤ 0.03), so it acts as a negation × relation component, not a family-independent "false" writer: `convos/julian/26-10-16_component_steering_LOG.md`, entry *flip experiment: results*.
 - **A group of "false negated statement" components** (L15:51 and six others) is on/off by label across all four negated families. For negated statements "false" means the relation does fit ("X is not in Y" with X in Y), so these components fire on negation combined with a fitting relation, i.e. exactly the combination that makes a negated statement false. They write little directly and each removal is small (redundant group) [concluded: activity profiles; that they compute the combination rather than read it is assumed].
 - **Number comparisons get comparison-result components, not truth components**: L15:52 and L14:56 are active on "larger_than true" and "smaller_than false", i.e. when the first number is larger, whatever the claim. Truth then needs the claimed relation on top [concluded: activity profile].
 - **Most components are task or family detectors** (always on within a family, both labels), several with sizeable causal effects (L11:70, L11:29: −1.2 / −1.1 separation). They are machinery the judgement needs, not the judgement.

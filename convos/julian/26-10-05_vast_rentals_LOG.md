@@ -213,6 +213,7 @@ Earlier in this chat (not in the LOG) Julian asked about moving on to the next o
 Done in `spd/scripts/run_vast.py`:
 - Per-offer log line: "Offer N (host H) is not available - rented by someone else or withdrawn by its host - trying the next one".
 - Final error when every offer fails: names both causes. It also suggests adding the host to `vast_blacklist.yaml` if the same host's offer keeps failing.
+OUTDATED (26-10-21): the blacklist suggestion was removed from the error at Julian's request; see entry *blacklist hint removed from the error*.
 - The comment on `TAKEN_OFFER_ERROR` and the docstrings of `_rent_first_available` and `_create_instance` now say the same; they had claimed `no_such_ask` means "rented by someone else". Logic unchanged; the constant's name stays.
 
 [verified: ruff check, ruff format --check, basedpyright on the file clean]. Not exercised against a live failing offer.
@@ -245,6 +246,7 @@ Market snapshot 26-10-21 ~07:50 UTC [verified: `vastai search offers`; offers ch
   - 57018354, H100 NVL, Virginia, $3.03/h: reliability 0.904.
 - **Blacklisted host 638511** (Germany, H100 SXM, `uv sync` timeout on 26-10-20): all 5 of its offers are currently `rentable: false` (taken), so removing it from the blacklist would not help today.
 - **RTX PRO 6000 (Blackwell, 96 GB)**: 18+ offers at $1.05–2.34/h with reliability ≥ 0.98, e.g. 54578567 (host 583980, Ontario, $1.43/h, rel 0.989), 45500105 (host 37035, Japan, $1.56/h, rel 0.995); datacenter ones from $1.77/h (host 120840, Texas, "S" variant). vast.ai DLPerf ~280 vs 345–363 for H100 SXM. Memory 96 GB > 80 GB; the two-job 7B setup used 65.3 of 81.6 GB on the H100 (26-10-16 faithful-targeting LOG). Untested here: the speed of our workload on Blackwell [assumed: slower per step than an H100, since the offer reports 1.4 vs ~2.9 TB/s memory bandwidth; DLPerf suggests ~0.8×, a synthetic score], and torch 2.8.0+cu128 on its compute capability sm_120 [assumed: supported by cu128 wheels]. Almost all hosts are non-datacenter, the class whose 4090 rentals often failed at ssh / `uv sync`.
+OUTDATED (26-10-21): both untested points were since observed on an RTX PRO 6000 that Julian rented the same day: torch 2.8.0+cu128 runs on it (compute capability 12.0), and one Exp 4e training ran at 1.72 it/s, 0.68× the H100's 2.53 (one measurement, power limit 420 W); see `convos/julian/26-10-16_faithful_targeting_LOG.md`, entry *what do the components carry: extended ablations*.
 - **H200 NVL (140 GB)**: from $3.74/h (rel 0.969) / $3.97/h (rel 0.992); no cheaper than the $4.04 H100.
 
 How to rent each, with no code change [verified: `--gpu_name` listing run; `--offer_id` read in code: `_find_offer` uses `search offers -n`, so the config's reliability/CUDA/price filters do not apply, only the blacklist]:
@@ -267,3 +269,4 @@ New file `spd/scripts/vast_rtxpro6000_config.yaml` (`spd-vast --config rtxpro600
 - `min_gpu_ram: 90`, `disk: 100` (as the H100 config), `min_reliability: 0.98`, `datacenter_only: false` (3 of 19 offers are datacenter-labelled), `min_cuda: 12.8`, sort `dlperf_per_dphtotal-`, `max_sync_minutes: 10`.
 
 [verified: `spd-vast --list_offers --config rtxpro6000` 26-10-21: 9 offers, $1.37–1.76/h, reliability 0.984–0.998, none on blacklisted hosts]. Not yet rented: torch on sm_120 and per-step speed remain untested (see the entry *H100 shortage: cheaper alternatives* above). One offer (53871957, host 168410) reports half the DLPerf of the others (152 vs ~283), and the perf-per-dollar sort puts it last.
+OUTDATED (26-10-21): "not yet rented" and "untested" no longer hold: Julian rented an RTX PRO 6000 later that day, torch ran on it and its speed was measured; see `convos/julian/26-10-16_faithful_targeting_LOG.md`, entry *what do the components carry: extended ablations*. Whether that rental used `--config rtxpro6000` is not recorded.

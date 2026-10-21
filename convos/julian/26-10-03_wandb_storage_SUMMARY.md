@@ -1,10 +1,10 @@
 # SUMMARY: WandB storage (5 GB cap)
 
-**Last updated:** 26-10-21 (run register added; Exp 4d checkpoint and incomplete runs deleted; listed files 3.31 GB; counter re-check pending)
+**Last updated:** 26-10-21 (sync; current state: 11 checkpoints on WandB, listed files 3.32 GB, counter 3.00 GB, under the 5 GB cap; tier 2 deletion candidates listed; run register in use)
 
 Julian's WandB account (`bitt-j-personal`) has 5 GB of storage, and the website showed ~9.9 GB. Two goals: free space, and keep future runs under the cap.
 
-**Run register:** [26-10-03_wandb_storage_RUNS.md](26-10-03_wandb_storage_RUNS.md) lists every WandB run since 26-10-02 (checkpoint, local copy, where its results are recorded, deletion advice), so Julian can delete runs from time to time [decided: Julian asked for it in chat 26-10-21, transcribed in `convos/julian/26-10-16_faithful_targeting_LOG.md`]. Agents add a row per launched run. Screening runs launched from 26-10-21 on carry their label as WandB name.
+**Run register:** [26-10-03_wandb_storage_RUNS.md](26-10-03_wandb_storage_RUNS.md) lists every WandB run since 26-10-02 (checkpoint, local copy, where its results are recorded, deletion advice), so Julian can delete runs from time to time [decided: Julian asked for it in chat 26-10-21, transcribed in `convos/julian/26-10-16_faithful_targeting_LOG.md`]. Agents add a row per launched run (the agent's design, not ratified). Screening runs launched from 26-10-21 on carry their label as WandB name [verified: WandB listing 26-10-21]. The register was created in the faithful-targeting session (`convos/julian/26-10-16_faithful_targeting_LOG.md`, entry *what do the components carry: extended ablations*); this topic's LOG has no entry on it. Its size column is the whole run on WandB; the checkpoint inside is 238.2 or 333.5 MB.
 
 The topic also started a convention [decided: Julian, this LOG's opening and a transcribed chat message]. A topic may begin as a file the user writes. If it is not already named `{date}_{topic}_LOG.md` (here it was `new_topic.md`), the agent renames it to that pattern. Recorded in CLAUDE.md (*Topic starts from a file*) and `docs/HOW_TO_USE.md`.
 
@@ -15,8 +15,7 @@ The topic also started a convention [decided: Julian, this LOG's opening and a t
   - Old toy runs and the other 18 projects are negligible.
 - The ~4.5 GB gap belongs to nothing WandB still lists: no deleted runs, no artifacts.
   - It includes the four run-1 checkpoints Julian deleted (0.95 GB, still counted).
-  - WandB documents that the meter lags deletions by hours. The rest (~3.6 GB) is unexplained [assumed: pending earlier deletions or a stuck counter].
-  - If it persists a day after cleanup: the *Manage storage* page, then WandB support.
+  - WandB documents that the meter lags deletions by hours. The rest (~3.6 GB) was unexplained on 26-10-03; by 26-10-20 the counter equalled the listed files, so it was lag too [verified: API 26-10-20].
 - Even counted correctly, 5.32 GB is over the cap.
 
 ## Changes made
@@ -43,31 +42,33 @@ The topic also started a convention [decided: Julian, this LOG's opening and a t
   - The delta component is not saved.
 - Other settings give other sizes [concluded]: the size scales mainly with the summed input width of the decomposed modules times the CI hidden width.
 
-## Cleanup done (option B, Julian's choice)
+## First cleanup (26-10-03, option B, Julian's choice)
+
+State as of 26-10-03; all five remaining final checkpoints were deleted in tier 1 on 26-10-20 (below).
 
 - Julian deleted 4 of run 1's 5 checkpoints himself.
-- I deleted the 16 intermediate checkpoints of e2c, e2b, e3a and e3b (3.81 GB).
-- Each of the five runs keeps only its final checkpoint. When cleaned up, e2b's `model_5000.pth` matched the all-tokens arm config (except `label` and WandB project). Since then the arm configs load the frozen model in bf16 (`pretrained_model_dtype`, `convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md`), while e2b loaded it in fp32, so it is no longer an exact match.
+- The agent deleted the 16 intermediate checkpoints of e2c, e2b, e3a and e3b (3.81 GB).
+- Each of the five runs keeps only its final checkpoint. When cleaned up, e2b's `model_5000.pth` matched the all-tokens arm config (except `label` and WandB project). Since then the arm configs load the frozen model in bf16 (`pretrained_model_dtype`, `convos/julian/26-10-03_test_accuracy_analysis_SUMMARY.md`), while e2b loaded it in fp32, so it is no longer an exact match; its checkpoint was deleted on 26-10-20 (tier 1 below).
 - Option B was chosen by Julian in a multiple-choice chat dialog; no free-text message exists to transcribe.
-- Real usage now: 1.50 GB in `spd` [verified: API listing].
+- Real usage afterwards: 1.50 GB in `spd` [verified: API listing].
 - Not chosen: option A, deleting all checkpoints except e2b's final (~0.56 GB left).
 
 ## Second cleanup (26-10-20): tier 1 deleted
 
 [verified: WandB API, 26-10-20 13:27 UTC] Usage 4.73 GB, equal to the listed files, so the 26-10-03 counter excess was lag and is gone. 17 checkpoints hold ~4.4 GB: 14 × 238.2 MB (tiu-style) and 3 × 333.5 MB (Exp 4a/4b/4c, MLPs 11–17). 14 of them have byte-identical local copies under `~/spd_out/`; UTH `s-d2ded461` and Exp 4a/4b/4c do not.
 
-Urgent because the two Exp 4d runs (`s-5c284ebb` running, second to follow) upload ~334 MB each [assumed: same settings as 4a–4c], which would reach ≈ 5.40 GB.
+Urgent because the two planned Exp 4d runs (`s-5c284ebb` running, second to follow) would upload ~334 MB each [assumed then: same settings as 4a–4c], reaching ≈ 5.40 GB. In the end only `s-5c284ebb` uploaded one (333.5 MB), deleted on 26-10-21 (below).
 
 Ranking (the tiers are the agent's proposal; deleting tier 1 was Julian's decision):
-- **Tier 1, deleted 26-10-20 (1.43 GB)** [decided: Julian, chat transcribed in the LOG; verified: no `.pth` left in these runs, local copies kept]: tuning runs run 1 `s-c2562082`, e2c `s-b3401a03`, e3a `s-a77ae04e`, e3b `s-83033a96`; e2b `s-ba5f9dd5` (fp32 twin of arm A); fp32 untrained `s-286aa6a9` (replaced by bf16 `s-7fad0c14`). All closed, local copies exist, nothing uses them. Afterwards with both 4d uploads ≈ 3.97 GB.
+- **Tier 1, deleted 26-10-20 (1.43 GB)** [decided: Julian, chat transcribed in the LOG; verified: no `.pth` left in these runs, local copies kept]: tuning runs run 1 `s-c2562082`, e2c `s-b3401a03`, e3a `s-a77ae04e`, e3b `s-83033a96`; e2b `s-ba5f9dd5` (fp32 twin of arm A); fp32 untrained `s-286aa6a9` (replaced by bf16 `s-7fad0c14`). All closed, local copies exist, nothing uses them.
 - **Tier 2 (238 MB each, local copies exist, still referenced):** Exp 0 `s-aeaa70d8`, Exp 2 `s-05db01ad`, Exp 3 `s-161f8a7b`, code control `s-b6cce5de`. Cost of deleting: instance-side re-analysis needs an upload from the laptop.
 - **Keep:** arm A `s-bd23f0d1`, untrained `s-7fad0c14`, Exp 1 `s-cd129592`, Exp 4a/4b/4c, UTH `s-d2ded461` (no local copy).
 
 ## Third deletion (26-10-21): Exp 4d
 
 - Deleted [decided: Julian, C: comment in `convos/julian/26-10-16_faithful_targeting_LOG.md`; verified: re-listing]: the 4d checkpoint `s-5c284ebb/model_5000.pth` (333.5 MB, no local copy; the run and its metrics stay) and the three incomplete 4d runs `s-b8c8c610`, `s-37397e7d`, `s-15cc0844` (whole runs, 3.3 MB). The second 4d run never uploaded a checkpoint.
-- Usage [verified: API listing over all projects, 26-10-21]: listed files **3.31 GB** (11 checkpoints, 3.04 GB: the 8 × 238.2 MB and 3 × 333.5 MB of the *Keep* and *Tier 2* lists above). No Exp 4e checkpoint is on WandB. The counter showed 3.65 GB right after; the excess equals the file just deleted, so it is lag [concluded].
-- Open: re-check `entity.storageBytes` (expected ≈ 3.31 GB, 1.69 GB under the cap). Tier 2 stays until space is short again.
+- Usage [verified: API listing over all projects, 26-10-21]: listed files **3.31 GB** (11 checkpoints, 2.906 GB: the 8 × 238.2 MB and 3 × 333.5 MB of the *Keep* and *Tier 2* lists above). No Exp 4e checkpoint is on WandB. The counter showed 3.65 GB right after; the excess equals the file just deleted, so it is lag [concluded].
+- Counter re-checked 26-10-21 [verified: WandB API, LOG entry *counter re-check 26-10-21 (sync)*]: `entity.storageBytes` 3.00 GB, listed files 3.32 GB (11 checkpoints 2.906 GB), 2.0 GB under the cap; the counter sitting below the listed files is unexplained [assumed: excludes some file kinds or settles in stages]. Tier 2 stays until space is short again.
 
 Details and per-run reasons: this LOG, entries *second cleanup: deletion ranking 26-10-20*, *tier 1 deleted 26-10-20* and *4d checkpoint and incomplete runs deleted 26-10-21*.
 
@@ -76,4 +77,5 @@ Details and per-run reasons: this LOG, entries *second cleanup: deletion ranking
 - See also: [convos/julian/26-10-02_epistemic_memory_setup_SUMMARY.md] — set up the memory conventions; this topic added one (*Topic starts from a file* in CLAUDE.md).
 - See also: [convos/julian/26-10-02_overview_of_goal_SUMMARY.md] — designed the tiu arm configs whose `save_freq` this topic set to final-checkpoint-only, and set `sync_checkpoints_to_wandb: true` in them.
 - See also: [convos/julian/26-10-05_no_truth_baseline_SUMMARY.md] — uploaded three new final checkpoints (bf16 arm A, code control, untrained; ~238 MB each), budgeted against this topic's 5 GB cap and post-cleanup usage.
+- See also: [convos/julian/26-10-10_bolder_experiments_SUMMARY.md] — Exp 0–3 and 4a–4c, whose checkpoints are this topic's tier 2 and keep lists; the cancellation test there is why Exp 2/3 are tier 2 and Exp 1 is kept.
 - See also: [convos/julian/26-10-16_faithful_targeting_SUMMARY.md] — the Exp 4d runs whose checkpoint uploads made the 26-10-20 cleanup urgent.

@@ -53,6 +53,7 @@ The 5.32 GB of real files are almost all checkpoints: 21 files of 238.2 MB = 5.0
 - a stuck counter, which the WandB community forum reports for other users.
 
 If the counter is still above the real size a day after the next deletion, the step is the *Manage storage* page (`https://wandb.ai/account-settings/bitt-j-personal/usage/manage/`), then WandB support.
+OUTDATED (26-10-21): the ~3.6 GB excess was counter lag after all: on 26-10-20 the counter equalled the listed files (entry *second cleanup: deletion ranking 26-10-20*).
 
 **Even with a correct counter, 5.32 GB is over the 5 GB cap**, so checkpoints have to go.
 
@@ -61,6 +62,7 @@ If the counter is still above the real size a day after the next deletion, the s
 The tuning verdict is ratified (training-run SUMMARY), so all five runs are tuning runs whose checkpoints have no planned use, with one exception:
 - e2b's `model_5000.pth`. e2b's config equals the current `config_truth_all_tokens.yaml` except for `label` and the WandB project [verified 26-10-03 in the training-run topic].
 - So it is in effect the all-tokens arm's decomposition and could be probed directly, saving a ~28-minute H100 run.
+OUTDATED (26-10-21): the arm configs have since loaded the frozen model in bf16, so fp32 e2b no longer matches them (replaced by bf16 arm A `s-bd23f0d1`), and its checkpoint was deleted on 26-10-20 (entry *tier 1 deleted 26-10-20*).
 
 Options:
 - **A (recommended): keep only e2b's `model_5000.pth`, delete the other 20 checkpoints** (4.76 GB). Afterwards ~0.56 GB.
@@ -162,6 +164,7 @@ I have read INDEX.md, this topic's SUMMARY and LOG tail, the WandB rules in `doc
 | `s-286aa6a9` | untrained baseline, fp32 | replaced by the bf16 untrained `s-7fad0c14`; untrained checkpoints regenerate in ~2 min on the laptop CPU anyway |
 
 After tier 1 and both 4d uploads: ≈ 3.97 GB [concluded: 4.73 − 1.43 + 0.67].
+OUTDATED (26-10-21): only one 4d checkpoint was uploaded and it was deleted on 26-10-21; the second 4d run was stopped early (entry *4d checkpoint and incomplete runs deleted 26-10-21*).
 
 **Tier 2 — closed experiments, local copy exists, but a script or record still points at them** (each 238 MB). Deleting costs convenience, not data: analyses on a vast.ai instance fetch checkpoints from WandB (CODING.md), so a later re-analysis would need an upload from the laptop.
 - `s-aeaa70d8` Exp 0 (next-token lens, recovered 8% of the verdict KL; the weakest lens).
@@ -190,6 +193,7 @@ Deleted on WandB (project `spd`), the checkpoint file only; runs and their metri
 [verified: file listing after deletion] None of the six runs holds a `.pth` file anymore. The local copies under `~/spd_out/runs/spd-<id>/` and `~/spd_out/spd/s-286aa6a9/` are untouched.
 
 `entity.storageBytes` right after deletion: still 4.73 GB (the counter lags deletions by hours, as on 26-10-03). Expected after the lag: ≈ 3.30 GB, then ≈ 3.97 GB once both Exp 4d checkpoints are in. Not yet re-checked.
+OUTDATED (26-10-21): the 4d uploads did not happen as expected (entry *4d checkpoint and incomplete runs deleted 26-10-21*, which also records the next counter reading).
 
 ---
 
@@ -198,5 +202,17 @@ Deleted on WandB (project `spd`), the checkpoint file only; runs and their metri
 Deleted on Julian's approval, recorded in `convos/julian/26-10-16_faithful_targeting_LOG.md` (C: comment under question 1 of *4e restart: questions before tuning*; deletion in entry *WandB deletion done 26-10-21*): the Exp 4d checkpoint `s-5c284ebb/model_5000.pth` (333.5 MB, no local copy) and the three incomplete 4d runs `s-b8c8c610`, `s-37397e7d`, `s-15cc0844` (3.3 MB together). The second 4d run (coefficient 10) was stopped early and never uploaded a checkpoint, so "both 4d uploads" from the tier-1 estimate did not happen.
 
 [verified: WandB API listing over all projects, 26-10-21, right after deletion]:
+OUTDATED (26-10-21): "checkpoints 3.042 GB" below does not match its own itemisation (8 × 238.2 + 3 × 333.5 MB = 2.906 GB); the API sum is 2.906 GB, see entry *counter re-check 26-10-21 (sync)*.
 - Listed files total **3.310 GB**, of which checkpoints 3.042 GB: 8 × 238.2 MB (untrained `s-7fad0c14`, arm A `s-bd23f0d1`, code control `s-b6cce5de`, UTH `s-d2ded461`, Exp 2 `s-05db01ad`, Exp 1 `s-cd129592`, Exp 3 `s-161f8a7b`, Exp 0 `s-aeaa70d8`) and 3 × 333.5 MB (Exp 4a `s-4cd6abe5`, 4b `s-717b50c9`, 4c `s-5ecb5791`); the rest is toy runs (≤ 3.1 MB each) and metrics. No Exp 4e checkpoint is on WandB.
 - `entity.storageBytes` = 3.650 GB. The 0.34 GB above the listed files matches the 4d checkpoint just deleted [concluded: the counter lags deletions by hours, seen twice before], so tier 1's 1.43 GB has already left the counter. Expected after the lag: ≈ 3.31 GB, 1.69 GB under the cap. Not yet re-checked.
+
+---
+
+26-10-21, Claude Opus 5.5 — *counter re-check 26-10-21 (sync)*; I am the sync orchestrator; a sync sub-agent took the listing, I re-read the counter myself.
+
+[verified: WandB API, read-only, 26-10-21 13:21 UTC (sub-agent) and 13:30 UTC (me), entity `bitt-j-personal`]:
+- `entity.storageBytes` = 2,996,501,296 B (3.00 GB), the same at both readings.
+- Listed files over all projects (sub-agent's reading) = 3,320,528,123 B (3.32 GB); project `spd` 3.30 GB in 95 runs, of which the 11 checkpoints sum to 2,906,435,851 B (2.906 GB). The previous entry's "checkpoints 3.042 GB" was an arithmetic slip (marked OUTDATED there).
+- The counter now sits 0.32 GB *below* the listed files, unexplained [assumed: the counter excludes some file kinds or settles in stages]. Either way usage is 2.0 GB under the 5 GB cap. The re-check is done; no further check needed until the next upload or deletion.
+
+The sync also corrected `convos/julian/26-10-03_wandb_storage_RUNS.md`: its "ckpt" column held whole-run sizes, not checkpoint sizes (now "size"), and rotgrid has 55 runs, not 56 [verified: WandB API listing, sub-agent, 26-10-21].

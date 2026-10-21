@@ -3,8 +3,9 @@
 # offers are scarce: many offers at ~$1.05-1.8/h against $2.3-7.5/h for the few H100s that day.
 # More memory than an H100 (two parallel Qwen2.5-7B tPD jobs used 65 of 82 GB on one), but about
 # half its memory bandwidth (offers report ~1.4 vs ~2.9 TB/s), so expect slower steps; vast.ai's
-# DLPerf puts it at ~0.8x an H100 SXM. Not yet tested with this repo: per-step speed, and torch
-# (cu128 wheels) on its compute capability sm_120. Most hosts are not datacenter-labelled - the
+# DLPerf puts it at ~0.8x an H100 SXM. Tested 26-10-21 on one rented card (power limit 420 W):
+# torch 2.8.0+cu128 runs on compute capability 12.0; one Qwen2.5-7B tPD training 1.72 it/s, 0.68x
+# an H100, and a second parallel training gains nothing. Most hosts are not datacenter-labelled - the
 # host class whose RTX 4090 rentals often failed at ssh / `uv sync`.
 # See convos/julian/26-10-05_vast_rentals_SUMMARY.md.
 

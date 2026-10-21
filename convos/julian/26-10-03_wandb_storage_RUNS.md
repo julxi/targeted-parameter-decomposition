@@ -1,18 +1,18 @@
 # WandB run register (project `bitt-j-personal/spd`)
 
-**Last updated:** 26-10-21 (all runs since the LM work began, 26-10-02, up to the end of Exp 4e round 3)
+**Last updated:** 26-10-21 (sync: size column relabelled as whole-run size, rotgrid count corrected; all runs since the LM work began, 26-10-02, up to the end of Exp 4e round 3, match the WandB listing)
 
 Living list of the decomposition runs on WandB, so Julian can delete the ones nobody needs from time to time. Agents add a row when they launch a run, and update its row when its checkpoint or status changes; rows of deleted runs are removed (the deletion itself is recorded in `convos/julian/26-10-03_wandb_storage_LOG.md`). Agents never delete anything themselves (`docs/CODING.md`); Julian does it or approves it.
 
 How to delete: on the website, open the project, search the run by its id or name, then *Delete run* (whole run) or the *Files* tab (only the `.pth`). Runs launched from 26-10-21 on carry their label as the WandB name (e.g. `e4_r2_lr_seed_alltok_lr5e-3`); older runs are named by their id.
 
-What deleting frees: only checkpoints (`.pth`, 238–336 MB) matter for the 5 GB cap. A run without a checkpoint holds 1–3 MB (metrics, logged code, config); deleting it loses its training curves only. Numbers marked "recorded" exist in the named LOG and, for analyses, as local JSONs under `~/spd_out/`.
+What deleting frees: only checkpoints (`.pth`, 238.2 MB for runs on MLPs 15–19, 333.5 MB for Exp 4a–4c on MLPs 11–17) matter for the 5 GB cap. A run without a checkpoint holds 1–3 MB (metrics, logged code, config); deleting it loses its training curves only. Numbers marked "recorded" exist in the named LOG and, for analyses, as local JSONs under `~/spd_out/`.
 
-Columns: *ckpt* = checkpoint on WandB; *local* = a copy under `~/spd_out/`; *advice* = the agent's suggestion, not a decision.
+Columns: *size* = the whole run on WandB, checkpoint included [verified: WandB API, 26-10-21]; deleting only the `.pth` frees 238.2 or 333.5 MB of it, the rest is metrics and logged code; *local* = a copy under `~/spd_out/`; *advice* = the agent's suggestion, not a decision.
 
 ## Runs with a checkpoint on WandB (the storage that counts)
 
-| run id | date | label | ckpt | local | used by | advice |
+| run id | date | label | size | local | used by | advice |
 |---|---|---|---|---|---|---|
 | s-7fad0c14 | 26-10-05 | tiu_untrained (bf16) | 238 MB | yes | baseline of all tiu probe analyses | keep |
 | s-bd23f0d1 | 26-10-05 | tiu_all_tokens (arm A, bf16) | 241 MB | yes | arm A, truth-writing analyses | keep |
@@ -64,4 +64,4 @@ All deletable whenever Julian wants a tidy project; their results are recorded w
 
 ## Older runs (before this project's LM work)
 
-56 rotgrid toy runs from 26-09-21 to 26-09-25 (labels `rotgrid_3L_C*`, 3–8 MB each with their small checkpoints, together ≈ 0.3 GB) and the other WandB projects of the account. They predate the Epistemic Memory records, so no LOG describes them [verified: WandB listing 26-10-21].
+55 rotgrid toy runs from 26-09-21 to 26-09-25 (labels `rotgrid_3L_C*`, 3–8 MB each with their small checkpoints, together ≈ 0.3 GB) and the other WandB projects of the account. They predate the Epistemic Memory records, so no LOG describes them [verified: WandB listing 26-10-21; the 26-10-03 inventory counted 56].
