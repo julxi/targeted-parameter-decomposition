@@ -32,7 +32,7 @@ LLM agents lose all context between sessions, so all important information must 
 
 - **`{date}_{topic}_LOG.md`** — detailed chronological record of the conversation. Can include asides, corrections, and back-and-forth; later parts may contradict earlier parts, because decisions change. LOGs can get long and are NOT meant to be read in full by new agents — with one exception: **when the user points you at a specific LOG, read the whole file**, even if they only ask about the comment at the bottom.
 
-- **`{date}_{topic}_SUMMARY.md`** — short summary of the LOG's key points. No contradictions; instead say "we initially chose X but later switched to Y, because Z." Purpose: a newly started agent reads the SUMMARY and is up to speed. Every SUMMARY carries a `**Last updated:**` date near the top so readers can judge staleness.
+- **`{date}_{topic}_SUMMARY.md`** — short summary of the LOG's key points. No contradictions; instead say "we initially chose X but later switched to Y, because Z." Purpose: a newly started agent reads the SUMMARY and is up to speed. Every SUMMARY carries a `**Last updated:**` line near the top (date and current state; replaced on each update, never appended to) so readers can judge staleness.
 
 The split is the point: the LOG guarantees a record that cannot be quietly rewritten, the SUMMARY spares new agents from reading it in full. A project needs both — without the LOG there is no provenance, and without the SUMMARY every new session starts with a dig through the full history.
 

@@ -11,7 +11,7 @@ LOG and SUMMARY files drift out of sync (an agent gets interrupted, or forgets t
    - **Checking for dropped promises.** Grep the LOG for agreed bookkeeping side-effects ("add X to FUTURE_WORK", "make sure we don't forget") and verify each was executed — these get silently dropped when a session's main deliverable ships.
    - Checking formatting compliance (epistemic markers, entry headers, dates)
    - **Marking reversed LOG passages.** Where a later entry reversed or invalidated an earlier passage that carries no marker, insert `OUTDATED (<date>): <reason, pointer to the newer entry>` next to it. This is the one change sync agents make to existing LOG text.
-   - Updating the SUMMARY if needed, with the sync date in its `Last updated` line
+   - Updating the SUMMARY if needed, and rewriting its `Last updated` line: the sync date and the topic's current state in one clause. Replace the whole line; it is not a changelog.
 3. **Private topics**: a PLOG syncs to its PSUMMARY, and — only if it contains shared-marked content — to a public SUMMARY per CLAUDE.md §Privacy. Sync agents operate only on the **current user's** files; syncing another user's private folder is never correct (on this machine it shouldn't even exist — flag it if it does).
 4. **Scope**: a single pair, one user's folder, or the whole project.
 5. **Afterwards**: note the sync in `INDEX.md` (e.g. the maintenance row's "last run" date, if the project keeps one).

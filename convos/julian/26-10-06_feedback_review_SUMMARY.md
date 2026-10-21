@@ -1,6 +1,6 @@
 # SUMMARY: Review of FEEDBACK.md entries
 
-**Last updated:** 26-10-06 (review complete: F2, F5b, F6, F8, F10 adopted; F5a not for now; F7 and the reader-side sentence rejected)
+**Last updated:** 26-10-21 (round 2 in progress: (1) adopted, (2) and (3) awaiting Julian)
 
 Julian asked to go through FEEDBACK.md (26-10-06, right after a sync). The agent triaged all 10 entries, numbered F1–F10 in file order (table in the LOG, entry *triage of all FEEDBACK.md entries*).
 
@@ -14,6 +14,11 @@ Julian asked to go through FEEDBACK.md (26-10-06, right after a sync). The agent
 - **Not adopted for now** [decided: Julian, "on the fence"]: F5a (whoever reverses a decision adds the marker in the same turn), because of the cognitive load on the agent making the change. With F5b, missed markers are added at the next sync.
 - **Rejected** [decided: Julian]: F7 (describe a method's objectives as aims), because it is too specific; and a proposed reader-side sentence for CLAUDE.md ("check the SUMMARY before relying on an old LOG passage"), because every line in the always-loaded CLAUDE.md costs tokens in every session.
 - **Open:** only whether to report the generic fixes (F2, F5b, F6) upstream to the Epistemic Memory template; Julian hasn't raised it.
+- **Round 2 (26-10-21)** (FEEDBACK entry *living-document drift after state changes*; LOG entries from *round 2: proposals for the living-document-drift entry* on):
+  - (1) adopted [decided: Julian, transcribed chat]: the `Last updated` line is the date plus the current state, replaced on each update, not a changelog (`docs/procedures/sync.md` step 2 and the CLAUDE.md SUMMARY sentence); the remaining chain in the truth-writing SUMMARY was fixed.
+  - (2) stale tags after an answer, open: the sync's C: check would also retag the items an answer settles; for within a session, the agent proposes one clause in CLAUDE.md *Keeping files current* ("when an answer settles an item, retag that item there too") or nothing, since a sample of three syncs showed only one clear case.
+  - (3) cross-topic status changes, open: a `docs/CODING.md` rule that names the owning topics (rentals → vast-rentals LOG; WandB runs and checkpoints → the run register and the WandB-storage LOG) and asks for their SUMMARY and INDEX row to be updated in the same turn; alternative: an object → topic list in INDEX.md. No rule for commit status.
+  - Suggested: decide the other three 26-10-21 FEEDBACK entries in the same round.
 - Placement principle [concluded]: CLAUDE.md is loaded in every session, so only the short, general rules go there.
 
 - See also: [convos/julian/26-10-06_truth_writing_components_SUMMARY.md] — source of F7, F8, F9 (the pkill rule was adopted there).

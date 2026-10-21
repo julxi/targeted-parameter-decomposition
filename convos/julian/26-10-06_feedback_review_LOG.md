@@ -106,3 +106,59 @@ yes, F7 dropped
 - F7 is dropped: no rule. The FEEDBACK entry stays as the record of the lesson.
 
 Final state of the review: F2, F5b, F6, F8 (reframed) and F10 were adopted. F5a is not adopted for now. The reader-side rule and F7 were rejected. F1, F3, F4 and F9 had been closed before the review. The only thing left open is reporting the generic fixes upstream to the Epistemic Memory template; Julian hasn't raised it.
+
+---
+
+26-10-21, Claude Opus 5.5 — *round 2: proposals for the living-document-drift entry*; I have read CLAUDE.md, INDEX.md, FEEDBACK.md, `docs/procedures/sync.md` and this topic's SUMMARY and LOG end; Julian asked in chat what to do about the FEEDBACK entry *26-10-21 (sync): living-document drift after state changes*
+
+The entry names three failure kinds. My proposal for each:
+
+**(1) `Last updated` lines that grow into chains.** CLAUDE.md already forbids "Previously: ..." chains in living documents, so the rule exists and was not followed. Likely cause [concluded: from reading all 16 SUMMARY headers on 26-10-21]: agents write the parenthetical as a changelog of what this update changed ("sync: X corrected, Y added"). Most current headers read that way, and `sync.md` step 2 invites it ("with the sync date in its `Last updated` line"). A changelog naturally accumulates; a state description does not. One more chain exists that the sync did not reach: `convos/julian/26-10-06_truth_writing_components_SUMMARY.md` ("…; earlier, 26-10-13: …"). Proposal:
+- `sync.md` step 2, last bullet → "Rewrite the `Last updated` line: the sync date and the topic's current state in one clause. Replace the whole line; it is not a changelog."
+- CLAUDE.md, the SUMMARY bullet: "a `**Last updated:**` date near the top" → "a `**Last updated:**` line near the top (date and current state; replaced on each update, never appended to)". This edits an existing sentence and adds about ten words. The chains are created in normal sessions, not by the sync, so a sync-only rule would only clean up afterwards.
+- Fix the truth-writing header now.
+
+**(2) Tags not updated when an answer ratifies an item.** One instance, and the sync's C: check is where it surfaces. Proposal: extend the C: bullet in `sync.md` step 2 with "and that the items an answer ratifies or rejects carry the updated tag". No CLAUDE.md change.
+
+**(3) A state change does not reach the other topics' SUMMARYs.** The entry's prevention ("grep the SUMMARYs and INDEX.md in the same turn") is a same-turn obligation of the same kind as F5a, which Julian set aside for cognitive load; the sync did catch all three cases. But the stakes are higher than for an unmarked LOG passage: SUMMARYs and INDEX rows are what agents trust, and "RTX PRO 6000 not yet rented" could lead to a second paid rental, "checkpoint on WandB" to a download plan that fails. All instances found involve something that has its own home topic (WandB storage, vast rentals). A narrow rule covers them: "When you change the state of something another topic tracks (a WandB run or checkpoint, a rented instance), append a short entry to that topic's LOG and update its SUMMARY and INDEX row in the same turn." The agent then knows exactly which files to touch; no project-wide grep. It merges with the next FEEDBACK entry (*conventions and picks recorded only where they happened*, part 1: the run register created in another topic's session). Placement [assumed: Julian's call]: `docs/CODING.md`, *Running jobs on a rented vast.ai GPU*, next to the proposed run-register bullet; every instance so far is a WandB or rental action, and agents read CODING.md before experiments. A general sentence in CLAUDE.md *Cross-Referencing Between Topics* would cover other kinds too, at the cost of always-loaded tokens.
+
+The "uncommitted" case: no rule. Commits are Julian's action, so the agent that writes the SUMMARY cannot know about them, and `git log` answers the question at once; the sync fixes such words when it meets them.
+
+Suggestion: the other three 26-10-21 FEEDBACK entries (detach pattern `-f`; F5a evidence; conventions recorded only where they happened) could be decided in the same round, since (3) overlaps with the last two.
+
+Open, awaiting Julian: adopt (1) both parts / sync.md only; (2); (3) and its placement.
+
+---
+
+26-10-21, Claude Opus 5.5 — *round 2: concrete instances behind the drift entry*; same session; Julian asked in chat for an example of each problem and how the proposed rules would prevent it. Explained in chat; the evidence, for the record [verified: `git show` of the commits named]:
+
+1. Chain: `convos/julian/26-10-10_bolder_experiments_SUMMARY.md` at `86284b2` (before the sync) had `**Last updated:** 26-10-16 (component analysis of 4b/4c: …; Exp 4c … done: …; Exp 4a/4b done: …; causal layer scan: …; report section … reframed …; earlier: where truth is written, statement-first prompt and steering, cancellation test on all runs, Exp 0–3 analysed)`: each session put its news in front of the old parenthetical. Still present: `convos/julian/26-10-06_truth_writing_components_SUMMARY.md` ("…; earlier, 26-10-13: …; sync: …").
+2. Stale tag: the same SUMMARY at `86284b2` had "**Exp 4a/4b** [assumed: agent's design, not ratified]" although Julian's C: comments under *Questions for Julian* had answered (changed the positions, no objection to the rest); the sync (`4afa65d`) changed it to `[decided: C: comments …]`.
+3. Cross-topic status: the INDEX row of the vast-rentals topic at `86284b2` ended "new config `--config rtxpro6000` (RTX PRO 6000, 96 GB, from ~$1.4/h; not yet rented)", while `convos/julian/26-10-16_faithful_targeting_LOG.md` already recorded Julian's message that he had rented one and the 4e runs on it.
+
+Calibration [concluded]: (1) costs reading time and blurs the current state, but misleads nobody badly; (2) can make an agent re-ask or re-open a settled question; (3) is the one with a real cost, since an agent trusting the INDEX row could suggest renting a machine that is already running. None of the proposals guarantees prevention: (1)'s rule already existed and was ignored, so its rewording only makes the right form more obvious where the line is written; the sync remains the backstop for all three.
+
+---
+
+C: (transcribed from chat) 1. looks like a good change.
+2. Maybe there is also something that we can add that reduces the amount of wrong tags at least in one session. Any idea?
+3. How does the agent know which topic owns rentals?
+
+---
+
+26-10-21, Claude Opus 5.5 — *round 2: (1) adopted; ideas for (2), owner lookup for (3)*; same session
+
+**(1) adopted** [decided: Julian, transcribed above; I read "looks like a good change" as both parts of the proposal, Julian may narrow it]:
+- `docs/procedures/sync.md`, step 2, last bullet: "Updating the SUMMARY if needed, and rewriting its `Last updated` line: the sync date and the topic's current state in one clause. Replace the whole line; it is not a changelog."
+- CLAUDE.md, SUMMARY bullet: "Every SUMMARY carries a `**Last updated:**` line near the top (date and current state; replaced on each update, never appended to) so readers can judge staleness."
+- `convos/julian/26-10-06_truth_writing_components_SUMMARY.md`: the chained line replaced by the current state (analyses done, follow-ups in the bolder-experiments and direction-free topics, A1 open in FUTURE_WORK.md).
+
+**(2) Fewer wrong tags within a session.** How often it happens [verified: tag lines changed by the syncs `7bfb785`, `abc9c0b`, `4afa65d`, read by eye]: most tag changes in syncs are rewordings or added sources (`[decided]` → `[decided: transcribed chat in the LOG]`); the only clear "answered but still tagged as pending" case is the Exp 4a/4b one. So this is rare. The mechanism of that case: the agent answered Julian's C: comments in the LOG and added the new facts to the SUMMARY, but the SUMMARY item that said "not ratified" sat elsewhere and was not revisited. Ideas, cheapest first:
+- (a) One clause in CLAUDE.md *Keeping files current*: "update the SUMMARY whenever an important change lands in the LOG; when an answer settles an item, retag that item there too." Costs about a dozen words in the always-loaded file, and it hooks onto a step the agent already performs.
+- (b) Pending tags name the question they wait on, e.g. `[assumed: awaiting Julian, LOG entry *Questions for Julian*]`. The answering agent knows that entry title, and a grep for it finds every item waiting on it. No CLAUDE.md change, but it only works if agents write such tags and think to grep.
+- (c) A script that lists pending tags, as a Stop hook: mechanical, but noisy (many `[assumed]` tags are correct and permanent), so not recommended.
+Recommendation [concluded: one clear instance in three syncs]: (a) if Julian wants a within-session nudge; otherwise rely on the sync (the C: check extension proposed as (2) earlier) and do nothing more.
+
+**(3) How the agent knows which topic owns rentals.** At present nothing tells it: topics are named after discussions, not objects, and the only route is recognising the INDEX row "vast.ai rentals: …" while recording something else. That route failed in the observed case. Proposal: the rule itself names the owners, in `docs/CODING.md` *Running jobs on a rented vast.ai GPU* (it already points into `convos/julian/`):
+> **Status changes reach the owning topic.** When you rent or destroy an instance, change the launcher or a vast config, record it in `convos/julian/26-10-05_vast_rentals_LOG.md` too; when you launch a WandB run, change or delete a checkpoint, add or update its row in `convos/julian/26-10-03_wandb_storage_RUNS.md` and record deletions in `convos/julian/26-10-03_wandb_storage_LOG.md`. Update that topic's SUMMARY and INDEX row in the same turn.
+If other objects later show the same drift, they are added to this list. Alternative: a short "standing topics" list (object → topic) in INDEX.md, which every session reads; more general, but always-loaded tokens. Recommendation [assumed: Julian's call]: the CODING.md version.

@@ -1,6 +1,6 @@
 # SUMMARY: Do tPD components write into the truth direction? (follow-up on the UTH and tiu decompositions)
 
-**Last updated:** 26-10-15 (See also: arm A's components fail the bolder-experiments cancellation test; earlier, 26-10-13: A1 test and memory trial filed in FUTURE_WORK.md; sync: B and the Q4 loss options now point to the later topics that took them up; `StochasticHiddenActsReconLoss` check answered; tiu ablation share 27–31% and first-order underestimate 13–54% re-read from `report.txt`; `truth_writers.py` committed)
+**Last updated:** 26-10-21 (analyses done; the follow-ups continue in the bolder-experiments and direction-free topics; open here only the A1 distribution test, filed in FUTURE_WORK.md)
 
 Julian started this topic from his own notes at the top of the LOG. The first agent response was written against an unsaved shorter version. Julian then supplied the full one, which replaced the opening text; the entry *revision after Julian's full notes* records what changed. The notes ask for clarifications, state a hypothesis, list three ideas, and ask for help designing an experiment on "more specific truthfulness". Julian then commented inline. The answers sit in place beneath each comment, and the entry *answers to Julian's comments; plan for the VM session* collects the result. The entry *analysis script truth_writers.py; first results on tiu arm A* holds the code description and the tiu results; *UTH results (cross-task)* the UTH results and the overall reading.
 
