@@ -937,3 +937,18 @@ Answer (26-10-21, Claude Opus 5.5): clarification of the entry *swapping in deta
 C: (transcribed from chat) I'd want to pause after that. I need to understand the current results first.
 
 Done before pausing [verified]: nothing else is queued or running on the instance; the 3e-4 checkpoint and all logs, scripts and analysis outputs of 26-10-21 are copied to `~/spd_out/26-10-16_faithful_targeting/e4/` (checkpoints of all six analysed 4e runs in `checkpoints/`, instance files in `instance_copy_26-10-21/`, 49 MB). Only the checkpoints of discarded tuning runs remain solely on the instance (`s-9d172777` LR 5e-3, round-1 runs other than `s-348832ad` / `s-eb1c20d5`, the trials), which the checkpoint policy lets die with it. The instance is still rented; stopping it is Julian's call. The SUMMARY now opens with an overview of where 4e stands.
+
+---
+
+C: (transcribed from chat) I need a summary of the latest experiments (the orthogonal penalty ones). It should focus on them but also include important comparisons to the other experiments (I think the experiments number 4)
+
+---
+
+26-10-21, Claude Opus 5.5 — *report on 4d/4e with comparisons to 4a–4c*; new session. I read INDEX.md, this topic's SUMMARY, the LOG entries from *4e: follow-up questions and draft plan* to the end, the Exp 4 section of the bolder-experiments SUMMARY, the 4c mask-search part of the component-steering SUMMARY, `reports/26-10-16_exp4_statement_first.typ` (4a–4c tables) and the 4c vs 4e configs.
+
+Wrote `reports/26-10-21_orthogonality_experiments.typ` (7 pages, self-contained, PDF gitignored; compiled with `typst compile`). Contents: background on 4a–4c and the problem; 4d; 4e tuning (LR × positions, importance-minimality coefficient); a comparison table 4a–4e; what 4e's components carry (frozen activations, "false" against a "true" default, per-layer states, A8); the sparsity front by family; reprogramming incl. the 4c mask-search comparison; caveats and open items. All numbers re-read from this LOG, the SUMMARYs and the 26-10-16 report.
+
+Points made in the report that are not spelled out elsewhere [concluded unless tagged]:
+- **The 4c-vs-4e comparison (74% vs 91% KL recovered) is not controlled.** Besides the loss term, 4e's best run differs from 4c in LR (2e-3 vs 5e-4), steps (3,000 vs 5,000), PGD (off vs on), training split (tiu v2 train, 5,574 vs v1 train, 6,560) and evaluation split (val vs test); its rounded number (0.87) is the one comparable in kind to 4c's 74%. 4e at 4c's LR recovered 0.37 [verified: `s-348832ad`, round 1], and 4c was never run at 2e-3, so the gain cannot be attributed to the orthogonality term alone. A controlled comparison (4c at LR 2e-3 on the same split) is listed as an option [assumed: proposal].
+- **Size of the components' write**: 4e's active components write at most 0.16 |y| (`s-eb1c20d5`), 4b's 0.81–0.96 |y|, 4c's 0.29–0.66 |y|: 4e is the only non-cancelling Exp 4 decomposition whose components are a small part of the output [verified: numbers from the cited analyses; comparison across splits].
+- **4c's mask search vs 4e's**: 4c inverted cities, comparisons and three negated families and collapsed animal_class, element_symb, sp_en_trans; 4e's edits also swap most of animal_class and sp_en_trans, but element_symb resists every edit (≤ 0.39 answered against the truth) [verified: entry *swapping in detail*]. The SUMMARY's "swaps the verdict ... of every family" holds for family groups (affirmative / negated / comparisons), not for element_symb.

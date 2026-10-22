@@ -1,6 +1,6 @@
 # SUMMARY: Between Exp 4a and 4b — a loss that is faithful but targeted
 
-**Last updated:** 26-10-21 (sync: whole LOG checked, OUTDATED markers added to the LOG, open items completed; 4e paused by Julian after tuning round 3, the decomposition comparison and the reprogramming tests, to digest the results)
+**Last updated:** 26-10-21 (4e paused by Julian to digest the results; report on 4d/4e with comparisons to 4a–4c written: `reports/26-10-21_orthogonality_experiments.typ`)
 
 Julian's question: Exp 4a (verdict lens only) is principled but gives the decomposition too much freedom; Exp 4b/4c (verdict lens + per-layer reconstruction of the MLP outputs) are faithful but less targeted. His idea for a middle: 4a plus an orthogonality penalty instead of the reconstruction term. (4a/4b/4c background: `convos/julian/26-10-10_bolder_experiments_SUMMARY.md`, section *Causal layer scan and Exp 4*. In short: 4a, 4b and 4c decompose the `down_proj` of Qwen2.5-7B-Instruct layers 11–17 at the statement end `'.\n'` of "<statement>\nThe amount of truth in this statement is ", with the KL of the verdict digit as target loss. 4a reproduces the verdict through a layer-11 write 12.9× the MLP output's norm, cancelled by inactive components and Δ.)
 
@@ -13,7 +13,7 @@ Julian's question: Exp 4a (verdict lens only) is principled but gives the decomp
 2. **What the components carry**: their statement-specific activity is necessary (activations frozen to their averages: KL recovered ≈ 0.05–0.07). Without it the model calls false statements "true" (a "true" default); the components supply "this is false". The individually important components are mostly sentence-form detectors (negation, comparison) plus a few false-selective ones; which component does what differs between seeds, the function does not.
 3. **At layer 11 that "false" signal is a real part of the model's own MLP output**: removing the components' write subspace from the original output (no decomposition involved) flips 22–28% of false statements to "true", more than removing the whole output; random subspaces of the same size do nothing (A8, both seeds).
 4. **The sparsity coefficient changes what the decomposition is** (table below): 3e-4 and 1e-3 cover every family; 3e-3 keeps only components that fire on false statements (removing them makes 75% of false statements read "true", true ones stay true); 1e-2 keeps 8 components, among them L11:22, without which the larger_than verdicts invert. Julian: there is no "right number" of components [C: comment]; choose the decomposition by question.
-5. **Reprogramming**: a fixed weight edit along a decomposition's components swaps the verdict on held-out statements (≈ 60 terms → accuracy 0.12, ≈ 250 → 0.05), but an untrained basis aligned with the MLP inputs does it about as well (129 terms → 0.06). Decompositions are slightly better only with ≤ 20 terms and in the affirmative fact families. So swapping does not tell the decompositions apart, and the belief-shaped objective gives only "verdict by sentence form": no belief lever.
+5. **Reprogramming**: a fixed weight edit along a decomposition's components swaps the verdict on held-out statements (every family group; element_symb resists, ≤ 0.39 answered against the truth) (≈ 60 terms → accuracy 0.12, ≈ 250 → 0.05), but an untrained basis aligned with the MLP inputs does it about as well (129 terms → 0.06). Decompositions are slightly better only with ≤ 20 terms and in the affirmative fact families. So swapping does not tell the decompositions apart, and the belief-shaped objective gives only "verdict by sentence form": no belief lever.
 
 | importance-minimality coefficient | run | KL recovered / accuracy (components only) | active components (in ≥ 2% of statements) | character |
 |---|---|---|---|---|
@@ -21,6 +21,8 @@ Julian's question: Exp 4a (verdict lens only) is principled but gives the decomp
 | **1e-3** | `s-eb1c20d5`, `s-52b2abc7` (seeds 0, 1) | 0.910 / 0.974, 0.912 / 0.971 | 79, 211 | all families; sentence-form detectors + label-selective components |
 | 3e-3 | `s-8ec00fb3` | 0.701 / 0.863 | 41 | only false-selective components (comparisons, negated statements) |
 | 1e-2 | `s-e9552de2` | 0.599 / 0.740 | 8 | comparison machinery (L11:22) + 5 true-only components |
+
+**Report**: `reports/26-10-21_orthogonality_experiments.typ` (7 pages, self-contained; PDF gitignored) summarises 4d/4e with comparisons to 4a–4c. It notes that the 4c-vs-4e comparison is not controlled: besides the loss term, 4e's best run differs in LR (2e-3 vs 5e-4; 4e at 5e-4 recovered 0.37), steps, PGD, training and evaluation split [concluded: configs and LOG].
 
 **Caveats**: one seed per setting except 1e-3; validation split only (test untouched); screening runs (3,000 steps, no PGD), the planned 5,000-step final runs with PGD were not done; one prompt, tiu data only; orthogonality coefficient, C, routing and CI width were never tuned.
 
