@@ -1,0 +1,236 @@
+{"text": "It is the case either that the Spanish word 'aceite' means 'oil' or that it means 'class'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 0}
+{"text": "It is the case either that the Spanish word 'caballo' means 'horse' or that it means 'shoulder'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 2}
+{"text": "It is the case either that the Spanish word 'estudiante' means 'student' or that it means 'summer'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 3}
+{"text": "It is the case either that the Spanish word 'belleza' means 'beauty' or that it means throw'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 5}
+{"text": "It is the case either that the Spanish word 'piedra' means 'stone' or that it means 'before'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 6}
+{"text": "It is the case either that the Spanish word 'tierra' means 'land' or that it means 'skin'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 12}
+{"text": "It is the case either that the Spanish word 'sol' means 'land' or that it means 'sun'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 13}
+{"text": "It is the case either that the Spanish word 'toro' means 'giraffe' or that it means 'bull'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 18}
+{"text": "It is the case either that the Spanish word 'parecer' means 'to walk' or that it means seem'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 22}
+{"text": "It is the case either that the Spanish word 'esperanza' means 'hope' or that it means 'name'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 23}
+{"text": "It is the case either that the Spanish word 'caer' means 'to fall' or that it means 'thing'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 24}
+{"text": "It is the case either that the Spanish word 'morir' means 'to die' or that it means 'three'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 26}
+{"text": "It is the case either that the Spanish word 'reloj' means 'fire' or that it means 'clock'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 30}
+{"text": "It is the case either that the Spanish word 'tener' means 'to 'smile' or that it means have'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 31}
+{"text": "It is the case either that the Spanish word 'abierto' means 'open' or that it means swim'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 34}
+{"text": "It is the case either that the Spanish word 'hijo' means 'horse' or that it means 'son'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 38}
+{"text": "It is the case either that the Spanish word 'elegir' means 'to 'paper' or that it means choose'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 39}
+{"text": "It is the case either that the Spanish word 'bueno' means 'good' or that it means 'dark'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 40}
+{"text": "It is the case either that the Spanish word 'jugar' means 'to 'south' or that it means play'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 41}
+{"text": "It is the case either that the Spanish word 'oscuro' means 'face' or that it means 'dark'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 42}
+{"text": "It is the case either that the Spanish word 'oscuro' means 'dark' or that it means 'before'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 43}
+{"text": "It is the case either that the Spanish word 'persona' means 'person' or that it means 'cow'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 45}
+{"text": "It is the case either that the Spanish word 'dibujar' means 'to fight' or that it means draw'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 48}
+{"text": "It is the case either that the Spanish word 'mapa' means 'bread' or that it means 'map'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 49}
+{"text": "It is the case either that the Spanish word 'roca' means 'school' or that it means 'rock'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 51}
+{"text": "It is the case either that the Spanish word 'ahora' means 'now' or that it means 'danger'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 53}
+{"text": "It is the case either that the Spanish word 'ciudad' means 'eye' or that it means 'city'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 55}
+{"text": "It is the case either that the Spanish word 'momento' means 'moment' or that it means hear'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 61}
+{"text": "It is the case either that the Spanish word 'escribir' means 'to write' or that it means 'map'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 63}
+{"text": "It is the case either that the Spanish word 'mes' means 'history' or that it means 'month'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 64}
+{"text": "It is the case either that the Spanish word 'uno' means sell' or that it means 'one'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 65}
+{"text": "It is the case either that the Spanish word 'tener' means 'to have' or that it means 'shoulder'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 69}
+{"text": "It is the case either that the Spanish word 'norte' means 'meat' or that it means 'north'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 71}
+{"text": "It is the case either that the Spanish word 'carne' means 'meat' or that it means 'seven'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 72}
+{"text": "It is the case either that the Spanish word 'problema' means 'giraffe' or that it means 'problem'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 73}
+{"text": "It is the case either that the Spanish word 'temprano' means 'fig' or that it means 'early'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 78}
+{"text": "It is the case either that the Spanish word 'perro' means 'dog' or that it means 'bear'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 80}
+{"text": "It is the case either that the Spanish word 'ala' means 'slow' or that it means 'wing'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 82}
+{"text": "It is the case either that the Spanish word 'ver' means 'to see' or that it means 'train'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 83}
+{"text": "It is the case either that the Spanish word 'reloj' means 'clock' or that it means 'horse'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 89}
+{"text": "It is the case either that the Spanish word 'siete' means 'money' or that it means 'seven'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 91}
+{"text": "It is the case either that the Spanish word 'viento' means 'whale' or that it means 'wind'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 92}
+{"text": "It is the case either that the Spanish word 'ruido' means 'noise' or that it means 'bread'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 94}
+{"text": "It is the case either that the Spanish word 'mar' means 'sea' or that it means 'market'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 95}
+{"text": "It is the case either that the Spanish word 'roca' means 'rock' or that it means 'month'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 96}
+{"text": "It is the case either that the Spanish word 'desarrollar' means 'to 'but' or that it means develop'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 98}
+{"text": "It is the case either that the Spanish word 'agua' means 'giraffe' or that it means 'water'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 99}
+{"text": "It is the case either that the Spanish word 'ola' means 'wave' or that it means 'dry'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 100}
+{"text": "It is the case either that the Spanish word 'uno' means 'then' or that it means 'one'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 104}
+{"text": "It is the case either that the Spanish word 'voz' means 'voice' or that it means 'bread'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 107}
+{"text": "It is the case either that the Spanish word 'estrella' means 'sand' or that it means 'star'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 108}
+{"text": "It is the case either that the Spanish word 'mezclar' means 'to mix' or that it means 'force'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 110}
+{"text": "It is the case either that the Spanish word 'dedo' means 'third' or that it means 'finger'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 115}
+{"text": "It is the case either that the Spanish word 'veinte' means 'twenty' or that it means 'too'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 116}
+{"text": "It is the case either that the Spanish word 'viejo' means 'temperature' or that it means 'old'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 118}
+{"text": "It is the case either that the Spanish word 'momento' means 'moment' or that it means 'nothing'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 125}
+{"text": "It is the case either that the Spanish word 'problema' means 'nothing' or that it means 'problem'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 127}
+{"text": "It is the case either that the Spanish word 'lista' means 'letter' or that it means 'list'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 128}
+{"text": "It is the case either that the Spanish word 'huevo' means 'order' or that it means 'egg'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 132}
+{"text": "It is the case either that the Spanish word 'caminar' means 'to walk' or that it means 'cow'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 136}
+{"text": "It is the case either that the Spanish word 'agudo' means 'dog' or that it means 'sharp'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 137}
+{"text": "It is the case either that the Spanish word 'piel' means 'offer' or that it means 'skin'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 138}
+{"text": "It is the case either that the Spanish word 'palabra' means 'paper' or that it means 'word'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 139}
+{"text": "It is the case either that the Spanish word 'nombre' means 'name' or that it means 'back'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 140}
+{"text": "It is the case either that the Spanish word 'agua' means 'water' or that it means 'glass'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 142}
+{"text": "It is the case either that the Spanish word 'resultado' means 'nothing' or that it means 'result'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 148}
+{"text": "It is the case either that the Spanish word 'cuerpo' means 'body' or that it means measure'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 150}
+{"text": "It is the case either that the Spanish word 'coche' means 'pig' or that it means 'car'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 151}
+{"text": "It is the case either that the Spanish word 'escuela' means 'hope' or that it means 'school'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 152}
+{"text": "It is the case either that the Spanish word 'lanzar' means 'to throw' or that it means 'equal'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 153}
+{"text": "It is the case either that the Spanish word 'comer' means 'to eat' or that it means 'slow'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 155}
+{"text": "It is the case either that the Spanish word 'y' means 'bull' or that it means 'and'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 161}
+{"text": "It is the case either that the Spanish word 'huevo' means 'egg' or that it means 'large'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 162}
+{"text": "It is the case either that the Spanish word 'hijo' means 'son' or that it means 'squid'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 164}
+{"text": "It is the case either that the Spanish word 'mapa' means 'third' or that it means 'map'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 168}
+{"text": "It is the case either that the Spanish word 'invierno' means 'winter' or that it means 'fat'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 169}
+{"text": "It is the case either that the Spanish word 'y' means 'and' or that it means 'rose'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 171}
+{"text": "It is the case either that the Spanish word 'carne' means 'enough' or that it means 'meat'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 173}
+{"text": "It is the case either that the Spanish word 'oscuro' means 'dark' or that it means 'son'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 175}
+{"text": "It is the case either that the Spanish word 'tercero' means 'third' or that it means 'dog'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 178}
+{"text": "It is the case either that the Spanish word 'piel' means 'water' or that it means 'skin'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 179}
+{"text": "It is the case either that the Spanish word 'tren' means 'train' or that it means 'iron'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 183}
+{"text": "It is the case either that the Spanish word 'nadar' means 'to swim' or that it means connect'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 188}
+{"text": "It is the case either that the Spanish word 'caballo' means 'horse' or that it means 'cow'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 193}
+{"text": "It is the case either that the Spanish word 'viejo' means 'old' or that it means 'but'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 194}
+{"text": "It is the case either that the Spanish word 'abrigo' means win' or that it means 'coat'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 196}
+{"text": "It is the case either that the Spanish word 'fuego' means 'fire' or that it means 'large'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 199}
+{"text": "It is the case either that the Spanish word 'oveja' means 'sheep' or that it means carry'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 200}
+{"text": "It is the case either that the Spanish word 'soldado' means 'soldier' or that it means 'stone'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 201}
+{"text": "It is the case either that the Spanish word 'ayudar' means 'to help' or that it means 'group'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 205}
+{"text": "It is the case either that the Spanish word 'grupo' means imagine' or that it means 'group'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 211}
+{"text": "It is the case either that the Spanish word 'roca' means 'rock' or that it means 'industry'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 212}
+{"text": "It is the case either that the Spanish word 'cabeza' means 'head' or that it means think'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 214}
+{"text": "It is the case either that the Spanish word 'perro' means 'thin' or that it means 'dog'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 215}
+{"text": "It is the case either that the Spanish word 'clase' means 'train' or that it means 'class'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 218}
+{"text": "It is the case either that the Spanish word 'esquina' means 'slow' or that it means 'corner'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 221}
+{"text": "It is the case either that the Spanish word 'ola' means 'wave' or that it means 'problem'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 224}
+{"text": "It is the case either that the Spanish word 'roca' means 'rock' or that it means 'never'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 225}
+{"text": "It is the case either that the Spanish word 'carne' means 'meat' or that it means 'wave'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 226}
+{"text": "It is the case either that the Spanish word 'conejo' means 'large' or that it means 'rabbit'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 228}
+{"text": "It is the case either that the Spanish word 'caliente' means 'hot' or that it means 'dog'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 229}
+{"text": "It is the case either that the Spanish word 'bosque' means 'third' or that it means 'forest'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 234}
+{"text": "It is the case either that the Spanish word 'industria' means 'industry' or that it means 'neck'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 239}
+{"text": "It is the case either that the Spanish word 'vender' means 'to 'dress' or that it means sell'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 240}
+{"text": "It is the case either that the Spanish word 'miedo' means 'fear' or that it means 'clock'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 245}
+{"text": "It is the case either that the Spanish word 'calamar' means 'squid' or that it means eat'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 246}
+{"text": "It is the case either that the Spanish word 'suficiente' means 'enough' or that it means 'hand'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 247}
+{"text": "It is the case either that the Spanish word 'piel' means 'skin' or that it means 'dress'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 248}
+{"text": "It is the case either that the Spanish word 'mes' means 'month' or that it means 'moment'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 249}
+{"text": "It is the case either that the Spanish word 'enemigo' means 'enemy' or that it means 'book'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 250}
+{"text": "It is the case either that the Spanish word 'guardar' means 'to 'set' or that it means save'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 254}
+{"text": "It is the case either that the Spanish word 'ballena' means 'whale' or that it means 'equal'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 256}
+{"text": "It is the case either that the Spanish word 'coche' means 'car' or that it means ask'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 259}
+{"text": "It is the case either that the Spanish word 'sonrisa' means 'smile' or that it means 'hand'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 263}
+{"text": "It is the case either that the Spanish word 'hombro' means buy' or that it means 'shoulder'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 265}
+{"text": "It is the case either that the Spanish word 'hablar' means 'to think' or that it means speak'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 266}
+{"text": "It is the case either that the Spanish word 'bosque' means 'forest' or that it means ask'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 267}
+{"text": "It is the case either that the Spanish word 'uno' means 'one' or that it means 'train'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 268}
+{"text": "It is the case either that the Spanish word 'papel' means 'paper' or that it means 'example'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 269}
+{"text": "It is the case either that the Spanish word 'crecer' means 'to 'name' or that it means grow'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 270}
+{"text": "It is the case either that the Spanish word 'oveja' means push' or that it means 'sheep'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 271}
+{"text": "It is the case either that the Spanish word 'caer' means 'to read' or that it means fall'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 273}
+{"text": "It is the case either that the Spanish word 'mar' means 'sea' or that it means 'lake'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 274}
+{"text": "It is the case either that the Spanish word 'brazo' means 'wolf' or that it means 'arm'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 275}
+{"text": "It is the case either that the Spanish word 'imaginar' means 'to 'enough' or that it means imagine'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 277}
+{"text": "It is the case either that the Spanish word 'semilla' means 'seed' or that it means 'back'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 278}
+{"text": "It is the case either that the Spanish word 'oscuro' means 'dark' or that it means 'insect'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 279}
+{"text": "It is the case either that the Spanish word 'vaca' means 'cow' or that it means 'student'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 281}
+{"text": "It is the case either that the Spanish word 'demasiado' means 'too' or that it means eat'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 283}
+{"text": "It is the case either that the Spanish word 'grande' means 'large' or that it means 'old'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 287}
+{"text": "It is the case either that the Spanish word 'conectar' means 'to 'cat' or that it means connect'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 291}
+{"text": "It is the case either that the Spanish word 'tren' means 'meat' or that it means 'train'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 292}
+{"text": "It is the case either that the Spanish word 'ayudar' means 'to 'nothing' or that it means help'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 299}
+{"text": "It is the case either that the Spanish word 'plata' means 'silver' or that it means 'thin'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 300}
+{"text": "It is the case either that the Spanish word 'rojo' means 'corner' or that it means 'red'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 301}
+{"text": "It is the case either that the Spanish word 'hola' means 'donkey' or that it means 'hello'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 302}
+{"text": "It is the case either that the Spanish word 'piedra' means 'stone' or that it means 'cook'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 303}
+{"text": "It is the case either that the Spanish word 'nuevo' means 'new' or that it means 'dog'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 304}
+{"text": "It is the case either that the Spanish word 'vender' means 'to sell' or that it means have'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 305}
+{"text": "It is the case either that the Spanish word 'cuello' means 'neck' or that it means multiply'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 306}
+{"text": "It is the case either that the Spanish word 'lanzar' means 'to 'giraffe' or that it means throw'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 309}
+{"text": "It is the case either that the Spanish word 'miedo' means ask' or that it means 'fear'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 310}
+{"text": "It is the case either that the Spanish word 'vecino' means 'neighbor' or that it means 'danger'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 312}
+{"text": "It is the case either that the Spanish word 'mar' means 'sea' or that it means 'temperature'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 313}
+{"text": "It is the case either that the Spanish word 'calamar' means 'history' or that it means 'squid'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 314}
+{"text": "It is the case either that the Spanish word 'hombro' means have' or that it means 'shoulder'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 319}
+{"text": "It is the case either that the Spanish word 'cuello' means 'neck' or that it means 'history'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 320}
+{"text": "It is the case either that the Spanish word 'coche' means 'car' or that it means 'and'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 321}
+{"text": "It is the case either that the Spanish word 'caliente' means 'hot' or that it means build'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 322}
+{"text": "It is the case either that the Spanish word 'problema' means 'moment' or that it means 'problem'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 326}
+{"text": "It is the case either that the Spanish word 'vender' means 'to sell' or that it means 'week'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 332}
+{"text": "It is the case either that the Spanish word 'fuego' means 'fire' or that it means 'sister'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 333}
+{"text": "It is the case either that the Spanish word 'sonrisa' means 'horse' or that it means 'smile'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 334}
+{"text": "It is the case either that the Spanish word 'ayudar' means 'to help' or that it means 'enemy'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 337}
+{"text": "It is the case either that the Spanish word 'abierto' means 'open' or that it means 'bread'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 339}
+{"text": "It is the case either that the Spanish word 'todo' means 'all' or that it means 'clock'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 344}
+{"text": "It is the case either that the Spanish word 'agua' means read' or that it means 'water'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 345}
+{"text": "It is the case either that the Spanish word 'ocupado' means have' or that it means 'busy'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 346}
+{"text": "It is the case either that the Spanish word 'hielo' means 'place' or that it means 'ice'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 347}
+{"text": "It is the case either that the Spanish word 'caminar' means 'to eat' or that it means walk'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 348}
+{"text": "It is the case either that the Spanish word 'nada' means die' or that it means 'nothing'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 349}
+{"text": "It is the case either that the Spanish word 'ola' means 'order' or that it means 'wave'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 350}
+{"text": "It is the case either that the Spanish word 'comer' means 'to see' or that it means eat'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 354}
+{"text": "It is the case either that the Spanish word 'caminar' means 'to 'fear' or that it means walk'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 356}
+{"text": "It is the case either that the Spanish word 'siete' means 'smile' or that it means 'seven'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 358}
+{"text": "It is the case either that the Spanish word 'y' means 'and' or that it means 'history'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 360}
+{"text": "It is the case either that the Spanish word 'conejo' means 'rabbit' or that it means 'iron'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 361}
+{"text": "It is the case either that the Spanish word 'delgado' means 'eye' or that it means 'thin'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 362}
+{"text": "It is the case either that the Spanish word 'tener' means 'to believe' or that it means have'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 363}
+{"text": "It is the case either that the Spanish word 'enemigo' means send' or that it means 'enemy'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 367}
+{"text": "It is the case either that the Spanish word 'esclavo' means 'old' or that it means 'slave'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 368}
+{"text": "It is the case either that the Spanish word 'comer' means 'to eat' or that it means 'too'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 369}
+{"text": "It is the case either that the Spanish word 'papel' means 'too' or that it means 'paper'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 372}
+{"text": "It is the case either that the Spanish word 'sur' means 'teeth' or that it means 'south'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 373}
+{"text": "It is the case either that the Spanish word 'esclavo' means hear' or that it means 'slave'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 375}
+{"text": "It is the case either that the Spanish word 'parte' means 'part' or that it means 'bear'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 377}
+{"text": "It is the case either that the Spanish word 'espalda' means 'light' or that it means 'back'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 378}
+{"text": "It is the case either that the Spanish word 'bueno' means 'time' or that it means 'good'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 380}
+{"text": "It is the case either that the Spanish word 'diccionario' means 'life' or that it means 'dictionary'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 383}
+{"text": "It is the case either that the Spanish word 'cinco' means 'letter' or that it means 'five'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 384}
+{"text": "It is the case either that the Spanish word 'viejo' means 'skin' or that it means 'old'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 385}
+{"text": "It is the case either that the Spanish word 'caliente' means 'hot' or that it means 'land'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 386}
+{"text": "It is the case either that the Spanish word 'agua' means 'problem' or that it means 'water'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 387}
+{"text": "It is the case either that the Spanish word 'hielo' means 'ice' or that it means 'before'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 391}
+{"text": "It is the case either that the Spanish word 'pagar' means 'to 'dark' or that it means pay'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 392}
+{"text": "It is the case either that the Spanish word 'diez' means 'ten' or that it means 'seven'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 397}
+{"text": "It is the case either that the Spanish word 'rey' means 'but' or that it means 'king'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 398}
+{"text": "It is the case either that the Spanish word 'tener' means 'to have' or that it means 'sun'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 399}
+{"text": "It is the case either that the Spanish word 'estudiante' means 'student' or that it means give'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 400}
+{"text": "It is the case either that the Spanish word 'presente' means 'present' or that it means 'light'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 402}
+{"text": "It is the case either that the Spanish word 'presente' means 'present' or that it means 'enemy'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 403}
+{"text": "It is the case either that the Spanish word 'demasiado' means 'wing' or that it means 'too'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 404}
+{"text": "It is the case either that the Spanish word 'conectar' means 'to save' or that it means connect'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 408}
+{"text": "It is the case either that the Spanish word 'soldado' means pay' or that it means 'soldier'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 409}
+{"text": "It is the case either that the Spanish word 'comer' means 'to eat' or that it means 'water'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 414}
+{"text": "It is the case either that the Spanish word 'dedo' means 'egg' or that it means 'finger'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 416}
+{"text": "It is the case either that the Spanish word 'oferta' means 'offer' or that it means 'wind'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 418}
+{"text": "It is the case either that the Spanish word 'problema' means 'problem' or that it means 'story'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 420}
+{"text": "It is the case either that the Spanish word 'historia' means 'red' or that it means 'history'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 421}
+{"text": "It is the case either that the Spanish word 'ejemplo' means 'example' or that it means 'then'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 422}
+{"text": "It is the case either that the Spanish word 'norte' means 'north' or that it means 'city'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 424}
+{"text": "It is the case either that the Spanish word 'ayudar' means 'to 'dry' or that it means help'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 426}
+{"text": "It is the case either that the Spanish word 'sol' means pay' or that it means 'sun'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 427}
+{"text": "It is the case either that the Spanish word 'familia' means eat' or that it means 'family'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 429}
+{"text": "It is the case either that the Spanish word 'crecer' means 'to win' or that it means grow'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 435}
+{"text": "It is the case either that the Spanish word 'mientras' means 'while' or that it means 'dress'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 436}
+{"text": "It is the case either that the Spanish word 'concha' means 'fear' or that it means 'shell'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 438}
+{"text": "It is the case either that the Spanish word 'oscuro' means 'simple' or that it means 'dark'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 440}
+{"text": "It is the case either that the Spanish word 'oferta' means eat' or that it means 'offer'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 444}
+{"text": "It is the case either that the Spanish word 'mezclar' means 'to 'son' or that it means mix'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 448}
+{"text": "It is the case either that the Spanish word 'madre' means 'mother' or that it means 'first'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 449}
+{"text": "It is the case either that the Spanish word 'soldado' means 'soldier' or that it means 'name'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 451}
+{"text": "It is the case either that the Spanish word 'oso' means 'market' or that it means 'bear'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 452}
+{"text": "It is the case either that the Spanish word 'hola' means 'hello' or that it means 'third'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 453}
+{"text": "It is the case either that the Spanish word 'ruido' means 'noise' or that it means 'name'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 454}
+{"text": "It is the case either that the Spanish word 'jugar' means 'to play' or that it means die'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 455}
+{"text": "It is the case either that the Spanish word 'crecer' means 'to buy' or that it means grow'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 457}
+{"text": "It is the case either that the Spanish word 'agudo' means 'sharp' or that it means govern'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 458}
+{"text": "It is the case either that the Spanish word 'ejemplo' means 'city' or that it means 'example'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 462}
+{"text": "It is the case either that the Spanish word 'cuello' means 'neck' or that it means 'hope'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 463}
+{"text": "It is the case either that the Spanish word 'oso' means 'bear' or that it means 'glass'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 467}
+{"text": "It is the case either that the Spanish word 'suelo' means 'silver' or that it means 'ground'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 470}
+{"text": "It is the case either that the Spanish word 'pensar' means 'to 'word' or that it means think'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 471}
+{"text": "It is the case either that the Spanish word 'rosa' means 'rose' or that it means 'dictionary'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 472}
+{"text": "It is the case either that the Spanish word 'calamar' means 'squid' or that it means 'chair'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 473}
+{"text": "It is the case either that the Spanish word 'cabeza' means 'head' or that it means 'nature'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 476}
+{"text": "It is the case either that the Spanish word 'conectar' means 'to 'market' or that it means connect'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 480}
+{"text": "It is the case either that the Spanish word 'jirafa' means think' or that it means 'giraffe'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 481}
+{"text": "It is the case either that the Spanish word 'ejemplo' means 'half' or that it means 'example'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 483}
+{"text": "It is the case either that the Spanish word 'sol' means 'sun' or that it means 'free'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 488}
+{"text": "It is the case either that the Spanish word 'conejo' means 'sister' or that it means 'rabbit'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 491}
+{"text": "It is the case either that the Spanish word 'vecino' means 'neighbor' or that it means 'finger'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 492}
+{"text": "It is the case either that the Spanish word 'brazo' means 'arm' or that it means 'body'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 494}
+{"text": "It is the case either that the Spanish word 'pierna' means 'nothing' or that it means 'leg'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 496}
+{"text": "It is the case either that the Spanish word 'huevo' means choose' or that it means 'egg'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 497}
+{"text": "It is the case either that the Spanish word 'boca' means 'mouth' or that it means 'light'.", "label": true, "upstream_file": "datasets/sp_en_trans_disj.csv", "upstream_row": 499}

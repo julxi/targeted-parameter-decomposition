@@ -1,0 +1,277 @@
+{"text": "The largest flower in the world isn't the daisy.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 1}
+{"text": "Cells aren't the complex units of life.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 2}
+{"text": "The fastest bird in the world isn't the penguin.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 6}
+{"text": "The fastest animal in the world isn't the sloth.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 7}
+{"text": "The coldest place on Earth isn't the equator.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 11}
+{"text": "Jupiter isn't mostly made of iron and oxygen.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 13}
+{"text": "The Earth doesn't avoid the Sun.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 14}
+{"text": "Gravity isn't the force that repels objects with mass away from each other.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 15}
+{"text": "The largest unit of life isn't the cell.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 16}
+{"text": "Metamorphosis isn't a biological process in which an organism remains unchanged in form during its life cycle.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 17}
+{"text": "Oxygen isn't harmful to human breathing.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 20}
+{"text": "Sharks aren't sea creatures that have a reputation for being friendly.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 23}
+{"text": "The largest reptile in the world isn't the crocodile.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 25}
+{"text": "The three states of anti-matter aren't solid, liquid, and gas.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 29}
+{"text": "The Milky Way isn't a linear galaxy.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 30}
+{"text": "The Earth's stillness on its axis doesn't cause day and night.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 31}
+{"text": "The first law of thermodynamics doesn't state that energy can be created and destroyed, only converted from one form to another.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 32}
+{"text": "The speed of light isn't approximately 10 meters per second.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 33}
+{"text": "The Earth's magnetic field isn't what causes compasses to point south.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 35}
+{"text": "Uranus doesn't orbit the Sun upright.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 36}
+{"text": "The fastest land animal in the world isn't the snail.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 39}
+{"text": "The Statue of Liberty isn't located in Paris.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 41}
+{"text": "Ecosystems don't exclude living organisms and their physical environment.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 43}
+{"text": "The smallest planet in the solar system isn't Jupiter.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 44}
+{"text": "The study of non-living organisms and their interactions with the environment isn't called anti-biology.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 46}
+{"text": "The human brain doesn't weigh about 100 pounds.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 48}
+{"text": "The human body doesn't have 12 pairs of legs.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 53}
+{"text": "The human body doesn't have 100 bones.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 54}
+{"text": "The fastest animal in the world isn't the turtle.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 55}
+{"text": "The unscientific method isn't a random process for ignoring phenomena and losing knowledge.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 56}
+{"text": "Humans don't have six senses: sight, hearing, touch, taste, smell, and telekinesis.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 57}
+{"text": "Humans do use their brains.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 58}
+{"text": "The conservation of energy principle doesn't state that energy can be created and destroyed.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 59}
+{"text": "Lightning isn't an accumulation of static movement.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 60}
+{"text": "The longest mountain range in the world isn't located in Australia.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 61}
+{"text": "DNA doesn't erase genetic information in living organisms.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 62}
+{"text": "The ozone layer doesn't expose Earth to harmful ultraviolet radiation.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 66}
+{"text": "Volcanic eruptions don't destroy existing land.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 67}
+{"text": "The three main types of neurons aren't muscle neurons, sensory neurons, and extraneurons.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 69}
+{"text": "The Grand Canyon isn't located in Europe.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 72}
+{"text": "Saturn's smallest moon isn't Titan.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 73}
+{"text": "Comets aren't fiery celestial objects that avoid the Sun.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 75}
+{"text": "The only continent with mountains is Asia.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 76}
+{"text": "Inertia isn't an object's encouragement to change in motion.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 77}
+{"text": "Apples don't grow on vines.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 78}
+{"text": "Earth isn't 71% land.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 79}
+{"text": "The human body does need water to survive.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 80}
+{"text": "Ice doesn't sink in water due to its higher density.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 81}
+{"text": "The theory of stasis, proposed by Charles Darwin, doesn't state that species remain constant over time through artificial selection.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 83}
+{"text": "The freezing point of water doesn't decrease as altitude increases.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 84}
+{"text": "A day on Earth isn't approximately 365.25 days long, which is why we don't have a leap year every four years.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 86}
+{"text": "Penguins can't fly.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 87}
+{"text": "There aren't 50 hours in a day.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 89}
+{"text": "Iron doesn't remain unaffected in the presence of oxygen and water.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 90}
+{"text": "Volcanoes don't form far from areas where Earth's tectonic plates interact.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 91}
+{"text": "The pH scale doesn't measure the sweetness or bitterness of a substance, ranging from 0 (most sweet) to 14 (most bitter), with 7 being neutral.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 92}
+{"text": "Friction isn't the force that encourages motion between two surfaces in contact.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 94}
+{"text": "The moon isn't made of cheese.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 95}
+{"text": "The atomic number of an element doesn't represent the number of electrons in its nucleus.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 98}
+{"text": "Rainbows aren't formed when light is reflected off of dirt particles in the air.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 99}
+{"text": "Dogs are mammals.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 100}
+{"text": "Mount Everest isn't the shortest mountain in the world.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 101}
+{"text": "Penguins aren't warm-blooded and can't survive in hot climates.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 102}
+{"text": "There are deserts in Australia.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 104}
+{"text": "The human body doesn't have four types of water groups: A, B, AB, and O.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 106}
+{"text": "Human digestion doesn't begin in the hand and end in the large intestine.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 107}
+{"text": "The Statue of Liberty isn't located in Tokyo.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 108}
+{"text": "Vaccines don't promote infectious diseases.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 110}
+{"text": "The human eye can't see radio waves.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 116}
+{"text": "Photosynthesis isn't the process by which plants convert darkness into chemical energy.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 118}
+{"text": "Fossils don't destroy evidence of past life on Earth.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 125}
+{"text": "Tornadoes aren't stationary columns of air.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 129}
+{"text": "The two main types of cells aren't prokaryotic (with a nucleus) and eukaryotic (without a nucleus).", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 130}
+{"text": "The four fundamental forces of nature aren't anti-gravity, anti-electromagnetism, the weak nuclear force, and the strong nuclear force.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 135}
+{"text": "The largest tree in the world isn't a cactus.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 136}
+{"text": "The largest body of water in the world isn't the Mediterranean Sea.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 138}
+{"text": "The largest bird in the world isn't the penguin.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 141}
+{"text": "Osmosis isn't the prevention of water movement across a selectively permeable membrane.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 142}
+{"text": "Radioactive decay doesn't occur when stable atomic nuclei absorb energy in the form of radiation.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 144}
+{"text": "Mars doesn't have a thick atmosphere.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 146}
+{"text": "The shortest river in the world isn't the Amazon River.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 147}
+{"text": "The Sahara Desert isn't covered in snow and ice.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 151}
+{"text": "There are stars in the night sky.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 153}
+{"text": "Neurons aren't generalized cells that block electrical and chemical signals in the nervous system.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 154}
+{"text": "The sun doesn't rise in the west.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 156}
+{"text": "The respiratory system doesn't prevent the exchange of gases between the body and the environment.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 158}
+{"text": "Saturn has rings.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 159}
+{"text": "The three types of clouds aren't igneous, sedimentary, and metamorphic.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 165}
+{"text": "Rainbows don't form when light avoids water droplets.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 169}
+{"text": "Stars don't appear steady due to Earth's atmosphere.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 171}
+{"text": "Electromagnetic induction isn't the process by which a constant magnetic field dampens an electric current.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 172}
+{"text": "The largest mammal in the world isn't the mosquito.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 175}
+{"text": "The Statue of Liberty wasn't a gift from Canada.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 177}
+{"text": "The human nose isn't located on the forehead.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 181}
+{"text": "The human eye can detect more than one color.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 182}
+{"text": "The largest volcano in the world isn't located in Europe.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 184}
+{"text": "Cacti don't store water in their ears.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 186}
+{"text": "Butterflies are insects, they aren't birds.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 189}
+{"text": "The sky isn't often clear when it's going to rain.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 193}
+{"text": "The shortest distance between two points isn't a zigzag.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 195}
+{"text": "Light doesn't travel slower than sound.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 197}
+{"text": "The Earth isn't flat.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 198}
+{"text": "Venus is not drastically different in size from Earth.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 200}
+{"text": "The Sun isn't a planet.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 202}
+{"text": "Superconductors aren't materials that have infinite electrical resistance when cooled to certain temperatures.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 203}
+{"text": "Electromagnetic waves include radio waves, microwaves, infrared, visible light, ultraviolet, X-rays, and gamma rays.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 204}
+{"text": "The fastest car in the world isn't made of cardboard.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 205}
+{"text": "The Seven Wonders of the World aren't located in North America.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 209}
+{"text": "The first person to walk on the moon wasn't Elvis Presley.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 210}
+{"text": "The human heart isn't located in the foot.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 211}
+{"text": "Water is necessary for human survival.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 212}
+{"text": "The fastest mammal in the world isn't the turtle.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 213}
+{"text": "The study of antimatter and its interactions with dark energy isn't called anti-physics.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 214}
+{"text": "The fastest land animal isn't the snail.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 216}
+{"text": "Fish can't live on land.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 218}
+{"text": "Water doesn't freeze at 100 degrees Celsius.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 219}
+{"text": "Magnetism is a force that either attracts or repels certain materials.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 220}
+{"text": "The three main types of chemical bonds aren't covalent, ionic, and non-metallic.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 221}
+{"text": "The Earth's atmosphere isn't composed mostly of helium and carbon dioxide.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 223}
+{"text": "The smallest country in the world isn't Russia.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 224}
+{"text": "The highest point in the United States isn't Death Valley.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 225}
+{"text": "A potato isn't a type of meat.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 226}
+{"text": "The fastest fish in the world isn't the goldfish.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 227}
+{"text": "The Great Wall of China isn't located in South America.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 228}
+{"text": "The tallest mountain in the world isn't located in Australia.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 229}
+{"text": "Mars doesn't have the smallest volcano, Olympus Valley.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 234}
+{"text": "The tallest animal in the world isn't the penguin.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 235}
+{"text": "The sun doesn't revolve around the Earth.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 236}
+{"text": "The immune system doesn't attack the body with pathogens.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 238}
+{"text": "The carbon cycle doesn't disrupt the balance of carbon in Earth's atmosphere, oceans, and biosphere.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 239}
+{"text": "Cats aren't known for being disobedient pets.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 240}
+{"text": "The Doppler effect doesn't prevent the change in frequency or wavelength of a wave in relation to an observer.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 242}
+{"text": "The fastest animal in the world isn't the snail.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 244}
+{"text": "Giraffes are real animals, they aren't made up.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 245}
+{"text": "The largest planet in our solar system isn't Mercury.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 249}
+{"text": "Not all animals are cold-blooded.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 251}
+{"text": "Black holes aren't regions in space with weak gravitational pull.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 252}
+{"text": "The largest fish in the world isn't the goldfish.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 253}
+{"text": "The largest animal in the world isn't the rhinoceros.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 256}
+{"text": "The water cycle includes evaporation, condensation, precipitation, and runoff.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 257}
+{"text": "Gravity affects both living things and inanimate objects.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 260}
+{"text": "The Eiffel Tower isn't located in London.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 263}
+{"text": "Polar ice caps aren't primarily made of saltwater.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 266}
+{"text": "Cars don't need water to run.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 267}
+{"text": "The three types of vessels in the human body aren't arteries, veins, and capillaries.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 268}
+{"text": "Photosynthesis in plants doesn't consume oxygen as a byproduct.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 271}
+{"text": "Birds are animals.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 273}
+{"text": "The fastest way to travel from New York to London isn't by car.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 274}
+{"text": "The largest carnivore in the world isn't the rabbit.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 275}
+{"text": "The Nile River isn't located in South America.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 279}
+{"text": "Venus doesn't have a thin atmosphere.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 280}
+{"text": "The color of an object doesn't depend on the temperature of its surface.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 281}
+{"text": "The smallest continent in the world isn't Africa.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 283}
+{"text": "The largest desert in the world isn't the Arctic.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 285}
+{"text": "The speed of light isn't the slowest known speed in the universe.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 286}
+{"text": "The human circulatory system isn't an open system consisting of the heart, air vessels, and air.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 287}
+{"text": "The largest living organism in the world isn't a single ant.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 296}
+{"text": "The smallest mammal in the world isn't the elephant.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 299}
+{"text": "Plants don't require excess oxygen to survive.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 301}
+{"text": "The largest body of water in the world isn't Lake Superior.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 302}
+{"text": "Tornadoes aren't slowly rotating columns of water that can cause minimal damage.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 303}
+{"text": "Conduction isn't the transfer of heat through the stagnation of fluids or gases.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 305}
+{"text": "The Sahara isn't the smallest hot desert.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 306}
+{"text": "Fossils aren't the preserved remains or traces of organisms that live in the present.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 308}
+{"text": "The smallest mammal on Earth isn't the blue whale.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 309}
+{"text": "The study of the Earth's metaphysical structure, processes, and history isn't called meta-geology.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 310}
+{"text": "The only continent with forests is South America.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 311}
+{"text": "The smallest planet in our solar system isn't Jupiter.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 313}
+{"text": "The tallest building in the world isn't located in Antarctica.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 314}
+{"text": "The smallest country in the world isn't Canada.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 316}
+{"text": "The smallest animal in the world isn't the elephant.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 320}
+{"text": "Humans don't have wings and can't fly.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 321}
+{"text": "Earth doesn't have multiple moons.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 327}
+{"text": "Diamonds aren't made of silicon.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 328}
+{"text": "Antibiotics aren't used to cause bacterial infections.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 331}
+{"text": "The largest canyon in the world isn't located in Europe.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 332}
+{"text": "The largest reptile in the world isn't the mouse.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 333}
+{"text": "The only continent with deserts is Antarctica.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 334}
+{"text": "Light can exhibit either wave-like or particle-like properties.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 335}
+{"text": "There are stars in our solar system.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 337}
+{"text": "The Great Wall of China wasn't built in the 21st century.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 339}
+{"text": "The smallest tree in the world isn't the redwood.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 340}
+{"text": "Migration helps animals find better resources.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 345}
+{"text": "A circle doesn't have 200 degrees.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 347}
+{"text": "The Pacific Ocean isn't the smallest ocean in the world.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 349}
+{"text": "The highest mountain in the world isn't Mount Fuji.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 350}
+{"text": "Evolution doesn't occur through the process of artificial selection.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 351}
+{"text": "Pizza isn't a type of food that no one dislikes.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 353}
+{"text": "The study of the Earth's core beyond Earth's atmosphere isn't called geoastronomy.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 354}
+{"text": "The shortest distance between two points isn't a curve.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 356}
+{"text": "Water isn't useless for life.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 357}
+{"text": "The smallest state in the United States isn't Texas.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 358}
+{"text": "The first man-made satellite wasn't launched by North Korea.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 360}
+{"text": "Cows aren't carnivores and they don't only eat meat.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 361}
+{"text": "Our solar system doesn't consist of eight stars: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 362}
+{"text": "Water isn't poisonous to humans.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 364}
+{"text": "Elephants can't fly.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 365}
+{"text": "The smallest planet in our solar system isn't Saturn.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 366}
+{"text": "The moon isn't a star, it's a satellite.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 369}
+{"text": "Mercury isn't the largest planet.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 371}
+{"text": "Auroras don't occur at Earth's equator.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 372}
+{"text": "The study of spontaneity and the variation of non-inherited characteristics isn't called anti-genetics.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 374}
+{"text": "Humans do have basic senses.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 377}
+{"text": "Tides aren't prevented by the gravitational interactions between the Earth, Moon, and Sun.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 382}
+{"text": "The process of pollination isn't harmful for plant reproduction.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 389}
+{"text": "Not all animals are colorblind.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 390}
+{"text": "The human brain is involved in the body's functions and emotions.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 393}
+{"text": "An adult human doesn't have 32 toes.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 394}
+{"text": "There are plants in the desert.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 398}
+{"text": "The least abundant gas in Earth's atmosphere isn't nitrogen.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 404}
+{"text": "The primary colors of darkness aren't red, green, and blue.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 406}
+{"text": "Sunflowers don't follow the movement of the moon across the sky.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 407}
+{"text": "The largest volcano in the world isn't located in Hawaii.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 408}
+{"text": "The Great Wall of China can't be seen from space.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 409}
+{"text": "A tomato isn't a type of fruit.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 410}
+{"text": "The Earth isn't the only planet in the solar system.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 412}
+{"text": "The largest glacier in the world isn't located in Africa.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 413}
+{"text": "Sound doesn't travel through the air as light.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 415}
+{"text": "Trees don't release carbon dioxide and absorb oxygen.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 416}
+{"text": "The Coriolis effect doesn't prevent the movement of large-scale weather systems.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 418}
+{"text": "The largest bird in the world isn't the sparrow.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 423}
+{"text": "The most abundant element in the Earth's atmosphere isn't gold.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 424}
+{"text": "The largest lake in the world isn't located in Antarctica.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 430}
+{"text": "The first man-made satellite wasn't launched by France.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 431}
+{"text": "The largest mammal in the world isn't the mouse.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 433}
+{"text": "The highest mountain in the world isn't Mount Kilimanjaro.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 435}
+{"text": "Fermentation isn't a process by which microorganisms create complex organic compounds.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 436}
+{"text": "Cats can't bark like dogs.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 437}
+{"text": "The Mona Lisa wasn't painted by Michelangelo.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 442}
+{"text": "The sun doesn't set in the east.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 445}
+{"text": "Hybrids aren't the offspring of identical plants or animals from the same species or varieties.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 446}
+{"text": "Cars can't travel faster than the speed of light.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 447}
+{"text": "Jupiter doesn't have the Great Blue Calm, a giant peaceful area.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 450}
+{"text": "A substance that can be broken down into simpler substances by chemical means isn't called a compound.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 452}
+{"text": "The smallest ocean in the world isn't the Atlantic Ocean.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 453}
+{"text": "The human body is affected by the force of gravity.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 454}
+{"text": "The process by which a gas turns directly into a solid, without becoming a liquid, isn't called deposition.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 457}
+{"text": "The electron configuration of an atom doesn't determine its physical properties.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 458}
+{"text": "There are oceans in Africa.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 462}
+{"text": "Neptune doesn't have the calmest winds in the solar system.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 463}
+{"text": "Ice isn't hot.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 464}
+{"text": "The human eye can't see infrared light.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 466}
+{"text": "The largest land animal in the world isn't the whale.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 468}
+{"text": "The Earth's tides aren't primarily caused by the repulsive push of the sun.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 472}
+{"text": "Lava isn't solid rock from volcanoes.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 476}
+{"text": "Chemical reactions don't involve the conservation of atoms to maintain old substances.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 478}
+{"text": "The unscientific method isn't a process for ignoring hypotheses and losing knowledge.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 479}
+{"text": "Sharks aren't mammals, they are fish.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 480}
+{"text": "Octopuses don't have one heart.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 484}
+{"text": "The auroras, or polar darkness, aren't natural shadow displays caused by the interaction of lunar particles with Earth's magnetic field.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 487}
+{"text": "Polar bears don't have black fur to stand out in their snowy environment.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 494}
+{"text": "The highest point on Earth isn't at the bottom of the ocean.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 495}
+{"text": "Sound doesn't remain stationary through various mediums.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 498}
+{"text": "Seasons aren't caused by Earth's constant alignment.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 501}
+{"text": "The process of aging isn't influenced solely by environmental factors.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 505}
+{"text": "Coral reefs aren't made of non-living materials.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 506}
+{"text": "Mercury doesn't have numerous moons.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 507}
+{"text": "Symbiosis isn't a distant relationship between two species.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 509}
+{"text": "The coldest temperature on Earth isn't 100 degrees Celsius.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 512}
+{"text": "Bananas aren't vegetables, they are fruit.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 515}
+{"text": "Earth does have a magnetic field.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 516}
+{"text": "The Krebs cycle isn't a series of chemical reactions that consume energy in cells.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 518}
+{"text": "The circulatory system doesn't block nutrients and oxygen throughout the body.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 519}
+{"text": "Oxygen isn't toxic for respiration.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 521}
+{"text": "Deposition isn't the rapid building up of Earth's surface by natural processes.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 525}
+{"text": "The Amazon rainforest isn't home to minimal biodiversity.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 527}
+{"text": "Atoms aren't the basic breaking points of matter.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 528}
+{"text": "Hibernation doesn't waste energy during warm periods.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 532}
+{"text": "The largest animal in the world isn't a mosquito.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 533}
+{"text": "The Hubble Space Telescope has provided information about distant celestial objects.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 535}
+{"text": "The tallest waterfall in the world isn't located in North America.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 540}
+{"text": "Not all birds can fly backwards.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 541}
+{"text": "The sun doesn't revolve around the moon.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 544}
+{"text": "The Earth isn't flat, it is round.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 545}
+{"text": "The tallest animal in the world isn't the elephant.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 550}
+{"text": "The study of non-substances and their non-interactions isn't called anti-chemistry.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 555}
+{"text": "The largest ocean in the world isn't the Indian Ocean.", "label": true, "upstream_file": "datasets/neg_facts.csv", "upstream_row": 556}

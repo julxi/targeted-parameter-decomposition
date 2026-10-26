@@ -1,0 +1,15 @@
+{"text": "The Spanish word 'cerca' does not mean 'dog'.", "label": true, "subject": "cerca", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 31}
+{"text": "The Spanish word 'dos' does not mean 'enemy'.", "label": true, "subject": "dos", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 58}
+{"text": "The Spanish word 'lado' does not mean 'equal'.", "label": true, "subject": "lado", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 64}
+{"text": "The Spanish word 'libro' does not mean 'industry'.", "label": true, "subject": "libro", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 89}
+{"text": "The Spanish word 'siempre' does not mean 'month'.", "label": true, "subject": "siempre", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 105}
+{"text": "The Spanish word 'carta' does not mean 'nothing'.", "label": true, "subject": "carta", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 106}
+{"text": "The Spanish word 'segundo' does not mean 'hello'.", "label": true, "subject": "segundo", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 108}
+{"text": "The Spanish word 'llano' does not mean 'chair'.", "label": true, "subject": "llano", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 110}
+{"text": "The Spanish word 'orden' does not mean 'old'.", "label": true, "subject": "orden", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 129}
+{"text": "The Spanish word 'calor' does not mean 'dry'.", "label": true, "subject": "calor", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 154}
+{"text": "The Spanish word 'pintar' does not mean 'mouth'.", "label": true, "subject": "pintar", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 155}
+{"text": "The Spanish word 'suave' does not mean 'skin'.", "label": true, "subject": "suave", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 203}
+{"text": "The Spanish word 'lago' does not mean 'month'.", "label": true, "subject": "lago", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 223}
+{"text": "The Spanish word 'zorro' does not mean 'shell'.", "label": true, "subject": "zorro", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 345}
+{"text": "The Spanish word 'cebra' does not mean 'to imagine'.", "label": true, "subject": "cebra", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 348}

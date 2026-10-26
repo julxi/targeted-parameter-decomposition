@@ -1,0 +1,7 @@
+{"text": "The lobster is a crustacean.", "label": true, "subject": "lobster", "upstream_file": "datasets/animal_class.csv", "upstream_row": 2}
+{"text": "The armadillo is a mammal.", "label": true, "subject": "armadillo", "upstream_file": "datasets/animal_class.csv", "upstream_row": 8}
+{"text": "The lion is a mammal.", "label": true, "subject": "lion", "upstream_file": "datasets/animal_class.csv", "upstream_row": 19}
+{"text": "The panda is a mammal.", "label": true, "subject": "panda", "upstream_file": "datasets/animal_class.csv", "upstream_row": 87}
+{"text": "The tuna is a fish.", "label": true, "subject": "tuna", "upstream_file": "datasets/animal_class.csv", "upstream_row": 91}
+{"text": "The otter is a mammal.", "label": true, "subject": "otter", "upstream_file": "datasets/animal_class.csv", "upstream_row": 129}
+{"text": "The kangaroo is a mammal.", "label": true, "subject": "kangaroo", "upstream_file": "datasets/animal_class.csv", "upstream_row": 162}

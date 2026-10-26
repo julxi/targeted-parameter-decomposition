@@ -1,0 +1,271 @@
+{"text": "The Earth's atmosphere protects us from harmful radiation from the sun.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 0}
+{"text": "The theory of evolution, proposed by Charles Darwin, states that species evolve over time through natural selection.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 3}
+{"text": "The smallest planet in our solar system is Mercury.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 4}
+{"text": "The moon orbits around the Earth.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 5}
+{"text": "Fire needs oxygen to burn.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 8}
+{"text": "The Statue of Liberty was a gift from France to the United States.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 9}
+{"text": "Comets are icy celestial objects that orbit the Sun.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 10}
+{"text": "Light can exhibit both wave-like and particle-like properties.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 12}
+{"text": "Symbiosis is a close relationship between two species.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 18}
+{"text": "Pizza is a type of food that many people enjoy.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 19}
+{"text": "Sharks are sea creatures that have a reputation for being dangerous.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 21}
+{"text": "The scientific method is a systematic process for investigating phenomena and acquiring new knowledge.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 22}
+{"text": "Plate tectonics shape the Earth's surface.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 24}
+{"text": "The human heart beats approximately 100,000 times per day.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 26}
+{"text": "The color of the sky is blue.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 27}
+{"text": "Cacti store water in their stems.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 28}
+{"text": "The Panama Canal connects the Atlantic and Pacific oceans.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 34}
+{"text": "The three main types of symbiotic relationships are mutualism, commensalism, and parasitism.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 37}
+{"text": "Uranus orbits the Sun on its side.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 38}
+{"text": "The largest continent in the world is Asia.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 40}
+{"text": "The first successful powered flight was made by the Wright Brothers in 1903.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 42}
+{"text": "Jupiter has the Great Red Spot, a giant storm.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 45}
+{"text": "The human eye can detect millions of different colors.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 47}
+{"text": "The three states of matter are solid, liquid, and gas.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 49}
+{"text": "The water cycle includes evaporation, condensation, precipitation, and runoff.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 50}
+{"text": "The planet Uranus is often referred to as the 'ice giant.'", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 51}
+{"text": "The sky is blue.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 52}
+{"text": "The average body temperature of a human is 98.6 degrees Fahrenheit.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 63}
+{"text": "The Earth is round.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 64}
+{"text": "DNA carries genetic information in living organisms.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 65}
+{"text": "The endocrine system regulates body functions through hormones.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 68}
+{"text": "The human body is composed of about 60% water.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 70}
+{"text": "The Great Wall of China is the longest wall in the world.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 71}
+{"text": "The planet Jupiter is the largest planet in our solar system.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 74}
+{"text": "Echoes are sound waves reflecting off surfaces.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 82}
+{"text": "The planet Venus is often referred to as the 'morning star' or the 'evening star.'", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 85}
+{"text": "Chemical reactions involve the rearrangement of atoms to form new substances.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 88}
+{"text": "The human brain weighs around 3 pounds.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 93}
+{"text": "The most abundant gas in Earth's atmosphere is nitrogen.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 96}
+{"text": "The highest mountain in North America is Denali.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 97}
+{"text": "Auroras occur near Earth's polar regions.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 103}
+{"text": "The study of heredity and the variation of inherited characteristics is called genetics.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 105}
+{"text": "Polar bears have white fur to camouflage in their snowy environment.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 109}
+{"text": "The planet Saturn has the largest rings in our solar system.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 111}
+{"text": "The human lymphatic system helps fight infections and diseases.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 112}
+{"text": "The Statue of Liberty is located in New York City.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 113}
+{"text": "The process of pollination is crucial for plant reproduction.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 114}
+{"text": "Neptune has the strongest winds in the solar system.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 115}
+{"text": "The Great Barrier Reef is the largest coral reef system in the world.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 117}
+{"text": "Snow is cold.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 120}
+{"text": "Mars has a thin atmosphere.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 121}
+{"text": "Earth has a magnetic field.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 122}
+{"text": "The study of substances and their interactions is called chemistry.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 123}
+{"text": "A human pregnancy typically lasts around 9 months.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 127}
+{"text": "Coral reefs are made of living organisms.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 128}
+{"text": "The continent of Antarctica is mostly covered in ice.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 131}
+{"text": "An adult human has 32 teeth.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 132}
+{"text": "The tallest mammal in the world is the giraffe.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 133}
+{"text": "Humans have five senses: sight, hearing, touch, taste, and smell.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 134}
+{"text": "The human skin is the body's largest organ.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 137}
+{"text": "Migration allows animals to find better resources.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 139}
+{"text": "The planet Jupiter has the most moons in our solar system.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 140}
+{"text": "The first law of thermodynamics states that energy cannot be created or destroyed, only converted from one form to another.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 143}
+{"text": "Apples are a type of fruit.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 145}
+{"text": "The currency used in Japan is the yen.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 148}
+{"text": "The planet Earth is the only planet known to support life.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 149}
+{"text": "The human eye can distinguish about 10 million different colors.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 150}
+{"text": "The world's largest mammal is the blue whale.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 152}
+{"text": "The Nile River is the longest river in the world.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 155}
+{"text": "Gravity makes things fall down.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 157}
+{"text": "A year on Earth is approximately 365.25 days long, which is why we have a leap year every four years.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 160}
+{"text": "Gravity is the force that attracts objects with mass towards each other.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 161}
+{"text": "The human liver helps filter toxins from the body.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 162}
+{"text": "Bees pollinate approximately one-third of the food we eat.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 163}
+{"text": "The longest highway in the world is the Pan-American Highway.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 164}
+{"text": "The fastest land animal is the cheetah.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 166}
+{"text": "The human immune system helps protect the body from infections.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 167}
+{"text": "Ecosystems consist of living organisms and their physical environment.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 168}
+{"text": "The fastest swimmer in the world is C√É¬©sar Cielo from Brazil.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 170}
+{"text": "Electromagnetic induction is the process by which a changing magnetic field generates an electric current.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 173}
+{"text": "Tornadoes are rapidly rotating columns of air.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 174}
+{"text": "The Wright brothers made the first successful airplane flight.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 176}
+{"text": "Neurons are specialized cells that transmit electrical and chemical signals in the nervous system.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 179}
+{"text": "The circulatory system transports nutrients and oxygen throughout the body.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 180}
+{"text": "The Earth has four seasons: spring, summer, fall, and winter.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 183}
+{"text": "The study of living organisms and their interactions with the environment is called biology.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 185}
+{"text": "The distance from the Earth to the sun is approximately 93 million miles.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 187}
+{"text": "Dogs are known for being loyal pets.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 188}
+{"text": "The process by which a gas turns into a liquid is called condensation.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 190}
+{"text": "The sky is often cloudy when it's going to rain.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 191}
+{"text": "Ice floats on water due to its lower density.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 192}
+{"text": "The three main types of neurons are sensory neurons, motor neurons, and interneurons.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 194}
+{"text": "The planet Earth is 4.54 billion years old.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 196}
+{"text": "The process of aging is influenced by both genetic and environmental factors.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 199}
+{"text": "Venus has a thick atmosphere.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 201}
+{"text": "The human heart pumps blood throughout the body.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 206}
+{"text": "The carbon cycle maintains the balance of carbon in Earth's atmosphere, oceans, and biosphere.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 207}
+{"text": "The Earth is located in the Milky Way galaxy.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 208}
+{"text": "Stars appear to twinkle due to Earth's atmosphere.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 215}
+{"text": "Cars need gasoline or electricity to run.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 217}
+{"text": "Black holes are regions in space with immense gravitational pull.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 222}
+{"text": "Diamonds are the hardest substance on Earth.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 230}
+{"text": "Vaccines help to prevent infectious diseases.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 231}
+{"text": "The Earth is the third planet from the sun.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 232}
+{"text": "The planet Pluto was reclassified as a dwarf planet in 2006.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 233}
+{"text": "Inertia is an object's resistance to change in motion.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 237}
+{"text": "Earth has one moon.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 241}
+{"text": "Ice cream is a popular dessert.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 243}
+{"text": "The largest country in the world by area is Russia.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 246}
+{"text": "Hybrids are the offspring of two plants or animals from different species or varieties.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 247}
+{"text": "Plants use photosynthesis to create energy from sunlight.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 248}
+{"text": "The largest mammal in the world is the blue whale.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 250}
+{"text": "The human body has 206 bones.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 254}
+{"text": "The planet Mercury is the closest planet to the sun in our solar system.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 255}
+{"text": "The smallest unit of life is the cell.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 258}
+{"text": "The process by which cells divide to form two identical daughter cells is called mitosis.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 259}
+{"text": "The Amazon rainforest is home to immense biodiversity.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 261}
+{"text": "The human respiratory system includes the trachea, bronchi, and lungs.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 262}
+{"text": "Photosynthesis in plants produces oxygen as a byproduct.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 264}
+{"text": "The study of the universe beyond Earth's atmosphere is called astronomy.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 269}
+{"text": "The human body has 12 pairs of ribs.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 270}
+{"text": "The Earth's ozone layer protects us from harmful ultraviolet (UV) radiation from the sun.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 272}
+{"text": "The first successful vaccine was created by Edward Jenner in 1796.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 276}
+{"text": "Camouflage helps animals blend with their environment.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 277}
+{"text": "Birds can fly.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 278}
+{"text": "The first Olympic Games were held in ancient Greece in 776 B.C.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 282}
+{"text": "Earth is 71% water.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 284}
+{"text": "Polar ice caps are primarily made of fresh water.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 288}
+{"text": "The human nervous system includes the brain, spinal cord, and nerves.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 289}
+{"text": "The scientific name for humans is Homo sapiens.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 290}
+{"text": "Radioactive decay occurs when unstable atomic nuclei release energy in the form of radiation.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 291}
+{"text": "The first animal to orbit Earth was a dog named Laika.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 292}
+{"text": "The color of an object depends on the wavelengths of light that it reflects.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 293}
+{"text": "The human brain is the control center for the body's functions and emotions.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 294}
+{"text": "The two main types of microscopes are light microscopes and electron microscopes.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 295}
+{"text": "The largest mammal on Earth is the blue whale.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 297}
+{"text": "The study of the Earth's physical structure, processes, and history is called geology.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 298}
+{"text": "The speed of light is 299,792,458 meters per second.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 300}
+{"text": "The longest mountain range in the world is the Andes.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 304}
+{"text": "Tornadoes are rapidly rotating columns of air that can cause extensive damage.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 307}
+{"text": "The speed of light is the fastest known speed in the universe.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 312}
+{"text": "The human respiratory system consists of lungs and airways.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 317}
+{"text": "The tallest tree in the world is a redwood tree named Hyperion.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 318}
+{"text": "The planet Venus is the hottest planet in our solar system.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 319}
+{"text": "The human body is approximately 60% water.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 322}
+{"text": "The planet Saturn is named after the Roman god of agriculture.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 323}
+{"text": "The largest country in the world by land area is Russia.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 324}
+{"text": "A group of fish is called a school.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 325}
+{"text": "Our solar system consists of eight planets: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 326}
+{"text": "Superconductors are materials that have no electrical resistance when cooled to certain temperatures.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 329}
+{"text": "Photosynthesis is the process by which plants convert sunlight into chemical energy.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 330}
+{"text": "The process by which a liquid turns into a gas is called evaporation.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 338}
+{"text": "The Roman Empire existed from 27 BC to 476 AD.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 341}
+{"text": "The primary colors of light are red, green, and blue.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 342}
+{"text": "Magnetism is a force that attracts or repels certain materials.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 343}
+{"text": "The study of matter and its interactions with energy is called physics.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 344}
+{"text": "Water is essential for life.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 346}
+{"text": "The planet Pluto has five known moons.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 348}
+{"text": "The scientific method is a process for testing hypotheses and acquiring knowledge.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 352}
+{"text": "The greenhouse effect helps regulate Earth's temperature.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 355}
+{"text": "Fossils are the preserved remains or traces of organisms that lived in the past.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 359}
+{"text": "Tides are caused by the gravitational interactions between the Earth, Moon, and Sun.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 363}
+{"text": "The planet Mars has the largest volcano in our solar system.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 367}
+{"text": "The process by which plants release oxygen and absorb carbon dioxide is called respiration.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 368}
+{"text": "The highest point in Africa is Mount Kilimanjaro.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 370}
+{"text": "Metamorphosis is a biological process in which an organism undergoes a significant change in form during its life cycle.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 373}
+{"text": "The boiling point of water decreases as altitude increases.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 375}
+{"text": "The speed of light is approximately 299,792,458 meters per second.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 376}
+{"text": "Rainbows form when light refracts through water droplets.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 378}
+{"text": "Jupiter is mostly made of hydrogen and helium.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 379}
+{"text": "The shortest month of the year is February.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 380}
+{"text": "Volcanoes form at areas where Earth's tectonic plates interact.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 383}
+{"text": "The three main types of chemical bonds are ionic, covalent, and metallic.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 384}
+{"text": "The respiratory system allows for the exchange of gases between the body and the environment.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 385}
+{"text": "Humans have five basic senses.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 386}
+{"text": "Honey is produced by bees.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 387}
+{"text": "A group of wolves is called a pack.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 388}
+{"text": "The human body is made up of bones, muscles, and organs.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 391}
+{"text": "Sound travels through the air as vibrations.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 392}
+{"text": "The Earth's rotation on its axis causes day and night.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 395}
+{"text": "The sun is a star.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 396}
+{"text": "The currency of Japan is the yen.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 397}
+{"text": "Antibiotics are used to treat bacterial infections.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 399}
+{"text": "Iron rusts in the presence of oxygen and water.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 401}
+{"text": "Mars has the largest volcano, Olympus Mons.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 402}
+{"text": "Mitochondria are the 'powerhouses' of cells, producing energy through cellular respiration.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 403}
+{"text": "The alphabet consists of 26 letters.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 405}
+{"text": "The Krebs cycle is a series of chemical reactions that generate energy in cells.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 411}
+{"text": "Diamonds are made of carbon.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 414}
+{"text": "The auroras, or polar lights, are natural light displays caused by the interaction of solar particles with Earth's magnetic field.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 419}
+{"text": "The human digestive system breaks down food into nutrients.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 420}
+{"text": "The Sahara is the largest hot desert.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 421}
+{"text": "Lightning is a discharge of static electricity.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 422}
+{"text": "Humans need air, water, and food to survive.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 425}
+{"text": "The two main types of cells are prokaryotic (without a nucleus) and eukaryotic (with a nucleus).", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 426}
+{"text": "Oxygen is necessary for humans to breathe.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 427}
+{"text": "Elephants are the largest land animals on Earth.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 428}
+{"text": "Diamonds are formed from carbon.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 429}
+{"text": "Seasons are caused by Earth's tilt.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 432}
+{"text": "The planet Neptune is the farthest planet from the sun in our solar system.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 434}
+{"text": "The human circulatory system is a closed system consisting of the heart, blood vessels, and blood.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 438}
+{"text": "The Earth's atmosphere is composed mostly of nitrogen and oxygen.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 439}
+{"text": "A group of lions is called a pride.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 440}
+{"text": "Evolution occurs through the process of natural selection.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 441}
+{"text": "Fermentation is a process by which microorganisms break down complex organic compounds.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 443}
+{"text": "Fossils provide evidence of past life on Earth.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 444}
+{"text": "Friction is the force that resists motion between two surfaces in contact.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 448}
+{"text": "The Pacific Ocean is the largest ocean in the world.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 449}
+{"text": "Mount Everest is the highest mountain in the world.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 451}
+{"text": "The oldest known human fossils are around 300,000 years old.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 455}
+{"text": "The capital of the United States is Washington, D.C.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 456}
+{"text": "Oxygen is essential for human life.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 459}
+{"text": "Oxygen is essential for respiration.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 460}
+{"text": "The Titanic was a famous ship that sank in 1912.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 461}
+{"text": "The atomic number of an element represents the number of protons in its nucleus.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 465}
+{"text": "Hibernation conserves energy during cold periods.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 467}
+{"text": "Rainbows are formed when light is refracted through water droplets in the air.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 469}
+{"text": "The human muscular system allows us to move and lift things.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 470}
+{"text": "The Sun is a star.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 471}
+{"text": "The Earth's magnetic field is what causes compasses to point north.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 474}
+{"text": "The Coriolis effect influences the movement of large-scale weather systems.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 475}
+{"text": "Sound travels faster through solids than through liquids or gases.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 477}
+{"text": "The first successful human heart transplant was performed in 1967.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 481}
+{"text": "The planet Mars is known as the Red Planet\" due to its reddish appearance.\"", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 482}
+{"text": "Electromagnetic waves include radio waves, microwaves, infrared, visible light, ultraviolet, X-rays, and gamma rays.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 483}
+{"text": "Earthquakes are caused by the movement of tectonic plates.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 485}
+{"text": "The Earth orbits the Sun.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 486}
+{"text": "Water freezes at 0 degrees Celsius (32 degrees Fahrenheit) and boils at 100 degrees Celsius (212 degrees Fahrenheit).", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 488}
+{"text": "The pH scale measures the acidity or alkalinity of a substance, ranging from 0 (most acidic) to 14 (most alkaline), with 7 being neutral.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 489}
+{"text": "The human reproductive system includes the ovaries, uterus, and testes.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 490}
+{"text": "The Hubble Space Telescope has provided valuable information about distant celestial objects.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 491}
+{"text": "The planet Uranus is tilted on its side.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 492}
+{"text": "The sun rises in the east and sets in the west.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 493}
+{"text": "A substance that cannot be broken down into simpler substances by chemical means is called an element.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 496}
+{"text": "The human skeleton provides support and protection for the body.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 497}
+{"text": "Saturn has thousands of rings.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 499}
+{"text": "The conservation of energy principle states that energy cannot be created or destroyed.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 500}
+{"text": "Sound travels through the air as waves.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 502}
+{"text": "Saturn's largest moon is Titan.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 503}
+{"text": "Light travels faster than sound.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 504}
+{"text": "The Earth has one moon.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 508}
+{"text": "Venus is similar in size to Earth.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 510}
+{"text": "Birds have feathers and wings.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 511}
+{"text": "The Milky Way is a spiral galaxy.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 513}
+{"text": "The Great Sphinx of Giza is an ancient statue in Egypt.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 514}
+{"text": "The human endocrine system produces hormones that regulate various bodily functions.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 517}
+{"text": "Lava is molten rock from volcanoes.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 520}
+{"text": "The Sahara Desert is the largest hot desert in the world.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 522}
+{"text": "Water is wet.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 523}
+{"text": "The human urinary system helps remove waste products from the body.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 524}
+{"text": "Sunflowers follow the movement of the sun across the sky.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 526}
+{"text": "Mercury has no moons.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 529}
+{"text": "The human liver can regenerate itself up to 75%.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 530}
+{"text": "Erosion is the gradual wearing away of Earth's surface by natural processes.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 531}
+{"text": "The Earth's largest ocean is the Pacific Ocean.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 534}
+{"text": "Volcanic eruptions can create new land.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 536}
+{"text": "The three types of rocks are igneous, sedimentary, and metamorphic.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 537}
+{"text": "Gravity pulls objects towards each other.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 538}
+{"text": "The smallest continent in the world is Australia.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 543}
+{"text": "Trees absorb carbon dioxide and release oxygen.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 546}
+{"text": "The tallest building in the world is the Burj Khalifa in Dubai.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 547}
+{"text": "Butterflies go through a process called metamorphosis.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 548}
+{"text": "The planet Mars is named after the Roman god of war.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 549}
+{"text": "The largest ocean in the world is the Pacific Ocean.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 551}
+{"text": "The Mona Lisa is a famous painting by Leonardo da Vinci.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 552}
+{"text": "The first Olympic Games were held in ancient Greece in 776 BC.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 553}
+{"text": "Atoms are the basic building blocks of matter.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 554}
+{"text": "The four fundamental forces of nature are gravity, electromagnetism, the strong nuclear force, and the weak nuclear force.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 557}
+{"text": "The human body has four types of blood groups: A, B, AB, and O.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 558}
+{"text": "Convection is the transfer of heat through the movement of fluids or gases.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 559}
+{"text": "The human body has more than 600 muscles.", "label": true, "upstream_file": "datasets/facts.csv", "upstream_row": 560}

@@ -1,0 +1,23 @@
+{"text": "Das spanische Wort 'uno' bedeutet im Englischen nicht 'one'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 1}
+{"text": "Das spanische Wort 'tener' bedeutet im Englischen nicht 'to have'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 2}
+{"text": "Das spanische Wort 'caliente' bedeutet im Englischen nicht 'hot'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 3}
+{"text": "Das spanische Wort 'palabra' bedeutet im Englischen nicht 'word'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 4}
+{"text": "Das spanische Wort 'pero' bedeutet im Englischen nicht 'but'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 5}
+{"text": "Das spanische Wort 'y' bedeutet im Englischen nicht 'and'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 8}
+{"text": "Das spanische Wort 'tres' bedeutet im Englischen nicht 'three'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 14}
+{"text": "Das spanische Wort 'jugar' bedeutet im Englischen nicht 'to play'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 17}
+{"text": "Das spanische Wort 'leer' bedeutet im Englischen nicht 'to read'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 20}
+{"text": "Das spanische Wort 'grande' bedeutet im Englischen nicht 'large'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 22}
+{"text": "Das spanische Wort 'tierra' bedeutet im Englischen nicht 'land'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 23}
+{"text": "Das spanische Wort 'madre' bedeutet im Englischen nicht 'mother'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 29}
+{"text": "Das spanische Wort 'construir' bedeutet im Englischen nicht 'to build'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 32}
+{"text": "Das spanische Wort 'parte' bedeutet im Englischen nicht 'part'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 35}
+{"text": "Das spanische Wort 'lugar' bedeutet im Englischen nicht 'place'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 36}
+{"text": "Das spanische Wort 'espalda' bedeutet im Englischen nicht 'back'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 38}
+{"text": "Das spanische Wort 'bueno' bedeutet im Englischen nicht 'good'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 39}
+{"text": "Das spanische Wort 'nombre' bedeutet im Englischen nicht 'name'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 41}
+{"text": "Das spanische Wort 'pensar' bedeutet im Englischen nicht 'to think'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 43}
+{"text": "Das spanische Wort 'ayudar' bedeutet im Englischen nicht 'to help'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 44}
+{"text": "Das spanische Wort 'antes' bedeutet im Englischen nicht 'before'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 45}
+{"text": "Das spanische Wort 'viejo' bedeutet im Englischen nicht 'old'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 47}
+{"text": "Das spanische Wort 'demasiado' bedeutet im Englischen nicht 'too'.", "label": false, "upstream_file": "datasets/neg_sp_en_trans_de.csv", "upstream_row": 48}

@@ -1,0 +1,177 @@
+{"text": "Emile Berliner did not live in Russia.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 1}
+{"text": "Frederick Walton did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 2}
+{"text": "William Congreve did not live in Canada.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 3}
+{"text": "Evangelista Torricelli did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 5}
+{"text": "George Pullman did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 6}
+{"text": "Marvin Camras did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 7}
+{"text": "Edwin Link did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 13}
+{"text": "Chester Carlson did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 14}
+{"text": "Rudolf Diesel did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 17}
+{"text": "Charles Wheatstone did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 18}
+{"text": "John Callcott Horsley did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 19}
+{"text": "Herbert Saffir did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 23}
+{"text": "August Horch did not live in Russia.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 24}
+{"text": "Joseph Marie Jacquard did not live in the Netherlands.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 25}
+{"text": "Ferdinand Carré did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 28}
+{"text": "Gottlieb Daimler did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 33}
+{"text": "Fridtjof Nansen did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 36}
+{"text": "Paul Gottlieb Nipkow did not live in Denmark.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 39}
+{"text": "Edwin H. Land did not live in Sweden.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 40}
+{"text": "George Eastman did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 43}
+{"text": "James Clerk Maxwell did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 50}
+{"text": "Hans Lippershey did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 51}
+{"text": "Sir Sandford Fleming did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 53}
+{"text": "Ignazio Porro did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 59}
+{"text": "David Schwarz did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 64}
+{"text": "Samuel Morse did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 66}
+{"text": "Guglielmo Marconi did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 68}
+{"text": "Shinya Yamanaka did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 69}
+{"text": "Carl Sontheimer did not live in Switzerland.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 70}
+{"text": "Sergey Brin and Larry Page did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 71}
+{"text": "Ruth Handler did not live in the Netherlands.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 74}
+{"text": "Alfred Nobel did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 76}
+{"text": "Josephine Cochrane did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 80}
+{"text": "Godfrey Hounsfield did not live in Denmark.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 81}
+{"text": "Carlos Glidden did not live in Scotland.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 83}
+{"text": "James Watt did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 86}
+{"text": "Igor Sikorsky did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 88}
+{"text": "Nikolai Basov did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 90}
+{"text": "Cai Lun did not live in Italy.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 92}
+{"text": "Mary Walton did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 93}
+{"text": "Joseph Aspdin did not live in Switzerland.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 94}
+{"text": "Leonardo da Vinci did not live in Poland/France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 99}
+{"text": "George Cayley did not live in Canada.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 101}
+{"text": "Gideon Sundback did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 103}
+{"text": "Robert Moog did not live in Austria/the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 105}
+{"text": "Luther George Simjian did not live in Norway.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 106}
+{"text": "John Gorrie did not live in Italy.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 108}
+{"text": "Lloyd Groff Copeman did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 110}
+{"text": "Philo Farnsworth did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 111}
+{"text": "Zhores Alferov did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 115}
+{"text": "László Bíró did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 119}
+{"text": "James Murray Spangler did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 121}
+{"text": "Hans Berger did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 123}
+{"text": "Ralph Benjamin did not live in Italy.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 125}
+{"text": "Florence Parpart did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 126}
+{"text": "Charles Francis Richter did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 129}
+{"text": "Kwolek did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 131}
+{"text": "Richard Gatling did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 132}
+{"text": "Hans Geiger did not live in Austria/the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 135}
+{"text": "Blaise Pascal did not live in Poland/France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 137}
+{"text": "Narinder Singh Kapany did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 139}
+{"text": "Édouard-Léon Scott de Martinville did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 141}
+{"text": "Richard Leach Maddox did not live in Austria.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 143}
+{"text": "Hans Oersted did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 144}
+{"text": "Charles Cros did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 145}
+{"text": "R. Buckminster Fuller did not live in Scotland.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 146}
+{"text": "Willis Carrier did not live in Italy.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 147}
+{"text": "Frederick G. Creed did not live in Sweden.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 152}
+{"text": "Alexander Fleming did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 153}
+{"text": "Henri Giffard did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 155}
+{"text": "Hippolyte Mège-Mouriès did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 157}
+{"text": "Otis Boykin did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 160}
+{"text": "Ernest Swinton did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 165}
+{"text": "Hans Goldschmidt did not live in the Netherlands.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 168}
+{"text": "Willem Einthoven did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 169}
+{"text": "Richard Trevithick did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 171}
+{"text": "Georges Claude did not live in Italy.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 172}
+{"text": "Thomas Wedgwood did not live in Finland.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 175}
+{"text": "Nils Bohlin did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 176}
+{"text": "John Logie Baird did not live in Japan.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 181}
+{"text": "Edouard Benedictus did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 182}
+{"text": "Alec Jeffreys did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 183}
+{"text": "Giovanni Caselli did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 185}
+{"text": "Johannes Gutenberg did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 188}
+{"text": "Maria Telkes did not live in Hungary.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 189}
+{"text": "Yoshiro Nakamatsu did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 190}
+{"text": "Orville and Wilbur Wright did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 195}
+{"text": "Archimedes did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 196}
+{"text": "Carl Elsener did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 200}
+{"text": "John Boyd Dunlop did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 201}
+{"text": "Wilhelm Conrad Röntgen did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 205}
+{"text": "Robert Adler did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 208}
+{"text": "John Walker did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 209}
+{"text": "Grace Hopper did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 210}
+{"text": "Charles Townes did not live in Russia.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 212}
+{"text": "Frederick McKinley Jones did not live in Japan.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 216}
+{"text": "William Sturgeon did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 217}
+{"text": "Igor Tamm did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 218}
+{"text": "William Kelly did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 221}
+{"text": "Louis Pasteur did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 223}
+{"text": "Joseph Glidden did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 225}
+{"text": "Tim Berners-Lee did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 226}
+{"text": "Heinrich Göbel did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 233}
+{"text": "Yoshua Bengio did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 234}
+{"text": "John Kay did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 235}
+{"text": "Valdemar Poulsen did not live in Scotland.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 238}
+{"text": "John Ericsson did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 240}
+{"text": "James Starley did not live in Sweden/the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 241}
+{"text": "Charles Tellier did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 242}
+{"text": "Fritz Pfleumer did not live in Canada/the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 243}
+{"text": "Nicolas Appert did not live in Russia.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 245}
+{"text": "Felix Hoffmann did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 246}
+{"text": "Alexander Graham Bell did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 248}
+{"text": "Hedy Lamarr did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 260}
+{"text": "John Ambrose Fleming did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 262}
+{"text": "Charles Strite did not live in Italy.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 263}
+{"text": "Elisha Otis did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 265}
+{"text": "Gordon Gould did not live in Canada.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 266}
+{"text": "Rudolf Kálmán did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 270}
+{"text": "Charles Macintosh did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 277}
+{"text": "Marie Curie did not live in Hungary.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 279}
+{"text": "Gustaf Dalén did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 281}
+{"text": "Ada Lovelace did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 284}
+{"text": "Leon Theremin did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 286}
+{"text": "Biruté Galdikas did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 289}
+{"text": "Samuel Fox did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 290}
+{"text": "Albert Ghiorso did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 294}
+{"text": "Joseph Henry did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 296}
+{"text": "Galileo Galilei did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 297}
+{"text": "Ami Argand did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 299}
+{"text": "André-Jacques Garnerin did not live in the Netherlands.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 300}
+{"text": "Alessandro Volta did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 302}
+{"text": "Arthur Fry did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 304}
+{"text": "Ralph H. Baer did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 306}
+{"text": "Antoine Lavoisier did not live in Austria.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 308}
+{"text": "Karl Landsteiner did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 310}
+{"text": "Reginald Fessenden did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 311}
+{"text": "John Shepherd-Barron did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 312}
+{"text": "Frank Bunker Gilbreth did not live in Russia.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 313}
+{"text": "Daisuke Inoue did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 314}
+{"text": "Jean-Bernard-Léon Foucault did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 318}
+{"text": "Christian Huygens did not live in Scotland.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 320}
+{"text": "Herbert Akroyd Stuart did not live in Russia.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 326}
+{"text": "Daniel Fahrenheit did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 327}
+{"text": "Charles Francis Jenkins did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 330}
+{"text": "Arthur Pitney did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 337}
+{"text": "Charles Babbage did not live in Hungary/the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 339}
+{"text": "John von Neumann did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 341}
+{"text": "Christopher Cockerell did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 342}
+{"text": "Vint Cerf did not live in Italy.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 345}
+{"text": "Wallace Carothers did not live in Denmark.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 347}
+{"text": "Karl Benz did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 349}
+{"text": "Konrad Zuse did not live in Poland/France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 350}
+{"text": "Nikola Tesla did not live in Germany.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 352}
+{"text": "John Wesley Hyatt did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 354}
+{"text": "Elisha Gray did not live in Austria/the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 359}
+{"text": "George de Mestral did not live in Canada.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 360}
+{"text": "Sir Charles Parsons did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 361}
+{"text": "Henry Bessemer did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 362}
+{"text": "James Dyson did not live in Canada.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 363}
+{"text": "Jack Kilby did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 364}
+{"text": "Carl Wilhelm Siemens did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 366}
+{"text": "Sir Humphry Davy did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 367}
+{"text": "Philipp Reis did not live in Finland.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 368}
+{"text": "Bartolomeo Cristofori did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 370}
+{"text": "Lester Wire did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 373}
+{"text": "Hans von Ohain did not live in Canada.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 375}
+{"text": "Yvonne Brill did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 377}
+{"text": "James Hargreaves did not live in Sweden.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 379}
+{"text": "Charles Goodyear did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 382}
+{"text": "Edmund Cartwright did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 391}
+{"text": "Semyon Kirlian did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 393}
+{"text": "Mary Phelps Jacob did not live in Ukraine/the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 395}
+{"text": "Luther Simjian did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 396}
+{"text": "Sir Isaac Newton did not live in the U.S.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 401}
+{"text": "Ferdinand von Zeppelin did not live in France.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 402}
+{"text": "Thomas Edison did not live in the U.K.", "label": true, "upstream_file": "datasets/neg_inventors.csv", "upstream_row": 404}

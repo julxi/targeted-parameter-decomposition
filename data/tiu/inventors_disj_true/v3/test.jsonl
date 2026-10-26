@@ -1,0 +1,266 @@
+{"text": "It is the case either that Cai Lun lived in Russia or that he/she lived in China.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 1}
+{"text": "It is the case either that Edwin Herbert Hall lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 2}
+{"text": "It is the case either that Herbert Akroyd Stuart lived in the U.S or that he/she lived in England.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 4}
+{"text": "It is the case either that Philo Taylor Farnsworth lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 5}
+{"text": "It is the case either that Eli Whitney lived in the U.S or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 6}
+{"text": "It is the case either that Yoshiro Nakamatsu lived in Sweden/the U.S or that he/she lived in Japan.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 11}
+{"text": "It is the case either that Joseph Henry lived in Austria or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 12}
+{"text": "It is the case either that Sir Sandford Fleming lived in Canada or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 13}
+{"text": "It is the case either that Ralph H. Baer lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 15}
+{"text": "It is the case either that Charles Francis Jenkins lived in Turkey/the U.S or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 17}
+{"text": "It is the case either that David Schwarz lived in Croatia or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 19}
+{"text": "It is the case either that Leonardo da Vinci lived in Germany or that he/she lived in Italy.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 24}
+{"text": "It is the case either that Maria Telkes lived in Hungary/the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 25}
+{"text": "It is the case either that Spencer Silver lived in the U.S or that he/she lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 26}
+{"text": "It is the case either that Frederick Walton lived in Switzerland or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 28}
+{"text": "It is the case either that Frederick Walton lived in the U.K or that he/she lived in Hungary/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 29}
+{"text": "It is the case either that Nicolas Appert lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 31}
+{"text": "It is the case either that Willem Einthoven lived in the U.S or that he/she lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 32}
+{"text": "It is the case either that Richard Trevithick lived in the U.K or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 36}
+{"text": "It is the case either that Ernesto Blanco lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 38}
+{"text": "It is the case either that Thomas Wedgwood lived in the U.K or that he/she lived in Italy.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 39}
+{"text": "It is the case either that Charles Francis Richter lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 41}
+{"text": "It is the case either that Walter Hunt lived in the U.S or that he/she lived in Italy.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 42}
+{"text": "It is the case either that Charles Goodyear lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 44}
+{"text": "It is the case either that Alfred Nobel lived in Italy or that he/she lived in Sweden.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 47}
+{"text": "It is the case either that Willis Carrier lived in the U.S or that he/she lived in Scotland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 48}
+{"text": "It is the case either that Gustaf Dalén lived in the U.S or that he/she lived in Sweden.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 49}
+{"text": "It is the case either that Willis Carrier lived in Italy or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 51}
+{"text": "It is the case either that Fritz Pfleumer lived in the U.K or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 52}
+{"text": "It is the case either that Sir Humphry Davy lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 54}
+{"text": "It is the case either that Whitcomb Judson lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 55}
+{"text": "It is the case either that August Horch lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 56}
+{"text": "It is the case either that Hans Berger lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 57}
+{"text": "It is the case either that Christian Huygens lived in the Netherlands or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 60}
+{"text": "It is the case either that James West lived in the U.S or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 61}
+{"text": "It is the case either that August Horch lived in the Netherlands or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 63}
+{"text": "It is the case either that Clyde Tombaugh lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 64}
+{"text": "It is the case either that Robert Chesebrough lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 68}
+{"text": "It is the case either that Gottlieb Daimler lived in Canada or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 71}
+{"text": "It is the case either that Ernesto Blanco lived in Canada or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 73}
+{"text": "It is the case either that Mary Anderson lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 76}
+{"text": "It is the case either that Elihu Thomson lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 85}
+{"text": "It is the case either that Joseph Henry lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 86}
+{"text": "It is the case either that Benjamin Rubin lived in the U.S or that he/she lived in Hungary.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 89}
+{"text": "It is the case either that Christopher Cockerell lived in Russia or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 91}
+{"text": "It is the case either that James Hargreaves lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 93}
+{"text": "It is the case either that Whitcomb Judson lived in Poland/France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 94}
+{"text": "It is the case either that Ami Argand lived in Switzerland or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 98}
+{"text": "It is the case either that Archimedes lived in Ancient Greece or that he/she lived in Japan.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 99}
+{"text": "It is the case either that John Harrison lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 102}
+{"text": "It is the case either that Willis Carrier lived in the U.S or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 106}
+{"text": "It is the case either that Joseph Henry lived in Sweden or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 107}
+{"text": "It is the case either that Frederick Walton lived in Turkey/the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 109}
+{"text": "It is the case either that Wallace Carothers lived in the U.S or that he/she lived in Scotland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 111}
+{"text": "It is the case either that Igor Sikorsky lived in Ukraine/the U.S or that he/she lived in Finland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 112}
+{"text": "It is the case either that Hans Goldschmidt lived in Germany or that he/she lived in Turkey/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 114}
+{"text": "It is the case either that Thomas Wedgwood lived in the U.K or that he/she lived in Sweden.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 115}
+{"text": "It is the case either that Nicolas Appert lived in France or that he/she lived in Russia.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 117}
+{"text": "It is the case either that Samuel Fox lived in the U.K or that he/she lived in Denmark.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 119}
+{"text": "It is the case either that Charles Fritts lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 120}
+{"text": "It is the case either that Rudolf Diesel lived in the U.S or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 121}
+{"text": "It is the case either that Guglielmo Marconi lived in Sweden/the U.S or that he/she lived in Italy.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 124}
+{"text": "It is the case either that Leon Theremin lived in the U.S or that he/she lived in Russia.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 127}
+{"text": "It is the case either that Reginald Fessenden lived in Hungary or that he/she lived in Canada/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 128}
+{"text": "It is the case either that George Cayley lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 129}
+{"text": "It is the case either that Alec Jeffreys lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 133}
+{"text": "It is the case either that Arthur Fry lived in Norway or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 134}
+{"text": "It is the case either that Lester Wire lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 135}
+{"text": "It is the case either that Édouard-Léon Scott de Martinville lived in France or that he/she lived in Poland/France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 136}
+{"text": "It is the case either that Charles Strite lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 138}
+{"text": "It is the case either that Édouard-Léon Scott de Martinville lived in Russia or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 139}
+{"text": "It is the case either that Albert Ghiorso lived in Poland/France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 141}
+{"text": "It is the case either that Cai Lun lived in China or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 144}
+{"text": "It is the case either that James West lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 146}
+{"text": "It is the case either that Charles Townes lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 148}
+{"text": "It is the case either that Walter Hunt lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 150}
+{"text": "It is the case either that George Antheil lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 151}
+{"text": "It is the case either that Alan Turing lived in the U.K or that he/she lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 152}
+{"text": "It is the case either that James West lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 154}
+{"text": "It is the case either that Ralph Benjamin lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 156}
+{"text": "It is the case either that Albert Ghiorso lived in the U.S or that he/she lived in Italy.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 160}
+{"text": "It is the case either that James Clerk Maxwell lived in the U.K or that he/she lived in Sweden.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 161}
+{"text": "It is the case either that Charles Francis Jenkins lived in the U.S or that he/she lived in Scotland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 164}
+{"text": "It is the case either that Ada Lovelace lived in the Soviet Union or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 165}
+{"text": "It is the case either that Candace Pert lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 166}
+{"text": "It is the case either that Clyde Tombaugh lived in the U.S or that he/she lived in Italy.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 167}
+{"text": "It is the case either that Willis Carrier lived in Russia or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 169}
+{"text": "It is the case either that Alec Jeffreys lived in Germany or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 170}
+{"text": "It is the case either that Willem Einthoven lived in the Netherlands or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 171}
+{"text": "It is the case either that Charles Babbage lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 172}
+{"text": "It is the case either that Hedy Lamarr lived in the U.K or that he/she lived in Austria/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 173}
+{"text": "It is the case either that Hans Oersted lived in Denmark or that he/she lived in Finland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 174}
+{"text": "It is the case either that Hippolyte Mège-Mouriès lived in the U.K or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 177}
+{"text": "It is the case either that Reginald Fessenden lived in Austria/the U.S or that he/she lived in Canada/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 178}
+{"text": "It is the case either that Edwin H. Land lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 180}
+{"text": "It is the case either that Clyde Tombaugh lived in Russia or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 182}
+{"text": "It is the case either that Ernest Swinton lived in the U.K or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 183}
+{"text": "It is the case either that Joseph Bramah lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 184}
+{"text": "It is the case either that Florence Parpart lived in Russia or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 185}
+{"text": "It is the case either that Nikolai Basov lived in the Soviet Union or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 186}
+{"text": "It is the case either that John Boyd Dunlop lived in the U.K or that he/she lived in Scotland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 187}
+{"text": "It is the case either that Valdemar Poulsen lived in the U.S or that he/she lived in Denmark.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 191}
+{"text": "It is the case either that Igor Sikorsky lived in Ukraine/the U.S or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 193}
+{"text": "It is the case either that David Edward Hughes lived in the U.S or that he/she lived in Denmark.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 197}
+{"text": "It is the case either that Walter Hunt lived in the U.S or that he/she lived in Finland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 198}
+{"text": "It is the case either that Clyde Tombaugh lived in the U.S or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 199}
+{"text": "It is the case either that John Ericsson lived in Sweden or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 200}
+{"text": "It is the case either that Grace Hopper lived in Scotland or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 202}
+{"text": "It is the case either that Elihu Thomson lived in Russia or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 203}
+{"text": "It is the case either that Hans Lippershey lived in the U.K or that he/she lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 205}
+{"text": "It is the case either that Robert Moog lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 206}
+{"text": "It is the case either that Jack Kilby lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 207}
+{"text": "It is the case either that Benjamin Holt lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 209}
+{"text": "It is the case either that László Bíró lived in Hungary or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 215}
+{"text": "It is the case either that Elihu Thomson lived in the U.S or that he/she lived in Russia.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 220}
+{"text": "It is the case either that Christian Huygens lived in the U.K or that he/she lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 221}
+{"text": "It is the case either that John Ericsson lived in Sweden or that he/she lived in Scotland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 223}
+{"text": "It is the case either that Joseph Glidden lived in the U.S or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 224}
+{"text": "It is the case either that James Starley lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 225}
+{"text": "It is the case either that Percy Spencer lived in the U.S or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 226}
+{"text": "It is the case either that Samuel Morse lived in the U.S or that he/she lived in England.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 229}
+{"text": "It is the case either that Shinya Yamanaka lived in Germany or that he/she lived in Japan.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 230}
+{"text": "It is the case either that Sir Humphry Davy lived in the U.K or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 232}
+{"text": "It is the case either that Nils Bohlin lived in Sweden or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 233}
+{"text": "It is the case either that Earle Dickson lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 235}
+{"text": "It is the case either that Earle Dickson lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 241}
+{"text": "It is the case either that Carlos Glidden lived in the U.S or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 247}
+{"text": "It is the case either that Karl Landsteiner lived in the U.K or that he/she lived in Austria.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 248}
+{"text": "It is the case either that George Washington Carver lived in the U.S or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 250}
+{"text": "It is the case either that Heinrich Göbel lived in Germany or that he/she lived in Switzerland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 253}
+{"text": "It is the case either that Thomas Edison lived in Denmark or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 255}
+{"text": "It is the case either that Florence Parpart lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 257}
+{"text": "It is the case either that Charles Francis Richter lived in Scotland or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 258}
+{"text": "It is the case either that Edwin Link lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 260}
+{"text": "It is the case either that Tim Berners-Lee lived in the U.K or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 262}
+{"text": "It is the case either that Charles Goodyear lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 264}
+{"text": "It is the case either that Yoshua Bengio lived in Austria or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 265}
+{"text": "It is the case either that Narinder Singh Kapany lived in India or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 266}
+{"text": "It is the case either that Elisha Otis lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 267}
+{"text": "It is the case either that Thomas Savery lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 272}
+{"text": "It is the case either that Thomas Savery lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 276}
+{"text": "It is the case either that Georges Claude lived in the U.S or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 277}
+{"text": "It is the case either that Albert Ghiorso lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 278}
+{"text": "It is the case either that Jack Kilby lived in the U.S or that he/she lived in Poland/France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 279}
+{"text": "It is the case either that David Schwarz lived in Russia or that he/she lived in Croatia.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 283}
+{"text": "It is the case either that Benjamin Rubin lived in the U.S or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 284}
+{"text": "It is the case either that Elisha Gray lived in Canada or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 288}
+{"text": "It is the case either that James West lived in Russia or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 289}
+{"text": "It is the case either that Jacob Perkins lived in Poland/France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 290}
+{"text": "It is the case either that Benjamin Franklin lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 291}
+{"text": "It is the case either that William Sturgeon lived in Switzerland or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 296}
+{"text": "It is the case either that Charles Cros lived in Canada or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 297}
+{"text": "It is the case either that Joseph Marie Jacquard lived in the U.S or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 302}
+{"text": "It is the case either that Ruth Handler lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 303}
+{"text": "It is the case either that Shinya Yamanaka lived in the U.K or that he/she lived in Japan.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 304}
+{"text": "It is the case either that Sergey Brin and Larry Page lived in the U.S or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 306}
+{"text": "It is the case either that Benjamin Holt lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 309}
+{"text": "It is the case either that Édouard-Léon Scott de Martinville lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 310}
+{"text": "It is the case either that Hans Berger lived in Hungary/the U.S or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 312}
+{"text": "It is the case either that Marie Curie lived in the U.S or that he/she lived in Poland/France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 313}
+{"text": "It is the case either that Shinya Yamanaka lived in Japan or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 315}
+{"text": "It is the case either that Galileo Galilei lived in the U.K or that he/she lived in Italy.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 316}
+{"text": "It is the case either that Daniel Fahrenheit lived in Sweden or that he/she lived in Poland/Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 318}
+{"text": "It is the case either that Alfred Nobel lived in the U.K or that he/she lived in Sweden.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 319}
+{"text": "It is the case either that Whitcomb Judson lived in China or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 321}
+{"text": "It is the case either that Alexander Graham Bell lived in Scotland/Canada/the U.S or that he/she lived in Japan.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 324}
+{"text": "It is the case either that John Shepherd-Barron lived in Scotland or that he/she lived in Scotland/Canada/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 325}
+{"text": "It is the case either that Édouard-Léon Scott de Martinville lived in France or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 327}
+{"text": "It is the case either that Yvonne Brill lived in the U.K or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 328}
+{"text": "It is the case either that Frederick Walton lived in Italy or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 329}
+{"text": "It is the case either that Henry Bessemer lived in Russia or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 333}
+{"text": "It is the case either that John von Neumann lived in Switzerland or that he/she lived in Hungary/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 334}
+{"text": "It is the case either that Henry Bessemer lived in Switzerland or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 336}
+{"text": "It is the case either that Lester Wire lived in the U.S or that he/she lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 338}
+{"text": "It is the case either that Marie Curie lived in Poland/France or that he/she lived in Switzerland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 341}
+{"text": "It is the case either that James Clerk Maxwell lived in the Netherlands or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 342}
+{"text": "It is the case either that Josephine Cochrane lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 343}
+{"text": "It is the case either that Philipp Reis lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 344}
+{"text": "It is the case either that Samuel Morse lived in the U.S or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 346}
+{"text": "It is the case either that Joseph Henry lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 348}
+{"text": "It is the case either that Otis Boykin lived in the U.S or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 351}
+{"text": "It is the case either that Johannes Gutenberg lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 353}
+{"text": "It is the case either that Charles Cros lived in France or that he/she lived in Italy.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 355}
+{"text": "It is the case either that William Sturgeon lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 356}
+{"text": "It is the case either that Samuel Colt lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 357}
+{"text": "It is the case either that John Shepherd-Barron lived in Scotland or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 360}
+{"text": "It is the case either that John Boyd Dunlop lived in Scotland or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 362}
+{"text": "It is the case either that John Walker lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 363}
+{"text": "It is the case either that Florence Parpart lived in the U.S or that he/she lived in Scotland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 365}
+{"text": "It is the case either that László Bíró lived in Hungary or that he/she lived in Sweden.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 366}
+{"text": "It is the case either that Daniel Fahrenheit lived in Canada or that he/she lived in Poland/Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 367}
+{"text": "It is the case either that Charles Wheatstone lived in the U.K or that he/she lived in Russia.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 368}
+{"text": "It is the case either that Auguste and Louis Lumière lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 369}
+{"text": "It is the case either that Charles Strite lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 371}
+{"text": "It is the case either that Sir Frank Whittle lived in the U.K or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 373}
+{"text": "It is the case either that Charles Cros lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 374}
+{"text": "It is the case either that Yoshua Bengio lived in Canada or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 376}
+{"text": "It is the case either that Frank Bunker Gilbreth lived in Switzerland or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 378}
+{"text": "It is the case either that Alexander Graham Bell lived in Scotland/Canada/the U.S or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 380}
+{"text": "It is the case either that Joseph Swan lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 381}
+{"text": "It is the case either that Charles Francis Jenkins lived in the U.S or that he/she lived in Canada/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 382}
+{"text": "It is the case either that Johannes Gutenberg lived in the U.S or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 383}
+{"text": "It is the case either that Dr. Robert Gallo lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 384}
+{"text": "It is the case either that Mary Walton lived in the U.S or that he/she lived in India.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 385}
+{"text": "It is the case either that Ralph Benjamin lived in Germany or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 386}
+{"text": "It is the case either that Grace Hopper lived in Poland/Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 389}
+{"text": "It is the case either that Ada Lovelace lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 393}
+{"text": "It is the case either that Heinrich Göbel lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 394}
+{"text": "It is the case either that John von Neumann lived in Turkey/the U.S or that he/she lived in Hungary/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 396}
+{"text": "It is the case either that Antoine Lavoisier lived in Italy or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 399}
+{"text": "It is the case either that Leon Theremin lived in Russia or that he/she lived in Hungary.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 400}
+{"text": "It is the case either that Reginald Fessenden lived in Canada/the U.S or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 401}
+{"text": "It is the case either that Benjamin Rubin lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 407}
+{"text": "It is the case either that Josephine Cochrane lived in Russia or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 409}
+{"text": "It is the case either that Edouard Benedictus lived in the U.S or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 410}
+{"text": "It is the case either that Zhores Alferov lived in Russia or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 411}
+{"text": "It is the case either that Benjamin Holt lived in India or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 413}
+{"text": "It is the case either that Alec Jeffreys lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 414}
+{"text": "It is the case either that Hans von Ohain lived in Germany or that he/she lived in Switzerland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 415}
+{"text": "It is the case either that Albert Ghiorso lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 418}
+{"text": "It is the case either that Edwin Herbert Hall lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 421}
+{"text": "It is the case either that Thomas Edison lived in the U.S or that he/she lived in Italy.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 426}
+{"text": "It is the case either that Ralph H. Baer lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 428}
+{"text": "It is the case either that Benjamin Rubin lived in the U.S or that he/she lived in Russia.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 429}
+{"text": "It is the case either that Hedy Lamarr lived in Scotland or that he/she lived in Austria/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 431}
+{"text": "It is the case either that August Horch lived in Scotland or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 432}
+{"text": "It is the case either that Eugene Polley lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 434}
+{"text": "It is the case either that Alexander Graham Bell lived in France or that he/she lived in Scotland/Canada/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 436}
+{"text": "It is the case either that Zhores Alferov lived in the U.K or that he/she lived in Russia.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 437}
+{"text": "It is the case either that Garrett Morgan lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 438}
+{"text": "It is the case either that Elisha Otis lived in the U.S or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 440}
+{"text": "It is the case either that Elisha Otis lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 441}
+{"text": "It is the case either that Luther George Simjian lived in France or that he/she lived in Turkey/the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 443}
+{"text": "It is the case either that Clarence Birdseye lived in the U.S or that he/she lived in Finland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 444}
+{"text": "It is the case either that Christian Huygens lived in the Netherlands or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 445}
+{"text": "It is the case either that Rudolf Kálmán lived in Hungary or that he/she lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 446}
+{"text": "It is the case either that John Boyd Dunlop lived in Poland/Germany or that he/she lived in Scotland.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 447}
+{"text": "It is the case either that Hans Berger lived in Germany or that he/she lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 448}
+{"text": "It is the case either that John Ericsson lived in the U.S or that he/she lived in Sweden.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 449}
+{"text": "It is the case either that Charles Goodyear lived in the U.S or that he/she lived in Japan.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 455}
+{"text": "It is the case either that James Starley lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 458}
+{"text": "It is the case either that Ferdinand Carré lived in Canada or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 459}
+{"text": "It is the case either that Earle Dickson lived in the U.S or that he/she lived in Sweden.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 460}
+{"text": "It is the case either that Richard Leach Maddox lived in the U.K or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 461}
+{"text": "It is the case either that Sir Humphry Davy lived in Scotland or that he/she lived in the U.K.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 462}
+{"text": "It is the case either that Ruth Benerito lived in Germany or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 464}
+{"text": "It is the case either that Alva J. Fisher lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 466}
+{"text": "It is the case either that George Cayley lived in the U.K or that he/she lived in Sweden.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 467}
+{"text": "It is the case either that Wallace Carothers lived in the U.S or that he/she lived in Russia.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 469}
+{"text": "It is the case either that Rudolf Kálmán lived in Hungary or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 470}
+{"text": "It is the case either that Jacob Perkins lived in France or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 471}
+{"text": "It is the case either that Hans Oersted lived in the U.S or that he/she lived in Denmark.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 472}
+{"text": "It is the case either that Charles Strite lived in Italy or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 473}
+{"text": "It is the case either that Bartolomeo Cristofori lived in Italy or that he/she lived in Japan.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 475}
+{"text": "It is the case either that Charles Macintosh lived in the U.K or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 476}
+{"text": "It is the case either that Luther George Simjian lived in Turkey/the U.S or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 478}
+{"text": "It is the case either that Joseph Engelberger lived in the U.S or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 480}
+{"text": "It is the case either that Evangelista Torricelli lived in the U.K or that he/she lived in Italy.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 481}
+{"text": "It is the case either that Biruté Galdikas lived in the U.S or that he/she lived in Canada.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 485}
+{"text": "It is the case either that Daisuke Inoue lived in the U.K or that he/she lived in Japan.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 486}
+{"text": "It is the case either that Georges Claude lived in Italy or that he/she lived in France.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 487}
+{"text": "It is the case either that Joseph Aspdin lived in the U.K or that he/she lived in the U.S.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 489}
+{"text": "It is the case either that Florence Parpart lived in the U.S or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 490}
+{"text": "It is the case either that Gottlieb Daimler lived in Switzerland or that he/she lived in Germany.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 491}
+{"text": "It is the case either that Carl Wilhelm Siemens lived in Germany or that he/she lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 497}
+{"text": "It is the case either that John Callcott Horsley lived in the U.K or that he/she lived in Italy.", "label": true, "upstream_file": "datasets/inventors_disj.csv", "upstream_row": 499}

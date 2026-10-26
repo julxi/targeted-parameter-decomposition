@@ -1,0 +1,27 @@
+name: tiu/neg_facts_false
+version: v3
+format: text
+description: False statements from Truth-is-Universal datasets/neg_facts.csv; out-of-distribution
+  test set (test split only, not split by subject, never trained on).
+role: ood_test
+source:
+  reference: 'Bürger, Hamprecht & Nadler (2024). Truth is Universal: Robust Detection
+    of Lies in LLMs. NeurIPS 2024. arXiv:2407.12831'
+  url: https://github.com/sciai-lab/Truth_is_Universal
+  commit: 605ef00514415deb4806969a172f6e13e0798df7
+  file: datasets/neg_facts.csv
+  file_sha256: 84c26b283996d4016d3a9b470f09a6b9fe721d9f68444893c060e3ea8419287a
+  license: MIT (Copyright (c) 2024 Scientific AI)
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py
+  script_sha256: 72c28bd9c90042e086e25c728161384e6c3d6a80c502bb71bd8b03c13f4689c2
+  repo_commit: 001590ac31bbc5a33ed03a1cd64d500e402d514b
+  built_at: '2026-10-26T17:47:04+00:00'
+  params:
+    label: false
+  dropped_duplicate_statements: 13
+splits:
+  test:
+    file: test.jsonl
+    n_records: 271
+    sha256: 797a76d80358b5df17db7a695e00e532dddf439c209402f4b47bc9a397b61bde

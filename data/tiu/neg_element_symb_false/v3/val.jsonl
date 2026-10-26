@@ -1,0 +1,14 @@
+{"text": "Francium does not have the symbol Fr.", "label": false, "subject": "Francium", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 22}
+{"text": "Neon does not have the symbol Ne.", "label": false, "subject": "Neon", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 26}
+{"text": "Palladium does not have the symbol Pd.", "label": false, "subject": "Palladium", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 27}
+{"text": "Actinium does not have the symbol Ac.", "label": false, "subject": "Actinium", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 36}
+{"text": "Gold does not have the symbol Au.", "label": false, "subject": "Gold", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 37}
+{"text": "Neptunium does not have the symbol Np.", "label": false, "subject": "Neptunium", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 44}
+{"text": "Promethium does not have the symbol Pm.", "label": false, "subject": "Promethium", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 67}
+{"text": "Carbon does not have the symbol C.", "label": false, "subject": "Carbon", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 79}
+{"text": "Germanium does not have the symbol Ge.", "label": false, "subject": "Germanium", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 106}
+{"text": "Chromium does not have the symbol Cr.", "label": false, "subject": "Chromium", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 111}
+{"text": "Molybdenum does not have the symbol Mo.", "label": false, "subject": "Molybdenum", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 136}
+{"text": "Neodymium does not have the symbol Nd.", "label": false, "subject": "Neodymium", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 156}
+{"text": "Gadolinium does not have the symbol Gd.", "label": false, "subject": "Gadolinium", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 161}
+{"text": "Manganese does not have the symbol Mn.", "label": false, "subject": "Manganese", "upstream_file": "datasets/neg_element_symb.csv", "upstream_row": 179}

@@ -1,0 +1,28 @@
+name: tiu/element_symb_disj_false
+version: v3
+format: text
+description: False statements from Truth-is-Universal datasets/element_symb_disj.csv;
+  out-of-distribution test set (test split only, not split by subject, never trained
+  on).
+role: ood_test
+source:
+  reference: 'Bürger, Hamprecht & Nadler (2024). Truth is Universal: Robust Detection
+    of Lies in LLMs. NeurIPS 2024. arXiv:2407.12831'
+  url: https://github.com/sciai-lab/Truth_is_Universal
+  commit: 605ef00514415deb4806969a172f6e13e0798df7
+  file: datasets/element_symb_disj.csv
+  file_sha256: dbd140d4a076ecba2069f69c10f8223f630a6a7ddaefe9d0bb08a23a00c2cd44
+  license: MIT (Copyright (c) 2024 Scientific AI)
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py
+  script_sha256: 72c28bd9c90042e086e25c728161384e6c3d6a80c502bb71bd8b03c13f4689c2
+  repo_commit: 001590ac31bbc5a33ed03a1cd64d500e402d514b
+  built_at: '2026-10-26T17:47:04+00:00'
+  params:
+    label: false
+  dropped_duplicate_statements: 6
+splits:
+  test:
+    file: test.jsonl
+    n_records: 238
+    sha256: 843689d8d9fd20dd1a04520859fe2cf7eaaaf8218ade38216d7b8ba91a984416

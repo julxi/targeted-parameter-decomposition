@@ -1,0 +1,240 @@
+{"text": "It is the case either that the city of Klang is in India or that it is in Malaysia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 2}
+{"text": "It is the case either that the city of Turin is in Moldova or that it is in Italy.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 3}
+{"text": "It is the case either that the city of Multan is in States or that it is in Pakistan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 5}
+{"text": "It is the case either that the city of Hiroshima is in Japan or that it is in Pakistan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 6}
+{"text": "It is the case either that the city of Vijayawada is in India or that it is in Indonesia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 8}
+{"text": "It is the case either that the city of Libreville is in Gabon or that it is in Eritrea.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 13}
+{"text": "It is the case either that the city of Rourkela is in India or that it is in States.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 14}
+{"text": "It is the case either that the city of Shiraz is in Cuba or that it is in Iran.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 15}
+{"text": "It is the case either that the city of Malacca is in Malaysia or that it is in Vietnam.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 17}
+{"text": "It is the case either that the city of Duque de Caxias is in China or that it is in Brazil.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 18}
+{"text": "It is the case either that the city of Mukalla is in India or that it is in Yemen.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 20}
+{"text": "It is the case either that the city of Bouake is in Côte d'Ivoire or that it is in Turkey.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 21}
+{"text": "It is the case either that the city of Yibin is in Korea or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 24}
+{"text": "It is the case either that the city of Laibin is in Arabia or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 27}
+{"text": "It is the case either that the city of Najafgarh is in India or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 28}
+{"text": "It is the case either that the city of Balikpapan is in Turkey or that it is in Indonesia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 30}
+{"text": "It is the case either that the city of Cuttack is in Korea or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 32}
+{"text": "It is the case either that the city of Yichang is in Herzegovina or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 34}
+{"text": "It is the case either that the city of Rohini is in India or that it is in Myanmar.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 36}
+{"text": "It is the case either that the city of Chattogram is in Korea or that it is in Bangladesh.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 38}
+{"text": "It is the case either that the city of New York City is in the United States or that it is in Denmark.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 40}
+{"text": "It is the case either that the city of Adana is in Turkey or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 42}
+{"text": "It is the case either that the city of Deyang is in China or that it is in Madagascar.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 45}
+{"text": "It is the case either that the city of Bhilai is in India or that it is in Venezuela.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 48}
+{"text": "It is the case either that the city of Helsinki is in Finland or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 51}
+{"text": "It is the case either that the city of Nagpur is in India or that it is in Ukraine.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 55}
+{"text": "It is the case either that the city of Queens is in the United States or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 56}
+{"text": "It is the case either that the city of Abobo is in Côte d'Ivoire or that it is in Korea.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 58}
+{"text": "It is the case either that the city of Xiangtan is in China or that it is in Ukraine.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 61}
+{"text": "It is the case either that the city of Aparecida de Goiania is in States or that it is in Brazil.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 64}
+{"text": "It is the case either that the city of Algiers is in Russia or that it is in Algeria.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 65}
+{"text": "It is the case either that the city of Huizhou is in China or that it is in Indonesia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 67}
+{"text": "It is the case either that the city of Ya'an is in China or that it is in Sudan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 69}
+{"text": "It is the case either that the city of Nouakchott is in China or that it is in Mauritania.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 70}
+{"text": "It is the case either that the city of Feira de Santana is in India or that it is in Brazil.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 71}
+{"text": "It is the case either that the city of Gold Coast is in India or that it is in Australia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 75}
+{"text": "It is the case either that the city of Vadodara is in China or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 76}
+{"text": "It is the case either that the city of Anyang-si is in South Korea or that it is in Germany.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 77}
+{"text": "It is the case either that the city of Torreon is in Brazil or that it is in Mexico.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 79}
+{"text": "It is the case either that the city of Frankfurt am Main is in Germany or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 80}
+{"text": "It is the case either that the city of Kalyan is in Colombia or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 81}
+{"text": "It is the case either that the city of Baoji is in India or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 83}
+{"text": "It is the case either that the city of Puente Alto is in Chile or that it is in Myanmar.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 87}
+{"text": "It is the case either that the city of Abobo is in Côte Korea or that it is in d'Ivoire.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 92}
+{"text": "It is the case either that the city of Namangan is in Uzbekistan or that it is in Faso.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 93}
+{"text": "It is the case either that the city of Zunyi is in Republic or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 94}
+{"text": "It is the case either that the city of Sofia is in Kenya or that it is in Bulgaria.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 95}
+{"text": "It is the case either that the city of Deyang is in China or that it is in Turkey.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 96}
+{"text": "It is the case either that the city of Vadodara is in India or that it is in Poland.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 98}
+{"text": "It is the case either that the city of Wenzhou is in Ghana or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 102}
+{"text": "It is the case either that the city of Marrakesh is in China or that it is in Morocco.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 104}
+{"text": "It is the case either that the city of Nouakchott is in Mauritania or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 107}
+{"text": "It is the case either that the city of Budapest is in Indonesia or that it is in Hungary.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 110}
+{"text": "It is the case either that the city of Vadodara is in Japan or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 114}
+{"text": "It is the case either that the city of Ranchi is in Myanmar or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 120}
+{"text": "It is the case either that the city of Thuan An is in Vietnam or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 121}
+{"text": "It is the case either that the city of Namangan is in Uzbekistan or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 126}
+{"text": "It is the case either that the city of Jiujiang is in Latvia or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 129}
+{"text": "It is the case either that the city of Novosibirsk is in China or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 132}
+{"text": "It is the case either that the city of Varanasi is in India or that it is in Lithuania.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 133}
+{"text": "It is the case either that the city of Jamshedpur is in India or that it is in Yemen.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 135}
+{"text": "It is the case either that the city of E'zhou is in India or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 136}
+{"text": "It is the case either that the city of Leon de los Aldama is in Mexico or that it is in Chile.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 137}
+{"text": "It is the case either that the city of Zhanjiang is in China or that it is in Yemen.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 143}
+{"text": "It is the case either that the city of Bandar Lampung is in Indonesia or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 144}
+{"text": "It is the case either that the city of Tembisa is in South Japan or that it is in Africa.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 149}
+{"text": "It is the case either that the city of Yerevan is in Iraq or that it is in Armenia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 150}
+{"text": "It is the case either that the city of Arak is in Algeria or that it is in Iran.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 151}
+{"text": "It is the case either that the city of Culiacan is in China or that it is in Mexico.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 152}
+{"text": "It is the case either that the city of Antwerpen is in Belgium or that it is in Iran.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 153}
+{"text": "It is the case either that the city of Ciudad Guayana is in Turkey or that it is in Venezuela.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 154}
+{"text": "It is the case either that the city of Urumqi is in Brazil or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 155}
+{"text": "It is the case either that the city of Novosibirsk is in Tanzania or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 158}
+{"text": "It is the case either that the city of Nasiriyah is in Iraq or that it is in Bangladesh.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 159}
+{"text": "It is the case either that the city of Tashkent is in Egypt or that it is in Uzbekistan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 162}
+{"text": "It is the case either that the city of Almaty is in Vietnam or that it is in Kazakhstan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 163}
+{"text": "It is the case either that the city of Isfahan is in Iran or that it is in Ghana.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 164}
+{"text": "It is the case either that the city of Thane is in India or that it is in Korea.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 167}
+{"text": "It is the case either that the city of Siliguri is in Finland or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 169}
+{"text": "It is the case either that the city of Gaziantep is in Korea or that it is in Turkey.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 171}
+{"text": "It is the case either that the city of Kleinzschocher is in Germany or that it is in Iran.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 173}
+{"text": "It is the case either that the city of Hangzhou is in Japan or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 174}
+{"text": "It is the case either that the city of Kobe is in Japan or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 175}
+{"text": "It is the case either that the city of Comilla is in Russia or that it is in Bangladesh.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 177}
+{"text": "It is the case either that the city of Siliguri is in China or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 178}
+{"text": "It is the case either that the city of Daejeon is in South India or that it is in Korea.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 184}
+{"text": "It is the case either that the city of Hebi is in Egypt or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 187}
+{"text": "It is the case either that the city of Boumerdes is in Algeria or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 191}
+{"text": "It is the case either that the city of Peshawar is in Pakistan or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 192}
+{"text": "It is the case either that the city of Wuwei is in China or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 195}
+{"text": "It is the case either that the city of Shenyang is in India or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 197}
+{"text": "It is the case either that the city of Jiujiang is in China or that it is in Pakistan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 198}
+{"text": "It is the case either that the city of Xining is in China or that it is in Germany.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 203}
+{"text": "It is the case either that the city of Kleinzschocher is in Germany or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 204}
+{"text": "It is the case either that the city of Cotonou is in Benin or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 205}
+{"text": "It is the case either that the city of Lyon is in France or that it is in Nigeria.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 206}
+{"text": "It is the case either that the city of Tianjin is in Turkey or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 207}
+{"text": "It is the case either that the city of Bhubaneswar is in India or that it is in Indonesia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 214}
+{"text": "It is the case either that the city of Bhayandar is in Nigeria or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 216}
+{"text": "It is the case either that the city of Meerut is in India or that it is in Brazil.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 217}
+{"text": "It is the case either that the city of Abeokuta is in Nigeria or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 221}
+{"text": "It is the case either that the city of Jambi City is in Indonesia or that it is in Arabia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 222}
+{"text": "It is the case either that the city of Peshawar is in Pakistan or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 223}
+{"text": "It is the case either that the city of Cotonou is in Bulgaria or that it is in Benin.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 225}
+{"text": "It is the case either that the city of Khulna is in Bangladesh or that it is in Senegal.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 229}
+{"text": "It is the case either that the city of Zunyi is in Pakistan or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 230}
+{"text": "It is the case either that the city of Busan is in South Korea or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 232}
+{"text": "It is the case either that the city of Matsuyama is in Mexico or that it is in Japan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 233}
+{"text": "It is the case either that the city of Vladivostok is in China or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 235}
+{"text": "It is the case either that the city of Ryazan' is in Russia or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 236}
+{"text": "It is the case either that the city of Bogor is in Indonesia or that it is in Brazil.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 241}
+{"text": "It is the case either that the city of Rawalpindi is in Pakistan or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 243}
+{"text": "It is the case either that the city of Huizhou is in China or that it is in Congo.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 244}
+{"text": "It is the case either that the city of Quetta is in Russia or that it is in Pakistan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 246}
+{"text": "It is the case either that the city of Lahore is in China or that it is in Pakistan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 249}
+{"text": "It is the case either that the city of Zaozhuang is in China or that it is in Finland.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 251}
+{"text": "It is the case either that the city of Weihai is in China or that it is in Brazil.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 255}
+{"text": "It is the case either that the city of Zhabei is in China or that it is in Somalia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 256}
+{"text": "It is the case either that the city of Leipzig is in Germany or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 257}
+{"text": "It is the case either that the city of Konya is in China or that it is in Turkey.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 258}
+{"text": "It is the case either that the city of Can Tho is in Turkey or that it is in Vietnam.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 259}
+{"text": "It is the case either that the city of Sulaymaniyah is in Iraq or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 260}
+{"text": "It is the case either that the city of Jiangyin is in China or that it is in States.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 261}
+{"text": "It is the case either that the city of Palembang is in Indonesia or that it is in Lithuania.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 263}
+{"text": "It is the case either that the city of Ulan Bator is in Brazil or that it is in Mongolia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 266}
+{"text": "It is the case either that the city of Antananarivo is in Madagascar or that it is in Malawi.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 269}
+{"text": "It is the case either that the city of Zarqa is in Mexico or that it is in Jordan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 270}
+{"text": "It is the case either that the city of Milwaukee is in the United States or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 271}
+{"text": "It is the case either that the city of Yaroslavl is in Sweden or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 275}
+{"text": "It is the case either that the city of Tlalpan is in Mexico or that it is in Nicaragua.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 277}
+{"text": "It is the case either that the city of Bangkok is in Myanmar or that it is in Thailand.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 279}
+{"text": "It is the case either that the city of Enugu is in Nigeria or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 280}
+{"text": "It is the case either that the city of Callao is in Peru or that it is in Japan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 282}
+{"text": "It is the case either that the city of Taiz is in Algeria or that it is in Yemen.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 283}
+{"text": "It is the case either that the city of Suwon is in South Korea or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 285}
+{"text": "It is the case either that the city of Nouakchott is in Mauritania or that it is in Vietnam.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 288}
+{"text": "It is the case either that the city of Malatya is in Turkey or that it is in Mozambique.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 290}
+{"text": "It is the case either that the city of Ahvaz is in Iran or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 293}
+{"text": "It is the case either that the city of Dammam is in Saudi Arabia or that it is in Republic.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 295}
+{"text": "It is the case either that the city of Novosibirsk is in Russia or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 297}
+{"text": "It is the case either that the city of Cape Town is in South Bangladesh or that it is in Africa.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 299}
+{"text": "It is the case either that the city of Al Ahmadi is in Iraq or that it is in Kuwait.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 300}
+{"text": "It is the case either that the city of Lyon is in China or that it is in France.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 301}
+{"text": "It is the case either that the city of Helsinki is in Finland or that it is in Pakistan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 302}
+{"text": "It is the case either that the city of Nashik is in India or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 303}
+{"text": "It is the case either that the city of Panzhihua is in China or that it is in Japan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 305}
+{"text": "It is the case either that the city of Yaroslavl is in Brazil or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 306}
+{"text": "It is the case either that the city of Ahvaz is in Iran or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 308}
+{"text": "It is the case either that the city of Ciudad Guayana is in Venezuela or that it is in Kenya.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 312}
+{"text": "It is the case either that the city of Haiphong is in Vietnam or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 314}
+{"text": "It is the case either that the city of Mersin is in Ukraine or that it is in Turkey.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 315}
+{"text": "It is the case either that the city of Suez is in Egypt or that it is in Philippines.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 318}
+{"text": "It is the case either that the city of Guigang is in China or that it is in Brazil.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 320}
+{"text": "It is the case either that the city of Zahedan is in Iran or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 323}
+{"text": "It is the case either that the city of Quzhou is in China or that it is in Mexico.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 325}
+{"text": "It is the case either that the city of Nasiriyah is in Iraq or that it is in Zimbabwe.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 327}
+{"text": "It is the case either that the city of Nanchang is in Philippines or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 329}
+{"text": "It is the case either that the city of Perm is in Brazil or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 331}
+{"text": "It is the case either that the city of Sanya is in China or that it is in States.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 332}
+{"text": "It is the case either that the city of Bikaner is in India or that it is in States.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 334}
+{"text": "It is the case either that the city of Suizhou is in Ukraine or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 335}
+{"text": "It is the case either that the city of Rahim Yar Khan is in Pakistan or that it is in Emirates.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 338}
+{"text": "It is the case either that the city of Quebec is in Canada or that it is in Bangladesh.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 340}
+{"text": "It is the case either that the city of Luohe is in India or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 344}
+{"text": "It is the case either that the city of Kozhikode is in India or that it is in Iraq.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 346}
+{"text": "It is the case either that the city of Linyi is in China or that it is in Iran.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 347}
+{"text": "It is the case either that the city of Barnaul is in Russia or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 349}
+{"text": "It is the case either that the city of Dandong is in Kenya or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 350}
+{"text": "It is the case either that the city of Kanpur is in India or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 352}
+{"text": "It is the case either that the city of Mbuji-Mayi is in the Democratic Republic of the Iraq or that it is in Congo.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 354}
+{"text": "It is the case either that the city of Comilla is in China or that it is in Bangladesh.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 359}
+{"text": "It is the case either that the city of Batam is in China or that it is in Indonesia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 360}
+{"text": "It is the case either that the city of Ryazan' is in India or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 362}
+{"text": "It is the case either that the city of Anshun is in Russia or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 364}
+{"text": "It is the case either that the city of Liaocheng is in China or that it is in Algeria.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 367}
+{"text": "It is the case either that the city of N'Djamena is in Iraq or that it is in Chad.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 368}
+{"text": "It is the case either that the city of Seattle is in the United Arabia or that it is in States.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 369}
+{"text": "It is the case either that the city of Suwon is in South China or that it is in Korea.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 371}
+{"text": "It is the case either that the city of Malacca is in Malaysia or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 373}
+{"text": "It is the case either that the city of Rajshahi is in Argentina or that it is in Bangladesh.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 374}
+{"text": "It is the case either that the city of Bujumbura is in China or that it is in Burundi.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 378}
+{"text": "It is the case either that the city of Ahmedabad is in Morocco or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 380}
+{"text": "It is the case either that the city of Guwahati is in India or that it is in Mexico.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 381}
+{"text": "It is the case either that the city of Madurai is in China or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 382}
+{"text": "It is the case either that the city of Chizhou is in China or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 385}
+{"text": "It is the case either that the city of Zhangzhou is in China or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 386}
+{"text": "It is the case either that the city of Duesseldorf is in Germany or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 388}
+{"text": "It is the case either that the city of Maturin is in Venezuela or that it is in Philippines.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 390}
+{"text": "It is the case either that the city of Huaihua is in Africa or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 394}
+{"text": "It is the case either that the city of Voronezh is in Iran or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 396}
+{"text": "It is the case either that the city of Ludhiana is in India or that it is in Indonesia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 400}
+{"text": "It is the case either that the city of Hamamatsu is in Indonesia or that it is in Japan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 404}
+{"text": "It is the case either that the city of Wroclaw is in China or that it is in Poland.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 405}
+{"text": "It is the case either that the city of Shijiazhuang is in Brazil or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 406}
+{"text": "It is the case either that the city of Rajshahi is in Bangladesh or that it is in Pakistan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 409}
+{"text": "It is the case either that the city of Dalian is in Canada or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 411}
+{"text": "It is the case either that the city of Detroit is in the United States or that it is in Brazil.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 413}
+{"text": "It is the case either that the city of Mississauga is in Canada or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 414}
+{"text": "It is the case either that the city of Thiruvananthapuram is in India or that it is in Egypt.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 415}
+{"text": "It is the case either that the city of Omdurman is in Sudan or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 417}
+{"text": "It is the case either that the city of Kawaguchi is in Japan or that it is in Vietnam.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 418}
+{"text": "It is the case either that the city of Nova Iguacu is in Brazil or that it is in Sudan.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 419}
+{"text": "It is the case either that the city of Khabarovsk Vtoroy is in India or that it is in Russia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 421}
+{"text": "It is the case either that the city of Kota Kinabalu is in Malaysia or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 423}
+{"text": "It is the case either that the city of Kuala Lumpur is in Canada or that it is in Malaysia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 424}
+{"text": "It is the case either that the city of Wroclaw is in Iran or that it is in Poland.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 426}
+{"text": "It is the case either that the city of Karaj is in Iran or that it is in Philippines.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 427}
+{"text": "It is the case either that the city of Kashgar is in China or that it is in Philippines.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 429}
+{"text": "It is the case either that the city of Barquisimeto is in Venezuela or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 437}
+{"text": "It is the case either that the city of Maracaibo is in Venezuela or that it is in States.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 438}
+{"text": "It is the case either that the city of Makati City is in the Philippines or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 439}
+{"text": "It is the case either that the city of Brasilia is in China or that it is in Brazil.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 440}
+{"text": "It is the case either that the city of Qom is in China or that it is in Iran.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 442}
+{"text": "It is the case either that the city of Tianjin is in China or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 446}
+{"text": "It is the case either that the city of Latakia is in Syria or that it is in Brazil.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 450}
+{"text": "It is the case either that the city of Niamey is in Niger or that it is in Korea.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 452}
+{"text": "It is the case either that the city of Johor Bahru is in Malaysia or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 457}
+{"text": "It is the case either that the city of Salta is in Cameroon or that it is in Argentina.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 459}
+{"text": "It is the case either that the city of Jiaozhou is in Germany or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 461}
+{"text": "It is the case either that the city of Qinzhou is in Algeria or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 463}
+{"text": "It is the case either that the city of Leipzig is in Germany or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 464}
+{"text": "It is the case either that the city of Juiz de Fora is in India or that it is in Brazil.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 465}
+{"text": "It is the case either that the city of Tembisa is in South Africa or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 467}
+{"text": "It is the case either that the city of Goeteborg is in Colombia or that it is in Sweden.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 471}
+{"text": "It is the case either that the city of Diyarbakir is in Africa or that it is in Turkey.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 472}
+{"text": "It is the case either that the city of Jiamusi is in China or that it is in Nigeria.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 473}
+{"text": "It is the case either that the city of Laiwu is in China or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 476}
+{"text": "It is the case either that the city of Jiaozhou is in China or that it is in Korea.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 481}
+{"text": "It is the case either that the city of Yerevan is in Philippines or that it is in Armenia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 484}
+{"text": "It is the case either that the city of Liuzhou is in China or that it is in Kenya.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 485}
+{"text": "It is the case either that the city of Jambi City is in China or that it is in Indonesia.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 486}
+{"text": "It is the case either that the city of Jiangyin is in Brazil or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 487}
+{"text": "It is the case either that the city of Shah Alam is in Malaysia or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 488}
+{"text": "It is the case either that the city of Dalian is in Philippines or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 489}
+{"text": "It is the case either that the city of Mazar-e Sharif is in Afghanistan or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 493}
+{"text": "It is the case either that the city of Anshan is in Kenya or that it is in China.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 494}
+{"text": "It is the case either that the city of Stockholm is in Sweden or that it is in Bulgaria.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 495}
+{"text": "It is the case either that the city of Fes is in India or that it is in Morocco.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 496}
+{"text": "It is the case either that the city of Albuquerque is in the United States or that it is in Ukraine.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 497}
+{"text": "It is the case either that the city of Sorocaba is in Brazil or that it is in India.", "label": true, "upstream_file": "datasets/cities_disj.csv", "upstream_row": 499}

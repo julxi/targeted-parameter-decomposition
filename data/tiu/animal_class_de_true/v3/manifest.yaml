@@ -1,0 +1,28 @@
+name: tiu/animal_class_de_true
+version: v3
+format: text
+description: True statements from Truth-is-Universal datasets/animal_class_de.csv;
+  out-of-distribution test set (test split only, not split by subject, never trained
+  on).
+role: ood_test
+source:
+  reference: 'Bürger, Hamprecht & Nadler (2024). Truth is Universal: Robust Detection
+    of Lies in LLMs. NeurIPS 2024. arXiv:2407.12831'
+  url: https://github.com/sciai-lab/Truth_is_Universal
+  commit: 605ef00514415deb4806969a172f6e13e0798df7
+  file: datasets/animal_class_de.csv
+  file_sha256: 9f08cab2a4c4f92a2ad0554ab33a49844f2afad27d86096b9b86338b7d06ff87
+  license: MIT (Copyright (c) 2024 Scientific AI)
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py
+  script_sha256: 72c28bd9c90042e086e25c728161384e6c3d6a80c502bb71bd8b03c13f4689c2
+  repo_commit: 001590ac31bbc5a33ed03a1cd64d500e402d514b
+  built_at: '2026-10-26T17:47:04+00:00'
+  params:
+    label: true
+  dropped_duplicate_statements: 0
+splits:
+  test:
+    file: test.jsonl
+    n_records: 27
+    sha256: 072695227c84b0943eb3a00e66835dc55f7e79c5f20f5da34178a42f7d60ee3a

@@ -1,0 +1,25 @@
+{"text": "Die Stadt Krasnodar liegt nicht in Russland.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 0}
+{"text": "Die Stadt Lodz liegt nicht in Polen.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 2}
+{"text": "Die Stadt Maracay liegt nicht in Venezuela.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 4}
+{"text": "Die Stadt Baku liegt nicht in Aserbaidschan.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 6}
+{"text": "Die Stadt Baoji liegt nicht in China.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 8}
+{"text": "Die Stadt Addis Abeba liegt nicht in Äthiopien.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 10}
+{"text": "Die Stadt Abidjan liegt nicht in der Republik Côte d’Ivoire.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 12}
+{"text": "Die Stadt Yongzhou liegt nicht in China.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 14}
+{"text": "Die Stadt Nanchong liegt nicht in China.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 16}
+{"text": "Die Stadt Lu'an liegt nicht in China.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 18}
+{"text": "Die Stadt Jiaxing liegt nicht in China.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 20}
+{"text": "Die Stadt Huaihua liegt nicht  in China.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 22}
+{"text": "Die Stadt Anqing liegt nicht in China.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 24}
+{"text": "Die Stadt Yingkou liegt nicht in China.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 26}
+{"text": "Die Stadt Panshan liegt nicht in China.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 28}
+{"text": "Die Stadt Guatemala-Stadt liegt nicht in Guatemala.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 30}
+{"text": "Die Stadt Bauchi liegt nicht in Nigeria.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 32}
+{"text": "Die Stadt Tokio liegt nicht in Japan.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 34}
+{"text": "Die Stadt Mombasa liegt nicht in Kenia.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 36}
+{"text": "Die Stadt Ulsan liegt nicht in Südkorea.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 38}
+{"text": "Die Stadt Warangal liegt nicht in Indien.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 40}
+{"text": "Die Stadt Tiruchirappalli liegt nicht in Indien.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 42}
+{"text": "Die Stadt Nowrangapur liegt nicht in Indien.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 44}
+{"text": "Die Stadt Sambhaji Nagar liegt nicht in Indien.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 46}
+{"text": "Die Stadt Ajmer liegt nicht in Indien.", "label": false, "upstream_file": "datasets/neg_cities_de.csv", "upstream_row": 48}

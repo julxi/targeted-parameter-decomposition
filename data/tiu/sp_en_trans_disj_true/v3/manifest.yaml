@@ -1,0 +1,28 @@
+name: tiu/sp_en_trans_disj_true
+version: v3
+format: text
+description: True statements from Truth-is-Universal datasets/sp_en_trans_disj.csv;
+  out-of-distribution test set (test split only, not split by subject, never trained
+  on).
+role: ood_test
+source:
+  reference: 'Bürger, Hamprecht & Nadler (2024). Truth is Universal: Robust Detection
+    of Lies in LLMs. NeurIPS 2024. arXiv:2407.12831'
+  url: https://github.com/sciai-lab/Truth_is_Universal
+  commit: 605ef00514415deb4806969a172f6e13e0798df7
+  file: datasets/sp_en_trans_disj.csv
+  file_sha256: 8109acc93bb7b21d8124850f477c0b306a6513b9e351141efb1ac1518bd6bb8e
+  license: MIT (Copyright (c) 2024 Scientific AI)
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py
+  script_sha256: 72c28bd9c90042e086e25c728161384e6c3d6a80c502bb71bd8b03c13f4689c2
+  repo_commit: 001590ac31bbc5a33ed03a1cd64d500e402d514b
+  built_at: '2026-10-26T17:47:04+00:00'
+  params:
+    label: true
+  dropped_duplicate_statements: 0
+splits:
+  test:
+    file: test.jsonl
+    n_records: 236
+    sha256: 9d058a20fee9ae8978e9f0a42d15bafe104b10b06ee60b7fc8ddd00ea5390c06

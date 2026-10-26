@@ -1,0 +1,25 @@
+{"text": "The Spanish word 'palabra' does not mean 'word'.", "label": false, "subject": "palabra", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 4}
+{"text": "The Spanish word 'tres' does not mean 'three'.", "label": false, "subject": "tres", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 14}
+{"text": "The Spanish word 'espalda' does not mean 'back'.", "label": false, "subject": "espalda", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 38}
+{"text": "The Spanish word 'escribir' does not mean 'to write'.", "label": false, "subject": "escribir", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 53}
+{"text": "The Spanish word 'ver' does not mean 'to see'.", "label": false, "subject": "ver", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 57}
+{"text": "The Spanish word 'persona' does not mean 'person'.", "label": false, "subject": "persona", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 60}
+{"text": "The Spanish word 'caballo' does not mean 'horse'.", "label": false, "subject": "caballo", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 95}
+{"text": "The Spanish word 'abierto' does not mean 'open'.", "label": false, "subject": "abierto", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 98}
+{"text": "The Spanish word 'caminar' does not mean 'to walk'.", "label": false, "subject": "caminar", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 101}
+{"text": "The Spanish word 'rojo' does not mean 'red'.", "label": false, "subject": "rojo", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 114}
+{"text": "The Spanish word 'viento' does not mean 'wind'.", "label": false, "subject": "viento", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 126}
+{"text": "The Spanish word 'potencia' does not mean 'power'.", "label": false, "subject": "potencia", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 157}
+{"text": "The Spanish word 'caer' does not mean 'to fall'.", "label": false, "subject": "caer", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 159}
+{"text": "The Spanish word 'desarrollar' does not mean 'to develop'.", "label": false, "subject": "desarrollar", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 164}
+{"text": "The Spanish word 'diez' does not mean 'ten'.", "label": false, "subject": "diez", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 176}
+{"text": "The Spanish word 'sencilla' does not mean 'simple'.", "label": false, "subject": "sencilla", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 177}
+{"text": "The Spanish word 'hablar' does not mean 'to speak'.", "label": false, "subject": "hablar", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 188}
+{"text": "The Spanish word 'vaca' does not mean 'cow'.", "label": false, "subject": "vaca", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 202}
+{"text": "The Spanish word 'elegir' does not mean 'to choose'.", "label": false, "subject": "elegir", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 219}
+{"text": "The Spanish word 'hijo' does not mean 'son'.", "label": false, "subject": "hijo", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 222}
+{"text": "The Spanish word 'veinte' does not mean 'twenty'.", "label": false, "subject": "veinte", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 236}
+{"text": "The Spanish word 'esclavo' does not mean 'slave'.", "label": false, "subject": "esclavo", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 292}
+{"text": "The Spanish word 'concha' does not mean 'shell'.", "label": false, "subject": "concha", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 299}
+{"text": "The Spanish word 'higo' does not mean 'fig'.", "label": false, "subject": "higo", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 304}
+{"text": "The Spanish word 'abrigo' does not mean 'coat'.", "label": false, "subject": "abrigo", "upstream_file": "datasets/neg_sp_en_trans.csv", "upstream_row": 308}

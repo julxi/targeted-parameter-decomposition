@@ -1,0 +1,27 @@
+name: tiu/inventors_true
+version: v3
+format: text
+description: True statements from Truth-is-Universal datasets/inventors.csv; out-of-distribution
+  test set (test split only, not split by subject, never trained on).
+role: ood_test
+source:
+  reference: 'Bürger, Hamprecht & Nadler (2024). Truth is Universal: Robust Detection
+    of Lies in LLMs. NeurIPS 2024. arXiv:2407.12831'
+  url: https://github.com/sciai-lab/Truth_is_Universal
+  commit: 605ef00514415deb4806969a172f6e13e0798df7
+  file: datasets/inventors.csv
+  file_sha256: 6990771f01efcbae18bfa3960facbe36c39199f850f407540548a9c04339084c
+  license: MIT (Copyright (c) 2024 Scientific AI)
+build:
+  script: spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py
+  script_sha256: 72c28bd9c90042e086e25c728161384e6c3d6a80c502bb71bd8b03c13f4689c2
+  repo_commit: 001590ac31bbc5a33ed03a1cd64d500e402d514b
+  built_at: '2026-10-26T17:47:04+00:00'
+  params:
+    label: true
+  dropped_duplicate_statements: 0
+splits:
+  test:
+    file: test.jsonl
+    n_records: 229
+    sha256: e290b07d0326fc3f3efe6191c8ef94e4f8dc6b271ec4bdb1922f1266b5f3a6c1

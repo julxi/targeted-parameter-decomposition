@@ -1,0 +1,229 @@
+{"text": "Edwin Herbert Hall lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 0}
+{"text": "Gustaf Dalén lived in Sweden.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 4}
+{"text": "William Sturgeon lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 8}
+{"text": "Frederick Walton lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 9}
+{"text": "Clarence Birdseye lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 10}
+{"text": "Gideon Sundback lived in Sweden/the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 11}
+{"text": "John Shepherd-Barron lived in Scotland.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 12}
+{"text": "Whitcomb Judson lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 15}
+{"text": "Joseph Glidden lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 16}
+{"text": "Charles Goodyear lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 20}
+{"text": "Lloyd Groff Copeman lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 21}
+{"text": "Herbert Akroyd Stuart lived in England.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 22}
+{"text": "David Edward Hughes lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 26}
+{"text": "Yoshua Bengio lived in Canada.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 27}
+{"text": "Rudolf Kálmán lived in Hungary.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 29}
+{"text": "Charles Fritts lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 30}
+{"text": "Narinder Singh Kapany lived in India.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 31}
+{"text": "Archimedes lived in Ancient Greece.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 32}
+{"text": "Fritz Pfleumer lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 34}
+{"text": "Arthur Fry lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 35}
+{"text": "Semyon Kirlian lived in Russia.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 37}
+{"text": "Ignazio Porro lived in Italy.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 38}
+{"text": "Lester Wire lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 41}
+{"text": "László Bíró lived in Hungary.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 42}
+{"text": "Galileo Galilei lived in Italy.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 44}
+{"text": "John Atanasoff lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 45}
+{"text": "Benjamin Franklin lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 46}
+{"text": "Sir Sandford Fleming lived in Canada.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 47}
+{"text": "Robert Moog lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 48}
+{"text": "George Washington Carver lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 49}
+{"text": "Fridtjof Nansen lived in Norway.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 52}
+{"text": "Willis Carrier lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 54}
+{"text": "Joseph-Armand Bombardier lived in Canada.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 55}
+{"text": "Earle Dickson lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 56}
+{"text": "Luther George Simjian lived in Turkey/the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 57}
+{"text": "Herbert Saffir lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 58}
+{"text": "Wallace Carothers lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 60}
+{"text": "John Wesley Hyatt lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 61}
+{"text": "James Dyson lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 62}
+{"text": "Candace Pert lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 63}
+{"text": "Walter Hunt lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 65}
+{"text": "Yvonne Brill lived in Canada.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 67}
+{"text": "Percy Spencer lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 72}
+{"text": "Henry Bessemer lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 73}
+{"text": "Richard Leach Maddox lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 75}
+{"text": "Thomas Wedgwood lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 77}
+{"text": "Frank Bunker Gilbreth lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 78}
+{"text": "Benjamin Holt lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 79}
+{"text": "Antoine Lavoisier lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 82}
+{"text": "Maria Telkes lived in Hungary/the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 84}
+{"text": "Robert Adler lived in Austria/the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 85}
+{"text": "Edwin Link lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 87}
+{"text": "Sir Humphry Davy lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 89}
+{"text": "Edwin H. Land lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 91}
+{"text": "James Watt lived in Scotland.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 95}
+{"text": "Ernest Swinton lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 96}
+{"text": "Jean-Bernard-Léon Foucault lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 97}
+{"text": "Gordon Gould lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 98}
+{"text": "Ernesto Blanco lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 100}
+{"text": "John von Neumann lived in Hungary/the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 102}
+{"text": "Ruth Benerito lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 104}
+{"text": "Ralph H. Baer lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 107}
+{"text": "Michael Faraday lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 109}
+{"text": "Alan Turing lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 112}
+{"text": "Elisha Gray lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 113}
+{"text": "Édouard-Léon Scott de Martinville lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 114}
+{"text": "Leon Theremin lived in Russia.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 116}
+{"text": "Rudolf Diesel lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 117}
+{"text": "Elisha Otis lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 118}
+{"text": "Valdemar Poulsen lived in Denmark.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 120}
+{"text": "Joseph Aspdin lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 122}
+{"text": "Philo Farnsworth lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 124}
+{"text": "Marvin Camras lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 127}
+{"text": "Charles Babbage lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 128}
+{"text": "Ami Argand lived in Switzerland.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 130}
+{"text": "Luther Simjian lived in Turkey/the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 133}
+{"text": "Joseph Bramah lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 134}
+{"text": "Alexander Graham Bell lived in Scotland/Canada/the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 136}
+{"text": "Charles Macintosh lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 138}
+{"text": "Bette Nesmith Graham lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 140}
+{"text": "Orville and Wilbur Wright lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 142}
+{"text": "Charles Cros lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 148}
+{"text": "Thomas Savery lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 149}
+{"text": "Bartolomeo Cristofori lived in Italy.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 150}
+{"text": "Louis Pasteur lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 151}
+{"text": "Florence Parpart lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 154}
+{"text": "Paul Gottlieb Nipkow lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 156}
+{"text": "Josephine Cochrane lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 158}
+{"text": "Mary Anderson lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 159}
+{"text": "John Callcott Horsley lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 161}
+{"text": "Jack Kilby lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 162}
+{"text": "Samuel Fox lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 163}
+{"text": "Hans Berger lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 164}
+{"text": "André-Jacques Garnerin lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 166}
+{"text": "Alexander Fleming lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 167}
+{"text": "Garrett Morgan lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 170}
+{"text": "Sir Isaac Newton lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 173}
+{"text": "William Kelly lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 174}
+{"text": "Albert Ghiorso lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 177}
+{"text": "George de Mestral lived in Switzerland.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 178}
+{"text": "Carlos Glidden lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 179}
+{"text": "William Congreve lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 180}
+{"text": "Arthur Pitney lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 184}
+{"text": "John Gorrie lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 186}
+{"text": "Robert Chesebrough lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 187}
+{"text": "Chester Carlson lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 191}
+{"text": "George Pullman lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 192}
+{"text": "George Cayley lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 193}
+{"text": "John Bardeen lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 194}
+{"text": "Johannes Gutenberg lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 197}
+{"text": "George Eastman lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 198}
+{"text": "Hans Lippershey lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 199}
+{"text": "Heinrich Hertz lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 202}
+{"text": "Leonardo da Vinci lived in Italy.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 203}
+{"text": "Nikolai Basov lived in the Soviet Union.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 204}
+{"text": "Guglielmo Marconi lived in Italy.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 206}
+{"text": "Christian Huygens lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 207}
+{"text": "James West lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 211}
+{"text": "Sir Frank Whittle lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 213}
+{"text": "John Ambrose Fleming lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 214}
+{"text": "Gottlieb Daimler lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 215}
+{"text": "Frank Julian Sprague lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 219}
+{"text": "George Antheil lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 220}
+{"text": "Alva J. Fisher lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 222}
+{"text": "Thomas Edison lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 224}
+{"text": "Carl Wilhelm Siemens lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 227}
+{"text": "Ralph Benjamin lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 228}
+{"text": "George Devol lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 229}
+{"text": "Igor Tamm lived in Russia.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 230}
+{"text": "Philipp Reis lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 231}
+{"text": "Edmund Cartwright lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 232}
+{"text": "Marie Curie lived in Poland/France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 236}
+{"text": "Mary Phelps Jacob lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 237}
+{"text": "John Harrison lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 239}
+{"text": "Clyde Tombaugh lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 244}
+{"text": "Joseph Henry lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 247}
+{"text": "Robert Noyce lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 249}
+{"text": "Charles Francis Richter lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 250}
+{"text": "Hans Oersted lived in Denmark.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 251}
+{"text": "Nils Bohlin lived in Sweden.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 252}
+{"text": "Alec Jeffreys lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 253}
+{"text": "John T. Parsons lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 254}
+{"text": "Otis Boykin lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 255}
+{"text": "Charles Strite lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 256}
+{"text": "Alessandro Volta lived in Italy.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 257}
+{"text": "Ruth Handler lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 258}
+{"text": "Georges Claude lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 259}
+{"text": "Alfred Nobel lived in Sweden.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 261}
+{"text": "John Ericsson lived in Sweden.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 264}
+{"text": "Christopher Cockerell lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 267}
+{"text": "Sir Charles Parsons lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 268}
+{"text": "Henry Ford lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 269}
+{"text": "Joseph Swan lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 271}
+{"text": "Richard Gatling lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 272}
+{"text": "Ferdinand von Zeppelin lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 273}
+{"text": "Karl Benz lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 274}
+{"text": "James Starley lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 275}
+{"text": "August Horch lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 276}
+{"text": "Heinrich Göbel lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 278}
+{"text": "Igor Sikorsky lived in Ukraine/the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 280}
+{"text": "Eli Whitney lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 282}
+{"text": "Hippolyte Mège-Mouriès lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 283}
+{"text": "Spencer Silver lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 285}
+{"text": "Emile Berliner lived in Germany/the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 287}
+{"text": "Charles Wheatstone lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 288}
+{"text": "Grace Hopper lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 291}
+{"text": "Biruté Galdikas lived in Canada.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 292}
+{"text": "Daisuke Inoue lived in Japan.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 293}
+{"text": "Karl Landsteiner lived in Austria.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 295}
+{"text": "Linus Torvalds lived in Finland.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 298}
+{"text": "Levi Strauss lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 301}
+{"text": "Edouard Benedictus lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 303}
+{"text": "Charles Townes lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 305}
+{"text": "Reginald Fessenden lived in Canada/the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 307}
+{"text": "Joseph Engelberger lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 309}
+{"text": "John Kay lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 315}
+{"text": "Tim Berners-Lee lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 316}
+{"text": "Charles Francis Jenkins lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 317}
+{"text": "Wilhelm Conrad Röntgen lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 319}
+{"text": "Ada Lovelace lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 321}
+{"text": "Philo Taylor Farnsworth lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 322}
+{"text": "Sergey Brin and Larry Page lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 323}
+{"text": "Hans Geiger lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 324}
+{"text": "Evangelista Torricelli lived in Italy.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 325}
+{"text": "Shinya Yamanaka lived in Japan.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 328}
+{"text": "Giovanni Caselli lived in Italy.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 329}
+{"text": "Hedy Lamarr lived in Austria/the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 331}
+{"text": "Frederick McKinley Jones lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 332}
+{"text": "James Hargreaves lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 333}
+{"text": "David Schwarz lived in Croatia.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 334}
+{"text": "Konrad Zuse lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 335}
+{"text": "Jacob Perkins lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 336}
+{"text": "John Boyd Dunlop lived in Scotland.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 338}
+{"text": "Hans von Ohain lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 340}
+{"text": "R. Buckminster Fuller lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 343}
+{"text": "Thomas Tompion lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 344}
+{"text": "Nicolas Appert lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 346}
+{"text": "Carl Sontheimer lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 348}
+{"text": "James Clerk Maxwell lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 351}
+{"text": "James Murray Spangler lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 353}
+{"text": "Hans Goldschmidt lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 355}
+{"text": "Carl Elsener lived in Switzerland.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 356}
+{"text": "Vint Cerf lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 357}
+{"text": "Charles Tellier lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 358}
+{"text": "Joseph Marie Jacquard lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 365}
+{"text": "Samuel Colt lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 369}
+{"text": "Mary Walton lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 371}
+{"text": "Felix Hoffmann lived in Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 372}
+{"text": "Frederick G. Creed lived in Canada.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 374}
+{"text": "Elihu Thomson lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 376}
+{"text": "Pierre Curie lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 378}
+{"text": "Nikolay Slavyanov lived in Russia.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 380}
+{"text": "Dr. Robert Gallo lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 381}
+{"text": "Samuel Morse lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 383}
+{"text": "Daniel Fahrenheit lived in Poland/Germany.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 384}
+{"text": "John Logie Baird lived in Scotland.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 385}
+{"text": "Henri Giffard lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 386}
+{"text": "Eugene Polley lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 387}
+{"text": "Zhores Alferov lived in Russia.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 388}
+{"text": "Ferdinand Carré lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 389}
+{"text": "Richard Trevithick lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 390}
+{"text": "John Walker lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 392}
+{"text": "Blaise Pascal lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 394}
+{"text": "Benjamin Rubin lived in the U.S.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 397}
+{"text": "Willem Einthoven lived in the Netherlands.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 398}
+{"text": "Godfrey Hounsfield lived in the U.K.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 399}
+{"text": "Yoshiro Nakamatsu lived in Japan.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 400}
+{"text": "Auguste and Louis Lumière lived in France.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 403}
+{"text": "Cai Lun lived in China.", "label": true, "upstream_file": "datasets/inventors.csv", "upstream_row": 405}
