@@ -80,7 +80,7 @@ So "4e beats 4c" is not established [concluded: 4e at 4c's LR 5e-4 recovered onl
 
 - **Verdict lens** (the KL of the verdict digit as target loss). Evidence: (i) Exp 0, the natural next-token lens at the statement's period, recovered 8% of the all-off verdict KL vs 63–72% for lenses that read a verdict (Exp 0–3 used layers 15–19 and an older appended-question prompt, so this is indirect); (ii) on the verdict prompt the model is accurate (0.963 accuracy, AUC 0.994 on the 546-statement screen) and steering with the truth direction at the statement tokens (layers ~13–17) moves the digit. The assumption "the verdict surfaces the model's belief" is not just an assumption we can state; we have evidence *against* a strong form of it: in the steering topic's recall test, masks that invert 4c's verdict leave direct-question recall unchanged (cities 0.771 or higher), and after an inverted digit the model mostly states the true fact [verified there, one seed]. So the verdict can be changed without the belief. I'd state the lens as "decomposes the computation of the verdict", with "belief" as the hypothesis the analyses test.  
 C: You are right. I don't think that we can fundamentally change the models believe. However, we should add an experiment for checking how fundamentally we can check the models believe by activation steering. Also maybe we can find out something about why the model recovers (e.g. from where does it get that information)  
-Answer (26-10-22, Claude Opus 5.5): Agreed; added to the plan (entry *plan of steps*, step B3). Design [assumed: proposal]: steer with the in-context truth direction at the statement tokens, layers 13–17 (the window where steering worked on the verdict prompt), and read four outcomes: the verdict digit, the digit under a second verdict prompt, the direct recall question ("In which country is the city of X?", as in the steering topic's recall test) and the free continuation. A hint that steering may reach deeper than the component masks: in the statement window, steering made the model's explanation follow the steered digit, while after a mask-inverted digit the model mostly restates the true fact [verified in the bolder-experiments and component-steering topics; a few example statements each, anecdotal]. On where the model gets the information back after a mask edit at the statement tokens of layers 11–17, two candidate routes: (i) attention at the answer tokens re-reads the statement in layers outside 11–17; (ii) layers 18+ at the statement tokens recompute it. Test: widen the edit (more layers, then the answer positions too) and see where the true fact stops coming back.
+Answer (26-10-22, Claude Opus 5.5): Agreed; added to the plan (entry *plan of steps*, step B3). Design [assumed: proposal]: steer with the in-context truth direction at the statement tokens, layers 13–17 (the window where steering worked on the verdict prompt), and read four outcomes: the verdict digit, the digit under a second verdict prompt, the direct recall question ("In which country is the city of X?", as in the steering topic's recall test) and the free continuation. OUTDATED (26-10-26): B3 contradicts this hint for steering at all statement tokens. After layer-17 steering the model states the flipped digit, then restates the true fact, as after mask inversion. See entry *B3 results*. A hint that steering may reach deeper than the component masks: in the statement window, steering made the model's explanation follow the steered digit, while after a mask-inverted digit the model mostly restates the true fact [verified in the bolder-experiments and component-steering topics; a few example statements each, anecdotal]. On where the model gets the information back after a mask edit at the statement tokens of layers 11–17, two candidate routes: (i) attention at the answer tokens re-reads the statement in layers outside 11–17; (ii) layers 18+ at the statement tokens recompute it. Test: widen the edit (more layers, then the answer positions too) and see where the true fact stops coming back.
 C: I have another comment about mass mean and logistic regression truth directions. We should say why we use mass-mean. My reasons are:
   - they are not very different (has to be verified)
   - they are faster to compute
@@ -303,6 +303,7 @@ C: please start with phase A, but skip A1 for now
 
 `spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py` now has two additions; `data/README.md` describes v3.
 - **`--train_cap N`**: each in-distribution dataset keeps at most N train statements; val and test are those of the uncapped build. Statements are selected by a hash of their subject, so a kept city stays in cities_true, cities_false and both neg_cities files: the trimmed train split keeps the true/false/negated statements about the same subjects. Kept statements stay in upstream order.
+OUTDATED (26-10-26): the counts in the next bullet and under **Build** are wrong: 28 files, 56 OOD datasets, 76 directories. See entry *v3 committed and checked; next: phase B*.
 - **OOD datasets** (manifest `role: ood_test`, test split only, so no config can train on them): every unused upstream file except the large, less curated common_claim and counterfact. That is 26 files × 2 labels = 52 datasets: inventors, neg_inventors, facts, neg_facts; German versions of 6 families with their negations (12 files, 49–50 statements each); conj/disj of 6 families (12 files, 500 each except cities_conj 1,498). The first pass listed fewer: upstream also has German and conj/disj versions of animal_class, element_symb, sp_en_trans, inventors and facts. In-distribution records keep their exact field order, so the split files stay comparable across builds.
 
 Checks [verified: trial builds into `scratch/` (gitignored, deleted afterwards), 26-10-26]:
@@ -376,3 +377,266 @@ I did not move them. Reasons [concluded]: (1) a moved script can only be checked
 2. A3: drop the GPU re-evaluation of 4a/4c and decide the between-method criteria on C1's numbers?
 3. A5: move the scripts during the phase B rental (with reproduction checks), or after D3?
 4. Mass-mean justification: take the proposed wording (stability, no hyperparameters, Marks & Tegmark), and add the lr-vs-mm steering check to B3?
+
+---
+
+26-10-26, Claude Opus 5.5 — *v3 committed and checked; next: phase B*; same session. Julian in chat:
+
+C: (transcribed from chat) Ok, I commited the script and the data. Yes, we can delay A3. We can justify mass-mean by refering to their argumentation. What is next?
+
+Decisions [decided: transcribed above]: A3 delayed (no GPU job now; the between-method criteria come later, see the previous entry); mass-mean directions are justified by Marks & Tegmark's argument (more causally implicated in model outputs, arXiv:2310.06824), so no lr-vs-mm steering check. Question 3 of the previous entry (when to move the scripts, A5) is still open.
+
+**v3 as committed** (Julian built it: `001590a` generator, `129c90e` data) [verified: manifests and hashes, 26-10-26]: 76 datasets, 20 in-distribution and 56 OOD. Every manifest records `repo_commit` `001590a` and the sha256 of the committed script; every split file matches its manifest hash; in-distribution val/test are byte-identical to v2; train totals 1,962.
+
+**Count correction**: the OOD files are 4 + 12 German + 12 conj/disj = 28, so 56 datasets and 76 directories. The previous entry says 26 / 52 / 72 (marked OUTDATED there).
+
+## Next: phase B (GPU, no training, one rental)
+
+B2 has to come before B3, because B3 reads its outcome under the second prompt that B2 picks. Each script gets a CPU smoke or short GPU smoke before its full run. I adapt them locally before the rental:
+
+- **B1, attention scan.** `~/spd_out/26-10-10_bolder_experiments/layer_scan/layer_scan.py` with the attention output (`o_proj` output) mean-ablated at the statement tokens: single layers 5–24 and the block 11–17, with the MLP rows rerun in the same script as reference. Outcomes as in the MLP scan: verdict separation share, accuracy, digit mass, KL. Data: tiu test (identical in v1–v3). Decides whether `o_proj` joins the module set (decision D1).
+- **B2, the original model on the OOD sets and a second prompt.** Verdict accuracy, AUC and digit mass per dataset on the 56 OOD sets, with the verdict prompt and a second prompt. My candidate for the second prompt is "Is this statement true (1) or false (0)? Answer: " on the same line, the R5 runner-up (accuracy 0.952, AUC 0.995 vs 0.963 / 0.994 for the amount prompt; one run, 546 statements). Its errors sit mainly in neg_element_symb_true, where the amount prompt errs on other statements, so the two prompts are not trivially the same readout [assumed]. `verdict_accuracy.py` is the starting point; I still have to check that it handles test-only datasets and a second prompt. This decides which OOD sets the model knows well enough to be usable.
+- **B3, belief steering.** Steer with the in-context mass-mean truth direction at the statement tokens, layers 13–17 (`steering_sf/steer_sf.py`). Outcomes: the verdict digit, the digit under the second prompt, a direct recall question (`~/spd_out/26-10-16_component_steering/recall_test.py`), and the greedy continuation. Then widen the edit (more layers, then the answer positions too) to see where the true fact stops coming back.
+- A5 (scripts into the repo, each checked by reproducing one stored result) fits into the same rental if Julian wants it then.
+
+Rough cost [assumed: from earlier run times]: 2–3 GPU hours, a 48 GB card is enough (the steering run used 20.5 GB).
+
+**Questions for Julian**
+1. Shall I prepare the B scripts now, and do you rent the GPU when they are ready (or shall I, with `spd-vast --mode provision`)?
+2. Second prompt: "Is this statement true (1) or false (0)? Answer: " (same line)?
+3. Usable OOD set: proposal = the original model's verdict accuracy ≥ 0.8 and AUC ≥ 0.9 under the verdict prompt. Sets below that are reported but not used for transfer claims, since the decomposition can't recover a judgement the model doesn't make [assumed: thresholds are a guess].
+4. Recall question in B3: the existing test covers cities only ("In which country is the city of X?"). Extend it to inventors ("In which country did X live?") and elements ("What is the chemical symbol of X?")?
+5. A5: during this rental or after the analysis freeze (D3)?
+
+---
+
+26-10-26, Claude Opus 5.5 — *phase B started on the rented GPU*; same session. Julian in chat, answering question 1 of the entry above:
+
+C: (transcribed from chat) do it on the remote. It's cheap enough. The GPU is rented.
+
+So the scripts are developed and smoke-tested directly on the instance [decided: transcribed above]. Questions 2–5 are unanswered. I proceed with the proposals as working assumptions [assumed]: B2 screens the second-prompt candidate alongside the verdict prompt; the OOD threshold is applied only after the numbers are in; recall questions for inventors and elements are added if cheap; A5 is not done in this rental unless Julian says so.
+
+**The rented host is in China, and how the model got onto it** (26-10-26; host vast.ai, RTX 4090 48 GB, 450 W, IP geolocation Hangzhou, China Mobile):
+- huggingface.co is blocked there. DNS returns a poisoned address (108.160.163.106) and connections time out. raw.githubusercontent.com is blocked too. PyPI, GitHub, WandB (api.wandb.ai, wandb.ai), ModelScope and hf-mirror.com are reachable [verified: curl from the instance].
+- Workarounds used, all visible and reversible:
+  1. Qwen/Qwen2.5-7B-Instruct downloaded through the third-party mirror hf-mirror.com (`HF_ENDPOINT` set only for that download), pinned to revision `a09a354` (= the local cache's `refs/main`). Every file the code uses was checked against the official copy in the local Hugging Face cache: 11 of 11 sha256 equal (4 safetensors shards, config, generation config, tokenizer files, index) [verified: `sha256sum -c` against `~/spd_out/26-10-22_tpd_truth_paper/qwen_local_sha256.txt`]. LICENSE and README were not checked; the code doesn't read them. No remote code is executed (no `trust_remote_code`).
+  2. `refs/main` written by hand into the instance's cache (content `a09a354…`, as locally), because a pinned download doesn't write it and offline loading needs it.
+  3. The phase-B scripts run with `HF_HUB_OFFLINE=1` and load the model from the snapshot directory (`--model_path`). With a repo id, transformers queries the Hub API even offline (the crash `docs/CODING.md` warns about).
+- One attempt to run a script with `HF_ENDPOINT=https://hf-mirror.com` (API metadata through the mirror) was refused by Claude Code's auto-mode permission check. I did not retry it and switched to step 3.
+- Consequence for phase C: the spd training code loads the model by repo id and calls the Hub API, so it can't run on this host without further workarounds. Julian asked in chat whether to rent a non-Chinese machine instead.
+
+C: (transcribed from chat) Can we just rent a non-chinese vm?
+
+C: (transcribed from chat) Did you do any dirty tricks to make it work?
+
+**B1 smoke** [verified: 40 test statements, 3 per dataset of train for the means, 26-10-26]: runs end to end; the no-op condition reproduces the original exactly (max |score diff| 0.0000). Full B1 launched on this host (results don't depend on the machine), output `~/paper/b1_full/` on the instance.
+
+---
+
+26-10-26, Claude Opus 5.5 — *B1 and B2 results*; same session. Julian in chat: "Ok, that is fine. Tell me when the results are in" (go-ahead to finish phase B on the Chinese host). Scripts `~/spd_out/26-10-22_tpd_truth_paper/phase_b/` (`common.py` loader, `b1_attn_scan.py`, `b2_ood_verdicts.py`, `b3_belief_steering.py`; `steer_sf.py`, `r4_framing_screen.py`, `r5_statement_first_screen.py` are unchanged copies from `~/spd_out/26-10-10_bolder_experiments/steering_sf/`). Outputs copied to `~/spd_out/26-10-22_tpd_truth_paper/{b1_full,b2_full}/`.
+
+## B1: attention outputs vs MLP outputs at the statement tokens
+
+[verified: one run, 1,794 tiu test statements, means from the 6,560 v1 train statements, 728 s on the 4090. The no-op condition reproduces the original exactly. The MLP block 11–17 (mean) reproduces the 26-10-16 MLP scan: accuracy 0.538 vs 0.541, separation share 0.046 vs 0.05, digit mass 0.977 vs 0.977, KL 0.680 vs 0.68.] Original: accuracy 0.977, AUC 0.996, separation 8.66. *Separation share* = mean verdict score of true minus false statements, relative to the original (1 = untouched, 0 = no judgement left).
+
+Mean ablation at all statement tokens:
+
+| block | MLP: separation share / accuracy / KL | attention: separation share / accuracy / KL |
+|---|---|---|
+| 6–10 | 0.18 / 0.707 / 0.44 | 0.63 / 0.853 / 0.23 |
+| 11–14 | 0.38 / 0.881 / 0.23 | 0.44 / 0.742 / 0.63 |
+| **11–17** | **0.05 / 0.538 / 0.68** | **0.21 / 0.655 / 0.66** |
+| 15–19 | 0.33 / 0.663 / 0.49 | 0.75 / 0.949 / 0.04 |
+| 20–27 | 0.20 / 0.785 / 4.43 (digit mass 0.02: broken, not judged) | 1.00 / 0.977 / 0.00 |
+| MLP + attention 11–17 | 0.02 / 0.518 / 0.66 | |
+
+Single attention layers keep ≥ 0.80 of the separation, except layer 0 (0.00: removing the first layer's attention at the statement tokens destroys the input).
+
+Reading [concluded unless tagged]:
+- **In 11–14, attention matters as much as the MLPs.** Separation share 0.44 vs 0.38, and attention costs more KL (0.63 vs 0.23). In 15–19 the MLPs matter more (0.33 vs 0.75). Over the decomposed block 11–17 the MLPs carry more of the separation (0.05 left vs 0.21), but the KL cost is about the same (0.68 vs 0.66).
+- So `down_proj` alone misses a part of the verdict computation of the same order as the part it covers, at least in 11–14. The choice is no longer just "unjustified"; it is a measured limitation.
+- Caveat [assumed]: switching off attention at the statement tokens also cuts the information flow between the statement's words (e.g. subject to object), so it removes more than one "write". The two rows are not strictly the same kind of intervention.
+- Side observation: mean ablation of MLP 3, 4, 26 and 20–27 breaks the output (digit mass down to 0.02–0.73). These are the mean-ablation artifacts at massive-activation layers already seen in the MLP scan.
+- **For decision D1** [assumed: proposal]: add `o_proj` of layers 11–17 to the decomposed modules. It is about 19% the size of a `down_proj` per layer, so the memory cost is small. The alternative is to keep `down_proj` only and state the limitation with these numbers.
+
+## B2: the original model on the OOD sets and second-prompt candidates
+
+[verified: one run, all 11,122 v3 test statements (1,794 in-distribution, 9,328 OOD), 274 s. Under the verdict prompt the in-distribution accuracy is 0.979, matching the 0.978 recorded for the same test split.] Per-file tables: `~/spd_out/26-10-22_tpd_truth_paper/b2_full/b2_full.log`, `b2.json`.
+
+**Usable OOD sets.** With the proposed threshold (verdict prompt: accuracy ≥ 0.8 and AUC ≥ 0.9), 13 of the 28 OOD files pass: animal_class_conj, cities_conj, element_symb_conj, sp_en_trans_conj; animal_class_de, cities_de, element_symb_de, sp_en_trans_de, inventors_de, neg_cities_de, neg_inventors_de; facts, inventors.
+- Fail: **every disjunction** (accuracy 0.506–0.814; the model calls most false disjunctions true), facts_conj (0.786), inventors_conj (0.761), neg_facts (0.715), neg_inventors (0.741), facts_de (0.800, AUC 0.897), and four negated German files (neg_animal_class_de 0.660, neg_element_symb_de 0.460, neg_facts_de 0.469, neg_sp_en_trans_de 0.600).
+- Three files fail only on accuracy, not AUC: neg_inventors (AUC 0.921), neg_animal_class_de (0.941), element_symb_disj (0.963). Their score order is right, but the threshold is shifted (neg_inventors: only 0.590 of the false statements answered "0").
+- **Consequence**: the OOD tests of negation, the property the decompositions' individually important components detect, are mostly unusable. Only neg_cities_de and neg_inventors_de pass, plus neg_inventors with AUC alone. That weakens the planned "transfer of the negation detectors" test [concluded].
+- Proposal [assumed]: use AUC ≥ 0.9 as the criterion. The decompositions are judged by separation (KL, separation share), not by the threshold at 0. That gives 16 files, including neg_inventors (406 statements).
+
+**Second prompt** (in-distribution pooled accuracy / family macro; OOD macro; verdict agreement with the verdict prompt, in-distribution / OOD; score correlation in-distribution):
+
+| prompt | in-dist | OOD macro | agreement | correlation | worst in-dist family |
+|---|---|---|---|---|---|
+| amount\|nl (verdict prompt) | 0.979 / 0.968 | 0.777 | – | – | element_symb 0.875 |
+| is_true\|sp "Is this statement true (1) or false (0)? Answer: " | 0.983 / 0.953 | 0.807 | 0.971 / 0.731 | 0.905 | neg_element_symb 0.571 (true ones 0.143) |
+| scale\|nl "On a scale from 0 (false) to 1 (true), the truth of this statement is " | 0.976 / 0.943 | 0.846 | 0.970 / 0.858 | 0.948 | neg_element_symb 0.518 (false ones 0.036) |
+
+C: what does correlation mean?
+Answer (26-10-26, Claude Opus 5.5): Pearson correlation, over the 1,794 in-distribution test statements, between the verdict score s = log P('1') − log P('0') under the verdict prompt and s under the candidate prompt [verified: `np.corrcoef` in the B2 check]. 1 would mean the two prompts give the same scores up to scale and shift. A lower value means the candidate orders the statements' confidence more differently, even where both prompts give the same digit (in-distribution agreement 0.97 for both candidates). So 0.905 vs 0.948: is_true|sp is the somewhat more different readout.
+
+Reading [concluded unless tagged]: both candidates are as accurate as the verdict prompt in-distribution and give a clean digit (mass 0.999–1.000 vs 0.984). scale\|nl is more accurate OOD, but closer to the verdict prompt (same "the truth … is" form on a new line; correlation 0.948, OOD agreement 0.858). is_true\|sp is a question with an answer slot, on the same line; its scores are less correlated with the verdict prompt (0.905, OOD agreement 0.731). For a transfer test the more different readout is the stronger test, so I recommend **is_true\|sp** [assumed: Julian decides]. Both fail neg_element_symb in opposite directions, so per-family results on it need care.
+
+B3 (belief steering) is running; results in the next entry.
+
+---
+
+26-10-26, Claude Opus 5.5 — *B3 results: activation steering changes the verdict, not the belief*; same session. Script `~/spd_out/26-10-22_tpd_truth_paper/phase_b/b3_belief_steering.py`. Outputs `~/spd_out/26-10-22_tpd_truth_paper/b3_v2/` (final) and `b3_full/` (first run, whose recall measure was broken, see below).
+
+**Setup** [verified: one run, 26-10-26].
+- Steering direction: the in-context mass-mean direction of the verdict prompt for the group "all statement tokens", computed from the 6,560 tiu v1 train statements.
+- Step: α × the class gap Δ along the direction. Δ at the statement tokens is 1.13 (L11) to 3.85 (L17), in the range of the 26-10-15 run.
+- Each statement is pushed towards the opposite label. Only the statement's tokens are edited; question, answer and generated tokens run unsteered.
+- Conditions: L17 α = 4 and 8; L13–17 each at α = 4 (wider edit); a shuffled-label direction at L17, moved by the same distance (control); the answer position (final space) at L18, α = 4, for the verdict prompt only ("verdict without belief" reference).
+- Readouts: (a) the verdict prompt; (b) the second prompt "Is this statement true (1) or false (0)? Answer: " (1,794 test statements); (c) an in-context recall question after the statement, 30 greedy tokens: 166 true + 166 false city statements ("In which country is the city of X?") and 28 + 28 element statements ("What is the chemical symbol of X?"); (d) 30-token continuations of the verdict prompt for 8 city statements.
+- Rerun check: the verdict numbers of the rerun are identical to the first run's.
+
+**(a, b) Verdict flips** (flipped and digit mass ≥ 0.5, among statements the unsteered model gets right):
+
+| condition | verdict prompt (n = 1,752) | second prompt (n = 1,764) |
+|---|---|---|
+| statement tokens, L17, α = 4 | 0.863 | 0.770 |
+| statement tokens, L17, α = 8 | **0.975** | **0.994** |
+| statement tokens, L13–17, α = 4 each | 0.972 | 0.977 |
+| shuffled-label control, L17, α = 8 | 0.076 | 0.026 |
+| answer position, L18, α = 4 | 0.985 | (not defined) |
+
+This is a reproduction check of the 26-10-15 run, on the whole test split instead of 200 statements: 0.863 / 0.975 / 0.985 there vs 0.78 / 0.92 / 0.99.
+
+**(c) In-context recall**: share of answers that name the correct country / symbol.
+
+| condition | cities, true statement | cities, false statement | elements, true | elements, false |
+|---|---|---|---|---|
+| question alone (no statement) | 0.940 | 0.940 | 0.857 | 0.857 |
+| statement, unsteered | 1.000 | 0.952 | 1.000 | 1.000 |
+| L17, α = 4 | 1.000 | 0.958 | 1.000 | 1.000 |
+| L17, α = 8 | 0.988 | 0.976 | 1.000 | 1.000 |
+| L13–17, α = 4 | 1.000 | 0.964 | 1.000 | 0.964 |
+| shuffled control | 1.000 | 0.976 | 1.000 | 1.000 |
+
+- First run's measure (12 tokens; "the claimed answer appears") was broken. It counted denials ("Lu'an is not in Turkey. It is…") as adopting the claim, and 12 tokens often ended before the correct country. Its recall table is not used.
+- I also dropped a negation-aware "claim affirmed" measure. Checked by eye, it mislabels corrections where the denial follows the claim (`"…is in Brazil" is incorrect`, `"Po" is the symbol for …`). All element "affirmed" cases were corrections. A few genuine adoptions exist for cities with and without steering, e.g. "The city of New Kingston is located in South Africa" (unsteered and steered alike).
+
+**(d) Continuations** (8 city statements, anecdotal). After statement steering the model outputs the flipped digit and then restates the true fact:
+- "0.\n\nThe city of Lu'an does not exist in China. Lu'an is actually a city located in Anhui province, China".
+- For false ones: "100%.\n\nMarrakesh is a real city, and it is located in Morocco".
+
+Answer-position steering does the same ("0%. … Jiaxing is indeed in China, so the statement is true").
+
+Reading [concluded unless tagged; one run]:
+- **Steering the statement tokens changes the verdict under both prompts.** The shuffled-label control does almost nothing (≤ 0.08). So the direction changes something that both verdict readouts take from the statement: an assessment of the statement, not the wording of one prompt. Unlike answer-position steering, this transfers.
+- **It does not change what the model knows.** When asked about the city or element right after the steered statement, the model names the correct answer as often as without steering (0.95–1.00 in every condition, the wider L13–17 edit included). In its own continuations it contradicts the steered verdict.
+- So the mass-mean truth direction at the statement tokens behaves like a **truth tag on the statement**: verdict prompts read it; fact retrieval ignores it. This matches the component-mask result of the steering topic (verdict inverted, recall intact). The verdict lens therefore targets that tag, not the belief. For the paper: "decomposes the computation of the verdict (the truth assessment of the statement), not the model's knowledge".
+- Corrects my earlier hint that steering in the statement window makes the explanation follow the steered digit (marked OUTDATED in *first pass*). The earlier observation came from a few examples of the 26-10-15 run; for steering at all statement tokens of L17 it doesn't hold.
+- Not done: the planned "widen the edit to the answer positions". Recall survives the widest statement edit (L13–17) because the recall question names the subject again and the model retrieves the fact from it. Editing the question positions would steer the question, not the statement. A sharper belief test would need a readout that has to use the statement's content but isn't a verdict; I have no clean candidate [assumed]. I propose to stop B3 here.
+
+---
+
+26-10-26, Claude Opus 5.5 — *D1 answers; next step: phase C configs*; same session. Julian in chat:
+
+C: (transcribed from chat) I added one comment about the correlation.
+1. I don't quite understand why to add o_proj. When ablating layer 11-17 mlp seems to be able to destroy the verdict entiely.
+2. I think Accuracy is only important on the traning data. For eval we wanted to consider the model verdict. I would keep many classes, except the ones where the model is really bad
+3. Yes
+4. Don't know. What is the next step?
+
+(The correlation comment is answered in place, under the B2 table.)
+
+**1. `o_proj`: you're right, I withdraw the proposal** [concluded].
+- MLP 11–17 off leaves 0.05 of the separation. So every route the verdict takes from the statement tokens passes through those MLPs, and decomposing them gives a handle on all of it. 4e's components alone already recover 0.91 of the verdict KL, with attention on original weights.
+- What B1 shows is that attention 11–14 is *also* necessary (0.44 left, vs 0.38 for the MLPs). The two are in series: attention moves information between the statement's words, the MLPs transform it, and removing either breaks the chain.
+- So the decomposition can show the MLP part of the computation but not the attention part (which word's information reaches which position). That is a limitation for the word "mechanism", like the gate/up limitation. It is no reason to expect a better-targeted decomposition with `o_proj`.
+- For the paper: keep `down_proj`; state the limitation with the B1 numbers. Module set = `down_proj` 11–17 [decided: transcribed above, point 1, with this reading].
+
+**2. OOD criterion** [decided: point 2]: the evaluation target is the model's own verdict, not the ground truth, so model accuracy matters only for the training families. OOD sets stay in unless the model is really bad on them.
+- My proposal for "really bad" [assumed]: AUC < 0.7 under the verdict prompt, i.e. the model's scores barely order true above false. That excludes four files (B2, verdict prompt AUC): neg_element_symb_de 0.570, neg_facts_de 0.607, neg_sp_en_trans_de 0.666, inventors_disj 0.685. The other 24 stay.
+- Analyses that use the ground-truth label (truth vs verdict) need sets where the model is mostly right. For those the 13 sets above the stricter bar are the natural subset.
+
+**3. Second prompt** [decided: point 3]: "Is this statement true (1) or false (0)? Answer: " on the same line.
+
+**4. A5 timing** [assumed: my recommendation]: after the analysis freeze (D3). The ablation, mask-search and attribution scripts are phase-D analyses. Tuning (phase C) needs only `verdict_lens_analysis.py`, which is already in the repo. Moving the scripts once, in their final form, with a reproduction check each, is cheaper than moving them now and again after the freeze.
+
+## Next step: phase C (sequential tuning)
+
+Settled inputs: `down_proj` 11–17, C = 96 per layer; all statement tokens; tiu v3 train (1,962 statements), evaluation on val; PGD on; CI-weighted metrics; seed 0 for tuning; one method after the other.
+
+Proposed protocol [assumed: proposal]:
+- **Three configs that differ only in the method term**, written from the current 4e config (`config_truth_sf_verdict_ortho_global_alltok.yaml`): plain tPD (no extra term), + per-layer reconstruction (`CIHiddenActsReconLoss` in the loss, coefficient 1 as in 4b/4c), + global orthogonality (coefficient 1 as in 4e). A diff of the three configs must show only that term.
+- **Same budget per method**: 3,000 steps per run. LR {5e-4, 2e-3, 5e-3}, then importance-minimality coefficient {3e-4, 3e-3} at the best LR (1e-3 is the default in the LR runs). That's 5 runs per method, 15 in total.
+  - The method coefficients (reconstruction, orthogonality) stay at 1: tuning them would give those two methods more runs than plain tPD.
+  - Limitation to state: the method coefficients were not tuned.
+- **Tuning objective within a method** (as in 4e): share of the all-off verdict KL recovered by the CI-weighted components alone, on val.
+  - Logged alongside for the later between-method choice (A3, delayed): Δ only, Pile KL, PGD loss.
+  - Missing: transfer to the second prompt. `verdict_lens_analysis.py` doesn't have it yet; I'd add it before C so that every tuning run gets it.
+- **PGD detail to know**: all current configs start the persistent PGD term at 80% of training (`start_frac: 0.8`). With 3,000 steps it acts in the last 600. I'd keep that, since it is what 4a–4c used.
+- **First on the new host**: one 300-step trial per config, to measure step time with PGD on, then the 15 runs one at a time. Rough cost [assumed: from 4c's 58 min per 5,000 steps on an H100]: 35–45 min per run on an H100, about 10 h in all.
+- Host: outside China. `spd-vast` has no country filter yet. I'd add a geolocation exclusion (after checking that vast's query syntax supports it) or Julian picks the offer by hand with `--offer_id`.
+
+**Questions for Julian**
+1. Budget: 5 runs per method as above, method coefficients fixed at 1?
+2. Shall I write the three configs and the second-prompt readout in `verdict_lens_analysis.py` now (CPU, with tests), and the `spd-vast` geolocation filter?
+3. OOD "really bad" bar: AUC < 0.7 (four files out)?
+
+---
+
+26-10-26, Claude Opus 5.5 — *tuning budget revised; phase C preparation*; same session. Julian in chat:
+
+C: (transcribed from chat) C: you mean you keep PGD for the final runs not for finetuning, right?
+
+1. No, the method coefficients fixed at 1 is not right. Becaues 10h H100 is quite expensive I suggest:finetune tPD as you suggested. Then finetune extra parameter for the other two approaches. That can be mentioned as a limitation due to cost.
+2. Yes
+3. Yes
+
+**PGD question**: no, I meant PGD on in tuning as well. That was your decision of 26-10-22 ("tuning with PGD on", C: comment under *Questions on the plan*, question 1). The "80%" is within each run: every current config starts the persistent PGD term at 80% of the training steps (`start_frac: 0.8`), so in a 3,000-step tuning run it acts in the last 600 steps, and in a 5,000-step final run in the last 1,000. I keep that unless you say otherwise. Turning PGD off in tuning would make the runs cheaper, but they would then tune a different objective from the finals (my argument of 26-10-22).
+
+**Revised tuning plan** [decided: point 1 above; the coefficient values are my proposal, assumed]:
+- Plain tPD: LR {5e-4, 2e-3, 5e-3}, then importance-minimality coefficient {3e-4, 3e-3} at the best LR (1e-3 in the LR runs): 5 runs.
+- + reconstruction and + orthogonality: take plain tPD's LR and importance-minimality; tune only the method coefficient, {0.1, 1, 10} each: 3 runs per method. Total 11 runs instead of 15.
+- Limitation to state: LR and importance-minimality were tuned only for plain tPD, for cost. A concrete risk: in the 4e screening the orthogonality method needed LR 2e-3, and at 5e-4 it recovered only 0.37 of the verdict KL. So an LR inherited from plain tPD can handicap a method. If plain tPD's best LR is far from 2e-3, one extra LR run for the orthogonality method would test that [assumed: proposal].
+- OOD bar [decided: point 3]: sets with verdict-prompt AUC < 0.7 are excluded (neg_element_symb_de, neg_facts_de, neg_sp_en_trans_de, inventors_disj); 24 OOD files stay.
+- Go for the preparation [decided: point 2]: three configs, the second-prompt readout in `verdict_lens_analysis.py`, a country exclusion in `spd-vast`. Implementation notes follow in the next entry.
+
+---
+
+26-10-26, Claude Opus 5.5 — *phase C preparation done: configs, second-prompt readout, country filter*; same session.
+
+**Configs** `spd/experiments/lm/honesty_targeted_decomposition/config_paper_{plain,recon,ortho}.yaml`. They were generated from `config_truth_sf_verdict_ortho_global_alltok.yaml` (the 4e base config) by a script.
+- Against the 4e config: label, `steps: 3_000` (tuning length; finals 5,000) and data v3 instead of v2.
+- Among themselves they differ only in the method term, the label and one header paragraph [verified: `diff` of the three files]. plain = no extra term; recon = `StochasticHiddenActsReconLoss` (coefficient 1, relative; = 4b/4c); ortho = `ComponentOrthogonalityLoss` (coefficient 1, `all_components`; = 4e).
+- Unchanged from the 4e base: LR 5e-4, importance-minimality coefficient 1e-3, PGD from 80% of training, batch 64, C = 96 per layer. The tuning runs override LR, importance-minimality and the method coefficient.
+- All three load as `Config` [verified: `Config.from_file`, loss lists printed]. Not committed.
+
+**Second-prompt readout** in `verdict_lens_analysis.py` (repo): the verdict states (full, components, components_ci, delta_only, all_off) are now also evaluated under "<statement> Is this statement true (1) or false (0)? Answer: ". The run's decomposed positions and CIs are recomputed on that prompt.
+- Output: `summary["second_prompt"]` and `score2_*` / `kl2_*` arrays. Cancellation numbers stay computed on the training prompt only.
+- Tokenization checked on CPU [verified: 3 statements]. Under both prompts the decomposed positions are exactly the statement's tokens (ending in `'.\n'` resp. `'.'`), and the verdict is read at the final space.
+- Not yet run on a GPU. First check on the new host: rerun it on the 4e checkpoint `s-eb1c20d5` (val) and compare its training-prompt numbers with the stored ones (CI-weighted KL recovered 0.910).
+
+**`spd-vast` country filter**: new required field `excluded_countries` in `VastConfig`, set to `[CN]` in all four machine configs.
+- It adds `geolocation notin [...]` to the offer search and checks every offer, `--offer_id` included, by the country code at the end of vast's `geolocation` string ('Jiangsu, CN').
+- Format checked on live listings [verified: read-only `vastai search offers`, 26-10-26]. `spd-vast --list_offers` returns 7 RTX 4090 offers, all in the US.
+
+**Checks**: `make check` passes; the full test suite without testmon: 535 passed, 15 skipped [verified].
+- One failure, deselected, not caused by these changes: `tests/test_rotgrid_decomposition.py::test_the_checked_in_sweep_expands_to_distinct_runs` expects 4 sweep configs, but `rotgrid_sweep_params.yaml` now expands to 8. That file was changed by commit `f4f51ec` ("current rotgrid configs") after the test was written. Julian's call whether the test or the sweep is the intended state.
+
+**Hardware outside China** [verified: read-only offer search, 26-10-26, reliability > 0.97]: no H100 SXM or PCIe offers at all; 1 H100 NVL ($3.03/h, US); 13 RTX PRO 6000 WS (from $1.14/h, California); A100 SXM4 from $0.67/h (40 GB); RTX 4090 48 GB from $0.53/h.
+- The RTX PRO 6000 ran a 4e training at 0.68× the H100's speed (26-10-21).
+- Estimate for the 11 tuning runs on it [assumed: from 4c's 58 min per 5,000 steps on an H100, PGD included]: about 50 min each, 9–10 h, roughly $11–14.
+- Proposal: `spd-vast --config rtxpro6000` (now with the country filter).
+
+The Chinese 4090 is still rented and idle; all phase-B outputs are copied locally.
+
+---
+
+26-10-26, Claude Opus 5.5 — *rotgrid test fixed*; same session. Julian in chat: "can you fix the failing test if it's easy. I'm renting a machine meanwhile".
+
+The sweep file is the intended state: Julian's commit `f4f51ec` set seeds 0–3 × importance-minimality {0.01, 0.005} = 8 runs. So the test was updated, not the sweep. `test_the_checked_in_sweep_expands_to_distinct_runs` now reads its expectations from `rotgrid_sweep_params.yaml` instead of hardcoding the old 4-point grid:
+- the number of configs equals the product of all `values` list lengths;
+- the set of importance-minimality coefficients in the configs equals the swept values;
+- all run names are distinct.
+
+[verified: `tests/test_rotgrid_decomposition.py` 3 passed, 1 skipped; ruff and basedpyright clean.]
