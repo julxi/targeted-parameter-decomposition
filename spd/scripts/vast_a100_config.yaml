@@ -27,6 +27,10 @@ min_reliability: 0.98
 # Only 1 of 12 A100 SXM4 offers was datacenter-labelled on 26-10-06, so the filter is off.
 datacenter_only: false
 
+# Hosts in these countries are never rented. A host in China could not reach huggingface.co
+# (DNS poisoned; 26-10-26, convos/julian/26-10-22_tpd_truth_paper_LOG.md), which the LM code needs.
+excluded_countries: [CN]
+
 # Minimum CUDA version the host supports.
 min_cuda: 12.8
 

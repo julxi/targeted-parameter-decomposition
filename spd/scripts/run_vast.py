@@ -132,6 +132,11 @@ class VastConfig(BaseConfig):
         "RTX 4090) are not, and those hosts often fail to open the direct ssh port or reach PyPI "
         "too slowly for `uv sync`. False searches all hosts, it does not exclude datacenters"
     )
+    excluded_countries: list[str] = Field(
+        description="Two-letter country codes whose hosts are never rented (e.g. ['CN']). On "
+        "26-10-26 a host in China could not reach huggingface.co or raw.githubusercontent.com "
+        "(DNS poisoned), and the LM decomposition code needs the Hugging Face API"
+    )
     min_cuda: float = Field(
         description="Minimum CUDA version the host supports, matched to the torch wheels in uv.lock"
     )
@@ -242,7 +247,7 @@ def main(
     offers = (
         _search_offers(vast_config, blacklisted)
         if offer_id is None
-        else [_find_offer(offer_id, blacklisted)]
+        else [_find_offer(offer_id, blacklisted, vast_config.excluded_countries)]
     )
 
     if dry_run:
@@ -496,6 +501,8 @@ def _search_offers(config: VastConfig, blacklisted: list[int]) -> list[Any]:
     )
     if config.datacenter_only:
         query += " datacenter=true"
+    if config.excluded_countries:
+        query += f" geolocation notin [{','.join(config.excluded_countries)}]"
     if blacklisted:
         query += f" host_id notin [{','.join(map(str, blacklisted))}]"
     logger.info(f"Searching offers: {query}")
@@ -522,10 +529,26 @@ def _search_offers(config: VastConfig, blacklisted: list[int]) -> list[Any]:
     assert not leaked, (
         f"vast.ai ignored the host_id exclusion and returned blacklisted hosts {leaked}"
     )
+    for offer in offers:
+        _assert_allowed_country(offer, config.excluded_countries)
     return offers
 
 
-def _find_offer(offer_id: int, blacklisted: list[int]) -> Any:
+def _assert_allowed_country(offer: Any, excluded: list[str]) -> None:
+    """vast.ai reports `geolocation` as 'Region, CC' (e.g. 'Jiangsu, CN'; checked 26-10-26)."""
+    geo = offer["geolocation"]
+    assert isinstance(geo, str) and ", " in geo, (
+        f"Offer {offer['id']} has geolocation {geo!r}, expected 'Region, CC'; its country "
+        f"cannot be checked against excluded_countries {excluded}"
+    )
+    country = geo.rsplit(", ", 1)[1]
+    assert country not in excluded, (
+        f"Offer {offer['id']} is in {geo}, an excluded country ({excluded}). Remove the country "
+        f"from excluded_countries in the machine config to rent it anyway."
+    )
+
+
+def _find_offer(offer_id: int, blacklisted: list[int], excluded_countries: list[str]) -> Any:
     """Look up one offer, for --offer_id, so its host is known and checked like a searched one.
 
     vast.ai's query language has no documented field for the offer id: `id=` matches nothing, and
@@ -542,6 +565,7 @@ def _find_offer(offer_id: int, blacklisted: list[int]) -> Any:
         f"Offer {offer_id} is on blacklisted host {offer['host_id']}. Remove the host from "
         f"{BLACKLIST_PATH.relative_to(REPO_ROOT)} to rent it anyway."
     )
+    _assert_allowed_country(offer, excluded_countries)
     return offer
 
 

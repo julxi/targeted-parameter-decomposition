@@ -35,6 +35,10 @@ min_reliability: 0.98
 # Few datacenter-labelled offers (3 of 19 at reliability > 0.98 on 26-10-21), so the filter is off.
 datacenter_only: false
 
+# Hosts in these countries are never rented. A host in China could not reach huggingface.co
+# (DNS poisoned; 26-10-26, convos/julian/26-10-22_tpd_truth_paper_LOG.md), which the LM code needs.
+excluded_countries: [CN]
+
 # Minimum CUDA version the host supports.
 min_cuda: 12.8
 
