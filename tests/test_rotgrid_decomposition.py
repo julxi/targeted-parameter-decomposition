@@ -1,6 +1,9 @@
+import math
 from pathlib import Path
+from typing import Any
 
 import pytest
+import yaml
 
 from spd.configs import (
     CI_L0Config,
@@ -142,22 +145,43 @@ def test_an_explicit_run_name_is_left_alone():
 
 
 def test_the_checked_in_sweep_expands_to_distinct_runs():
-    """Every grid point must reach the decomposition as a valid Config with its own name."""
+    """Every grid point must reach the decomposition as a valid Config with its own name.
+
+    Expectations are read from the sweep file rather than hardcoded, because the grid is edited
+    for each round of runs (a hardcoded 4-point grid broke when it became 8 points)."""
+    sweep_path = Path("spd/experiments/rotgrid/rotgrid_sweep_params.yaml")
+    sweep = yaml.safe_load(sweep_path.read_text())
     sweep_configs = build_sweep_configs(
         config_path="spd/experiments/rotgrid/rotgrid_config.yaml",
-        sweep_path="spd/experiments/rotgrid/rotgrid_sweep_params.yaml",
+        sweep_path=str(sweep_path),
     )
-    assert len(sweep_configs) == 4
 
-    coeffs = []
+    def value_lists(node: Any) -> list[list[Any]]:
+        if isinstance(node, dict):
+            if "values" in node:
+                return [node["values"]]
+            return [vs for child in node.values() for vs in value_lists(child)]
+        if isinstance(node, list):
+            return [vs for child in node for vs in value_lists(child)]
+        return []
+
+    assert len(sweep_configs) == math.prod(len(vs) for vs in value_lists(sweep))
+
+    (impmin_sweep,) = [
+        entry
+        for entry in sweep["loss_metric_configs"]
+        if entry["classname"] == "ImportanceMinimalityLoss"
+    ]
+    # the swept coefficient must land in the right entry of the discriminated loss list
+    coeffs = set()
     for config, _ in sweep_configs:
-        impmin = [
+        (impmin,) = [
             loss_config
             for loss_config in config.loss_metric_configs
             if isinstance(loss_config, ImportanceMinimalityLossConfig)
         ]
-        coeffs.append(impmin[0].coeff)
-    assert coeffs == [0.03, 0.01, 0.003, 0.001]
+        coeffs.add(impmin.coeff)
+    assert coeffs == set(impmin_sweep["coeff"]["values"])
 
     names = {build_run_name(config, n_layers=3) for config, _ in sweep_configs}
     assert len(names) == len(sweep_configs)
