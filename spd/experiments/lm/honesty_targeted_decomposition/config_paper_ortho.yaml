@@ -1,0 +1,214 @@
+# Qwen2.5-7B-Instruct — paper "Trying to decompose a truth mechanism with tPD", method comparison
+# under one protocol (topic convos/julian/26-10-22_tpd_truth_paper_LOG.md, entries *plan of steps*
+# and *tuning budget revised*). config_paper_{plain,recon,ortho}.yaml differ ONLY in the method term
+# below, the label and this paragraph; keep them that way (diff them after any edit).
+#
+# Prompt: "<statement>\nThe amount of truth in this statement is ", tokenized as one string, so the
+# statement ends with the merged token '.\n'. The model answers '1' (true) or '0' (false). Target
+# loss: KL between the masked and the original next-token distribution after the final space (the
+# verdict digit). Decomposed: down_proj of layers 11-17 at every statement token, the first
+# included; the question tokens run on the original weights. Why these choices: mean-ablating MLPs
+# 11-17 at all statement tokens leaves 0.05 of the verdict separation, at the end token alone 0.82
+# (causal layer scan, convos/julian/26-10-10_bolder_experiments_LOG.md). Attention outputs of 11-14
+# are also necessary (0.44 left; B1 scan in the paper topic) but are not decomposed: every verdict
+# route already passes through the MLPs (Julian, 26-10-26), so the attention part is a stated
+# limitation. The KL is counted once per decomposed position, so long statements weigh more.
+#
+# Data: tiu v3 = v2's val and test splits, train capped at 130 statements per dataset so no family
+# dominates (1,962 train statements). Training evals run on val; test only for the final runs.
+# PGD: the persistent PGD term starts at 80% of training (start_frac 0.8), in tuning and final runs.
+#
+# Method: + global orthogonality (ComponentOrthogonalityLoss, state all_components): per module and
+# position, C = the sum of all components' writes and delta's write y - C must be orthogonal,
+# <C, delta x> = 0, so |C| <= |y|: no cancellation between components and delta. Exp 4e.
+# Coefficient tuned in phase C (0.1, 1, 10) with plain tPD's LR and importance-minimality coefficient.
+
+# --- WandB ---
+wandb_project: spd
+wandb_run_name: null
+wandb_run_name_prefix: ""
+sync_checkpoints_to_wandb: false  # tuning runs; true only for the final configurations
+label: "paper_ortho_L11_17"
+
+# --- General ---
+seed: 0
+n_mask_samples: 1
+ci_config:
+  mode: global
+  fn_type: global_shared_mlp
+  hidden_dims: [512]
+sampling: continuous
+sigmoid_type: leaky_hard
+module_info:
+  - module_pattern: model.layers.11.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.12.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.13.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.14.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.15.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.16.mlp.down_proj
+    C: 96
+  - module_pattern: model.layers.17.mlp.down_proj
+    C: 96
+identity_module_info: null
+use_delta_component: true
+
+# --- Loss config ---
+loss_metric_configs:
+  - classname: ImportanceMinimalityLoss
+    coeff: 1.0e-3
+    pnorm: 2.0
+    beta: 0.2
+    p_anneal_start_frac: 0.0
+    p_anneal_final_p: 1.0
+    p_anneal_end_frac: 1.0
+    eps: 1.0e-12
+    coeff_warmup_frac: 0.2
+    coeff_peak_multiplier: 4.0
+    coeff_anneal_start_frac: 0.2
+    coeff_anneal_end_frac: 1.0
+  - classname: StochasticReconSubsetLoss
+    coeff: 1
+    routing:
+      type: uniform_k_subset
+  - classname: ComponentOrthogonalityLoss
+    coeff: 1
+    state: all_components
+  - classname: PersistentPGDReconLoss
+    coeff: 0.5
+    optimizer:
+      type: adam
+      beta1: 0.5
+      beta2: 0.99
+      eps: 1.0e-08
+      lr_schedule:
+        start_val: 0.01
+        warmup_pct: 0.025
+        final_val_frac: 0.1
+        fn_type: cosine
+    scope:
+      type: per_batch_per_position
+    use_sigmoid_parameterization: false
+    n_warmup_steps: 2
+    start_frac: 0.8
+output_loss_type: kl  # nontarget (Pile) loss
+target_lens:
+  type: stimulus
+  stimulus: "\nThe amount of truth in this statement is "
+  decompose_stimulus: false
+  tokenize_jointly: true  # '.' + '\n' -> '.\n' as the model reads the text
+
+# --- Training ---
+lr_schedule:
+  start_val: 5e-4
+  warmup_pct: 0.0
+  final_val_frac: 0.1
+  fn_type: cosine
+steps: 3_000  # tuning length; the final runs use 5_000 (paper plan, phase D)
+batch_size: 64
+eval_batch_size: 16
+grad_clip_norm_components: 0.01
+grad_clip_norm_ci_fns: null
+component_weight_decay: 0.1
+autocast_bf16: true
+
+# --- Faithfulness Warmup ---
+faithfulness_warmup_steps: 0
+
+# --- Logging & Saving ---
+train_log_freq: 100
+eval_freq: 500
+slow_eval_freq: 2500
+# 16 x eval_batch_size = 256 held-out statements per eval; 32 statements were too noisy to
+# compare runs.
+n_eval_steps: 16
+slow_eval_on_first_step: true
+# Final checkpoint only (238 MB each): the WandB account has 5 GB, and intermediate checkpoints
+# have no planned use.
+save_freq: null
+ci_alive_threshold: 0.01
+
+# --- Eval Metrics ---
+eval_metric_configs:
+  - classname: CI_L0
+    groups:
+      total:
+        - "*"
+  - classname: PGDReconLoss
+    init: random
+    step_size: 0.1
+    n_steps: 20
+    mask_scope: shared_across_batch
+  - classname: TargetReconLoss
+    rounding_threshold: 0.01
+  - classname: NontargetReconLoss
+    rounding_threshold: 0.01
+    n_nontarget_batches: 10
+  - classname: TargetedCIHeatmap
+    n_nontarget_examples: 16
+  - classname: WeightMagnitude
+  - classname: UnmaskedReconLoss
+  - classname: CIMeanPerComponent
+  - classname: CIHiddenActsReconLoss
+
+# --- Pretrained model info ---
+pretrained_model_class: transformers.AutoModelForCausalLM
+pretrained_model_path: null
+pretrained_model_name: Qwen/Qwen2.5-7B-Instruct
+# bf16 = the checkpoint's own dtype; matmuls run in bf16 under autocast anyway. Runs before 26-10-03
+# loaded fp32 (only the residual stream between matmuls differs).
+pretrained_model_dtype: bfloat16
+pretrained_model_output_attr: logits
+tokenizer_name: Qwen/Qwen2.5-7B-Instruct
+
+# --- Task Specific (target data) ---
+task_config:
+  task_name: lm
+  max_seq_len: 30  # longest statement 20 Qwen tokens (neg_cities) + 9 tokens after '.\n'
+  prepared_datasets:
+    - data/tiu/animal_class_false/v3
+    - data/tiu/animal_class_true/v3
+    - data/tiu/cities_false/v3
+    - data/tiu/cities_true/v3
+    - data/tiu/element_symb_false/v3
+    - data/tiu/element_symb_true/v3
+    - data/tiu/larger_than_false/v3
+    - data/tiu/larger_than_true/v3
+    - data/tiu/neg_animal_class_false/v3
+    - data/tiu/neg_animal_class_true/v3
+    - data/tiu/neg_cities_false/v3
+    - data/tiu/neg_cities_true/v3
+    - data/tiu/neg_element_symb_false/v3
+    - data/tiu/neg_element_symb_true/v3
+    - data/tiu/neg_sp_en_trans_false/v3
+    - data/tiu/neg_sp_en_trans_true/v3
+    - data/tiu/smaller_than_false/v3
+    - data/tiu/smaller_than_true/v3
+    - data/tiu/sp_en_trans_false/v3
+    - data/tiu/sp_en_trans_true/v3
+  eval_data_split: val  # tuning: the test split stays untouched (see header)
+  loss_positions:  # every statement token, the first included (see header)
+    type: tokens
+    start: 0
+
+# --- Targeted Decomposition (nontarget data: general text) ---
+nontarget_task_config:
+  task_name: lm
+  dataset_name: monology/pile-uncopyrighted
+  max_seq_len: 64
+  column_name: text
+  is_tokenized: false
+  streaming: true
+  train_data_split: train
+  eval_data_split: validation
+  eval_data_files: val.jsonl.zst
+  dataset_seed: 0
+  loss_positions:
+    type: all
+nontarget_batch_size: 16
+nontarget_eval_batch_size: 16  # x n_nontarget_batches 10 x 64 tokens = 10,240 Pile tokens
+nontarget_impmin_coeff_ratio: 2

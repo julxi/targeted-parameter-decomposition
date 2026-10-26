@@ -15,6 +15,12 @@ Per state: verdict score s = log P('1') - log P('0') after the final space; accu
 separation share (mean s true minus false, relative to the original), digit mass,
 KL(original || state) over the vocabulary, and kl_recovered = 1 - KL / KL(all_off).
 
+The same verdict states are also evaluated under a second verdict prompt, SECOND_STIMULUS
+("<statement> Is this statement true (1) or false (0)? Answer: "), with the run's decomposed
+positions and CIs recomputed on that prompt: does what the components carry transfer to a readout
+they were not trained on? (Paper topic, convos/julian/26-10-22_tpd_truth_paper_LOG.md: chosen from
+the B2 screen as the readout least correlated with the training prompt.)
+
 Cancellation test per decomposed module, at the decomposed positions, with x the module's input on
 the original model: y = W x = A + I + D, A = active components (rounded CI), I = inactive
 components, D = delta x, C = A + I = all components (so y - C = D). Reported relative to |y|:
@@ -58,6 +64,8 @@ from spd.utils.general_utils import POSITION_MASK_KEY, STIMULUS_END_KEY, bf16_au
 
 # Same rule as the eval metric TargetReconLoss (rounding_threshold 0.01 in the Exp 4 configs)
 ROUNDING_THRESHOLD = 0.01
+# Same line as the statement: the statement's end token is '.' here, '.\n' in the training prompt
+SECOND_STIMULUS = " Is this statement true (1) or false (0)? Answer: "
 STATES = ["full", "components", "components_ci", "delta_only", "all_off"]
 # per-position quantities collected per module; norms are kept raw and divided by mean |y| at the end
 PER_POSITION_KEYS = [
@@ -157,131 +165,171 @@ def main(
         )
         texts, labels, names = [texts[i] for i in keep], labels[keep], names[keep]
     n = len(texts)
-    data = load_prompts_dataset(texts, tok, task.max_seq_len, task.loss_positions, lens)[:]
-    first_end = int(data[STIMULUS_END_KEY][0])
-    print(
-        f"run {run}, {split} split: {n} statements; example tokens "
-        f"{[tok.decode([i]) for i in data['input_ids'][0][: first_end + 1]]}, "
-        f"decomposed {data[POSITION_MASK_KEY][0].nonzero().flatten().tolist()}"
-    )
-    batches = []
-    for b in range(0, n, batch_size):
-        batch = trim_to_loss_positions({k: v[b : b + batch_size] for k, v in data.items()})
-        batches.append(
-            (
-                np.arange(b, min(b + batch_size, n)),
-                batch["input_ids"].to(device),
-                batch[POSITION_MASK_KEY].to(device),
-                batch[STIMULUS_END_KEY].to(device),
-            )
-        )
-
-    # pass 1: original output, CIs, cancellation parts
-    lp_orig_batches: list[Tensor] = []
-    ci_per_batch: list[dict[str, Tensor]] = []
     parts = {m: {k: [] for k in PER_POSITION_KEYS} for m in modules}
-    for _rows, ids, dec, end in batches:
-        with bf16_autocast(enabled=config.autocast_bf16):
-            o = model(ids, cache_type="input")
-            ci = model.calc_causal_importances(
-                pre_weight_acts=o.cache, detach_inputs=True, sampling=config.sampling
+
+    def run_prompt(
+        prompt_lens: StimulusLens, collect_parts: bool
+    ) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray], dict[str, np.ndarray]]:
+        """Scores, digit masses and KLs per state (original + STATES) under one verdict prompt;
+        with collect_parts, also fills `parts` with the cancellation numbers."""
+        data = load_prompts_dataset(texts, tok, task.max_seq_len, task.loss_positions, prompt_lens)[
+            :
+        ]
+        first_end = int(data[STIMULUS_END_KEY][0])
+        print(
+            f"run {run}, {split} split, stimulus {prompt_lens.stimulus!r}: {n} statements; example "
+            f"tokens {[tok.decode([i]) for i in data['input_ids'][0][: first_end + 1]]}, "
+            f"decomposed {data[POSITION_MASK_KEY][0].nonzero().flatten().tolist()}"
+        )
+        batches = []
+        for b in range(0, n, batch_size):
+            batch = trim_to_loss_positions({k: v[b : b + batch_size] for k, v in data.items()})
+            batches.append(
+                (
+                    np.arange(b, min(b + batch_size, n)),
+                    batch["input_ids"].to(device),
+                    batch[POSITION_MASK_KEY].to(device),
+                    batch[STIMULUS_END_KEY].to(device),
+                )
             )
-        lp_orig_batches.append(
-            torch.log_softmax(
-                o.output[torch.arange(len(end), device=device), end].float(), -1
-            ).cpu()
-        )
-        ci_per_batch.append({m: ci.lower_leaky[m].float() for m in modules})
-        # position type: 0 = sequence position 0 (the statement's first token), 2 = the row's last
-        # decomposed position (the statement end), 1 = in between
-        idx = torch.arange(ids.shape[1], device=device).expand_as(dec)
-        last_dec = (dec * (idx + 1)).max(1).values - 1
-        ptype = torch.where(idx == 0, 0, torch.where(idx == last_dec[:, None], 2, 1))[dec]
-        for m in modules:
-            comp = model.components[m]
-            assert isinstance(comp, LinearComponents), type(comp)
-            for k, v in _module_parts(
-                o.cache[m][dec], comp, deltas[m], ci_per_batch[-1][m][dec]
-            ).items():
-                parts[m][k] += v
-            parts[m]["ptype"] += ptype.tolist()
 
-    lp_orig = torch.cat(lp_orig_batches)  # batches cover rows 0..n-1 in order
-    assert lp_orig.shape[0] == n
-
-    def infos_for(
-        state: str, ids: Tensor, dec: Tensor, i_batch: int
-    ) -> dict[str, ComponentsMaskInfo]:
-        b, pos = ids.shape
-        match state:
-            case "components":
-                masks = {
-                    m: (c > ROUNDING_THRESHOLD).float() for m, c in ci_per_batch[i_batch].items()
-                }
-            case "components_ci":
-                masks = ci_per_batch[i_batch]
-            case "full" | "delta_only" | "all_off":
-                val = 1.0 if state == "full" else 0.0
-                masks = {m: torch.full((b, pos, n_c[m]), val, device=device) for m in modules}
-            case _:
-                raise AssertionError(state)
-        d_on = float(state in ("full", "delta_only"))
-        infos = make_mask_infos(
-            masks,
-            weight_deltas_and_masks={
-                m: (deltas[m], torch.full((b, pos), d_on, device=device)) for m in modules
-            },
-        )
-        return route_only_selected_positions(infos, dec)
-
-    scores = {"original": (lp_orig[:, one] - lp_orig[:, zero]).numpy()}
-    mass = {"original": (lp_orig[:, one].exp() + lp_orig[:, zero].exp()).numpy()}
-    kl = {"original": np.zeros(n)}
-    for state in STATES:
-        s_, m_, k_ = np.zeros(n), np.zeros(n), np.zeros(n)
-        for i_batch, (rows, ids, dec, end) in enumerate(batches):
+        # pass 1: original output, CIs, cancellation parts
+        lp_orig_batches: list[Tensor] = []
+        ci_per_batch: list[dict[str, Tensor]] = []
+        for _rows, ids, dec, end in batches:
             with bf16_autocast(enabled=config.autocast_bf16):
-                logits = model(ids, mask_infos=infos_for(state, ids, dec, i_batch))
-            lp = torch.log_softmax(logits[torch.arange(len(end), device=device), end].float(), -1)
-            s_[rows] = (lp[:, one] - lp[:, zero]).cpu().numpy()
-            m_[rows] = (lp[:, one].exp() + lp[:, zero].exp()).cpu().numpy()
-            p = lp_orig[rows].to(device)
-            k_[rows] = (p.exp() * (p - lp)).sum(-1).cpu().numpy()
-        scores[state], mass[state], kl[state] = s_, m_, k_
+                o = model(ids, cache_type="input")
+                ci = model.calc_causal_importances(
+                    pre_weight_acts=o.cache, detach_inputs=True, sampling=config.sampling
+                )
+            lp_orig_batches.append(
+                torch.log_softmax(
+                    o.output[torch.arange(len(end), device=device), end].float(), -1
+                ).cpu()
+            )
+            ci_per_batch.append({m: ci.lower_leaky[m].float() for m in modules})
+            if not collect_parts:
+                continue
+            # position type: 0 = sequence position 0 (the statement's first token), 2 = the row's last
+            # decomposed position (the statement end), 1 = in between
+            idx = torch.arange(ids.shape[1], device=device).expand_as(dec)
+            last_dec = (dec * (idx + 1)).max(1).values - 1
+            ptype = torch.where(idx == 0, 0, torch.where(idx == last_dec[:, None], 2, 1))[dec]
+            for m in modules:
+                comp = model.components[m]
+                assert isinstance(comp, LinearComponents), type(comp)
+                for k, v in _module_parts(
+                    o.cache[m][dec], comp, deltas[m], ci_per_batch[-1][m][dec]
+                ).items():
+                    parts[m][k] += v
+                parts[m]["ptype"] += ptype.tolist()
+
+        lp_orig = torch.cat(lp_orig_batches)  # batches cover rows 0..n-1 in order
+        assert lp_orig.shape[0] == n
+
+        def infos_for(
+            state: str, ids: Tensor, dec: Tensor, i_batch: int
+        ) -> dict[str, ComponentsMaskInfo]:
+            b, pos = ids.shape
+            match state:
+                case "components":
+                    masks = {
+                        m: (c > ROUNDING_THRESHOLD).float()
+                        for m, c in ci_per_batch[i_batch].items()
+                    }
+                case "components_ci":
+                    masks = ci_per_batch[i_batch]
+                case "full" | "delta_only" | "all_off":
+                    val = 1.0 if state == "full" else 0.0
+                    masks = {m: torch.full((b, pos, n_c[m]), val, device=device) for m in modules}
+                case _:
+                    raise AssertionError(state)
+            d_on = float(state in ("full", "delta_only"))
+            infos = make_mask_infos(
+                masks,
+                weight_deltas_and_masks={
+                    m: (deltas[m], torch.full((b, pos), d_on, device=device)) for m in modules
+                },
+            )
+            return route_only_selected_positions(infos, dec)
+
+        scores = {"original": (lp_orig[:, one] - lp_orig[:, zero]).numpy()}
+        mass = {"original": (lp_orig[:, one].exp() + lp_orig[:, zero].exp()).numpy()}
+        kl = {"original": np.zeros(n)}
+        for state in STATES:
+            s_, m_, k_ = np.zeros(n), np.zeros(n), np.zeros(n)
+            for i_batch, (rows, ids, dec, end) in enumerate(batches):
+                with bf16_autocast(enabled=config.autocast_bf16):
+                    logits = model(ids, mask_infos=infos_for(state, ids, dec, i_batch))
+                lp = torch.log_softmax(
+                    logits[torch.arange(len(end), device=device), end].float(), -1
+                )
+                s_[rows] = (lp[:, one] - lp[:, zero]).cpu().numpy()
+                m_[rows] = (lp[:, one].exp() + lp[:, zero].exp()).cpu().numpy()
+                p = lp_orig[rows].to(device)
+                k_[rows] = (p.exp() * (p - lp)).sum(-1).cpu().numpy()
+            scores[state], mass[state], kl[state] = s_, m_, k_
+        return scores, mass, kl
 
     def gap(s: np.ndarray) -> float:
         return float(s[labels].mean() - s[~labels].mean())
 
     neg = np.array([nm.startswith("neg_") for nm in names])
-    summary: dict[str, Any] = {"run": run, "split": split, "n": n, "states": {}, "cancellation": {}}
-    sep0, kl_off = gap(scores["original"]), float(kl["all_off"].mean())
-    print(f"\nverdict (s = log P('1') - log P('0')); original separation {sep0:.2f}")
-    print(
-        "state         | acc   aff   neg   | AUC   | sep share | share '1' | digit mass | KL    | KL recovered"
-    )
-    for st in ["original", *STATES]:
-        s = scores[st]
-        pred = s > 0
-        row = {
-            "accuracy": float((pred == labels).mean()),
-            "acc_aff": float((pred == labels)[~neg].mean()),
-            "acc_neg": float((pred == labels)[neg].mean()),
-            "auc": float(roc_auc_score(labels, s)),
-            "sep_share": gap(s) / sep0,
-            "share_1": float(pred.mean()),
-            "digit_mass": float(mass[st].mean()),
-            "kl": float(kl[st].mean()),
-            "kl_recovered": 1 - float(kl[st].mean()) / kl_off,
-            "per_dataset": {
-                nm: float((pred == labels)[names == nm].mean()) for nm in sorted(set(names_list))
-            },
-        }
-        summary["states"][st] = row
+
+    def state_table(
+        scores: dict[str, np.ndarray],
+        mass: dict[str, np.ndarray],
+        kl: dict[str, np.ndarray],
+        title: str,
+    ) -> dict[str, dict[str, Any]]:
+        """Per state: the summary row (also printed). KL and separation are relative to this
+        prompt's own original and all-off states."""
+        rows: dict[str, dict[str, Any]] = {}
+        sep0, kl_off = gap(scores["original"]), float(kl["all_off"].mean())
+        print(f"\nverdict, {title} (s = log P('1') - log P('0')); original separation {sep0:.2f}")
         print(
-            f"{st:13s} | {row['accuracy']:.3f} {row['acc_aff']:.3f} {row['acc_neg']:.3f} | "
-            f"{row['auc']:.3f} | {row['sep_share']:9.2f} | {row['share_1']:9.3f} | "
-            f"{row['digit_mass']:10.3f} | {row['kl']:.3f} | {row['kl_recovered']:12.3f}"
+            "state         | acc   aff   neg   | AUC   | sep share | share '1' | digit mass | KL    | KL recovered"
         )
+        for st in ["original", *STATES]:
+            s = scores[st]
+            pred = s > 0
+            row = {
+                "accuracy": float((pred == labels).mean()),
+                "acc_aff": float((pred == labels)[~neg].mean()),
+                "acc_neg": float((pred == labels)[neg].mean()),
+                "auc": float(roc_auc_score(labels, s)),
+                "sep_share": gap(s) / sep0,
+                "share_1": float(pred.mean()),
+                "digit_mass": float(mass[st].mean()),
+                "kl": float(kl[st].mean()),
+                "kl_recovered": 1 - float(kl[st].mean()) / kl_off,
+                "per_dataset": {
+                    nm: float((pred == labels)[names == nm].mean())
+                    for nm in sorted(set(names_list))
+                },
+            }
+            rows[st] = row
+            print(
+                f"{st:13s} | {row['accuracy']:.3f} {row['acc_aff']:.3f} {row['acc_neg']:.3f} | "
+                f"{row['auc']:.3f} | {row['sep_share']:9.2f} | {row['share_1']:9.3f} | "
+                f"{row['digit_mass']:10.3f} | {row['kl']:.3f} | {row['kl_recovered']:12.3f}"
+            )
+        return rows
+
+    scores, mass, kl = run_prompt(lens, collect_parts=True)
+    second_lens = lens.model_copy(update={"stimulus": SECOND_STIMULUS})
+    scores2, mass2, kl2 = run_prompt(second_lens, collect_parts=False)
+    summary: dict[str, Any] = {
+        "run": run,
+        "split": split,
+        "n": n,
+        "states": state_table(scores, mass, kl, f"training prompt {lens.stimulus!r}"),
+        "second_prompt": {
+            "stimulus": SECOND_STIMULUS,
+            "states": state_table(scores2, mass2, kl2, f"second prompt {SECOND_STIMULUS!r}"),
+        },
+        "cancellation": {},
+    }
 
     norm_keys = ("A", "I", "D", "C", "A_ci", "I_ci")
     mean_keys = [k for k in PER_POSITION_KEYS if k not in ("y", "ptype", *norm_keys)]
@@ -383,6 +431,8 @@ def main(
         "names": names,
         **{f"score_{k}": v for k, v in scores.items()},
         **{f"kl_{k}": v for k, v in kl.items()},
+        **{f"score2_{k}": v for k, v in scores2.items()},
+        **{f"kl2_{k}": v for k, v in kl2.items()},
     }
     np.savez(out_dir / f"verdict_{run_id}_{split}.npz", **arrays)  # pyright: ignore[reportArgumentType]
 
