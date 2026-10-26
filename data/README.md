@@ -31,7 +31,8 @@ experiment that uses the data (all code in this project lives under `spd/`). Eac
   data means building a new version. Loading verifies every split file against the `sha256` in its
   manifest, so a run's config (which names the version) pins the exact data it trained on.
 - **Pre-split.** Every dataset ships its own `train` and `test` split (exception: the `uth/` test
-  tasks, below, ship only a `test` split, so they cannot be trained on by accident). Generators that build several
+  tasks and the `tiu/` out-of-distribution datasets, below, ship only a `test` split, so they
+  cannot be trained on by accident). Generators that build several
   related datasets should split them consistently (e.g. by subject), so mixing datasets in one run
   never leaks a test subject into training.
 
@@ -72,7 +73,10 @@ splits:
 
 - `tiu/`: true/false statements from Truth-is-Universal (Bürger et al., NeurIPS 2024), one dataset
   per (upstream file, label), split by subject. v1: train/test. v2 (`--val_frac 0.12`): the same
-  test split, v1's train divided into train and val. Build with
+  test split, v1's train divided into train and val. v3 (`--val_frac 0.12 --train_cap 130`): v2's
+  val and test, train capped at 130 statements per dataset so that no family dominates training;
+  v3 also adds out-of-distribution datasets (manifest `role: ood_test`, test split only: inventors,
+  facts, the German `_de` files, the `_conj`/`_disj` compositions). Build with
   `python spd/experiments/lm/honesty_targeted_decomposition/build_tiu.py --version vN`.
 - `pile_code/github_lines`: single lines of source code from the Pile's GitHub subset, length-matched
   to tiu v1; a low-truth control target. Build with

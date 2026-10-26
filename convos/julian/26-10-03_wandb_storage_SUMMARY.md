@@ -79,3 +79,4 @@ Details and per-run reasons: this LOG, entries *second cleanup: deletion ranking
 - See also: [convos/julian/26-10-05_no_truth_baseline_SUMMARY.md] — uploaded three new final checkpoints (bf16 arm A, code control, untrained; ~238 MB each), budgeted against this topic's 5 GB cap and post-cleanup usage.
 - See also: [convos/julian/26-10-10_bolder_experiments_SUMMARY.md] — Exp 0–3 and 4a–4c, whose checkpoints are this topic's tier 2 and keep lists; the cancellation test there is why Exp 2/3 are tier 2 and Exp 1 is kept.
 - See also: [convos/julian/26-10-16_faithful_targeting_SUMMARY.md] — the Exp 4d runs whose checkpoint uploads made the 26-10-20 cleanup urgent.
+- See also: [convos/julian/26-10-22_tpd_truth_paper_SUMMARY.md] — the paper's final runs (2 seeds × 3 methods, ~2.0 GB of checkpoints) become canonical runs in `spd/registry.py` and must keep their checkpoints in a public project.
