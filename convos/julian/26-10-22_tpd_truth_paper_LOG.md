@@ -1277,3 +1277,23 @@ C: (transcribed from chat) yes
 - **Cost point for the rental** [verified: statement counts]: val 986, test 1,794, OOD 8,713 (the conj files are large). Every OOD condition costs about 5× a test condition, so T2 and A8 on full OOD under both prompts may be long. `--ood_cap N` (seeded random N per dataset) exists; I'd decide N from the step times measured at the start of the rental, and record it [assumed: proposal].
 
 Still to write: untrained checkpoint config; correlation (K0–K3); manipulation (M1′ core, wide tables, paired-twin test); truth directions.
+
+---
+
+26-10-27, Claude Opus 5.5 — *A5 part 3: all analysis scripts written; run order for the rental*; same session. Julian in chat: "keep going". Earlier in this stretch Julian asked me to commit his staged files and the newest changes (commits `814d273`, `927ffd2`).
+
+**Written** [verified: `make check` clean, full suite 547 passed / 15 skipped, `tests/test_paper_common.py` 11 tests; none of the scripts has run on the model yet]:
+- `config_paper_untrained.yaml`: `config_paper_plain.yaml` with only header, label, `seed: 1` and `steps: 0` changed (run a second time with `seed: 2`). The three paper configs differ only in their loss term, so one untrained decomposition per seed serves all methods [concluded: config diff]. `run_spd.py` returns before the training loop at `steps: 0` after saving `model_0.pth`; the PGD setup before that point has not been exercised with the paper config [assumed: works, check first in the rental].
+- `paper_correlation.py` (K0–K3): per statement and component the coefficient (CI · v·x; v·x for the data-aligned basis, comparable across bases) and the CI, each at the last statement token and as the mean over statement tokens, plus the residual after layer 17. K0 probes over all features (as arm A: standardised, default L2, train → test/OOD; label and verdict). K1 single-component AUC per family (saved in full), readout chosen on train, top-k probes (k = 1, 2, 5, 10). K2 val selection (|AUC − 0.5| ≥ 0.2 within a form) and transfer to the OOD families of the matching form (same sign, ≥ 0.1): label on the 13 stricter files, verdict on all 24. K3 oriented AUC on the statements where verdict and label disagree. K2/K3 logic checked on synthetic data (a planted label-follower gets oriented AUC 0.98, a verdict-follower 0.0).
+- `paper_manipulation.py`: fixed core = top 10 by val single-removal drop (from the termination JSON), each and as a group, plus the K2-selective group, ×−1 and ×2, test and OOD, both prompts; 10 random active components for a decomposition with an active set; the paired-twin test on test (all 489 negated test statements have their affirmative twin there [verified: CPU]; tested). Exploratory wide table: every active component reversed alone on val.
+- `paper_directions.py`: mass-mean and logistic-regression directions after each layer 11–17 at the last statement token (fit on train, L2 strength chosen on val from A4's grid); per component cos(u, d) vs random vectors; shares of the truth gap of A (CI-weighted writes), I (rest of the components), D (remainder), and per component; Spearman of T1 drop vs gap share; `--remove_directions` removes one direction from the original MLP output per layer and at all layers.
+- Shared: `make_basis` (the data-aligned basis always from 512 statements of the full train split, so quick checks and all scripts use the same basis per seed), `maybe_cap` / `--n_per_dataset` in every script for quick checks, `auc_columns` (tested against sklearn).
+
+**Run order for the rental** [assumed: proposal]. The data-aligned basis depends only on the base model and the train data, so one call per script suffices (run with any final's config).
+0. Smoke test of every script on one final and the data-aligned basis with `--n_per_dataset 4 --ood_cap 4`; measure the time per condition; then decide `--ood_cap` for the full runs (OOD has 8,713 statements).
+1. Untrained checkpoints, seeds 1 and 2.
+2. `paper_recovery.py` on the 6 finals and 2 untrained. Reproduction check against the stored val numbers (entry *A5 part 1*); the valley histograms come out here.
+3. `paper_termination.py`: finals with `--recovery … --a8`; untrained with `--recovery` (no active set expected: all components are candidates); data-aligned once with `--extra_k` = the finals' active-set sizes.
+4. `paper_correlation.py`: 6 + 2 + 1 calls.
+5. `paper_manipulation.py`: same 9 (needs 3 and 4).
+6. `paper_directions.py`: same 9 with `--termination`; `--remove_directions` once.

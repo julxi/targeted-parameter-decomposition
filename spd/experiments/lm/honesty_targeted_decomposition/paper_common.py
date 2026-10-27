@@ -25,6 +25,7 @@ import numpy as np
 import torch
 import yaml
 from jaxtyping import Float
+from scipy.stats import rankdata
 from torch import Tensor
 from transformers import PreTrainedTokenizer
 
@@ -147,6 +148,11 @@ def cap_per_dataset(st: Statements, n: int, seed: int) -> Statements:
         st.forms[k],
         st.german[k],
     )
+
+
+def maybe_cap(st: Statements, n_per_dataset: int | None, seed: int) -> Statements:
+    """Quick checks: --n_per_dataset N keeps a seeded random N statements per dataset."""
+    return st if n_per_dataset is None else cap_per_dataset(st, n_per_dataset, seed)
 
 
 @dataclass(frozen=True)
@@ -350,6 +356,36 @@ def run_edit(
     return score, kl, mass
 
 
+# statements for the data-aligned basis, as in the 4e mask search (faithful-targeting topic)
+N_BASIS_STATEMENTS = 512
+
+
+def make_basis(
+    kind: Literal["decomposition", "data_aligned"],
+    model: ComponentModel,
+    run_id: str,
+    train_dirs: list[str],
+    batches_of: Callable[[list[str]], list[Batch]],
+    autocast: bool,
+    seed: int,
+) -> Basis:
+    """The basis an analysis script works on. The data-aligned basis is always built from
+    N_BASIS_STATEMENTS of the FULL train split (never a quick-check subset), under the training
+    prompt (batches_of must use it), so every script and call gets the same basis for a seed."""
+    match kind:
+        case "decomposition":
+            return decomposition_basis(model, run_id)
+        case "data_aligned":
+            texts = load_statements("train", train_dirs).texts
+            pick = np.random.default_rng(seed + 2).choice(
+                len(texts), N_BASIS_STATEMENTS, replace=False
+            )
+            modules = sorted_modules(model)
+            return data_aligned_basis(
+                model, batches_of([texts[i] for i in pick]), model.module_to_c[modules[0]], autocast
+            )
+
+
 def data_aligned_basis(
     model: ComponentModel,
     batches: list[Batch],
@@ -480,6 +516,15 @@ def summarize_state(
             else {}
         ),
     }
+
+
+def auc_columns(X: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """ROC AUC of every column of X (n, k) as a score for the boolean labels y (Mann-Whitney U with
+    average ranks for ties). 0.5 = no separation, > 0.5 = higher values on y = True."""
+    n_pos, n_neg = int(y.sum()), int((~y).sum())
+    assert n_pos > 0 and n_neg > 0, (n_pos, n_neg)
+    ranks = rankdata(X, axis=0)
+    return (ranks[y].sum(0) - n_pos * (n_pos + 1) / 2) / (n_pos * n_neg)
 
 
 def smallest_reaching(curve: dict[int, float], target: float) -> int:

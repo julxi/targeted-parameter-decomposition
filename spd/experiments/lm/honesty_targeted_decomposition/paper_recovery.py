@@ -52,13 +52,12 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     Basis,
     Batch,
     Original,
-    Statements,
     StatementSplit,
-    cap_per_dataset,
     decomposition_basis,
     edited_outputs,
     load_statements,
     make_batches,
+    maybe_cap,
     original_pass,
     run_edit,
     smallest_reaching,
@@ -78,10 +77,6 @@ STATES = (
 )  # fmt: skip
 NEEDS_ACTIVE_SET = ("active_ci", "full_without_inactive")
 N_BOOT = 1000
-
-
-def maybe_cap(st: Statements, n_per_dataset: int | None, seed: int) -> Statements:
-    return st if n_per_dataset is None else cap_per_dataset(st, n_per_dataset, seed)
 
 
 def main(

@@ -50,11 +50,11 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     Original,
     StatementSplit,
     cap_per_dataset,
-    data_aligned_basis,
-    decomposition_basis,
     edited_outputs,
     load_statements,
+    make_basis,
     make_batches,
+    maybe_cap,
     original_pass,
     projected_out,
     run_edit,
@@ -71,8 +71,6 @@ K_GRID = (1, 2, 5, 10, 20, 50, 100, 200)
 N_RANDOM = 5
 N_RAND_SUB = 3
 N_BOOT = 1000
-# statements for the data-aligned basis, as in the 4e mask search (faithful-targeting topic)
-N_BASIS_STATEMENTS = 512
 
 Component = tuple[str, int]
 
@@ -93,6 +91,7 @@ def main(
     extra_k: tuple[int, ...] | int = (),
     sets: str = "test,ood",
     ood_cap: int | None = None,
+    n_per_dataset: int | None = None,
     batch_size: int = 64,
     device: str = "cuda",
     seed: int = 0,
@@ -121,18 +120,9 @@ def main(
     def batches_of(texts: list[str], prompt_i: int) -> list[Batch]:
         return make_batches(texts, tok, task.loss_positions, prompts[prompt_i], batch_size, device)
 
-    match basis:
-        case "decomposition":
-            bas = decomposition_basis(model, run_id)
-        case "data_aligned":
-            train_texts = load_statements("train", task.prepared_datasets).texts
-            pick = np.random.default_rng(seed + 2).choice(
-                len(train_texts), N_BASIS_STATEMENTS, replace=False
-            )
-            bas = data_aligned_basis(
-                model, batches_of([train_texts[i] for i in pick], 0), model.module_to_c[modules[0]],
-                autocast,
-            )  # fmt: skip
+    bas = make_basis(
+        basis, model, run_id, task.prepared_datasets, lambda tx: batches_of(tx, 0), autocast, seed
+    )
     n_c = {m: bas.U[m].shape[0] for m in modules}
     name_of = {(m, c): f"L{layer[m]}:{c}" for m in modules for c in range(n_c[m])}
     by_name = {v: k for k, v in name_of.items()}
@@ -166,7 +156,7 @@ def main(
         return edited_outputs(model, bas, bt, lambda _m, _b, acts, _y: (0 * acts, False))
 
     # ---- T1 on val: ranking ----
-    val = load_statements("val", task.prepared_datasets)
+    val = maybe_cap(load_statements("val", task.prepared_datasets), n_per_dataset, seed)
     val_batches = batches_of(val.texts, 0)
     val_orig = original_pass(model, val_batches, autocast, None)
     base_val = score_of(val_orig, digits)
@@ -203,14 +193,15 @@ def main(
     print(f"{len(conditions)} conditions per set and prompt", flush=True)
 
     summary: dict[str, Any] = {
-        "run": run, "basis": bas.name, "candidates": [name_of[c] for c in candidates],
+        "run": run, "basis": bas.name, "candidates_are_active_set": active is not None,
+        "candidates": [name_of[c] for c in candidates],
         "ranked": [name_of[c] for c in ranked], "ks": ks, "t1_val": t1_val, "sets": {},
     }  # fmt: skip
     arrays: dict[str, np.ndarray] = {}
     split_list: list[StatementSplit] = [s for s in sets.split(",")]  # pyright: ignore[reportAssignmentType]
     assert set(split_list) <= {"test", "ood"}, split_list
     for split in split_list:
-        st = load_statements(split, task.prepared_datasets)
+        st = maybe_cap(load_statements(split, task.prepared_datasets), n_per_dataset, seed)
         if split == "ood" and ood_cap is not None:
             st = cap_per_dataset(st, ood_cap, seed)
         arrays[f"{split}_labels"], arrays[f"{split}_datasets"] = st.labels, st.datasets

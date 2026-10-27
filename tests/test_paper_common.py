@@ -14,6 +14,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     GROUND_TRUTH_OOD,
     Basis,
     Batch,
+    auc_columns,
     bootstrap_intervals,
     cap_per_dataset,
     edited_outputs,
@@ -149,3 +150,48 @@ def test_cap_per_dataset() -> None:
     assert all(c == min(30, int((st.datasets == d).sum())) for d, c in counts.items())
     assert cap_per_dataset(st, 30, seed=0).texts == capped.texts  # deterministic
     assert all(capped.datasets[i].endswith("_true") == capped.labels[i] for i in range(len(capped)))
+
+
+def test_auc_columns_matches_sklearn() -> None:
+    from sklearn.metrics import roc_auc_score
+
+    rng = np.random.default_rng(0)
+    y = rng.random(60) < 0.4
+    X = np.column_stack([rng.normal(size=60) + y, rng.integers(0, 3, 60), -y.astype(float)])
+    expected = np.array([float(roc_auc_score(y, X[:, j])) for j in range(3)])
+    assert np.allclose(auc_columns(X, y), expected)
+
+
+def test_twin_pairs_and_twin_test() -> None:
+    from spd.experiments.lm.honesty_targeted_decomposition.paper_manipulation import (
+        twin_pairs,
+        twin_test,
+    )
+
+    st = load_statements("val", TRAIN_DIRS)
+    pairs = twin_pairs(st)
+    assert len(pairs) == int(
+        (st.forms == "negated").sum()
+    )  # every negated val statement has its twin
+    for i, j in pairs[:20]:
+        assert st.forms[j] == "affirmative" and st.families[i] == "neg_" + st.families[j]
+        assert st.labels[i] != st.labels[j]  # "X is not Y" and "X is Y" have opposite truth
+    base = np.where(st.labels, 3.0, -3.0)  # a model that is always right
+    r = twin_test(base, base, pairs)
+    assert r["share_follows_twin"] == 0.0 and r["share_follows_twin_original"] == 0.0
+    ignored = base.copy()
+    ignored[pairs[:, 0]] = base[pairs[:, 1]]  # an edit that makes the model ignore "not"
+    assert twin_test(ignored, base, pairs)["share_follows_twin"] == 1.0
+
+
+def test_directions_recover_planted_direction() -> None:
+    from spd.experiments.lm.honesty_targeted_decomposition.paper_directions import directions
+
+    rng = np.random.default_rng(0)
+    d_true = np.zeros(20)
+    d_true[3] = 1.0
+    y = rng.random(400) < 0.5
+    X = rng.normal(size=(400, 20)) + 2.0 * np.outer(y, d_true)
+    dirs, _ = directions(X[:300], y[:300], X[300:], y[300:])
+    assert dirs["mm"] @ d_true > 0.95 and dirs["lr"] @ d_true > 0.9
+    assert np.isclose(np.linalg.norm(dirs["lr"]), 1.0)
