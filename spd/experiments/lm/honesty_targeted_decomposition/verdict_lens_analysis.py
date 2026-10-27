@@ -168,13 +168,11 @@ def main(
     parts = {m: {k: [] for k in PER_POSITION_KEYS} for m in modules}
 
     def run_prompt(
-        prompt_lens: StimulusLens, collect_parts: bool
+        prompt_lens: StimulusLens, max_seq_len: int, collect_parts: bool
     ) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray], dict[str, np.ndarray]]:
         """Scores, digit masses and KLs per state (original + STATES) under one verdict prompt;
         with collect_parts, also fills `parts` with the cancellation numbers."""
-        data = load_prompts_dataset(texts, tok, task.max_seq_len, task.loss_positions, prompt_lens)[
-            :
-        ]
+        data = load_prompts_dataset(texts, tok, max_seq_len, task.loss_positions, prompt_lens)[:]
         first_end = int(data[STIMULUS_END_KEY][0])
         print(
             f"run {run}, {split} split, stimulus {prompt_lens.stimulus!r}: {n} statements; example "
@@ -316,9 +314,14 @@ def main(
             )
         return rows
 
-    scores, mass, kl = run_prompt(lens, collect_parts=True)
+    scores, mass, kl = run_prompt(lens, task.max_seq_len, collect_parts=True)
     second_lens = lens.model_copy(update={"stimulus": SECOND_STIMULUS})
-    scores2, mass2, kl2 = run_prompt(second_lens, collect_parts=False)
+    # The run's max_seq_len fits its own prompt. The second prompt is longer, and its statement end
+    # does not merge with the stimulus ('.' + ' Is' vs '.' + '\n' -> '.\n'), hence the + 1.
+    extra = len(tok.encode(SECOND_STIMULUS, add_special_tokens=False)) - len(
+        tok.encode(lens.stimulus, add_special_tokens=False)
+    )
+    scores2, mass2, kl2 = run_prompt(second_lens, task.max_seq_len + extra + 1, collect_parts=False)
     summary: dict[str, Any] = {
         "run": run,
         "split": split,

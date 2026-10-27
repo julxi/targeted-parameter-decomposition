@@ -1,6 +1,6 @@
 # WandB run register (project `bitt-j-personal/spd`)
 
-**Last updated:** 26-10-21 (sync: size column relabelled as whole-run size, rotgrid count corrected; all runs since the LM work began, 26-10-02, up to the end of Exp 4e round 3, match the WandB listing)
+**Last updated:** 26-10-27 (paper phase C/D: 6 final checkpoints on WandB, tuning checkpoints copied locally; the 4 tier-2 checkpoints deleted, their rows moved to the metrics-only table)
 
 Living list of the decomposition runs on WandB, so Julian can delete the ones nobody needs from time to time. Agents add a row when they launch a run, and update its row when its checkpoint or status changes; rows of deleted runs are removed (the deletion itself is recorded in `convos/julian/26-10-03_wandb_storage_LOG.md`). Agents never delete anything themselves (`docs/CODING.md`); Julian does it or approves it.
 
@@ -21,10 +21,12 @@ Columns: *size* = the whole run on WandB, checkpoint included [verified: WandB A
 | s-4cd6abe5 | 26-10-16 | tiu_sf_verdict_L11_17 (Exp 4a) | 336 MB | **no** | Exp 4, reference for the 4e analysis check | keep |
 | s-717b50c9 | 26-10-16 | tiu_sf_verdict_recon_L11_17 (Exp 4b) | 336 MB | **no** | Exp 4 | keep |
 | s-5ecb5791 | 26-10-16 | tiu_sf_verdict_recon_alltok_L11_17 (Exp 4c) | 337 MB | **no** | Exp 4c, component steering | keep |
-| s-b6cce5de | 26-10-05 | code_control_all_tokens | 241 MB | yes | code control (closed) | tier 2: deletable when space is short |
-| s-05db01ad | 26-10-13 | tiu_stimulus_lens (Exp 2) | 240 MB | yes | bolder experiments | tier 2 |
-| s-161f8a7b | 26-10-14 | tiu_stimulus_span (Exp 3) | 240 MB | yes | bolder experiments | tier 2 |
-| s-aeaa70d8 | 26-10-14 | tiu_last_token (Exp 0) | 240 MB | yes | bolder experiments | tier 2 |
+| s-7152548c | 26-10-27 | paper_final_plain_plain_s1 (paper final, plain tPD, seed 1) | 334 MB (`.pth` 333.5 MB) | yes | paper topic, canonical run candidate | keep |
+| s-46efc525 | 26-10-27 | paper_final_plain_plain_s2 (paper final, plain tPD, seed 2) | 334 MB (`.pth` 333.5 MB) | yes | paper topic, canonical run candidate | keep |
+| s-eeac663f | 26-10-27 | paper_final_rest_recon_s1 (paper final, + reconstruction, coef. 10, seed 1) | 334 MB (`.pth` 333.5 MB) | yes | paper topic, canonical run candidate | keep |
+| s-edc17041 | 26-10-27 | paper_final_rest_recon_s2 (paper final, + reconstruction, coef. 10, seed 2) | 334 MB (`.pth` 333.5 MB) | yes | paper topic, canonical run candidate | keep |
+| s-0c2fa0d7 | 26-10-27 | paper_final_rest_ortho_s1 (paper final, + orthogonality, LR 2e-3, coef. 10, seed 1) | 334 MB (`.pth` 333.5 MB) | yes | paper topic, canonical run candidate | keep |
+| s-4186f973 | 26-10-27 | paper_final_rest_ortho_s2 (paper final, + orthogonality, LR 2e-3, coef. 10, seed 2) | 334 MB (`.pth` 333.5 MB) | yes | paper topic, canonical run candidate | keep |
 
 ## Runs without a checkpoint (metrics only, 1–3 MB each)
 
@@ -61,6 +63,27 @@ All deletable whenever Julian wants a tidy project; their results are recorded w
 | s-e9552de2 | 26-10-21 | e4_r3_impmin_alltok_imp1e-2 (sparse, 8 components; checkpoint local) | finished | same; keep until 4e is done |
 | s-8ec00fb3 | 26-10-21 | e4_r3_impmin_alltok_imp3e-3 (false-selective components; checkpoint local) | finished | same; keep until 4e is done |
 | s-a55b67a4 | 26-10-21 | e4_r3_impmin_alltok_imp3e-4 (checkpoint local) | finished | same |
+| s-72534289 | 26-10-26 | paper_t300_plain (300-step trial; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-72534289/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-6fccc66b | 26-10-26 | paper_t300_recon (300-step trial; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-6fccc66b/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-4acee2cb | 26-10-26 | paper_t300_ortho (300-step trial; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-4acee2cb/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-f03881a2 | 26-10-26 | paper_c1_lr_lr5e-4 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-f03881a2/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-63e23c1b | 26-10-26 | paper_c1_lr_lr2e-3 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-63e23c1b/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-13746f5b | 26-10-26 | paper_c1_lr_lr5e-3 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-13746f5b/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-42fd706b | 26-10-27 | paper_c2_imp_imp0.0003 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-42fd706b/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-e4d259ea | 26-10-27 | paper_c2_imp_imp0.003 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-e4d259ea/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-614cd983 | 26-10-27 | paper_c3_coef_recon_c0.1 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-614cd983/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-2821a387 | 26-10-27 | paper_c3_coef_recon_c1 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-2821a387/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-9fa49cc7 | 26-10-27 | paper_c3_coef_recon_c10 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-9fa49cc7/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-baae9857 | 26-10-27 | paper_c3_coef_ortho_c0.1 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-baae9857/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-a53966f6 | 26-10-27 | paper_c3_coef_ortho_c1 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-a53966f6/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-d383b59a | 26-10-27 | paper_c3_coef_ortho_c10 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-d383b59a/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-fecf62f5 | 26-10-27 | paper_c4_lr_ortho_lr2e-3_c0.1 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-fecf62f5/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-53f816bf | 26-10-27 | paper_c4_lr_ortho_lr2e-3_c1 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-53f816bf/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-ae91d311 | 26-10-27 | paper_c4_lr_ortho_lr2e-3_c10 (tuning, 3,000 steps; checkpoint not on WandB, local copy `~/spd_out/runs/spd-s-ae91d311/`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-b6cce5de | 26-10-05 | code_control_all_tokens (`.pth` deleted from WandB 26-10-27, tier 2, Julian approved; local copy `~/spd_out/runs/spd-s-b6cce5de/model_5000.pth`) | finished | code control |
+| s-05db01ad | 26-10-13 | tiu_stimulus_lens (Exp 2) (`.pth` deleted from WandB 26-10-27, tier 2, Julian approved; local copy `~/spd_out/runs/spd-s-05db01ad/model_5000.pth`) | finished | bolder experiments |
+| s-161f8a7b | 26-10-14 | tiu_stimulus_span (Exp 3) (`.pth` deleted from WandB 26-10-27, tier 2, Julian approved; local copy `~/spd_out/runs/spd-s-161f8a7b/model_5000.pth`) | finished | bolder experiments |
+| s-aeaa70d8 | 26-10-14 | tiu_last_token (Exp 0) (`.pth` deleted from WandB 26-10-27, tier 2, Julian approved; local copy `~/spd_out/runs/spd-s-aeaa70d8/model_5000.pth`) | finished | bolder experiments |
 
 ## Older runs (before this project's LM work)
 

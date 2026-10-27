@@ -1,6 +1,6 @@
 # SUMMARY: WandB storage (5 GB cap)
 
-**Last updated:** 26-10-21 (sync; current state: 11 checkpoints on WandB, listed files 3.32 GB, counter 3.00 GB, under the 5 GB cap; tier 2 deletion candidates listed; run register in use)
+**Last updated:** 26-10-27 (tier 2 deleted for the paper finals: 7 checkpoints on WandB before the 6 paper finals upload; projected ≈ 4.36 GB after them; run register in use)
 
 Julian's WandB account (`bitt-j-personal`) has 5 GB of storage, and the website showed ~9.9 GB. Two goals: free space, and keep future runs under the cap.
 
@@ -61,7 +61,7 @@ Urgent because the two planned Exp 4d runs (`s-5c284ebb` running, second to foll
 
 Ranking (the tiers are the agent's proposal; deleting tier 1 was Julian's decision):
 - **Tier 1, deleted 26-10-20 (1.43 GB)** [decided: Julian, chat transcribed in the LOG; verified: no `.pth` left in these runs, local copies kept]: tuning runs run 1 `s-c2562082`, e2c `s-b3401a03`, e3a `s-a77ae04e`, e3b `s-83033a96`; e2b `s-ba5f9dd5` (fp32 twin of arm A); fp32 untrained `s-286aa6a9` (replaced by bf16 `s-7fad0c14`). All closed, local copies exist, nothing uses them.
-- **Tier 2 (238 MB each, local copies exist, still referenced):** Exp 0 `s-aeaa70d8`, Exp 2 `s-05db01ad`, Exp 3 `s-161f8a7b`, code control `s-b6cce5de`. Cost of deleting: instance-side re-analysis needs an upload from the laptop.
+- **Tier 2 deleted (26-10-27, Julian approved):** the checkpoints of Exp 0 `s-aeaa70d8`, Exp 2 `s-05db01ad`, Exp 3 `s-161f8a7b`, code control `s-b6cce5de` (0.95 GB) were removed for the paper's final runs [verified: driver re-listing]; local copies under `~/spd_out/runs/`. Instance-side re-analysis of these needs an upload from the laptop.
 - **Keep:** arm A `s-bd23f0d1`, untrained `s-7fad0c14`, Exp 1 `s-cd129592`, Exp 4a/4b/4c, UTH `s-d2ded461` (no local copy).
 
 ## Third deletion (26-10-21): Exp 4d

@@ -640,3 +640,405 @@ The sweep file is the intended state: Julian's commit `f4f51ec` set seeds 0–3 
 - all run names are distinct.
 
 [verified: `tests/test_rotgrid_decomposition.py` 3 passed, 1 skipped; ruff and basedpyright clean.]
+
+---
+
+26-10-26, Claude Opus 5.5 — *phase C started: host, reproduction check, trials*; same session. Julian in chat: "The remote is rented you can start", then:
+
+C: (transcribed from chat) while fine tuning can you make sure that wandb doesn't get full (clean up the checkpoints after you)
+
+**Host** [verified: `nvidia-smi`, ipinfo, curl]: RTX PRO 6000 Blackwell Workstation (96 GB, 500 W), Sevilla, Spain. Hugging Face reachable. The repo working tree is synced; the key files are identical to the local ones by sha256.
+
+**WandB storage**: 3.32 GB of 5 GB before phase C [verified: `storageBytes`, 26-10-26].
+- Every tuning config has `sync_checkpoints_to_wandb: false` and `save_freq: null`, asserted by the round generator. So tuning runs upload no checkpoints, only metrics (1–3 MB per run). WandB storage doesn't grow, and there is nothing to clean up there.
+- The final checkpoints stay on the instance (333.5 MB each; 93 GB free) and are gone when it is destroyed.
+- The final runs (phase D) will sync checkpoints, 6 × 333.5 MB = 2.0 GB. That fits next to 3.32 GB only after deleting some old ones; a list of candidates for Julian then.
+
+**Bug found by the planned GPU check**: the second prompt is 5 tokens longer than the training prompt, and 9 val statements then exceeded the run's `max_seq_len` 30 (crash, not a silent error). My CPU check had used three short statements only.
+- Fix in `verdict_lens_analysis.py`: the second prompt gets `max_seq_len + 5 + 1` (the extra 1 because its '.' doesn't merge with the next token).
+- Checked on CPU over all 986 val and 1,794 test statements [verified]. Not committed yet.
+
+**Reproduction check** on the 4e checkpoint `s-eb1c20d5` (val, 986 statements) [verified: one run, `~/spd_out/26-10-22_tpd_truth_paper/phase_c/check_4e/`]. The training-prompt numbers equal the stored ones: CI-weighted components alone KL recovered 0.910 (stored 0.910), Δ only −0.339 (stored −0.34), accuracy 0.974.
+
+New, the **second prompt** on the same decomposition:
+
+| state | KL recovered | accuracy | separation share |
+|---|---|---|---|
+| original | 1 | 0.975 | 1 |
+| components (CI-weighted) | **0.915** | 0.980 | 0.70 |
+| components (rounded) | 0.874 | 0.936 | 0.62 |
+| Δ only | 0.213 | 0.567 | 0.13 |
+| all off | 0 | 0.557 | 0.14 |
+
+Reading [concluded, one run]: what 4e's components carry transfers to a verdict prompt they were never trained on, about as fully as on the training prompt (0.915 vs 0.910). This matches B3, where statement steering also transferred. The verdict lens decomposes something both prompts read from the statement, not one prompt's readout.
+
+**Phase C tooling** (`~/spd_out/26-10-22_tpd_truth_paper/phase_c/`): `make_round.py` builds tuning configs from `config_paper_{plain,recon,ortho}.yaml`, changing only the swept keys and the run name, and asserts no checkpoint sync, val evals and PGD present. `run_one.sh` trains, then runs the analysis (both prompts) on the final checkpoint. `run_round.sh` runs a round's jobs one at a time. Round `t300`: one 300-step trial per method (PGD from step 240), to check for crashes and measure step time. Launched 26-10-26.
+
+**Trials** (round `t300`) [verified: all three exit 0, training and analysis; outputs in `~/spd_out/26-10-22_tpd_truth_paper/phase_c/t300/`]: plain `s-72534289`, recon `s-6fccc66b`, ortho `s-4acee2cb`; rows added to the run register.
+- First launch failed at config validation: `slow_eval_freq` must be a multiple of `eval_freq`. `make_round.py` now validates every config with spd's `Config` before upload.
+- Step time with PGD active, read from tqdm in the last 60 steps: 1.1 s (plain, ortho), 1.35 s (recon).
+- Estimate for a 3,000-step run [assumed]: about 40 min with evals and analysis, so about 2 h per round of 3. This assumes the pre-PGD steps run at the 0.58 s measured for 4e on this GPU type.
+
+**Round `c1_lr` launched** (26-10-26, ~21:27 UTC): plain tPD at LR 5e-4, 2e-3, 5e-3, importance-minimality 1e-3, 3,000 steps, PGD from step 2,400, one run at a time.
+
+---
+
+26-10-26, Claude Opus 5.5 — *overnight plan*; same session. Julian in chat:
+
+C: (transcribed from chat) I want to go to bed soon but I want you to keep the runs going and do all the fine-tuning during the night and also the final runs then. I suppose for the final runs you'll have to register the experiment, right?
+
+Julian's answers to three questions (multiple choice in chat), transcribed:
+
+C: (transcribed from chat) [WandB space: may I delete the 4 tier-2 checkpoints just before the finals?] "Yes, delete tier 2 (Recommended)"
+C: (transcribed from chat) [Coefficient rule for recon/ortho?] "Didn't we once have a preselection for this?"
+C: (transcribed from chat) [Extra ortho run at LR 2e-3 if plain tPD's best LR is not 2e-3?] "Yes, one extra run (Recommended)"
+
+**Registry**: a registry entry (`spd/registry.py`) is a config path plus a canonical WandB run, so it can only be written after the final runs exist. Running doesn't need it. Plan: write the final configs into the repo as the exact configs used; add the registry entries in phase E, after the analysis freeze. Making the WandB project public (needed for others to load canonical runs) is still Julian's decision.
+
+**Analysis freeze (D3) and the final runs**: training the finals before the analysis plan is frozen is fine, as long as nobody looks at their test-split results first. The driver runs only the val analysis on them; the test split stays untouched until D3.
+
+OUTDATED (26-10-26): Julian rejected this rule minutes later (no cancellation criterion for coefficients). The driver no longer chooses coefficients; see entry *overnight plan revised*.
+**Coefficient rule** [assumed: Julian points to an earlier preselection; this is my reading of it]. The preselection is the 4d tuning proposal in the faithful-targeting topic: "treat the term as a constraint: take the smallest coefficient at which the cancellation test shows no re-implementation, then the best verdict recovery" (faithful-targeting SUMMARY, *Exp 4d*, tuning; never ratified). Operationalised for the driver:
+- A coefficient passes if in every decomposed layer |C|/|y| ≤ 1.5 and |Δx|/|y| ≤ 1.5, from the analysis's cancellation test, all components and Δ at the decomposed positions. For scale: 4a reached 12.9 at layer 11; 4e stays ≤ 1.03.
+- Among passing coefficients the highest CI-weighted KL recovered wins; ties within 0.005 go to the smaller coefficient.
+- If no coefficient passes, the driver stops and waits for Julian.
+
+OUTDATED (26-10-26): steps 3–5 below were replaced (no automatic coefficient choice; only plain tPD's finals overnight); see entry *overnight plan revised*.
+**Driver** `~/spd_out/26-10-22_tpd_truth_paper/phase_c/driver.py`, copy on the instance at `/root/paper_c/driver.py`, log `/root/paper_c/driver.log`. Started 26-10-26 21:38 UTC on the instance, so it doesn't depend on this laptop. Rules fixed before any tuning result was seen:
+1. c1_lr (already running): plain tPD, LR {5e-4, 2e-3, 5e-3}. Pick by the objective; ties within 0.005 to the LR closest to 2e-3.
+2. c2_imp: plain at that LR, importance-minimality {3e-4, 3e-3}. Pick among these and 1e-3; ties to 1e-3.
+3. c3_coef: recon and ortho at plain's LR and importance-minimality, coefficient {0.1, 1, 10}. Pick by the rule above.
+4. c4_lr, only if plain's LR ≠ 2e-3: ortho at 2e-3 with its chosen coefficient. It is used if it passes the cancellation check and beats the inherited LR by more than 0.005.
+5. Final: delete the 4 tier-2 `.pth` files from WandB, with an exact name and size check and a re-listing afterwards. Then per method its settings, 5,000 steps, seeds 1 and 2, `sync_checkpoints_to_wandb: true`, val analysis.
+
+Any failed training or analysis stops the driver ("DRIVER STOPPED" in its log). Dry run on this laptop [verified: `results()` on the real t300 outputs, `pick` tie cases, generated c3 and final configs checked by eye].
+
+WandB after the finals [assumed: from the listed sizes]: 3.32 − 0.95 + 2.0 ≈ 4.4 GB.
+
+Expected timeline [assumed: ~40 min per tuning run, ~65 min per final run]: tuning (11–12 runs) until about 05:30 UTC, finals until about 12:30 UTC on 26-10-27.
+
+Early sign from the trials (300 steps, not a result): plain tPD's components already write up to 1.65 |y| (|Δx| up to 2.01 |y|), the start of the cancellation seen in 4a. Recon and ortho stay at ≤ 0.47 and ≤ 0.27 for |C|/|y|.
+
+---
+
+26-10-26, Claude Opus 5.5 — *overnight plan revised*; same session. Julian in chat:
+
+C: (transcribed from chat) No, I don't want cancelation for picking coefficients. At least not before we have looked at alternatives
+
+So the recon and ortho coefficients can't be chosen overnight [decided: transcribed above]. The driver was stopped while it was only waiting (by PID, 21:40 UTC; round c1_lr kept training), changed, dry-run checked, and restarted. New sequence:
+1. c1_lr and c2_imp as before: plain tPD chosen by the objective alone (CI-weighted components-only KL recovered on val; ties to LR 2e-3 / importance-minimality 1e-3).
+2. c3_coef: recon and ortho at all three coefficients {0.1, 1, 10}. No choice is made; all results are logged.
+3. c4_lr, if plain's LR ≠ 2e-3: ortho at LR 2e-3 for **all three** coefficients instead of one, so the morning decision has the full grid (3 runs, ~2 h extra GPU).
+4. final_plain: delete the 4 tier-2 checkpoints, then plain tPD's two final runs (seeds 1, 2, 5,000 steps, checkpoints on WandB). Plain tPD has no coefficient, so nothing about it waits on the coefficient decision.
+5. Stop. The recon/ortho final runs start after Julian chooses the coefficients.
+
+Per run the log keeps every candidate criterion for that choice, none of them used yet [assumed: candidates, to discuss]: CI-weighted KL recovered (training prompt and second prompt), Δ only's KL recovered, and the cancellation-test ratios as diagnostics. The training logs also hold tPD's own eval losses: PGD reconstruction, Pile (non-target) KL, the importance-minimality loss / L0.
+
+Expected [assumed]: tuning done ~07:00 UTC, plain finals ~09:15 UTC on 26-10-27.
+
+---
+
+26-10-26, Claude Opus 5.5 — *plain tPD chosen by eye on Julian's three axes*; same session. Julian in chat:
+
+C: (transcribed from chat) I think how much of the verdict the components alone recover is not enought. We also had and discussed other metrics. Like how bad / good is Δ  alone. Can you find that somewhere?
+
+Found: Julian's opening request in this LOG asks for "some undefined pareto optimum" of (a) the KL of the components alone on target data, (b) the KL of Δ alone on non-target data, (c) the shrink of the verdict separation with Δ alone on target data. My answer of 26-10-22 under the axis-(c) comment proposed (c) as Δ only's share of the all-off KL recovered, ideal 0. The driver had used only (a); that was my error.
+
+Asked for a rule, Julian answered (multiple choice, free text):
+
+C: (transcribed from chat) you check the numbers by eye and see which ones seem best
+
+Implemented [decided: transcribed above]:
+- The driver pauses at each decision point (plain tPD's LR after c1_lr, importance-minimality after c2_imp), logs "DECISION NEEDED" with every run's numbers, and waits for my decision file `/root/paper_c/decisions/<name>.json` with the value and a reason.
+- Per run it logs: (a) CI-weighted components-only KL recovered on val (and under the second prompt, plus accuracy); (b) Δ-only Pile KL, from the training log's final eval; (c) Δ only's KL recovered on val. Also Pile rounded KL, PGD loss and L0, and the cancellation ratios, labelled as diagnostics.
+- Fallback [assumed: my safeguard, not asked for]: if no decision arrives within 2 h (this session gone overnight), the driver takes the Pareto front over (a) max, (b) min, |c| min, then the lowest rank sum, ties to the higher (a), and logs FALLBACK.
+- Dry run [verified: results on the t300 outputs, the fallback checked by hand (recon dominated by ortho, plain wins the rank sum), a decision read from a file].
+- The driver was replaced again while it was only waiting (21:48 UTC); round c1_lr kept training.
+
+---
+
+26-10-26, 21:55 UTC, Claude Opus 5.5 — *HANDOFF: state for the next session*; same session, written at Julian's request before he restarts the agent session. Julian in chat:
+
+C: (transcribed from chat) ok, I want ot restart your session as well, can you write the current state in the log so that another session of you can pick up from there?
+
+**Read first**: this entry, then the entries *overnight plan revised* and *plain tPD chosen by eye on Julian's three axes*. The SUMMARY's *Running* paragraph has the short version.
+
+## What is running
+
+- **Instance**: vast.ai RTX PRO 6000 Blackwell (96 GB), Sevilla, Spain, ssh alias `vastai` (written by `spd-vast`). Hugging Face reachable. Launch remote commands from a login shell (`ssh vastai 'bash -lc "…"'`) so the WandB key is set; detach long jobs with `setsid nohup … < /dev/null &`. Kill by PID, never by a `pkill -f` pattern in the same call (docs/CODING.md).
+- **Processes (21:51 UTC)**:
+  - `run_round.sh c1_lr` (PID 4996), training its first job `lr5e-4` (PID 5000; step 2,467 / 3,001 after 24 min).
+  - `driver.py` (PID 5837), waiting for "round done" in `/root/paper_c/rounds/c1_lr/progress.txt`.
+- **Driver**: `/root/paper_c/driver.py`; local copy and source `~/spd_out/26-10-22_tpd_truth_paper/phase_c/driver.py`, docstring = the plan. Log: `/root/paper_c/driver.log`; state: `/root/paper_c/driver_state.json`. Sequence:
+  1. c1_lr: plain tPD, LR {5e-4, 2e-3, 5e-3}, importance-minimality 1e-3.
+  2. **DECISION `plain_lr`**.
+  3. c2_imp: plain at that LR, importance-minimality {3e-4, 3e-3}.
+  4. **DECISION `plain_imp`** among {3e-4, 1e-3 (= the chosen c1 run), 3e-3}.
+  5. c3_coef: recon and ortho at plain's settings, coefficient {0.1, 1, 10} (6 runs).
+  6. c4_lr, only if plain's LR ≠ 2e-3: ortho at LR 2e-3, coefficient {0.1, 1, 10} (3 runs).
+  7. Delete the 4 tier-2 `.pth` files from WandB (Julian approved; local copies under `~/spd_out/runs/spd-<id>/model_5000.pth` checked 26-10-26), then final_plain: plain tPD, 5,000 steps, seeds 1 and 2, checkpoints synced to WandB.
+  8. Stop, logging "waiting for Julian".
+  Every job = `run_one.sh` (training, then `verdict_lens_analysis.py --split val`, both prompts). Any failure: "DRIVER STOPPED" in the log, and the driver exits.
+
+## Your job overnight: the two decisions
+
+- **When**: the driver logs `DECISION NEEDED plain_lr` (expected ~23:30 UTC) and later `DECISION NEEDED plain_imp` (~00:50 UTC). Just before each, it logs one line per run with all numbers; the same numbers are in `/root/paper_c/rounds/<round>/summary.json`.
+- **How to decide** [decided: Julian, "you check the numbers by eye and see which ones seem best"]: judge by eye on Julian's three axes. No single metric decides, and **cancellation is not a criterion** (Julian: "No, I don't want cancelation for picking coefficients. At least not before we have looked at alternatives"; same spirit here). The axes:
+  - (a) CI-weighted components-only KL recovered on val: higher is better.
+  - (b) Δ-only Pile KL: lower is better.
+  - (c) Δ only's KL recovered on val: ideal 0, meaning Δ alone neither helps nor harms the verdict.
+  - Also visible: second-prompt KL recovered, accuracy, Pile rounded KL, PGD, L0, and the cancellation ratios (diagnostic only).
+- **How to answer**: write the file on the instance, e.g.
+  `ssh vastai 'mkdir -p ~/paper_c/decisions && echo "{\"value\": 0.002, \"why\": \"…\"}" > ~/paper_c/decisions/plain_lr.json'`
+  The value must be one of the candidates (floats: 0.0005, 0.002, 0.005; for imp 0.0003, 0.001, 0.003). Then record the decision and its reason in this LOG, with the numbers.
+- **Fallback**: without a file within 2 h, the driver picks by Pareto + rank sum over (a), (b), |c| and logs FALLBACK. That is my safeguard, not Julian's choice; if it fires, say so in the LOG.
+- **Monitoring**: this session's background monitors die with it. Start your own, e.g. a `run_in_background` until-loop on `grep -q "DECISION NEEDED\|DRIVER STOPPED" ~/paper_c/driver.log`, and re-arm it after each decision.
+
+## Bookkeeping to do as runs finish
+
+- **Run register** `convos/julian/26-10-03_wandb_storage_RUNS.md`: add a row per run (id from the progress file / driver log). Tuning runs go in *Runs without a checkpoint* ("checkpoint on the instance only"); the final runs go in *Runs with a checkpoint on WandB*. After the tier-2 deletion, remove those 4 rows from the checkpoint table and record the deletion in `convos/julian/26-10-03_wandb_storage_LOG.md` + SUMMARY, with the check that the listing no longer shows them. Check WandB usage (`wandb.Api().client.execute(gql('query { entity(name: "bitt-j-personal") { storageBytes } }'))`, `from wandb_gql import gql`; 3.32 GB before; expected ≈ 4.4 GB after the finals; the counter lags by hours).
+- **Copy outputs locally** to `~/spd_out/26-10-22_tpd_truth_paper/phase_c/<round>/` (logs, `analysis/`, `summary.json`, progress), as done for `t300` and `check_4e`.
+- **Don't** look at the test split. It stays untouched until the analysis freeze (D3); only val analyses run.
+
+## Morning, with Julian
+
+1. Report the tuning results: plain tPD's choices with reasons; the full recon/ortho coefficient grid on all axes (and c4 if it ran).
+2. Julian chooses the recon and ortho coefficients (and ortho's LR if c4 ran). Discuss alternatives to cancellation first: the three axes, PGD, Pile, transfer to the second prompt, L0.
+3. Launch their final runs (seeds 1, 2, 5,000 steps, synced) with the driver's `make_round(..., final=True)` pattern. Checkpoint space ≈ 4 × 333.5 MB, which fits after the tier-2 deletion; check the counter first.
+4. Then the analysis freeze (D3), the four-category analyses on test / OOD (AUC ≥ 0.7 sets) / second prompt, A5 (scripts into the repo), registry entries (phase E; the WandB project must be public, Julian's call).
+
+## Uncommitted (Julian commits on request)
+
+- `spd/experiments/lm/honesty_targeted_decomposition/verdict_lens_analysis.py`: the second prompt gets `max_seq_len + 5 + 1` (fix for 9 long val statements; checked on CPU on all val and test statements). The instance already runs this version.
+- Records: this LOG, the SUMMARY, INDEX.md, the run register (the t300 rows).
+
+## Open questions for Julian (not urgent)
+
+- Should the fallback stay, or should the driver simply wait?
+- WandB project public for the registry: when?
+
+---
+
+26-10-26, 21:58 UTC, Claude Opus 5.5 — *new session takes over the overnight watch*; new session. I have read CLAUDE.md, INDEX.md, this topic's SUMMARY, this LOG from *D1 answers* on (incl. the HANDOFF entry), and `driver.py`, `run_one.sh`, `run_round.sh`. Julian in chat: "Can you keep an eye on the current run? Are there any questions before I go to bed?"
+
+State at 21:53 UTC [verified: driver log, progress file, `ps`, `nvidia-smi` on the instance]: driver (PID 5837) waiting for round c1_lr; job `lr5e-4` training since 21:26:40 (GPU 99%). A background watcher on this laptop (`watch.sh` in the session scratchpad) polls `driver.log` every 60 s and wakes me at each DECISION NEEDED / round finished / FALLBACK / DRIVER STOPPED / driver done, or after 15 failed ssh attempts.
+
+Julian's answers (multiple choice in chat), transcribed:
+
+C: (transcribed from chat) [If the driver stops on an error overnight, what may I do?] "Fix bugs, rerun (Recommended)" (option text: diagnose; if a plain bug, not a protocol change, fix it, rerun the failed job/round and restart the driver, log everything; otherwise leave the GPU idle until morning)
+C: (transcribed from chat) [Keep the driver's 2 h fallback?] "Keep it (Recommended)"
+C: (transcribed from chat) [Will this laptop and session stay awake overnight?] "Yes, stays awake"
+
+So: both plain-tPD decisions (`plain_lr`, `plain_imp`) are made by me by eye, as in the HANDOFF; the fallback stays as a safety net (closes the HANDOFF's first open question).
+
+---
+
+26-10-26, Claude Opus 5.5 — *instance destruction approved*; same session. Julian in chat:
+
+C: (transcribed from chat) another thing. Once everythihg is finished you are allowed to delet the vastai instance
+
+C: (transcribed from chat) Destroy, You can copy them aswell. What do you need me for the decision for the final runs?
+
+(The second message answers my question: destroy after the plain-tPD finals, or keep the instance for the recon/ortho finals? Julian had asked why copy, since the final checkpoints are on WandB. My answer: the tuning runs upload no checkpoints, so their `.pth` files exist only on the instance.)
+
+Plan [decided: transcribed above]: once the driver is done, copy all tuning checkpoints, logs and analyses to `~/spd_out/26-10-22_tpd_truth_paper/phase_c/<round>/`, check the copies by sha256, check that the final checkpoints are listed on WandB, then destroy the instance (`vastai destroy instance`) and record it here.
+
+---
+
+26-10-26, 22:08 UTC, Claude Opus 5.5 — *recon/ortho coefficients by eye too; their finals overnight*; same session. Julian in chat:
+
+C: (transcribed from chat) do the same by-eye judgment. I rather have some result than no result. In the worst case we have to do another final run which isn't a biggy.
+
+OUTDATED (26-10-26): the entry *overnight plan revised* (steps 4–5: "Stop. The recon/ortho final runs start after Julian chooses the coefficients") and the HANDOFF's *Morning* steps 2–3 no longer hold. The recon and ortho settings are now chosen overnight, by me.
+
+So the recon coefficient and ortho's setting (coefficient, plus LR 2e-3 vs plain's LR if round c4_lr runs) are chosen by eye on the same three axes as plain tPD's settings, never by cancellation [decided: transcribed above]. The method is agent judgement, not a rule, so these choices are provisional. Julian expects a possible rerun.
+
+**Driver change** (`driver.py`, local and on the instance; sha256 equal; previous version kept as `driver_v3_backup.py` in both places):
+- After c3_coef (and c4_lr) it announces `DECISION NEEDED recon_coef` and `DECISION NEEDED ortho_setting` (ortho candidates are run tags such as `ortho_c1` or `ortho_lr2e-3_c1`). It awaits them only after plain tPD's finals, so the GPU keeps training while I decide. The 2 h fallback starts when it begins to wait.
+- Then round `final_rest`: recon and ortho at their chosen settings, seeds 1 and 2, 5,000 steps, checkpoints synced to WandB.
+- Right before, a space check that fails loudly: the listed size of all WandB files plus 4 checkpoints must stay ≤ 4.8 GB. Before the night: storage counter 3.33 GB, listed 3.31 GB over 100 runs [verified: API, 22:00 UTC]. Projected after all six finals: 3.31 − 0.95 (tier 2) + 6 × 0.33 ≈ 4.36 GB [assumed: from the listed sizes].
+- Dry run on the laptop [verified]: results on the real t300 outputs; fallback and decision files with string keys; the four `final_rest` configs built and validated as `Config` (seed, steps 5,000, LR, coefficient, sync on; s1 vs s2 differ only in seed and name).
+- Swap: the old driver (PID 5837) was only waiting; it was stopped by PID at 22:05 UTC and the new one started (PID 6903). Round c1_lr was untouched: `lr5e-4` finished (run `s-f03881a2`, train + analysis exit 0, 22:02), `lr2e-3` training.
+
+Once the driver logs "driver done": copy all checkpoints, logs and analyses locally, check them by sha256, check that the 6 final checkpoints are listed on WandB, then destroy the instance (entry *instance destruction approved*).
+
+Expected timeline [assumed: 36 min per tuning run as measured for `lr5e-4`, ~62 min per final run]: c1 done ~23:15, c2 ~00:30, c3 ~04:20, c4 (if it runs) ~06:10, plain finals ~08:10, recon/ortho finals ~12:20 UTC on 26-10-27.
+
+---
+
+26-10-26, 23:16 UTC, Claude Opus 5.5 — *c1_lr results: plain tPD LR 5e-4*; same session.
+
+Round c1_lr: plain tPD, importance-minimality 1e-3, 3,000 steps, seed 0, val [verified: driver log; all 3 jobs exit 0; outputs copied to `~/spd_out/26-10-22_tpd_truth_paper/phase_c/c1_lr/`]:
+
+| LR | run | (a) comps-only KL rec. | 2nd prompt | accuracy | (b) Pile Δ-only KL | (c) Δ-only KL rec. | Pile rounded | PGD | L0 | max \|C\|/\|y\| (diag.) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 5e-4 | s-f03881a2 | **0.905** | 0.936 | 0.965 | **0.091** | **0.035** | 0.091 | 2.03 | 5.6 | 2.08 |
+| 2e-3 | s-63e23c1b | 0.847 | 0.708 | 0.903 | 0.361 | 0.264 | 0.361 | 2.37 | 2.7 | 8.46 |
+| 5e-3 | s-13746f5b | 0.113 | −0.058 | 0.786 | 1.530 | −0.174 | 0.611 | 2.40 | 2.0 | 25.92 |
+
+**Decision `plain_lr` = 5e-4** [decided by me by eye, under Julian's delegation]: best on all three axes at once (highest (a), lowest (b), (c) closest to 0), and the best second-prompt transfer and PGD loss. No trade-off to judge. Higher LRs give sparser decompositions (L0 2.0–2.7) that hurt the non-target data badly. The cancellation diagnostic grows with LR as well (not used for the choice).
+
+Since 5e-4 ≠ 2e-3, round c4_lr (ortho at LR 2e-3, three coefficients) will run. Round c2_imp started 23:15 UTC (importance-minimality 3e-4 and 3e-3 at LR 5e-4). Run register rows added.
+
+---
+
+26-10-27, 00:30 UTC, Claude Opus 5.5 — *c2_imp results: plain tPD importance-minimality 1e-3*; same session.
+
+Round c2_imp: plain tPD, LR 5e-4, 3,000 steps, seed 0, val [verified: driver log; both jobs exit 0; outputs copied to `~/spd_out/26-10-22_tpd_truth_paper/phase_c/c2_imp/`]. The 1e-3 row is c1_lr's 5e-4 run.
+
+| imp.-min. | run | (a) comps-only KL rec. | 2nd prompt | accuracy | (b) Pile Δ-only KL | (c) Δ-only KL rec. | PGD | L0 | max \|C\|/\|y\| (diag.) |
+|---|---|---|---|---|---|---|---|---|---|
+| 3e-4 | s-42fd706b | **0.964** | 0.909 | 0.979 | 0.091 | −0.190 | 1.74 | 12.8 | 2.06 |
+| 1e-3 | s-f03881a2 | 0.905 | **0.936** | 0.965 | 0.091 | **0.035** | 2.03 | 5.6 | 2.08 |
+| 3e-3 | s-e4d259ea | 0.936 | 0.932 | 0.982 | 0.094 | 0.298 | 2.25 | 2.5 | 2.76 |
+
+**Decision `plain_imp` = 1e-3** [decided by me by eye, under Julian's delegation]. This is a real trade-off:
+- (b) is tied (0.091–0.094).
+- (c) decides: at 1e-3, Δ alone is close to neutral on the verdict (0.035). At 3e-3, Δ alone carries 0.30 of the verdict, which is what targeting should avoid. At 3e-4 it harms the verdict (−0.19).
+- 1e-3 also has the best second-prompt transfer (0.936).
+- The cost: (a) is 0.06 below 3e-4 (0.905 vs 0.964). (a) is non-monotonic in the coefficient (3e-3 beats 1e-3), so with one seed part of that gap is likely noise [assumed].
+- The alternative Julian may prefer: 3e-4, if (a) counts most. Its decomposition is also less sparse (L0 12.8 vs 5.6).
+
+Round c3_coef started 00:29 UTC: recon and ortho at LR 5e-4, importance-minimality 1e-3, coefficients {0.1, 1, 10} (6 runs). Then c4_lr (ortho at LR 2e-3). Run register rows added.
+
+---
+
+26-10-27, 04:45 UTC, Claude Opus 5.5 — *c3_coef results: recon and ortho at plain tPD's settings*; same session.
+
+Round c3_coef: LR 5e-4, importance-minimality 1e-3, 3,000 steps, seed 0, val [verified: driver log; all 6 jobs exit 0; outputs copied to `~/spd_out/26-10-22_tpd_truth_paper/phase_c/c3_coef/`].
+
+| method, coef. | run | (a) comps-only KL rec. | 2nd prompt | accuracy | (b) Pile Δ-only KL | (c) Δ-only KL rec. | Pile rounded | PGD | L0 | max \|C\|/\|y\| (diag.) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| recon 0.1 | s-614cd983 | 0.674 | 0.819 | 0.871 | 0.063 | −0.230 | 0.063 | 2.65 | 2.9 | 0.75 |
+| recon 1 | s-2821a387 | 0.757 | 0.854 | 0.935 | 0.035 | −0.203 | 0.033 | 2.03 | 7.5 | 0.60 |
+| recon 10 | s-9fa49cc7 | 0.953 | 0.560 | 0.968 | 0.148 | −0.462 | 0.015 | 0.31 | 48.2 | 0.96 |
+| ortho 0.1 | s-baae9857 | 0.343 | 0.449 | 0.848 | 0.051 | 0.197 | 0.051 | 2.40 | 3.0 | 0.37 |
+| ortho 1 | s-a53966f6 | 0.523 | 0.703 | 0.829 | 0.037 | 0.259 | 0.037 | 3.00 | 2.6 | 0.36 |
+| ortho 10 | s-d383b59a | 0.269 | 0.614 | 0.851 | 0.029 | 0.232 | 0.029 | 2.74 | 3.0 | 0.33 |
+
+First reading (the decisions come when the driver asks, after c4_lr) [concluded, one seed]:
+- **recon**: coefficient 1 is ahead on (b) and |(c)| and transfers best to the second prompt. Coefficient 10 wins (a) (0.953), but with dense components (L0 48.2 vs 7.5). Its Δ-only Pile KL is high (0.148) while its rounded Pile KL is the lowest (0.015): at 10 the components carry the non-target data too, so the decomposition is no longer targeted. Its Δ alone also harms the verdict most (−0.46), and its transfer to the second prompt drops to 0.560.
+- **ortho at LR 5e-4**: (a) is low at all coefficients (0.27–0.52), Δ alone carries 0.20–0.26 of the verdict. This repeats the 4e screening (0.37 at LR 5e-4, 0.91 at 2e-3). So round c4_lr (LR 2e-3, running since 04:40 UTC) decides ortho.
+
+---
+
+26-10-27, Claude Opus 5.5 — *correction: recon L0 is target-side*; same session. Julian in chat asked which evals the recon tuning used (answered in chat: the three axes plus the logged extras; the method's own `CIHiddenActsReconLoss` was not looked at), then: "You said that at 10 more compenents are active. Did you include that in your decision?"
+
+The recon decision has not been made yet; the driver asks for it after c4_lr. But in the entry *c3_coef results* I used L0 as an argument against coefficient 10, and part of that argument was wrong:
+- `eval/l0/0.01_total` (48.2 at coefficient 10, 7.5 at 1, 2.9 at 0.1) is measured on the **target** eval data, the val statements. On the Pile, `eval/nontarget/total_l0` is small for all three: 0.15 / 0.20 / 0.54 [verified: final eval lines in the copied training logs].
+- So coefficient 10 is dense on the statements, not on the Pile. OUTDATED (26-10-27), entry *c3_coef results*, the clause "at 10 the components carry the non-target data too, so the decomposition is no longer targeted": too strong. The correct reading [concluded]: on the Pile only about 0.5 components fire per token, but those few carry a lot (rounded KL 0.015 vs Δ-only 0.148).
+- L0 is not one of Julian's three axes. Whether target sparsity should count is Julian's question to decide.
+
+---
+
+26-10-27, 06:45 UTC, Claude Opus 5.5 — *c4_lr results; tier 2 deleted; plain finals started*; same session.
+
+Round c4_lr: ortho at LR 2e-3, importance-minimality 1e-3, 3,000 steps, seed 0, val [verified: driver log; all 3 jobs exit 0; outputs copied to `~/spd_out/26-10-22_tpd_truth_paper/phase_c/c4_lr/`]:
+
+| ortho coef. (LR 2e-3) | run | (a) comps-only KL rec. | 2nd prompt | accuracy | (b) Pile Δ-only KL | (c) Δ-only KL rec. | PGD | L0 (target) | max \|C\|/\|y\| (diag.) |
+|---|---|---|---|---|---|---|---|---|---|
+| 0.1 | s-fecf62f5 | 0.766 | 0.577 | 0.829 | 0.116 | −0.307 | 2.93 | 3.0 | 0.58 |
+| 1 | s-53f816bf | 0.936 | 0.826 | 0.965 | 0.061 | **0.049** | 2.33 | 2.9 | 0.44 |
+| 10 | s-ae91d311 | **0.941** | **0.910** | 0.973 | **0.023** | 0.114 | 1.89 | 2.6 | 0.39 |
+
+The driver then announced `DECISION NEEDED recon_coef` and `ortho_setting` (awaited only after the plain finals). It deleted the 4 tier-2 checkpoints (recorded in `convos/julian/26-10-03_wandb_storage_LOG.md`), and round final_plain started at 06:32 UTC.
+
+Not decided yet: Julian is awake and asked about the recon choice (entry *correction: recon L0 is target-side*), so I put both choices to him first.
+
+---
+
+26-10-27, Claude Opus 5.5 — *recon: Julian expects many active components; own reconstruction error favours coefficient 10*; same session. Julian in chat:
+
+C: (transcribed from chat) It's natural for the amount of components to go up for the tPD + reconstruction. I susspect the best one to have many active components.
+
+C: (transcribed from chat) Why do you prefer 1 over 10 in orthogonality?
+
+**Ortho**: a misreading. In chat I proposed ortho at LR 2e-3, coefficient **10**, not 1 (it wins (a), (b), second prompt and PGD; it loses only (c), 0.114 vs 0.049).
+
+**Recon**: the method's own error, read now from the final training evals. `eval/loss/CIHiddenActsReconLoss` is the absolute MSE (not relative; `calc_hidden_acts_mse` default) between the CI-masked components' and the original `down_proj` outputs at the decomposed positions, on the val statements [verified: copied training logs; code read]:
+
+| run | CI-masked hidden-acts MSE |
+|---|---|
+| plain (LR 5e-4, imp 1e-3) | 0.968 |
+| ortho LR 2e-3, coef. 1 / 10 | 0.854 / 0.741 |
+| recon coef. 0.1 / 1 / 10 | 0.726 / 0.686 / **0.040** |
+
+Reading [concluded, one seed]: only coefficient 10 actually reconstructs the MLP outputs. At 1 the term barely bites (0.69, against 0.97 for plain tPD without it). So coefficient 10 is the run that does what "+ per-layer reconstruction" claims, and Julian's expectation of many active components fits: reproducing the whole output needs many components (L0 48 on the statements). This also undercuts my axis-based preference for 1. (c) is close to neutral only at a point where the components don't reconstruct. When the components carry the whole output, Δ alone is a remainder, and its strongly negative (c) at 10 (−0.46) may be partly by construction [assumed].
+
+Costs of coefficient 10 that remain real: Δ-only Pile KL 0.148 (plain 0.091; the ~0.5 components firing per Pile token carry much of it), and the weakest transfer to the second prompt (0.560 vs 0.854 at 1).
+
+Revised proposal [assumed, awaiting Julian]: recon coefficient 10; ortho LR 2e-3, coefficient 10.
+
+---
+
+26-10-27, Claude Opus 5.5 — *should transfer count in the selection?*; same session. Julian in chat:
+
+C: (transcribed from chat) Should we factor transfer into the eval?
+
+My answer [assumed: recommendation, awaiting Julian]: report transfer in the evaluation (phase D), but **don't use it for selection**.
+1. **It is our held-out generalisation test.** Selecting on it would spend it: a method tuned for transfer can no longer offer its transfer as evidence that the components carry something prompt-independent. This holds although tuning is on val and the finals are evaluated on test. The prompt itself would no longer be unseen.
+2. **It only affects recon.** Plain tPD's LR and importance-minimality were also the best on transfer, and ortho at coefficient 10 wins transfer too (0.910). For recon it would flip the choice back to 1 (0.854 vs 0.560 at 10).
+3. **What the second prompt tests is narrower than "transfer"** [concluded from the prompt construction, `verdict_lens_analysis.py` `SECOND_STIMULUS`]. The model is causal, and the statement is a prefix of both prompts. So every statement token except the last has identical activations and CIs under both prompts. The last token differs: '.\n' under the training prompt, '.' under the second. Transfer differences can therefore only come from (i) the components at a final token never seen in training, and (ii) the second prompt reading the MLP outputs differently.
+   - For recon at 10, whose components reproduce the MLP outputs almost exactly (error 0.04), (ii) should be small at the shared tokens. So its drop to 0.560 probably sits at the final token, which carries most of the verdict (the end token alone keeps 82% of the separation, causal layer scan) [assumed: not checked].
+   - That is a finding about recon (reconstruction fitted to one end token doesn't generalise to another), not a flaw that should decide the coefficient.
+4. **Proposal for phase D** [assumed]: add a third readout whose statement ends with the same '.\n' token as in training, e.g. "<statement>\nIs this statement true (1) or false (0)? Answer: ". It separates readout transfer from end-token transfer. And a per-position check of recon's error at the final token under the second prompt.
+
+---
+
+26-10-27, Claude Opus 5.5 — *recon and ortho settings decided*; same session. Julian in chat:
+
+C: (transcribed from chat) OK, agree on the coefficients. No need to add another eval for now
+
+- **recon coefficient 10; ortho LR 2e-3, coefficient 10** [decided: transcribed above]. Reasons in the entries *recon: Julian expects many active components…* and *c4_lr results…*.
+- Transfer to the second prompt is not a selection criterion (my recommendation, entry *should transfer count in the selection?*; Julian agreed on the coefficients that follow from it, so this is [concluded], not separately ratified). No third readout for now [decided: transcribed above].
+- Decision files written on the instance (`recon_coef.json` = 10, `ortho_setting.json` = `ortho_lr2e-3_c10`) [verified: read back]. The driver reads them after round final_plain (running since 06:32 UTC), then runs the four recon/ortho finals.
+
+Julian in chat, clarifying "No need to add another eval":
+
+C: (transcribed from chat) I mean phrase for eval
+
+So the decision is: no third prompt phrasing for the evaluation for now (the proposed '.\n'-ending readout of the entry *should transfer count in the selection?*, point 4). The per-position check of recon at the final token is a separate analysis, and it was not ruled out.
+
+---
+
+26-10-27, 08:40 UTC, Claude Opus 5.5 — *plain finals done; recon/ortho finals started*; same session.
+
+Round final_plain: plain tPD, LR 5e-4, importance-minimality 1e-3, 5,000 steps, checkpoints synced to WandB; val analysis only [verified: driver log; both jobs exit 0; outputs copied to `~/spd_out/26-10-22_tpd_truth_paper/phase_c/final_plain/`]:
+
+| seed | run | (a) comps-only KL rec. | 2nd prompt | accuracy | (b) Pile Δ-only KL | (c) Δ-only KL rec. | PGD | L0 (target) | max \|C\|/\|y\| (diag.) |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | s-7152548c | 0.964 | 0.946 | 0.979 | 0.102 | 0.097 | 1.64 | 3.7 | 2.02 |
+| 2 | s-46efc525 | 0.963 | 0.926 | 0.980 | 0.098 | −0.056 | 1.29 | 3.8 | 1.91 |
+
+The two seeds agree closely on (a) and (b). (c) differs in sign (0.097 vs −0.056), so (c) has a seed spread of order 0.1 [concluded: two seeds]. That puts the (c) differences used in the plain importance-minimality and ortho choices within noise. Those choices were made on one seed.
+
+The driver then read both decisions and ran the WandB space check: listed 3.05 GB, 4.39 GB after 4 more checkpoints (limit 4.8) [verified: driver log]. 3.05 ≈ 3.31 − 0.95 + 2 × 0.334, consistent with both plain final checkpoints (333,524,341 B each) being on WandB. Round final_rest (recon s1, s2; ortho s1, s2) started 08:33 UTC. Run register rows added.
+
+---
+
+26-10-27, 13:35 UTC, Claude Opus 5.5 — *all finals done; outputs copied; instance destroyed*; same session.
+
+Round final_rest: 5,000 steps, importance-minimality 1e-3, checkpoints synced, val analysis only [verified: driver log; all 4 jobs exit 0; "driver done" 13:10 UTC]:
+
+| method, seed | run | (a) comps-only KL rec. | 2nd prompt | accuracy | (b) Pile Δ-only KL | (c) Δ-only KL rec. | Pile rounded | PGD | L0 (target) | max \|C\|/\|y\| (diag.) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| recon (coef. 10), 1 | s-eeac663f | 0.977 | 0.968 | 0.971 | 0.141 | −0.239 | 0.015 | 0.30 | 37.8 | 0.96 |
+| recon (coef. 10), 2 | s-edc17041 | 0.972 | 0.955 | 0.976 | 0.140 | −0.433 | 0.014 | 0.31 | 38.5 | 0.96 |
+| ortho (LR 2e-3, coef. 10), 1 | s-0c2fa0d7 | 0.907 | 0.934 | 0.975 | 0.024 | 0.162 | 0.024 | 2.75 | 2.8 | 0.43 |
+| ortho (LR 2e-3, coef. 10), 2 | s-4186f973 | 0.906 | 0.808 | 0.956 | 0.023 | −0.061 | 0.023 | 2.54 | 3.2 | 0.42 |
+
+With the plain finals (entry *plain finals done…*: (a) 0.964 / 0.963, second prompt 0.946 / 0.926, (b) 0.102 / 0.098), first readings [concluded: two seeds, val only; not the analysis]:
+- (a) is very stable across seeds in every method (spread ≤ 0.005). (c) is not: it changes sign between seeds in plain and ortho, and spans 0.19 in recon. So (c) is too noisy to separate methods at this sample size.
+- Second-prompt transfer is high for recon at 5,000 steps (0.968 / 0.955), against 0.560 in the 3,000-step tuning run at the same coefficient. OUTDATED (26-10-27), entry *should transfer count in the selection?*, point 3, the sentence "its drop to 0.560 probably sits at the final token…": the drop did not persist in the finals. It was a property of that one shorter run, not of recon at coefficient 10. The construction argument (shared statement prefix, differing last token) still holds. Ortho's transfer varies across seeds (0.934 / 0.808).
+- (b) separates the methods: ortho 0.023, plain 0.10, recon 0.14. recon's rounded Pile KL is the lowest (0.015).
+
+**Copies** [verified: sha256 of all 696 files, instance vs laptop, all equal; 23 `.pth`]:
+- All 23 run directories of the instance (3 trials, 14 tuning runs, 6 finals; `final_config.yaml`, checkpoint, metadata) → `~/spd_out/runs/spd-<id>/`, the existing convention for local checkpoint copies.
+- The whole driver directory `/root/paper_c` (driver, decisions, logs, all rounds) → `~/spd_out/26-10-22_tpd_truth_paper/phase_c/instance_paper_c/`.
+- The instance's copy of the 4e checkpoint `s-eb1c20d5` was not copied back: it came from the laptop, and `~/spd_out/26-10-16_faithful_targeting/e4/checkpoints/s-eb1c20d5/model_3000.pth` exists.
+
+**WandB** [verified: API 13:20 UTC]: all 6 final runs `finished`, each with one `model_5000.pth` of 333,524,341 B. Counter 3.81 GB (it lags uploads); listed projection 4.39 GB.
+
+**Instance destroyed** (13:30 UTC; vast id 57869398, RTX PRO 6000, Sevilla) [decided: Julian, entry *instance destruction approved*; verified: `vastai show instances` lists none]. About 16.7 h rented at $1.46/h, ≈ $24 [assumed: from vast's age and price columns].
+
+Next (phase D, with Julian): freeze the analysis plan (D3), then the four-category analyses on test / OOD / second prompt. Registry entries come after the analysis freeze (phase E). Uncommitted: `verdict_lens_analysis.py` (second-prompt length fix) and the records.

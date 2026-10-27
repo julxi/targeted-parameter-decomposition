@@ -216,3 +216,11 @@ OUTDATED (26-10-21): "checkpoints 3.042 GB" below does not match its own itemisa
 - The counter now sits 0.32 GB *below* the listed files, unexplained [assumed: the counter excludes some file kinds or settles in stages]. Either way usage is 2.0 GB under the 5 GB cap. The re-check is done; no further check needed until the next upload or deletion.
 
 The sync also corrected `convos/julian/26-10-03_wandb_storage_RUNS.md`: its "ckpt" column held whole-run sizes, not checkpoint sizes (now "size"), and rotgrid has 55 runs, not 56 [verified: WandB API listing, sub-agent, 26-10-21].
+
+---
+
+26-10-27, 06:40 UTC, Claude Opus 5.5 — *tier 2 deleted for the paper's final runs*; working in the paper topic (`convos/julian/26-10-22_tpd_truth_paper_LOG.md`).
+
+Julian approved deleting the 4 tier-2 checkpoints right before the paper's final runs (26-10-26, transcribed in the paper LOG, entry *overnight plan*: "Yes, delete tier 2 (Recommended)"). The on-instance driver deleted them at 06:32 UTC, each after checking that the run holds exactly one `.pth`, named `model_5000.pth`, of 238,232,949 B. It then re-listed all four runs: no `.pth` left [verified: driver log, assertion passed]. Deleted: Exp 0 `s-aeaa70d8`, Exp 2 `s-05db01ad`, Exp 3 `s-161f8a7b`, code control `s-b6cce5de`. Frees 0.95 GB; local copies under `~/spd_out/runs/spd-<id>/model_5000.pth` (checked 26-10-26).
+
+Before: storage counter 3.33 GB, listed files 3.31 GB over 100 runs in project `spd` [verified: API, 26-10-26 22:00 UTC]. The paper finals add 6 × ~333.5 MB; projected ≈ 4.36 GB [assumed: from listed sizes]. The driver checks the listing (≤ 4.8 GB with 4 more checkpoints) before the recon/ortho finals. Run register updated.
