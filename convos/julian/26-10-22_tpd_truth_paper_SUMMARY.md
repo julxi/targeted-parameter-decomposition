@@ -1,6 +1,6 @@
 # SUMMARY: Paper "Trying to decompose a truth mechanism with tPD" — consolidating the experiments
 
-**Last updated:** 26-10-27 13:35 UTC (phase C tuning and all final runs done, instance destroyed; next: analysis freeze D3)
+**Last updated:** 26-10-27 (finals done; D3 analysis plan in revision 2 after Julian's comments, not yet ratified)
 
 Julian wants a research artifact from the tPD truth work, first as a living report that grows during writing (focus: right results and story, not prose). The story is not settled and needs new or redone experiments; the final experiments go into `spd/registry.py` (configs plus canonical WandB runs, for reproducibility by other researchers) [decided: C: comment].
 
@@ -48,7 +48,7 @@ Phase A status: A1 (living report `reports/26-10-22_tpd_truth_paper.typ`) skippe
 - Second prompt: plain 0.946 / 0.926, recon 0.968 / 0.955, ortho 0.934 / 0.808.
 - Tables in the LOG entries *plain finals done…* and *all finals done…*.
 
-All 23 run directories (trials, tuning, finals) are copied to `~/spd_out/runs/spd-<id>/`, the driver directory to `…/phase_c/instance_paper_c/` (sha256-checked). The instance was destroyed 13:30 UTC [decided: Julian]. The 4 tier-2 checkpoints were deleted from WandB for the finals [decided: Julian]. **Next**: analysis freeze (D3), then the four-category analyses on test / OOD / second prompt; registry entries in phase E. The second-prompt length fix in `verdict_lens_analysis.py` and the records up to here are committed (`befc2fb`).
+All 23 run directories (trials, tuning, finals) are copied to `~/spd_out/runs/spd-<id>/`, the driver directory to `…/phase_c/instance_paper_c/` (sha256-checked). The instance was destroyed 13:30 UTC [decided: Julian]. The 4 tier-2 checkpoints were deleted from WandB for the finals [decided: Julian]. **Next**: analysis freeze (D3). Current draft = LOG entry *D3 plan, revision 2* [assumed: not ratified; answers to Julian's comments in place in *D3 proposal*]: controls = untrained decomposition (`steps: 0`, seeds 1, 2), the data-aligned basis (input principal directions), random sets. Recovery (components only, test/OOD/second prompt); termination (T0 Δ only, single and top-k removals, A8 with all-96 and active spans [decided: C: comment]); correlation (K0 all-CI probes shown as non-evidence, single-component sparsity, OOD transfer, truth vs verdict); manipulation: mask search dropped in favour of reversing/amplifying the components termination and correlation single out, with data-aligned controls and hypothesis tests (still under discussion; Julian: trained manipulation teaches little); new: inactive components' role and a functional active set (smallest top-m set by mean CI recovering ≥ 95%; counts = sum of CIs); new: truth directions (mass-mean and logistic regression vs component writes). Reporting conventions instead of decision thresholds: everything listed is reported, both seeds and controls next to every number, no ranking where seeds overlap. The freeze comes after the finals' val readout (the plan had it before) but before any test/OOD analysis. Then A5 (scripts into the repo with reproduction checks) [decided: C: comment], then one rental; registry entries in phase E.
 
 ## See also
 

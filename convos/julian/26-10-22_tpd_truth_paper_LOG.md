@@ -1042,3 +1042,128 @@ With the plain finals (entry *plain finals done…*: (a) 0.964 / 0.963, second p
 **Instance destroyed** (13:30 UTC; vast id 57869398, RTX PRO 6000, Sevilla) [decided: Julian, entry *instance destruction approved*; verified: `vastai show instances` lists none]. About 16.7 h rented at $1.46/h, ≈ $24 [assumed: from vast's age and price columns].
 
 Next (phase D, with Julian): freeze the analysis plan (D3), then the four-category analyses on test / OOD / second prompt. Registry entries come after the analysis freeze (phase E). Uncommitted: `verdict_lens_analysis.py` (second-prompt length fix) and the records.
+
+---
+
+26-10-27, Claude Opus 5.5 — *D3 proposal: the analysis plan to freeze*; new session. I have read CLAUDE.md, INDEX.md, this topic's SUMMARY, this LOG's *first pass* (sections 3–8 with Julian's comments), *plan of steps*, *D1 answers*, *tuning budget revised* and the last two entries, and the faithful-targeting SUMMARY (4e analyses, A8, reprogramming). Julian in chat: "I'd like to do the next step of the analysis. We finetuned and trained some decompositions. What is next?"
+
+**Next step = D3**: freeze the analysis plan (metrics, controls, data, decision rules), then phase D's analyses on test / OOD / second prompt. Below is my draft; nothing in it is fixed until Julian ratifies it.
+
+**Order slip to note** [concluded: plan of steps vs the entries above]: the plan put the freeze *before* the final runs (*first pass* section 7, Julian: "fixing that and the final runs comes at the very end"). The finals ran first, overnight. Little is lost: only val numbers of the finals were looked at (tables in *plain finals done…* and *all finals done…*); test and the OOD sets are untouched, and none of the analyses below has been run on the finals. The report should say that the plan was fixed after the finals' val readout and before any test/OOD analysis.
+
+## Draft analysis plan [assumed: proposal]
+
+**Objects.** 6 finals (plain, recon, ortho × seeds 1, 2). Controls, each used wherever a category compares "decomposition vs not":
+- **Untrained decomposition**: the same config at `steps: 0` (as `config_truth_untrained.yaml` did for arm A), seeds 1 and 2. At initialisation the three configs are identical (the method term acts only in training), so 2 untrained checkpoints cover all methods.
+- **Data-aligned basis**: per layer the top-96 principal directions of the MLP's inputs on train statements, write vectors u = W v (the `--pca_basis` of `mask_search_4e.py`). It matched 4e's components at verdict swapping, so it is the control that matters most.
+- **Data-blind random basis / size-matched random component sets**: weaker control, reported for scale.
+
+**Data and prompts.** tiu v3 test (in-distribution); the 24 OOD files with verdict-prompt AUC ≥ 0.7 for verdict-target analyses; the 13 OOD files above the stricter bar for ground-truth analyses [decided: *D1 answers*, point 2]. Two prompts: the training verdict prompt and the second prompt "Is this statement true (1) or false (0)? Answer: " (held-out readout). The 4 excluded files are not analysed.
+
+**Conventions** [decided earlier unless tagged]: CI-weighted state; macro-average over families; both labels (ground truth and the model's own verdict) in every analysis; all metrics per seed, never pooled across seeds. Uncertainty: bootstrap over statements within family, 1,000 resamples, 95% intervals [assumed: proposal].
+
+**1. Recovery** (cheapest; `verdict_lens_analysis.py`, already in the repo)
+- Components only (Δ off) KL recovered and verdict agreement with the original model; on test, per OOD file and for the second prompt. Untrained decomposition as floor.  
+- Reported alongside: Δ only (axis (c)), Δ-only Pile KL (axis (b)), PGD loss, and the cancellation numbers |C|/|y|, ⟨C, Δx⟩/|y|² as a diagnostic only (Julian rejected cancellation as a criterion).  
+C: Is Δ only on target recovery? Should it be "necesity" or something?  
+Answer (26-10-27, Claude Opus 5.5): Yes, it's necessity. Δ only = the full model with all components removed, so it measures whether the components *together* are necessary. I move it to termination as T0 (removal of all components). The Δ-only Pile KL (axis (b)) is neither recovery nor necessity: it says whether the model stays intact off-target. I report it in its own line, *side effects*. Recovery is then only components-only, on test, OOD and the second prompt.
+- Question it answers: does the components' verdict hold off the training families (German, conj/disj, inventors, facts)?
+
+**2. Termination** (necessity; `ablate_4e.py`, `compare_decomps.py`)
+- T1 single removal of each active component from the full model (Δ kept): drop of the verdict separation, flips true→false and false→true, per family.
+- T2 removal of the top-k components (k = 1, 2, 5, 10, 20, all active), ranked on val, measured on test; against the same k of size-matched random components, of the untrained decomposition and of the data-aligned basis. Show the whole curve over k.
+- T3 = A8: remove from the *original* MLP output its projection onto the span of the components' write vectors, per layer; controls: random subspaces of equal dimension, top principal directions. Two spans: all 96 write vectors (as in 4e) and only the active components (open proposal from the faithful-targeting topic).
+
+**3. Correlation** (single components, since a probe over all CIs only reads the activations)  
+C: yes, but we need the data as well to show that it's not telling  
+Answer (26-10-27, Claude Opus 5.5): Agreed, if I read you right: the probe numbers go in, as the reason why correlation has to be judged on single components. New item K0: a probe over all CIs for each final run vs the untrained decomposition vs the residual stream, on test and OOD. If the arm A pattern repeats (untrained as good as trained), that is the shown evidence that CI probes say nothing tPD-specific. If you meant something else by "the data", please say.
+- K1 sparsity: single-component AUC within family, for the label and for the model's verdict; best k-component logistic probe (k = 1, 2, 5) against the untrained decomposition and the data-aligned basis at the same k.
+- K2 transfer: components selective on val (|AUC − 0.5| ≥ 0.2, selection fixed on val) keep their sign on the OOD files of the same sentence form (negated → neg_*/German negated, affirmative → inventors/facts/German, composition → conj/disj). Measure: share that transfers (same sign, |AUC − 0.5| ≥ 0.1), against the same share for the controls.
+- K3 truth vs verdict: on statements where the model's verdict disagrees with the label, does the component follow the label or the verdict? Mostly an OOD analysis (in-distribution test has few errors). This one uses all 24 files by necessity, since the error-free sets have no disagreements.
+
+**4. Manipulation** (most expensive; `mask_search_4e.py`)
+- M1 mask search fit on train, tested on test, curve over the number of terms, for every final decomposition and every control basis. Outcomes: verdict under the training prompt, the same edit under the second prompt, and recall (the B3 recall readout for cities and elements) to separate "changes the verdict" from "changes the belief".
+- No new single-component reversal experiments: the steering topic and B3 already show that verdict levers are readout levers; M1 with recall tests whether that holds for the paper's runs.  
+C: I'd like to talk about manipulation a bit longer. What manipulation experiments did seem to have been successful so far? I want to use these as a basis for sensible results. My understanding is that training a manipulation gives no real results and also does not get us further in understanding the decompositions.  
+Answer (26-10-27, Claude Opus 5.5): I agree about trained manipulation. What the records show [verified there, one seed each unless noted]:
+- **Worked and taught us something: reversing single identified components** (component-steering topic, 4c). Reversing L17:5 (mask −1) sends 42.6% of correctly answered false statements to "1" (random single components ≤ 0.7%), but only in the negated families and smaller_than. That told us what the component does: negation × relation ("the 'not' is ignored"), not a general "false" writer. Gap: no data-aligned control was run.
+- **Worked, but is termination, not manipulation**: removals. 4e at importance-minimality 3e-3: removing its 41 false-selective components calls 75% of the false statements "true", and true ones stay true. 4e at 1e-2: removing L11:22 inverts the larger_than verdicts. A8: removing the components' subspace from the original L11 output flips 22–28% of false statements (both seeds), and random subspaces of the same size do nothing. These are the strongest causal results so far, and they sit in section 2.
+- **Worked, but no decomposition involved**: truth-direction steering at the statement tokens flips the verdict (B3: 0.975 under the verdict prompt), and recall stays intact: a truth tag, not a belief.
+- **Trained manipulation (gradient mask search)**: it finds edits that swap verdicts, but on 4e an untrained data-aligned basis does it as well (129 terms → accuracy 0.057), and the belief-shaped objective gives verdicts by sentence form for every basis, random included. So it tells us about the readout, not about the decomposition. The one point in its favour (decompositions slightly better with ≤ 20 terms in the affirmative fact families) is weak.
+
+**Proposal** [assumed]: drop M1 (mask search) from the frozen plan. Replace it with hypothesis-driven manipulation of the components that termination and correlation single out:
+- M1′: for the components that are individually necessary in T1 (and the label-selective ones from K1), reverse (×−1) and amplify (×2) each one and each group, per family, under both prompts. Controls: the same operation on size-matched random components and on the data-aligned basis directions with the largest effect on the verdict (the control the 4c steering lacked).
+- M2′: test the reading each one suggests. E.g. for a negation × relation component, the paired-negation test proposed in the steering topic: under reversal, does a negated statement's score follow its affirmative twin? Since the tests depend on what T1/K1 find, the plan fixes only the form (the hypothesis comes from T1/K1 on val, the test runs on test), not the hypotheses.
+- Recall readout only where a manipulation flips affirmative fact families. Everything so far changed negated or compared statements, where recall of the fact is not affected.
+
+**Decision rules** [assumed: proposal; they are reading rules, not a definition of "mechanism", per Julian's comment in *first pass* section 4]:  
+C: what do we need to decide on? Don't we just do experiments and then interpret the results?  
+Answer (26-10-27, Claude Opus 5.5): Mostly yes. What the freeze needs is the *list*: which experiments, which controls, which data, and that all of them get reported, including those that come out badly. With many analyses × 3 controls × 2 seeds × 24 OOD files, choosing what to show after seeing the results is the risk, not the interpretation itself. So I'd drop the thresholds ("counts as decomposition-specific only if …") as rules and keep two reporting conventions instead: every number is shown with both seeds and its controls next to it, and no method ranking where the two seeds overlap. Interpretation afterwards, as you say. That also fits your "no fixed definition" from *first pass* section 4.
+- An effect counts as **decomposition-specific** only if it holds in both seeds and exceeds the data-aligned basis (and the untrained decomposition) by more than the larger of the seed spread and the bootstrap interval.  
+C: what are the seed spread and bootstrap interval?  
+Answer (26-10-27, Claude Opus 5.5): Two sources of noise in a number:
+- **Seed spread**: the difference between the two final runs of a method (seeds 1 and 2), i.e. how much the result depends on the training's randomness (initialisation, data order, masks). Example from the finals on val: plain tPD's components-only KL recovered 0.964 vs 0.963 (spread 0.001); Δ only 0.097 vs −0.056 (spread 0.15). So the first number is stable, the second is not.
+- **Bootstrap interval**: how much a number would change with a different sample of statements of the same size. Draw the test statements with replacement 1,000 times, recompute the metric each time; the middle 95% of the results is the interval. It matters most for small cells (German files: 49–50 statements each; test cells as small as 18 statements, animal_class_true).
+Seed spread is noise of the decomposition, the bootstrap is noise of the test set. With 2 seeds the spread is a crude estimate, which is why I proposed no ranking when they overlap rather than a formal test.
+- **Methods are ranked** on a metric only when both seeds of one method lie outside the other method's two-seed range; otherwise the report says "not separated" (my caution in *first pass* section 7).  
+- Everything not listed above is **exploratory** and labelled so in the report (e.g. inspecting what a single component reads).
+
+**Execution order**: (i) A5: move `ablate_4e.py`, `compare_decomps.py`, `mask_search_4e.py` (+ `attrib_4e.py` only if needed; A6 was not used as causal evidence) into the repo next to `verdict_lens_analysis.py`, generalised to the paper runs and the controls, with one reproduction check each on the 4e checkpoint `s-eb1c20d5` (val) against the stored outputs in `~/spd_out/26-10-16_faithful_targeting/e4/`; tests where feasible. The move is CPU work; the reproduction checks need a GPU and open the rental. (ii) Build the 2 untrained checkpoints and the data-aligned bases. (iii) One rental: recovery → termination → correlation → manipulation, in order of cost. GPU time not estimated yet; I'd measure it with the reproduction checks.
+
+## Questions for Julian
+
+1. Ratify the plan, or which parts to change? In particular the decision rules.  
+C: I already had some comments. Another commet is about active components. It's basically two:
+- we have seen that inactive components can play a major role in the functioning of the decomposations. I want to have the numbers for this as well. As an additional finding.
+- one caveat on active component is that it uses the random cutoff point. I'd like to have a motivated cutoffpoint instead.
+Answer (26-10-27, Claude Opus 5.5): Both make sense, and both are cheap (no training).
+
+**(i) Role of the inactive components** [assumed: proposal]. Earlier evidence: in 4a, inactive components and Δ cancel a layer-11 write 12.9× the MLP output's norm; in 4d they each wrote 3–11 |y|, cancelling; in 4e the integrated-gradients split gave the inactive components −1.16 of 8.23 (path-dependent, not causal). Measures per final run and control, test and both prompts:
+- KL recovered with only the active components (CI-weighted, others off, Δ off) vs all components CI-weighted: the difference is what the inactive ones contribute.
+- Removing the inactive components from the full model (active ones and Δ kept): change of verdict and separation.
+- Their size and direction per layer: |I|/|y| and cos(A, I), which `verdict_lens_analysis.py` already logs.
+- Plus the mean-mask state (CI + (1 − CI)/2), which separates "inactive components matter" from "they matter only through the training's random masks" (your low-CI averaging hypothesis of *first pass* section 6). Reported as a hypothesis, as you decided there, unless the numbers are clear.
+
+**(ii) A motivated cutoff.** The current thresholds are CI > 0.01 (the rounding rule of the eval metric, `verdict_lens_analysis.py`) and "active in ≥ 2% of statements" for candidate lists; both are arbitrary. Proposal [assumed]:
+- **Counts without a cutoff**: per statement, the sum of the CIs. At the end of training the importance-minimality p-norm has annealed to 1 (`pnorm: 2.0`, `p_anneal_final_p: 1.0` in the paper configs [verified: config]), so this is close to the quantity the loss penalises.
+- **The active set by function**: rank the components by mean CI on val statements; the active set is the smallest top-m set whose CI-weighted components-only state (others off, Δ off) recovers ≥ 95% of what all components recover. That is "the components that do the job", one set per run, no per-statement threshold. The 95% is still a choice, but on a scale with a meaning. The whole curve over m is reported, so a reader can see that nothing hinges on it.
+- This set is used for A8 ("active" span), as T1's candidate list and for (i). As a check, the main results are also given at the old threshold 0.01.
+Alternative I considered: a valley in the CI histogram. It probably doesn't exist: in the 4d trial 30% of the active CIs lay strictly between 0.01 and 0.99.  
+C: I think there might be a valley. We should look for it at least.
+C: I don't want CI > 0.01 = active component definition in the results.
+2. Scope for cost: keep M1 (mask search for 6 runs × 4 bases, with recall), or cut it to one seed per method?  
+C: We talk about the manipulating some more, right?  
+Answer (26-10-27, Claude Opus 5.5): Yes: my answer under your manipulation comment in section 4. My proposal drops the mask search, so this cost question goes away.
+3. A8 span: all 96 write vectors, active components only, or both (my proposal)?  
+C: both + what should count as ative  
+Answer (26-10-27, Claude Opus 5.5): Both, noted [decided: C: comment]. "Active" per the proposal under your comment to question 1: the smallest top-m set by mean CI that does the components' job.
+4. Shall I start A5 (scripts into the repo, CPU, reproduction checks need a GPU later) once the plan is fixed?
+C: yes  
+Answer (26-10-27, Claude Opus 5.5): Noted [decided: C: comment]: A5 starts once the plan is fixed.
+
+C: another comment. I also want to investigate the connection of truth direction and the decomposition. For that I'd suggest that we compare the decomposition writes to the mass-mean and also logistic regression probes  
+Answer (26-10-27, Claude Opus 5.5): Good, I add it as section 5, *truth directions* [assumed: design proposal].
+- **Directions**: mass-mean and logistic regression, fit on v3 train, in the residual stream after each layer 11–17 (where that layer's MLP writes), at the last statement token. Because the statement comes first, the residuals at the statement tokens equal those of the bare statement except at the last token (`'.\n'` instead of `'.'`) [concluded: causal attention], so they are close to the directions used so far.
+- **Per component**: cos(write vector, direction). Baseline: random vectors (≈ 0.017 in 3,584 dimensions, as in A4) and the data-aligned basis.
+- **Share of the truth gap**: the projection of the CI-weighted writes of the components vs Δ onto the direction, mean true minus mean false (as for 4c, components 13% / Δ 73% at the end token, and 4e, components 0–7%).
+- **Link to function**: do the components that matter in T1 or flip things in M1′ write along the direction? And the other way: does removing the direction from the MLP output (as in A8, one dimension) cost the verdict that removing the components costs?
+Expectation from the records [concluded there]: the components write little along the direction; Δ holds most of the gap but gives no verdict alone; B3 showed the direction acts as a truth tag. So the likely result is "the verdict-relevant part is not the truth-direction part". That is a result in its own right, but the analysis should not be framed as if we expect alignment.
+
+
+---
+
+26-10-27, Claude Opus 5.5 — *D3 plan, revision 2 (after Julian's comments)*; same session. Julian in chat: "OK, I gave you some more comments." Answers are in place under each comment in *D3 proposal*; this entry collects the plan as it now stands [assumed: not ratified; parts tagged decided come from C: comments].
+
+**Changes against the draft:**
+- **Recovery**: components only (Δ off), on test, OOD, second prompt. Δ only moves to termination (T0 = remove all components). Δ-only Pile KL becomes its own line, *side effects*.
+- **Termination**: T0 (Δ only), T1 single removals, T2 top-k curves, T3 = A8 with both spans (all 96 write vectors and the active set) [decided: C: comment].
+- **Correlation**: new K0, the probe over all CIs (trained vs untrained vs residual stream), shown as the evidence that CI probes are not tPD-specific; then K1–K3 as drafted.
+- **Manipulation**: mask search dropped (proposal; Julian's view that trained manipulation teaches little, and on 4e a data-aligned basis did as well). Instead M1′: reverse (×−1) and amplify (×2) the components singled out by T1/K1, with size-matched random and data-aligned controls; M2′: hypothesis tests of the reading each component suggests (form fixed now, hypotheses from val, tests on test); recall only where affirmative fact families flip. Open for discussion, as Julian asked.  
+C: Can you explain this in more detail. Does that mean we have to investigate each component by hand?
+- **New, active vs inactive components** (Julian's comment): the inactive components' contribution (active-only vs all CI-weighted, removal of the inactive ones from the full model, |I|/|y| and cos(A, I), mean-mask state). Counts as the sum of CIs; the active set = smallest top-m set by mean CI that recovers ≥ 95% of the components-only KL recovered (curve over m reported; main results also at the old 0.01).  
+C: yes, I like this.
+- **New section 5, truth directions** (Julian's comment): mass-mean and logistic-regression directions after layers 11–17 at the last statement token (v3 train); per component cos(write, direction) vs random and data-aligned basis; the components' vs Δ's share of the truth gap; whether the functionally important components write along it; removing the one direction from the MLP output vs removing the components.
+- **Decision rules → reporting conventions**: all listed analyses are reported whatever their outcome; every number with both seeds and its controls; no method ranking where the seeds overlap. No thresholds for "decomposition-specific".
+- Unchanged: controls (untrained decomposition at `steps: 0`, seeds 1, 2; data-aligned basis; random sets), data and prompts, CI-weighted, macro-average, both labels, bootstrap intervals. A5 starts once the plan is fixed [decided: C: comment].
+
+**Still open for Julian**: the manipulation part (M1′/M2′), the 95% in the active-set definition, and the plan as a whole.
