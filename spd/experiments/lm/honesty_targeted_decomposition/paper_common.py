@@ -130,24 +130,42 @@ def load_statements(split: StatementSplit, train_dirs: list[str]) -> Statements:
     )
 
 
-def cap_per_dataset(st: Statements, n: int, seed: int) -> Statements:
-    """At most n statements per dataset, a seeded random subset in the original order (OOD cost cap;
-    quick checks)."""
+def cap_rows(st: Statements, n: int, seed: int) -> np.ndarray:
+    """Indices of at most n statements per dataset, a seeded random subset, in the original order."""
     rng = np.random.default_rng(seed)
     keep = []
     for d in sorted(set(st.datasets)):
         idx = np.flatnonzero(st.datasets == d)
         keep.append(np.sort(rng.choice(idx, size=n, replace=False)) if len(idx) > n else idx)
-    k = np.sort(np.concatenate(keep))
+    return np.sort(np.concatenate(keep))
+
+
+def subset(st: Statements, rows: np.ndarray) -> Statements:
     return Statements(
         st.split,
-        [st.texts[i] for i in k],
-        st.labels[k],
-        st.datasets[k],
-        st.families[k],
-        st.forms[k],
-        st.german[k],
+        [st.texts[i] for i in rows],
+        st.labels[rows],
+        st.datasets[rows],
+        st.families[rows],
+        st.forms[rows],
+        st.german[rows],
     )
+
+
+def cap_per_dataset(st: Statements, n: int, seed: int) -> Statements:
+    """At most n statements per dataset (OOD cost cap; quick checks)."""
+    return subset(st, cap_rows(st, n, seed))
+
+
+def control_rows(st: Statements, ood_cap_controls: int | None, seed: int) -> np.ndarray:
+    """The statements the control repetitions run on (random subsets, random and principal-direction
+    subspaces, random components): on OOD with --ood_cap_controls N at most N per dataset, nested in
+    the set the main conditions run on; otherwise all of them. Decided in the paper topic, entry
+    *OOD budget: main conditions full, control repetitions capped*: full OOD for every condition
+    would take ~34 h on the RTX 4090; main-vs-control comparisons use these common rows."""
+    if st.split == "ood" and ood_cap_controls is not None:
+        return cap_rows(st, ood_cap_controls, seed)
+    return np.arange(len(st.texts))
 
 
 def maybe_cap(st: Statements, n_per_dataset: int | None, seed: int) -> Statements:

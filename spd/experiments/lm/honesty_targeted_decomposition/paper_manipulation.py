@@ -18,6 +18,9 @@ Fixed core (reported in full, whatever comes out):
   statement's verdict follow its affirmative twin's original verdict ("the 'not' is ignored")?
   Reported per condition: share of negated statements whose sign equals the twin's original sign
   (original model: near 0) and the correlation of the scores.
+Controls (the random active components) run on OOD with --ood_cap_controls N only on a nested subset
+of at most N statements per dataset, as in paper_termination.py (main conditions on all statements,
+also summarised on the subset as "main_on_control_rows"; indices saved as ood_control_rows).
 Exploratory (browsed on val only; anything interesting becomes a hypothesis tested on test/OOD
 before it counts as a finding): the wide table, every active-set component reversed alone on val
 under the training prompt, per family and label. Activity profiles come from paper_correlation.py.
@@ -25,7 +28,7 @@ under the training prompt, per family and label. Activity profiles come from pap
 Output in --out: manipulation_<run id>_<basis>.json, .npz (per-statement scores per condition).
 
 Usage: python paper_manipulation.py --run <s-id or checkpoint> --basis decomposition --out <dir>
-       --termination <json> --correlation <json> [--ood_cap N]
+       --termination <json> --correlation <json> [--ood_cap N] [--ood_cap_controls N]
 """
 
 import json
@@ -47,6 +50,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     Statements,
     StatementSplit,
     cap_per_dataset,
+    control_rows,
     edited_outputs,
     load_statements,
     make_basis,
@@ -55,6 +59,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     original_pass,
     run_edit,
     sorted_modules,
+    subset,
     summarize_state,
     verdict_prompts,
 )
@@ -109,6 +114,7 @@ def main(
     termination: str,
     correlation: str,
     ood_cap: int | None = None,
+    ood_cap_controls: int | None = None,
     n_per_dataset: int | None = None,
     batch_size: int = 64,
     device: str = "cuda",
@@ -166,6 +172,7 @@ def main(
         return lambda _ib, bt: edited_outputs(model, bas, bt, partial(scale_mask, scale))
 
     conditions: dict[str, Callable[[int, Batch], AbstractContextManager[None]]] = {}
+    controls: set[str] = set()
     for op, factor in OPERATIONS.items():
         for mc in top:
             conditions[f"{op} {_name(mc, layer)}"] = scaled([mc], factor)
@@ -176,11 +183,14 @@ def main(
             pool = [mc for mc in active if mc not in top]
             for i in rng.choice(len(pool), size=min(N_RANDOM, len(pool)), replace=False):
                 conditions[f"{op} random {_name(pool[i], layer)}"] = scaled([pool[i]], factor)
-    print(f"{len(conditions)} core conditions per set and prompt", flush=True)
+                controls.add(f"{op} random {_name(pool[i], layer)}")
+    print(f"{len(conditions)} core conditions per set and prompt, {len(controls)} of them controls",
+          flush=True)  # fmt: skip
 
     summary: dict[str, Any] = {
         "run": run, "basis": bas.name, "top": term["ranked"][:TOP],
-        "selective_group": [_name(mc, layer) for mc in selective], "sets": {},
+        "selective_group": [_name(mc, layer) for mc in selective],
+        "controls": sorted(controls), "ood_cap_controls": ood_cap_controls, "sets": {},
     }  # fmt: skip
     arrays: dict[str, np.ndarray] = {}
     split_list: tuple[StatementSplit, ...] = ("test", "ood")
@@ -188,32 +198,52 @@ def main(
         st = maybe_cap(load_statements(split, task.prepared_datasets), n_per_dataset, seed)
         if split == "ood" and ood_cap is not None:
             st = cap_per_dataset(st, ood_cap, seed)
+        rows = control_rows(st, ood_cap_controls, seed)
+        capped = len(rows) < len(st.texts)
         pairs = twin_pairs(st) if split == "test" else None
+        assert pairs is None or not capped, "the twin test needs the full test set"
         arrays[f"{split}_labels"], arrays[f"{split}_datasets"] = st.labels, st.datasets
+        arrays[f"{split}_control_rows"] = rows
         summary["sets"][split] = {}
+        all_off = lambda _ib, bt: edited_outputs(  # noqa: E731
+            model, bas, bt, lambda _m, _b, acts, _y: (0 * acts, False)
+        )
         for pi, prompt in enumerate(prompts):
-            batches = batches_of(st.texts, pi)
-            orig = original_pass(model, batches, autocast, None)
-            base = (orig.base_lp[:, digits[0]] - orig.base_lp[:, digits[1]]).numpy()
-            all_off = lambda _ib, bt: edited_outputs(  # noqa: E731
-                model, bas, bt, lambda _m, _b, acts, _y: (0 * acts, False)
-            )
-            _, kl_off, _ = run_edit(model, batches, orig, all_off, digits, autocast)
-            res: dict[str, Any] = {"n": len(st), "conditions": {}}
-            for name, edit in conditions.items():
-                s, k, ms = run_edit(model, batches, orig, edit, digits, autocast)
-                arrays[f"{split}_{prompt.name}_{name}_score"] = s.astype(np.float32)
-                n_boot = N_BOOT if name.endswith("group") else 0
-                r = summarize_state(s, k, ms, base, kl_off, st.labels, st.families, n_boot, seed)
-                if pairs is not None and len(pairs):
-                    r["twin_test"] = twin_test(s, base, pairs)
-                res["conditions"][name] = r
-                m_ = r["macro"]
-                print(f"  {split}/{prompt.name} {name:28s} 1->0 {m_['flip_1_to_0']:.3f} "
-                      f"0->1 {m_['flip_0_to_1']:.3f} sep {m_['sep_share']:.3f} "
-                      f"digit {m_['digit_mass']:.3f}"
-                      + (f" twin {r['twin_test']['share_follows_twin']:.3f}" if "twin_test" in r else ""),
-                      flush=True)  # fmt: skip
+            res: dict[str, Any] = {
+                "n": len(st), "n_control_rows": len(rows), "conditions": {},
+                "main_on_control_rows": {},
+            }  # fmt: skip
+            on_rows = [n for n in conditions if capped and n in controls]
+            for st_g, names in ((st, [n for n in conditions if n not in on_rows]),
+                                (subset(st, rows), on_rows)):  # fmt: skip
+                if not names:
+                    continue
+                batches = batches_of(st_g.texts, pi)
+                orig = original_pass(model, batches, autocast, None)
+                base = (orig.base_lp[:, digits[0]] - orig.base_lp[:, digits[1]]).numpy()
+                _, kl_off, _ = run_edit(model, batches, orig, all_off, digits, autocast)
+                for name in names:
+                    s, k, ms = run_edit(model, batches, orig, conditions[name], digits, autocast)
+                    arrays[f"{split}_{prompt.name}_{name}_score"] = s.astype(np.float32)
+                    n_boot = N_BOOT if name.endswith("group") else 0
+                    r = summarize_state(
+                        s, k, ms, base, kl_off, st_g.labels, st_g.families, n_boot, seed
+                    )
+                    if pairs is not None and len(pairs):
+                        r["twin_test"] = twin_test(s, base, pairs)
+                    res["conditions"][name] = r
+                    if capped and name not in controls:
+                        res["main_on_control_rows"][name] = summarize_state(
+                            s[rows], k[rows], ms[rows], base[rows], kl_off[rows],
+                            st.labels[rows], st.families[rows], n_boot, seed,
+                        )  # fmt: skip
+                    m_ = r["macro"]
+                    print(f"  {split}/{prompt.name} {name:28s} 1->0 {m_['flip_1_to_0']:.3f} "
+                          f"0->1 {m_['flip_0_to_1']:.3f} sep {m_['sep_share']:.3f} "
+                          f"digit {m_['digit_mass']:.3f}"
+                          + (f" twin {r['twin_test']['share_follows_twin']:.3f}" if "twin_test" in r else "")
+                          + (f" (n {len(st_g.texts)})" if capped else ""),
+                          flush=True)  # fmt: skip
             summary["sets"][split][prompt.name] = res
 
     # ---- exploratory wide table: every active component reversed alone, val, training prompt ----

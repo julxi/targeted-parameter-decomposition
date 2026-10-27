@@ -23,11 +23,19 @@ T3  (A8; --a8, needs an active set) one layer at a time, everything else origina
     controls of the same dimension: N_RAND_SUB random subspaces and the top principal directions of y
     (uncentred second moment over the val decomposed positions). Test and OOD, both prompts.
 
+Controls (T2's random subsets, A8's random and principal-direction subspaces) are tagged. With
+--ood_cap_controls N they run on OOD only on a nested subset of at most N statements per dataset
+(paper_common.control_rows), the main conditions on all OOD statements; each main condition is then
+also summarised on that subset ("main_on_control_rows"), so every main-vs-control comparison is made
+on the same statements. The subset's indices are saved as ood_control_rows; the control arrays have
+that length.
+
 Output in --out: termination_<run id>_<basis>.json (summaries; T1 tables), .npz (per-statement scores
 and KLs of every condition, set and prompt).
 
 Usage: python paper_termination.py --run <s-id or checkpoint> --basis decomposition --out <dir>
        [--recovery <recovery json>] [--a8] [--extra_k=57,63] [--sets test,ood] [--ood_cap N]
+       [--ood_cap_controls N]
 """
 
 import json
@@ -50,6 +58,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     Original,
     StatementSplit,
     cap_per_dataset,
+    control_rows,
     edited_outputs,
     load_statements,
     make_basis,
@@ -60,6 +69,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     run_edit,
     sorted_modules,
     state_metrics,
+    subset,
     summarize_state,
     verdict_prompts,
 )
@@ -91,6 +101,7 @@ def main(
     extra_k: tuple[int, ...] | int = (),
     sets: str = "test,ood",
     ood_cap: int | None = None,
+    ood_cap_controls: int | None = None,
     n_per_dataset: int | None = None,
     batch_size: int = 64,
     device: str = "cuda",
@@ -181,21 +192,25 @@ def main(
 
     # ---- conditions on test / OOD ----
     conditions: dict[str, Callable[[int, Batch], AbstractContextManager[None]]] = {}
+    controls: set[str] = set()
     for k in ks:
         conditions[f"T2 top{k}"] = removal(ranked[:k])
         if active is not None and k < len(active):
             for r in range(N_RANDOM):
                 draw = [active[i] for i in rng.choice(len(active), size=k, replace=False)]
                 conditions[f"T2 rand{k} #{r}"] = removal(draw)
+                controls.add(f"T2 rand{k} #{r}")
     if a8:
         assert active is not None
-        a8_conditions(conditions, model, bas, val_batches, active, layer, autocast, rng)
-    print(f"{len(conditions)} conditions per set and prompt", flush=True)
+        a8_conditions(conditions, controls, model, bas, val_batches, active, layer, autocast, rng)
+    print(f"{len(conditions)} conditions per set and prompt, {len(controls)} of them controls",
+          flush=True)  # fmt: skip
 
     summary: dict[str, Any] = {
         "run": run, "basis": bas.name, "candidates_are_active_set": active is not None,
         "candidates": [name_of[c] for c in candidates],
-        "ranked": [name_of[c] for c in ranked], "ks": ks, "t1_val": t1_val, "sets": {},
+        "ranked": [name_of[c] for c in ranked], "ks": ks, "t1_val": t1_val,
+        "controls": sorted(controls), "ood_cap_controls": ood_cap_controls, "sets": {},
     }  # fmt: skip
     arrays: dict[str, np.ndarray] = {}
     split_list: list[StatementSplit] = [s for s in sets.split(",")]  # pyright: ignore[reportAssignmentType]
@@ -204,29 +219,46 @@ def main(
         st = maybe_cap(load_statements(split, task.prepared_datasets), n_per_dataset, seed)
         if split == "ood" and ood_cap is not None:
             st = cap_per_dataset(st, ood_cap, seed)
+        rows = control_rows(st, ood_cap_controls, seed)
+        capped = len(rows) < len(st.texts)
         arrays[f"{split}_labels"], arrays[f"{split}_datasets"] = st.labels, st.datasets
+        arrays[f"{split}_control_rows"] = rows
         summary["sets"][split] = {}
         for pi, prompt in enumerate(prompts):
-            batches = batches_of(st.texts, pi)
-            orig = original_pass(model, batches, autocast, None)
-            base = score_of(orig, digits)
-            _, kl_off, _ = run_edit(model, batches, orig, all_off, digits, autocast)
-            res: dict[str, Any] = {"n": len(st), "conditions": {}}
             conds = dict(conditions)
             if active is not None and split == "test" and prompt is train_prompt:
                 conds.update({f"T1 {name_of[c]}": removal([c]) for c in active})
-            for name, edit in conds.items():
-                s, k, ms = run_edit(model, batches, orig, edit, digits, autocast)
-                arrays[f"{split}_{prompt.name}_{name}_score"] = s.astype(np.float32)
-                arrays[f"{split}_{prompt.name}_{name}_kl"] = k.astype(np.float32)
-                n_boot = 0 if name.startswith("T1 ") else N_BOOT
-                res["conditions"][name] = summarize_state(
-                    s, k, ms, base, kl_off, st.labels, st.families, n_boot, seed
-                )
-                r = res["conditions"][name]["macro"]
-                print(f"  {split}/{prompt.name} {name:22s} sep {r['sep_share']:.3f} "
-                      f"agree {r['agreement']:.3f} 1->0 {r['flip_1_to_0']:.3f} "
-                      f"0->1 {r['flip_0_to_1']:.3f}", flush=True)  # fmt: skip
+            res: dict[str, Any] = {
+                "n": len(st), "n_control_rows": len(rows), "conditions": {},
+                "main_on_control_rows": {},
+            }  # fmt: skip
+            on_rows = [n for n in conds if capped and n in controls]
+            for st_g, names in ((st, [n for n in conds if n not in on_rows]),
+                                (subset(st, rows), on_rows)):  # fmt: skip
+                if not names:
+                    continue
+                batches = batches_of(st_g.texts, pi)
+                orig = original_pass(model, batches, autocast, None)
+                base = score_of(orig, digits)
+                _, kl_off, _ = run_edit(model, batches, orig, all_off, digits, autocast)
+                for name in names:
+                    s, k, ms = run_edit(model, batches, orig, conds[name], digits, autocast)
+                    arrays[f"{split}_{prompt.name}_{name}_score"] = s.astype(np.float32)
+                    arrays[f"{split}_{prompt.name}_{name}_kl"] = k.astype(np.float32)
+                    n_boot = 0 if name.startswith("T1 ") else N_BOOT
+                    res["conditions"][name] = summarize_state(
+                        s, k, ms, base, kl_off, st_g.labels, st_g.families, n_boot, seed
+                    )
+                    if capped and name not in controls:
+                        res["main_on_control_rows"][name] = summarize_state(
+                            s[rows], k[rows], ms[rows], base[rows], kl_off[rows],
+                            st.labels[rows], st.families[rows], n_boot, seed,
+                        )  # fmt: skip
+                    r = res["conditions"][name]["macro"]
+                    print(f"  {split}/{prompt.name} {name:22s} sep {r['sep_share']:.3f} "
+                          f"agree {r['agreement']:.3f} 1->0 {r['flip_1_to_0']:.3f} "
+                          f"0->1 {r['flip_0_to_1']:.3f}"
+                          + (f" (n {len(st_g.texts)})" if capped else ""), flush=True)  # fmt: skip
             summary["sets"][split][prompt.name] = res
 
     out_dir = Path(out)
@@ -250,6 +282,7 @@ def orthonormal(cols: Tensor) -> Tensor:
 
 def a8_conditions(
     conditions: dict[str, Callable[[int, Batch], AbstractContextManager[None]]],
+    controls: set[str],
     model: ComponentModel,
     bas: Basis,
     val_batches: list[Batch],
@@ -258,7 +291,8 @@ def a8_conditions(
     autocast: bool,
     rng: np.random.Generator,
 ) -> None:
-    """Adds the A8 conditions (module docstring, T3) to `conditions`."""
+    """Adds the A8 conditions (module docstring, T3) to `conditions`, the controls' names also to
+    `controls`."""
     device = val_batches[0].ids.device
     second = {m: torch.zeros(u.shape[1], u.shape[1], device=device) for m, u in bas.U.items()}
     for bt in val_batches:
@@ -284,6 +318,8 @@ def a8_conditions(
                 conditions[f"A8 L{layer[m]} {sub_name}"] = lambda _ib, bt, q=q, m=m: projected_out(
                     model, bt, {m: q}
                 )
+                if not sub_name.startswith("span"):
+                    controls.add(f"A8 L{layer[m]} {sub_name}")
 
 
 if __name__ == "__main__":

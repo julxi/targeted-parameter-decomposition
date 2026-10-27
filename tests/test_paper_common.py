@@ -17,6 +17,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     auc_columns,
     bootstrap_intervals,
     cap_per_dataset,
+    control_rows,
     edited_outputs,
     family_of,
     form_of,
@@ -150,6 +151,26 @@ def test_cap_per_dataset() -> None:
     assert all(c == min(30, int((st.datasets == d).sum())) for d, c in counts.items())
     assert cap_per_dataset(st, 30, seed=0).texts == capped.texts  # deterministic
     assert all(capped.datasets[i].endswith("_true") == capped.labels[i] for i in range(len(capped)))
+
+
+def test_control_rows_are_a_nested_cap_on_ood_only() -> None:
+    """The control repetitions' rows: on OOD at most N per dataset, a subset of the statements the
+    main conditions use (also after a flat --ood_cap), and the same rows as cap_per_dataset picks;
+    without the option, or on test, all statements."""
+    st = load_statements("ood", TRAIN_DIRS)
+    for main in (st, cap_per_dataset(st, 200, seed=0)):
+        rows = control_rows(main, 100, seed=0)
+        assert len(set(rows.tolist())) == len(rows) and rows.max() < len(main)
+        assert np.all(np.diff(rows) > 0)  # original order
+        sub = [main.texts[i] for i in rows]
+        assert sub == cap_per_dataset(main, 100, seed=0).texts
+        for d in set(main.datasets):
+            n_d = int((main.datasets == d).sum())
+            assert int((main.datasets[rows] == d).sum()) == min(100, n_d)
+    assert len(control_rows(st, 100, seed=0)) < len(st)
+    assert np.array_equal(control_rows(st, None, seed=0), np.arange(len(st)))
+    test = load_statements("test", TRAIN_DIRS)
+    assert np.array_equal(control_rows(test, 100, seed=0), np.arange(len(test)))
 
 
 def test_auc_columns_matches_sklearn() -> None:
