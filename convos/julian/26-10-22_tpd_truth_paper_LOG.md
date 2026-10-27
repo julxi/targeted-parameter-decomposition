@@ -1128,9 +1128,16 @@ Answer (26-10-27, Claude Opus 5.5): Both make sense, and both are cheap (no trai
 - **Counts without a cutoff**: per statement, the sum of the CIs. At the end of training the importance-minimality p-norm has annealed to 1 (`pnorm: 2.0`, `p_anneal_final_p: 1.0` in the paper configs [verified: config]), so this is close to the quantity the loss penalises.
 - **The active set by function**: rank the components by mean CI on val statements; the active set is the smallest top-m set whose CI-weighted components-only state (others off, Δ off) recovers ≥ 95% of what all components recover. That is "the components that do the job", one set per run, no per-statement threshold. The 95% is still a choice, but on a scale with a meaning. The whole curve over m is reported, so a reader can see that nothing hinges on it.
 - This set is used for A8 ("active" span), as T1's candidate list and for (i). As a check, the main results are also given at the old threshold 0.01.
+OUTDATED (26-10-27): "it probably doesn't exist" in the next sentence is overstated: 30% of the mass in the middle does not rule out a dip there. To be checked, see the answer under Julian's comment below.  
 Alternative I considered: a valley in the CI histogram. It probably doesn't exist: in the 4d trial 30% of the active CIs lay strictly between 0.01 and 0.99.  
 C: I think there might be a valley. We should look for it at least.
+Answer (26-10-27, Claude Opus 5.5): Agreed, and I was too quick above (marked OUTDATED). How to look [assumed: proposal]:
+- Per final run and the untrained decomposition: histogram of all CI values (every component × statement token × layer, val), log-scaled counts, also per layer; and the histogram of the per-component mean CI, which the set definition uses.
+- A valley = a minimum between a mode near 0 and a mode near 1 that appears in both seeds of a method.
+- If there is one: it defines "active" at the level of a component on a token (counts, the active share per statement), and I compare it with the functional set. If there is none: the histogram goes in the report as the reason for the functional set.
+- The data don't exist yet [verified: the finals' analysis files `verdict_s-*_val.npz` store only scores and KLs; no CIs saved in the 4e outputs either]. It needs a forward pass through layers 11–17. This laptop has no GPU, so either the first item of the rental, or now on the CPU (bf16 ≈ 15 GB of the 40 GB free, forward only up to layer 17, a few hundred val statements; runtime not measured).
 C: I don't want CI > 0.01 = active component definition in the results.
+Answer (26-10-27, Claude Opus 5.5): Noted [decided: C: comment]: the threshold 0.01 does not appear as a definition of "active" in any result, not even as a check. Where it currently enters: the rounded state and `n_active` of `verdict_lens_analysis.py`, and the "active on ≥ 2% of statements" candidate lists of the 4e scripts. In the paper versions (A5) these are replaced by the functional set (and the valley, if one exists). The CI-weighted state needs no threshold.
 2. Scope for cost: keep M1 (mask search for 6 runs × 4 bases, with recall), or cut it to one seed per method?  
 C: We talk about the manipulating some more, right?  
 Answer (26-10-27, Claude Opus 5.5): Yes: my answer under your manipulation comment in section 4. My proposal drops the mask search, so this cost question goes away.
@@ -1160,10 +1167,86 @@ Expectation from the records [concluded there]: the components write little alon
 - **Correlation**: new K0, the probe over all CIs (trained vs untrained vs residual stream), shown as the evidence that CI probes are not tPD-specific; then K1–K3 as drafted.
 - **Manipulation**: mask search dropped (proposal; Julian's view that trained manipulation teaches little, and on 4e a data-aligned basis did as well). Instead M1′: reverse (×−1) and amplify (×2) the components singled out by T1/K1, with size-matched random and data-aligned controls; M2′: hypothesis tests of the reading each component suggests (form fixed now, hypotheses from val, tests on test); recall only where affirmative fact families flip. Open for discussion, as Julian asked.  
 C: Can you explain this in more detail. Does that mean we have to investigate each component by hand?
+Answer (26-10-27, Claude Opus 5.5): No. Selection and measurement are automatic. Only reading a handful of top components is done by hand, and that part is labelled exploratory. In detail [assumed: proposal]:
+
+**M1′, automatic.**
+- **Which components**: per run, the 10 components of the functional active set with the largest single-removal effect on the verdict separation (T1, on val), plus the label-selective group from K1. In 4e seed 0 six components mattered individually in the full model, so 10 should cover the large ones; the T2 curve shows whether it does.
+- **What is done**: each candidate and the group reversed (×−1) and amplified (×2) at the statement tokens. Removal (×0) is already T1.
+- **What is measured**: per family and label, under both prompts, on test and OOD: share of true statements going to "0", of false going to "1", the separation, the digit mass (does the answer stay a digit).
+- **Controls, selected the same way**: the 10 data-aligned basis directions and the 10 untrained-decomposition components with the largest removal effect on val, plus 10 random components from the active set. Selecting the controls by effect too matters: otherwise the decomposition gets a selection advantage the controls don't.
+- **Output**: one table per run. About 60 components in all (10 × 6 runs), forward passes only.
+
+**M2′, two levels.**
+- *Automatic profile* per candidate, from K1/T1/M1′ on val: in which families, sentence forms (affirmative, negated, comparison) and labels it is active, and where reversing it acts. From that one of three fixed types: sentence-form detector (active for true and false alike within a form), label-selective within a form, family-specific. Each type has a prediction that runs automatically on test/OOD: the first two must transfer to OOD files of the same form (K2), and for negation components the paired-twin test (tiu has affirmative/negated twins with the same subject and object; under reversal, does the negated statement's score follow its affirmative twin's?).
+- *By hand, exploratory*: for the top 3 per run, reading example statements where the component fires and continuations after a flip, as in the 4c L17:5 analysis.
+
+**Honest caveat and recommendation**: M2′'s typing overlaps with K1/K2. The cheapest version that keeps the useful part: M1′ automatic, plus the paired-twin test as the only fixed hypothesis test, plus the hand-reading as exploratory. I'd take that version.
 - **New, active vs inactive components** (Julian's comment): the inactive components' contribution (active-only vs all CI-weighted, removal of the inactive ones from the full model, |I|/|y| and cos(A, I), mean-mask state). Counts as the sum of CIs; the active set = smallest top-m set by mean CI that recovers ≥ 95% of the components-only KL recovered (curve over m reported; main results also at the old 0.01).  
 C: yes, I like this.
+Answer (26-10-27, Claude Opus 5.5): Noted [decided: C: comment]: counts = sum of CIs; active set = the smallest top-m set by mean CI recovering ≥ 95% of the components-only KL recovered, with the curve over m reported. Two amendments from your other comments: no results at the old threshold 0.01, and the valley check (answer under your valley comment).
 - **New section 5, truth directions** (Julian's comment): mass-mean and logistic-regression directions after layers 11–17 at the last statement token (v3 train); per component cos(write, direction) vs random and data-aligned basis; the components' vs Δ's share of the truth gap; whether the functionally important components write along it; removing the one direction from the MLP output vs removing the components.
 - **Decision rules → reporting conventions**: all listed analyses are reported whatever their outcome; every number with both seeds and its controls; no method ranking where the seeds overlap. No thresholds for "decomposition-specific".
 - Unchanged: controls (untrained decomposition at `steps: 0`, seeds 1, 2; data-aligned basis; random sets), data and prompts, CI-weighted, macro-average, both labels, bootstrap intervals. A5 starts once the plan is fixed [decided: C: comment].
 
 **Still open for Julian**: the manipulation part (M1′/M2′), the 95% in the active-set definition, and the plan as a whole.
+
+---
+
+26-10-27, Claude Opus 5.5 — *D3 plan, revision 3*; same session. Julian in chat: "I've added some more comments." Answers in place: under the valley and 0.01 comments (in *D3 proposal*), under the manipulation and active-set comments (in *D3 plan, revision 2*).
+
+Changes against revision 2:
+- **Active components** [decided: C: comments]: counts = sum of CIs; active set = smallest top-m set by mean CI recovering ≥ 95%, curve over m reported. CI > 0.01 does not appear as a definition of "active" in any result. New: look for a valley in the CI histograms (finals, both seeds, and the untrained decomposition); if one exists it defines "active" per token and is compared with the functional set. Needs a forward pass: no CIs are stored anywhere [verified: output files].
+- **Manipulation** [assumed: proposal]: M1′ automatic (top 10 per run by T1 effect on val + the K1 label-selective group; ×−1 and ×2; per family and label, both prompts, test and OOD; controls selected the same way from the data-aligned basis and the untrained decomposition, plus random active components). Fixed hypothesis test: only the paired-twin test for negation components. Profiles and hand-reading of the top 3 per run: exploratory.
+
+Still open for Julian: the manipulation version (the cheap one above, or with M2′'s automatic typing); whether the valley check runs now on the CPU or first in the rental; the plan as a whole.
+
+C: You still need to explain to me what "cheap one above and M2′ are and differ. I simply don't have a good idea about manipulationg. Valley check on gpu. Plan as a whole is fine (except that last issue about manipulating that I need to understand first)  
+Answer (26-10-27, Claude Opus 5.5): Noted [decided: C: comment]: valley check on the GPU (first item of the rental); the plan stands except manipulation. Explanation:
+
+**What manipulation adds.** Termination asks "is the component needed?" (remove it, does the verdict suffer?). Manipulation asks "does pushing on it move the verdict in a *direction*?" (reverse it or make it stronger, does the verdict go the way its role predicts?). Removal can only take a signal away; reversal can turn "this is false" into "this is true". Example from the records: removing 4c's L17:5 cost 15% of the verdict separation; reversing it sent 43% of the false statements to "1", but only in negated families and smaller_than. That second result is what told us the component handles negation, not truth in general. What manipulation cannot show: a change of belief. B3 and the 4c recall test showed that verdict flips leave the model's knowledge intact.
+
+**Version A ("the cheap one").** Three steps, all automatic except the last:
+1. Per run, pick the 10 components whose removal hurts the verdict most (on val), plus the group that fires mainly on true or mainly on false statements.
+2. Reverse (×−1) and double (×2) each. Measure, per family and true/false label, under both prompts, on test and OOD: how many verdicts flip, the true-false score gap, whether the answer stays a digit. The same for control directions picked the same way (data-aligned basis, untrained decomposition, random).
+3. One prediction fixed in advance, the paired-twin test: for a component that handles negation, does a negated statement's score under reversal follow its affirmative twin's ("the 'not' is ignored")? Plus reading a few examples by hand, labelled exploratory.
+
+What A claims in the report: "these components steer the verdict, in these families, more (or not more) than control directions". A table, no labels on components.
+
+**Version B = A + automatic labelling.** In addition, a rule sorts every candidate into one of three types from its activity pattern: (i) sentence-form detector (fires on all negated statements, true or false), (ii) truth-selective within a form (fires on false negated statements only), (iii) specific to one family. Each type comes with a prediction tested on OOD, e.g. a type-(ii) negation component must also fire selectively on the German negated statements, and reversing it must flip them too.
+
+What B claims in addition: "component X *is* a negation detector", as a tested statement per component.
+
+**Why I recommend A.**
+- B's sorting rule needs cutoffs ("fires on all negated statements" = above which CI, in what share?): the arbitrary thresholds you rejected for "active".
+- Most of B's predictions are already in the plan: K1 measures selectivity per family, K2 tests whether it transfers OOD, and A's step 2 already measures the reversal effect per OOD file. B only adds the label on top.
+- The labels can still be given by hand for the few components that matter, as in the 4c L17:5 analysis, and the report says that they were assigned by reading the tables.
+
+
+---
+
+26-10-27, Claude Opus 5.5 — *manipulation: A plus full exploratory tables*; same session. Julian in chat, answering the A-vs-B question under *D3 plan, revision 3*:
+
+C: (transcribed from chat) I like a plan where you see as much of the results as possible, just in the case you see something interesting
+
+My reading [assumed: not yet confirmed]: neither B's automatic labels nor a minimal A, but A's fixed core plus wide output that I can browse. B's labels would add no information, only a verdict on top of the tables. What adds information is computing the tables for more components and keeping all of them.
+
+**Manipulation, as proposed now:**
+- **Fixed core (= A)**: top 10 per run by removal effect + the label-selective group; ×−1 and ×2; per family and label, both prompts, test and OOD; controls chosen the same way (data-aligned basis, untrained decomposition, random active components); the paired-twin test as the one prediction fixed in advance. Reported in full, whatever comes out.
+- **Wide tables, exploratory**: for *every* component of the functional active set: activity profile (mean CI per family × label × sentence form; free, it comes from the same forward pass), removal effect (T1 already covers all), and reversal effect per family × label under the training prompt on val. Saved per run as files, not only summarised. Only the top 10 get both prompts and OOD, because singles × operations × prompts × datasets × 6 runs multiplies quickly. Cost not measured; I measure it with the reproduction checks and cut the wide tables to the top m by removal effect if needed.
+- **Rule that keeps browsing honest** [assumed: proposal]: I browse only the val tables. Anything interesting I see there becomes a hypothesis and is tested on test/OOD before it appears in the report as a finding; untested observations appear as "exploratory, val only". With many tables, something always looks interesting by chance, and this separation keeps that out of the findings while losing none of the browsing.
+
+If confirmed, the plan is frozen: revisions 2 and 3 plus this entry. Next step A5.
+
+Addendum (same entry, same session). Julian in chat, while I was writing the entry above:
+
+C: (transcribed from chat) I'm talking about manipulating here
+
+So the wish applies to the manipulation part only, which is how the proposal above reads it. The other categories stay as fixed in revisions 2 and 3.
+
+---
+
+26-10-27, Claude Opus 5.5 — *D3 frozen; A5 started*; same session. Julian in chat, answering "If that matches what you meant, the analysis plan is final":
+
+C: (transcribed from chat) yes
+
+**The analysis plan is frozen** [decided: transcribed above and C: comment under *D3 plan, revision 3*]: entries *D3 plan, revision 2*, *D3 plan, revision 3* and *manipulation: A plus full exploratory tables* (with its addendum), plus the in-place answers in *D3 proposal*. Fixed after the finals' val readout, before any test/OOD analysis. Next: A5, moving the analysis scripts into the repo.
