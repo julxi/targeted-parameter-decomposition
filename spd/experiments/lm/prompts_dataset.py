@@ -119,10 +119,15 @@ def _tokenize_jointly(
 ) -> tuple[list[list[int]], list[int]]:
     """Token ids of each prompt + stimulus as one string, and each prompt's length in tokens = the
     index of the token holding the prompt's last character, plus one. That token may also hold the
-    stimulus's first characters (Qwen: '.' + '\n' -> '.\n'); it counts as the prompt's. All tokens
-    before it must equal the prompt's own tokens, and the tokens after it must be the same for
-    every prompt (checked)."""
-    ids_all, lengths, suffixes = [], [], set()
+    stimulus's first characters (Qwen: '.' + '\n' -> '.\n'); it counts as the prompt's. The tokens
+    after it must be the same for every prompt (checked).
+
+    Usually all tokens before it equal the prompt's own tokens. Rarely the merge re-splits more of
+    the prompt's end (Qwen: a statement ending in `.'.` or `.".`). The prompt is then still exactly
+    the tokens holding its characters, as the model sees them in the joint string; such prompts are
+    counted and logged with an example, not rejected. Prompts without a re-split come out the same
+    as before this was allowed (the comparison never changed the result, it only raised)."""
+    ids_all, lengths, suffixes, resplit = [], [], set(), []
     for prompt in prompts:
         enc: Any = tokenizer(
             prompt + stimulus, return_offsets_mapping=True, add_special_tokens=False
@@ -133,7 +138,8 @@ def _tokenize_jointly(
         assert len(holding) == 1, (prompt, holding)
         n_prompt = holding[0] + 1
         own = tokenizer.encode(prompt, add_special_tokens=False)
-        assert ids[: n_prompt - 1] == own[: n_prompt - 1], (prompt, ids, own)
+        if ids[: n_prompt - 1] != own[: n_prompt - 1]:
+            resplit.append((prompt, ids[:n_prompt], own))
         assert n_prompt < len(ids), (
             f"stimulus fully merged into the prompt's last token: {prompt!r}"
         )
@@ -141,6 +147,14 @@ def _tokenize_jointly(
         ids_all.append(ids)
         lengths.append(n_prompt)
     assert len(suffixes) == 1, f"stimulus tokenized differently after different prompts: {suffixes}"
+    if resplit:
+        prompt, joint, own = resplit[0]
+        logger.warning(
+            f"{len(resplit)} of {len(prompts)} prompts re-split before their last token when "
+            f"tokenized with the stimulus; their prompt positions are the joint tokens. E.g. "
+            f"{prompt!r}: joint {[tokenizer.decode([i]) for i in joint[-4:]]}, "
+            f"alone {[tokenizer.decode([i]) for i in own[-4:]]}"
+        )
     return ids_all, lengths
 
 

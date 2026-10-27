@@ -1297,3 +1297,21 @@ Still to write: untrained checkpoint config; correlation (K0–K3); manipulation
 4. `paper_correlation.py`: 6 + 2 + 1 calls.
 5. `paper_manipulation.py`: same 9 (needs 3 and 4).
 6. `paper_directions.py`: same 9 with `--termination`; `--remove_directions` once.
+
+---
+
+26-10-27, Claude Opus 5.5 — *phase D rental: host, commit, smoke test*; new session. I have read CLAUDE.md, INDEX.md, this topic's SUMMARY and this LOG's entries *A5 part 1* to *A5 part 3*. Julian in chat: "Ok, I rended a machine and you can start", then, when I was about to check the instance's credentials: "Ah yes, do a commit first and then resync".
+
+**Host** [verified: `nvidia-smi`, ipinfo, curl]: RTX 4090 48 GB (vast.ai instance 58003044, $0.66/h), Coquitlam, Canada; 53 GB disk free, 503 GB RAM. Hugging Face reachable; WandB key present in the login shell.
+
+**Commit** `81d158a` (A5 part 3: correlation, manipulation, directions scripts, untrained config, with the INDEX/LOG/SUMMARY changes of that entry), then `spd-vast --mode sync`; the instance's tree is at `81d158a` [verified: remote `git log`; the six `paper_*.py` and four paper configs matched by sha256 before the commit too].
+
+**Step 0, smoke test** launched (`/root/spd_out/paper_d/smoke.sh`, local copy in the session scratchpad): plain seed 1 (`s-7152548c`) through recovery → termination (`--a8`) → correlation → manipulation → directions, then the data-aligned basis through termination (`--extra_k=57`, an arbitrary test value) → correlation → manipulation → directions (`--remove_directions`); all with `--n_per_dataset 4`, `--ood_cap 4`; each call timed.
+
+**Smoke test crashed in its first call** (recovery, plain seed 1) when it reached the OOD set. Val and test had run: all components recover 0.9622 on the 80-statement val quick-check subset, the active set has 41 components, and the full state reproduces the original exactly (max |score − original| 0.000) [verified: smoke log]. Two separate causes, both fixed in code [verified: CPU check over val/test/OOD × both prompts; `make check` clean; `tests/test_output_lens.py`, `test_paper_common.py`, `test_prompts_padding.py` 19 pass; not committed yet]:
+1. **OOD statements longer than the run's `max_seq_len`** (30 training prompt, 36 second prompt; OOD needs up to 75 / 80). `paper_common.padded_length` now sizes the right padding from the statements. Padding is trimmed per batch, so it changes no result: the val and test batches are identical to those built with the old bound under both prompts [verified: same CPU check].
+2. **Joint tokenization re-splits 10 OOD statements** under the training prompt (facts_conj 5 of 500, facts_disj 3 of 499, facts 1 of 548, neg_facts 1 of 548; none in val/test, none under the second prompt, whose leading space doesn't merge) [verified: CPU count]. They end in `.'.` or `.".`; alone the end is one token `.'.`, with the prompt it becomes `.'` + `.\n`. `_tokenize_jointly` in `spd/experiments/lm/prompts_dataset.py` asserted that only the statement's last token may change, and crashed. I first proposed dropping the 10 statements; Julian preferred a code fix:
+
+C: (transcribed from chat) I'd actually prefer to change the code so it doesn't break. Isn't there a better way to determine the statement tokens + it's backwards compatible?
+
+   Fix: the statement positions were already defined without that assertion (the joint tokens holding any statement character, from the tokenizer's offsets); the assertion only compared them with the standalone tokenization and changed no output. It is replaced by a logged count with an example. So every input accepted before gets the same ids and positions (backward compatible by construction) [concluded: the comparison never fed into the returned values]. New test `test_joint_tokenization_allows_a_resplit_prompt_end` (one of the real statements, tiny-Qwen tokenizer): fails on the old code with exactly that assertion, passes on the new; the ordinary prompts in the same call are unchanged [verified].

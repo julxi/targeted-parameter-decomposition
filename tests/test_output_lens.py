@@ -166,3 +166,28 @@ def test_joint_tokenization_counts_the_merged_period_as_prompt() -> None:
         assert joint[: n_prompt - 1] == own[:-1]
         selected = batch[POSITION_MASK_KEY][row].nonzero().flatten().tolist()
         assert selected == list(range(1, n_prompt)), selected
+
+
+def test_joint_tokenization_allows_a_resplit_prompt_end() -> None:
+    """A prompt whose end the stimulus re-splits beyond its last token (an OOD statement of tiu v3,
+    `facts_conj`) is accepted: its positions are exactly the joint tokens holding its characters,
+    and the ordinary prompts in the same call are unchanged."""
+    tok = AutoTokenizer.from_pretrained(TINY_QWEN)
+    stimulus = "\nThe amount of truth in this statement is "
+    resplit = "The planet Uranus is often referred to as the 'ice giant.'."
+    prompts = [*PROMPTS, resplit]
+    joint = tok(resplit + stimulus, return_offsets_mapping=True, add_special_tokens=False)
+    own = tok.encode(resplit, add_special_tokens=False)
+    n_prompt = 1 + max(i for i, (s, _) in enumerate(joint["offset_mapping"]) if s < len(resplit))
+    assert joint["input_ids"][: n_prompt - 1] != own[: n_prompt - 1], "no re-split: tests nothing"
+    lens = StimulusLens(type="stimulus", stimulus=stimulus, tokenize_jointly=True)
+    loss_positions = TokenPositions(type="tokens", start=1)
+    batch = load_prompts_dataset(prompts, tok, 48, loss_positions, lens)[:]
+    alone = load_prompts_dataset(PROMPTS, tok, 48, loss_positions, lens)[:]
+    for key in ("input_ids", POSITION_MASK_KEY, STIMULUS_END_KEY):
+        assert torch.equal(batch[key][: len(PROMPTS)], alone[key]), key
+    row = len(PROMPTS)
+    assert batch["input_ids"][row, : len(joint["input_ids"])].tolist() == joint["input_ids"]
+    selected = batch[POSITION_MASK_KEY][row].nonzero().flatten().tolist()
+    assert selected == list(range(1, n_prompt)), selected
+    assert int(batch[STIMULUS_END_KEY][row]) == len(joint["input_ids"]) - 1

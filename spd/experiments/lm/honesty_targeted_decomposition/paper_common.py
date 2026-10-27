@@ -176,6 +176,18 @@ def verdict_prompts(lens: StimulusLens, tok: PreTrainedTokenizer, max_seq_len: i
     return [Prompt("train", lens, max_seq_len), Prompt("second", second, max_seq_len + extra + 1)]
 
 
+def padded_length(texts: list[str], tok: PreTrainedTokenizer, prompt: Prompt) -> int:
+    """Padding length for these statements under this prompt. OOD statements (conjunctions, German)
+    can be longer than the run's max_seq_len, which only had to fit the training data. The length
+    only bounds the right padding, which make_batches trims per batch (trim_to_loss_positions), so a
+    larger value changes no result. Statement and stimulus are counted separately (+ 1 in case the
+    boundary does not merge); load_prompts_dataset still raises if a prompt does not fit."""
+    stimulus = len(tok.encode(prompt.lens.stimulus, add_special_tokens=False))
+    encoded: Any = tok(texts)
+    longest = max(len(ids) for ids in encoded["input_ids"])
+    return max(prompt.max_seq_len, longest + stimulus + 1)
+
+
 class Batch(NamedTuple):
     rows: np.ndarray  # statement indices
     ids: Tensor  # (b, pos)
@@ -191,7 +203,9 @@ def make_batches(
     batch_size: int,
     device: str,
 ) -> list[Batch]:
-    data = load_prompts_dataset(texts, tok, prompt.max_seq_len, loss_positions, prompt.lens)[:]
+    data = load_prompts_dataset(
+        texts, tok, padded_length(texts, tok, prompt), loss_positions, prompt.lens
+    )[:]
     first_end = int(data[STIMULUS_END_KEY][0])
     print(
         f"prompt {prompt.name} {prompt.lens.stimulus!r}: {len(texts)} statements; example tokens "
