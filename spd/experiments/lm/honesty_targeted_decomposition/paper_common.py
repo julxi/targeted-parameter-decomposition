@@ -16,7 +16,7 @@ metrics per run (never pooled over seeds), pooled over statements and macro-aver
 """
 
 from collections.abc import Callable, Iterator
-from contextlib import contextmanager
+from contextlib import AbstractContextManager, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, NamedTuple
@@ -28,7 +28,7 @@ from jaxtyping import Float
 from torch import Tensor
 from transformers import PreTrainedTokenizer
 
-from spd.configs import LossPositions, StimulusLens
+from spd.configs import LossPositions, SamplingType, StimulusLens
 from spd.experiments.lm.honesty_targeted_decomposition.probe_ci import load_split_with_labels
 from spd.experiments.lm.honesty_targeted_decomposition.verdict_lens_analysis import (
     SECOND_STIMULUS,
@@ -36,7 +36,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.verdict_lens_analysis imp
 from spd.experiments.lm.prepared_datasets import resolve_dataset_dir
 from spd.experiments.lm.prompts_dataset import load_prompts_dataset, trim_to_loss_positions
 from spd.models.component_model import ComponentModel
-from spd.utils.general_utils import POSITION_MASK_KEY, STIMULUS_END_KEY
+from spd.utils.general_utils import POSITION_MASK_KEY, STIMULUS_END_KEY, bf16_autocast
 
 # OOD files (upstream Truth-is-Universal files, each a _true and a _false dataset) excluded from all
 # analyses: verdict-prompt AUC of the original model < 0.7 (B2, ~/spd_out/26-10-22_tpd_truth_paper/
@@ -52,7 +52,7 @@ GROUND_TRUTH_OOD = (
     "sp_en_trans_conj", "sp_en_trans_de",
 )  # fmt: skip
 
-StatementSplit = Literal["val", "test", "ood"]
+StatementSplit = Literal["train", "val", "test", "ood"]
 Form = Literal["affirmative", "negated", "comparison", "conjunction", "disjunction"]
 
 
@@ -126,6 +126,26 @@ def load_statements(split: StatementSplit, train_dirs: list[str]) -> Statements:
         families=np.array(families),
         forms=np.array([form_of(f) for f in families]),
         german=np.array(["_de" in f for f in families]),
+    )
+
+
+def cap_per_dataset(st: Statements, n: int, seed: int) -> Statements:
+    """At most n statements per dataset, a seeded random subset in the original order (OOD cost cap;
+    quick checks)."""
+    rng = np.random.default_rng(seed)
+    keep = []
+    for d in sorted(set(st.datasets)):
+        idx = np.flatnonzero(st.datasets == d)
+        keep.append(np.sort(rng.choice(idx, size=n, replace=False)) if len(idx) > n else idx)
+    k = np.sort(np.concatenate(keep))
+    return Statements(
+        st.split,
+        [st.texts[i] for i in k],
+        st.labels[k],
+        st.datasets[k],
+        st.families[k],
+        st.forms[k],
+        st.german[k],
     )
 
 
@@ -253,6 +273,111 @@ def verdict_logprobs(logits: Tensor, end: Tensor) -> Tensor:
     return torch.log_softmax(logits[torch.arange(len(end), device=end.device), end].float(), -1)
 
 
+@contextmanager
+def projected_out(model: ComponentModel, batch: Batch, Q: dict[str, Tensor]) -> Iterator[None]:
+    """Within the context, the output y of each module in Q loses its projection onto span(Q[m])
+    (orthonormal columns, (d_out, k)) at the decomposed positions: y' = y - Q Q^T y (A8)."""
+    handles = []
+    for m, q in Q.items():
+        assert torch.allclose(q.T @ q, torch.eye(q.shape[1], device=q.device), atol=1e-4), m
+
+        def hook(
+            _mod: torch.nn.Module, _args: tuple[Tensor, ...], output: Tensor, q: Tensor = q
+        ) -> Tensor:
+            y = output.float()
+            new = y - (y @ q) @ q.T
+            return torch.where(batch.dec[..., None], new, y).to(output.dtype)
+
+        handles.append(model.target_model.get_submodule(m).register_forward_hook(hook))
+    try:
+        yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
+class Original(NamedTuple):
+    """The unedited model on one statement set under one prompt."""
+
+    base_lp: Tensor  # (n, vocab) fp32 log-probs at the answer position, cpu
+    cis: (
+        list[dict[str, Tensor]] | None
+    )  # per batch, module -> (b, pos, C); None without a CI network
+
+
+def original_pass(
+    model: ComponentModel, batches: list[Batch], autocast: bool, ci_sampling: SamplingType | None
+) -> Original:
+    """ci_sampling None: no CIs (the data-aligned basis has no CI network)."""
+    base_lp, cis = [], []
+    for bt in batches:
+        with bf16_autocast(enabled=autocast):
+            o = model(bt.ids, cache_type="input")
+            if ci_sampling is not None:
+                ci = model.calc_causal_importances(
+                    pre_weight_acts=o.cache, detach_inputs=True, sampling=ci_sampling
+                )
+                cis.append({m: v.float() for m, v in ci.lower_leaky.items()})
+        base_lp.append(verdict_logprobs(o.output, bt.end).cpu())
+    return Original(torch.cat(base_lp), cis if ci_sampling is not None else None)
+
+
+# (batch index, batch) -> the context manager that applies one condition's edit to that batch
+EditFn = Callable[[int, Batch], AbstractContextManager[None]]
+
+
+def run_edit(
+    model: ComponentModel,
+    batches: list[Batch],
+    original: Original,
+    edit: EditFn,
+    digits: tuple[int, int],
+    autocast: bool,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Verdict score log P('1') - log P('0'), KL(original || edited) over the vocabulary and digit
+    mass P('1') + P('0') per statement, under one edit. digits = (token id of '1', of '0')."""
+    one, zero = digits
+    n = len(original.base_lp)
+    score, kl, mass = np.zeros(n), np.zeros(n), np.zeros(n)
+    for ib, bt in enumerate(batches):
+        with edit(ib, bt), bf16_autocast(enabled=autocast):
+            logits = model(bt.ids)
+        lp = verdict_logprobs(logits, bt.end)
+        score[bt.rows] = (lp[:, one] - lp[:, zero]).cpu().numpy()
+        mass[bt.rows] = (lp[:, one].exp() + lp[:, zero].exp()).cpu().numpy()
+        p = original.base_lp[bt.rows].to(lp.device)
+        kl[bt.rows] = (p.exp() * (p - lp)).sum(-1).cpu().numpy()
+    return score, kl, mass
+
+
+def data_aligned_basis(
+    model: ComponentModel,
+    batches: list[Batch],
+    n_c: int,
+    autocast: bool,
+) -> Basis:
+    """The untrained data-aligned control (faithful-targeting topic, *Reprogramming*): per module
+    v_c = the n_c top principal directions of the module input x (uncentred second moment over the
+    decomposed positions of the given batches), u_c = W v_c. So the writes sum to W P_V x and the
+    remainder is W (1 - P_V) x. The 4e mask search built it from 512 train statements."""
+    modules = sorted_modules(model)
+    d_in = {m: model.target_weight(m).shape[1] for m in modules}
+    second = {m: torch.zeros(d_in[m], d_in[m], device=batches[0].ids.device) for m in modules}
+    for bt in batches:
+        with bf16_autocast(enabled=autocast):
+            cache = model(bt.ids, cache_type="input").cache
+        for m in modules:
+            x = cache[m][bt.dec].float()
+            second[m] += x.T @ x
+    U, V = {}, {}
+    for m in modules:
+        vecs = torch.linalg.eigh(second[m])[1][:, -n_c:]  # ascending eigenvalues: the top n_c
+        del second[m]
+        V[m] = vecs.contiguous()
+        U[m] = (model.target_weight(m).float() @ vecs).T.contiguous()
+    return Basis("data_aligned", U, V)
+
+
 # ---- summary metrics (pure, numpy) ----
 
 
@@ -280,12 +405,16 @@ def state_metrics(
         "agreement": float((pred == base).mean()),  # against the model's own verdict
         "sep_share": float((score[labels].mean() - score[~labels].mean()) / sep0),
         "digit_mass": float(mass.mean()),
+        # verdict flips relative to the model's own verdict; nan where the model gives none of that
+        # verdict in this subset (macro averages and intervals skip nan)
+        "flip_1_to_0": float((score[base] <= 0).mean()) if base.any() else float("nan"),
+        "flip_0_to_1": float((score[~base] > 0).mean()) if (~base).any() else float("nan"),
     }
 
 
 def macro(per_family: dict[str, dict[str, float]]) -> dict[str, float]:
     keys = next(iter(per_family.values())).keys()
-    return {k: float(np.mean([v[k] for v in per_family.values()])) for k in keys}
+    return {k: float(np.nanmean([v[k] for v in per_family.values()])) for k in keys}
 
 
 def family_metrics(
@@ -311,7 +440,8 @@ def bootstrap_intervals(
         for k, v in fn(idx).items():
             draws.setdefault(k, []).append(v)
     return {
-        k: (float(np.quantile(v, 0.025)), float(np.quantile(v, 0.975))) for k, v in draws.items()
+        k: (float(np.nanquantile(v, 0.025)), float(np.nanquantile(v, 0.975)))
+        for k, v in draws.items()
     }
 
 
@@ -327,7 +457,8 @@ def summarize_state(
     seed: int,
 ) -> dict[str, Any]:
     """state_metrics pooled over all statements, per family, macro-averaged over families, and the
-    bootstrap intervals of the macro averages. All arrays per statement."""
+    bootstrap intervals of the macro averages (omitted for n_boot = 0, e.g. for hundreds of single
+    removals). All arrays per statement."""
 
     def fn(idx: np.ndarray) -> dict[str, float]:
         return state_metrics(
@@ -342,8 +473,12 @@ def summarize_state(
     return {
         "pooled": fn(np.arange(len(score))),
         "macro": macro(per_family),
-        "macro_interval": bootstrap_intervals(families, fn_macro, n_boot, seed),
         "per_family": per_family,
+        **(
+            {"macro_interval": bootstrap_intervals(families, fn_macro, n_boot, seed)}
+            if n_boot
+            else {}
+        ),
     }
 
 

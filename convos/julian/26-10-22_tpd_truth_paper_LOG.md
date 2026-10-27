@@ -1264,3 +1264,16 @@ C: (transcribed from chat) yes
 - Not yet run on a model (no GPU here). **Reproduction check for the rental**: the script prints val KL recovered of all components (CI-weighted, Δ off); it must match the stored values within bf16 noise [verified: stored `verdict_*_val.json` of the finals]: plain 0.9640 (`s-7152548c`) / 0.9629 (`s-46efc525`), recon 0.9769 (`s-eeac663f`) / 0.9718 (`s-edc17041`), ortho 0.9071 (`s-0c2fa0d7`) / 0.9058 (`s-4186f973`).
 
 **Still to write**: the untrained checkpoints' config (`steps: 0`, seeds 1 and 2); the data-aligned basis builder; termination (T1, T2 curves, T3/A8 with both spans); correlation (K0–K3); manipulation (M1′ core, wide tables, paired-twin test); truth directions. Then one rental.
+
+---
+
+26-10-27, Claude Opus 5.5 — *A5 part 2: termination script*; same session. Julian in chat: "So what comes next?" (answer: the rest of A5, then one rental; continued with it).
+
+- **`paper_termination.py`** [verified: `make check` clean; not run on a model]: one basis per call, `--basis decomposition` (a trained final or the untrained checkpoint) or `data_aligned` (built from the run's target model: top-96 input principal directions on 512 train statements, u = W v, as in the 4e mask search). Candidates = the run's active set from `paper_recovery.py`'s JSON, else all 672 components.
+  - T1: each candidate removed alone from the full model; on val for all candidates (ranking, also reused by manipulation), on test for active-set members.
+  - T2: top-k by val separation drop removed together, k ∈ {1, 2, 5, 10, 20, 50, 100, 200} up to all candidates, plus `--extra_k` so controls can be compared at the trained runs' active-set sizes; test and OOD, both prompts; 5 random size-k subsets of the active set as the size-matched control.
+  - T3/A8 (`--a8`, needs an active set): per layer, projection of the original output onto span(all 96 writes) and span(the layer's active writes) removed; controls of the same dimension: 3 random subspaces and the top principal directions of y.
+- **Shared code extended**: `original_pass`, `run_edit` (any edit as a context manager), `projected_out` (A8), `data_aligned_basis`, `cap_per_dataset`; verdict flips relative to the model's own verdict (1→0, 0→1) in every summary. `paper_recovery.py` now uses the shared runner. Tests: 8 pass (projection hook, flips, the cap).
+- **Cost point for the rental** [verified: statement counts]: val 986, test 1,794, OOD 8,713 (the conj files are large). Every OOD condition costs about 5× a test condition, so T2 and A8 on full OOD under both prompts may be long. `--ood_cap N` (seeded random N per dataset) exists; I'd decide N from the step times measured at the start of the rental, and record it [assumed: proposal].
+
+Still to write: untrained checkpoint config; correlation (K0–K3); manipulation (M1′ core, wide tables, paired-twin test); truth directions.

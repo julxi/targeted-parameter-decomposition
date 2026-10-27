@@ -15,10 +15,12 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     Basis,
     Batch,
     bootstrap_intervals,
+    cap_per_dataset,
     edited_outputs,
     family_of,
     form_of,
     load_statements,
+    projected_out,
     smallest_reaching,
     state_metrics,
 )
@@ -64,6 +66,8 @@ def test_state_metrics() -> None:
     assert m["accuracy"] == pytest.approx(0.75)
     assert m["agreement"] == pytest.approx(0.75)
     assert m["sep_share"] == pytest.approx((0.5 - (-1.5)) / 6.0)
+    assert m["flip_1_to_0"] == pytest.approx(0.5)
+    assert m["flip_0_to_1"] == pytest.approx(0.0)
 
 
 def test_bootstrap_intervals_cover_estimate_and_are_deterministic() -> None:
@@ -115,3 +119,33 @@ def test_edited_outputs() -> None:
         assert torch.equal(out[~dec], y[~dec])
     # the hook is removed on exit
     assert torch.equal(target(x), lin(x))
+
+
+def test_projected_out() -> None:
+    torch.manual_seed(0)
+    lin = nn.Linear(6, 5, bias=False)
+    target = nn.Sequential()
+    target.add_module("down_proj", lin)
+    model = cast(ComponentModel, cast(object, SimpleNamespace(target_model=target)))
+    q = torch.linalg.qr(torch.randn(5, 2))[0]
+    x = torch.randn(2, 3, 6)
+    dec = torch.tensor([[True, False, True], [False, True, True]])
+    batch = Batch(np.arange(2), torch.zeros(2, 3, dtype=torch.long), dec, torch.zeros(2))
+    y = lin(x).detach()
+    with torch.no_grad(), projected_out(model, batch, {"down_proj": q}):
+        out = target(x)
+    assert torch.allclose(out[dec] @ q, torch.zeros(int(dec.sum()), 2), atol=1e-5)
+    assert torch.allclose(out[dec], y[dec] - (y[dec] @ q) @ q.T, atol=1e-5)
+    assert torch.equal(out[~dec], y[~dec])
+    # columns must be orthonormal
+    with pytest.raises(AssertionError), projected_out(model, batch, {"down_proj": 2 * q}):
+        pass
+
+
+def test_cap_per_dataset() -> None:
+    st = load_statements("ood", TRAIN_DIRS)
+    capped = cap_per_dataset(st, 30, seed=0)
+    counts = {d: int((capped.datasets == d).sum()) for d in set(st.datasets)}
+    assert all(c == min(30, int((st.datasets == d).sum())) for d, c in counts.items())
+    assert cap_per_dataset(st, 30, seed=0).texts == capped.texts  # deterministic
+    assert all(capped.datasets[i].endswith("_true") == capped.labels[i] for i in range(len(capped)))

@@ -35,6 +35,7 @@ Usage: python paper_recovery.py --run <s-id or checkpoint path> --out <dir>
 """
 
 import json
+from contextlib import AbstractContextManager
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -50,16 +51,19 @@ from spd.configs import LMTaskConfig, StimulusLens
 from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     Basis,
     Batch,
+    Original,
     Statements,
     StatementSplit,
+    cap_per_dataset,
     decomposition_basis,
     edited_outputs,
     load_statements,
     make_batches,
+    original_pass,
+    run_edit,
     smallest_reaching,
     sorted_modules,
     summarize_state,
-    verdict_logprobs,
     verdict_prompts,
 )
 from spd.experiments.lm.honesty_targeted_decomposition.probe_ci import WANDB_PREFIX
@@ -76,29 +80,8 @@ NEEDS_ACTIVE_SET = ("active_ci", "full_without_inactive")
 N_BOOT = 1000
 
 
-class Pass1:
-    """Original verdict log-probs and CIs of one statement set under one prompt."""
-
-    def __init__(self, base_lp: Tensor, cis: list[dict[str, Tensor]]):
-        self.base_lp = base_lp  # (n, vocab), cpu
-        self.cis = cis  # per batch: module -> (b, pos, C), device
-
-
-def subset(st: Statements, n_per_dataset: int | None) -> Statements:
-    if n_per_dataset is None:
-        return st
-    keep = np.concatenate(
-        [np.flatnonzero(st.datasets == d)[:n_per_dataset] for d in sorted(set(st.datasets))]
-    )
-    return Statements(
-        st.split,
-        [st.texts[i] for i in keep],
-        st.labels[keep],
-        st.datasets[keep],
-        st.families[keep],
-        st.forms[keep],
-        st.german[keep],
-    )
+def maybe_cap(st: Statements, n_per_dataset: int | None, seed: int) -> Statements:
+    return st if n_per_dataset is None else cap_per_dataset(st, n_per_dataset, seed)
 
 
 def main(
@@ -134,37 +117,22 @@ def main(
     split_list: list[StatementSplit] = [s for s in sets.split(",")]  # pyright: ignore[reportAssignmentType]
     assert set(split_list) <= {"test", "ood"}, split_list
 
-    def pass1(batches: list[Batch]) -> Pass1:
-        base_lp, cis = [], []
-        for bt in batches:
-            with bf16_autocast(enabled=config.autocast_bf16):
-                o = model(bt.ids, cache_type="input")
-                ci = model.calc_causal_importances(
-                    pre_weight_acts=o.cache, detach_inputs=True, sampling=config.sampling
-                )
-            base_lp.append(verdict_logprobs(o.output, bt.end).cpu())
-            cis.append({m: ci.lower_leaky[m].float() for m in modules})
-        return Pass1(torch.cat(base_lp), cis)
+    digits = (one, zero)
+
+    def pass1(batches: list[Batch]) -> Original:
+        return original_pass(model, batches, config.autocast_bf16, config.sampling)
 
     def run_state(
-        batches: list[Batch], p1: Pass1, state: str, keep: dict[str, Tensor] | None
+        batches: list[Batch], p1: Original, state: str, keep: dict[str, Tensor] | None
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Verdict score, KL(original || state) and digit mass per statement."""
-        n = len(p1.base_lp)
-        score, kl, mass = np.zeros(n), np.zeros(n), np.zeros(n)
-        for ib, bt in enumerate(batches):
-            mask_fn = partial(state_mask, state, p1.cis[ib], keep)
-            with (
-                edited_outputs(model, basis, bt, mask_fn),
-                bf16_autocast(enabled=config.autocast_bf16),
-            ):
-                logits = model(bt.ids)
-            lp = verdict_logprobs(logits, bt.end)
-            score[bt.rows] = (lp[:, one] - lp[:, zero]).cpu().numpy()
-            mass[bt.rows] = (lp[:, one].exp() + lp[:, zero].exp()).cpu().numpy()
-            p = p1.base_lp[bt.rows].to(device)
-            kl[bt.rows] = (p.exp() * (p - lp)).sum(-1).cpu().numpy()
-        return score, kl, mass
+        cis = p1.cis
+        assert cis is not None
+
+        def edit(ib: int, bt: Batch) -> AbstractContextManager[None]:
+            return edited_outputs(model, basis, bt, partial(state_mask, state, cis[ib], keep))
+
+        return run_edit(model, batches, p1, edit, digits, config.autocast_bf16)
 
     def keep_top(order: list[int], m_top: int) -> dict[str, Tensor]:
         keep = {m: torch.zeros(n_c[m], device=device) for m in modules}
@@ -174,20 +142,22 @@ def main(
         return keep
 
     # ---- 1./2. val: ranking, active-set curve, CI values ----
-    val = subset(load_statements("val", task.prepared_datasets), n_per_dataset)
+    val = maybe_cap(load_statements("val", task.prepared_datasets), n_per_dataset, seed)
     train_prompt = prompts[0]
     val_batches = make_batches(
         val.texts, tok, task.loss_positions, train_prompt, batch_size, device
     )
     val_p1 = pass1(val_batches)
+    val_cis = val_p1.cis
+    assert val_cis is not None
     ci_sum = torch.zeros(len(flat), device=device)
     n_pos = 0
     ci_values = {m: [] for m in modules}
     for ib, bt in enumerate(val_batches):
         n_pos += int(bt.dec.sum())
-        ci_sum += torch.cat([val_p1.cis[ib][m][bt.dec].sum(0) for m in modules])
+        ci_sum += torch.cat([val_cis[ib][m][bt.dec].sum(0) for m in modules])
         for m in modules:
-            ci_values[m].append(val_p1.cis[ib][m][bt.dec].half().cpu())
+            ci_values[m].append(val_cis[ib][m][bt.dec].half().cpu())
     mean_ci = (ci_sum / n_pos).cpu().numpy()
     order = [int(i) for i in np.argsort(-mean_ci, kind="stable")]
     _, kl_off_val, _ = run_state(val_batches, val_p1, "all_off", None)
@@ -260,7 +230,7 @@ def main(
     }
     arrays: dict[str, np.ndarray] = {}
     for split in split_list:
-        st = subset(load_statements(split, task.prepared_datasets), n_per_dataset)
+        st = maybe_cap(load_statements(split, task.prepared_datasets), n_per_dataset, seed)
         arrays[f"{split}_labels"] = st.labels
         arrays[f"{split}_datasets"] = st.datasets
         summary["sets"][split] = {}
@@ -362,7 +332,7 @@ def ci_counts_and_norms(
     model: ComponentModel,
     basis: Basis,
     batches: list[Batch],
-    p1: Pass1,
+    p1: Original,
     keep: dict[str, Tensor] | None,
     n: int,
     autocast: bool,
@@ -370,6 +340,7 @@ def ci_counts_and_norms(
     """Sum of CIs per statement (over decomposed positions and layers) and, per layer, the CI-weighted
     writes of the active set (A) and of the other components (I) with the cancellation diagnostics.
     Norm ratios are mean |.| over positions divided by mean |y|, as in verdict_lens_analysis.py."""
+    assert p1.cis is not None
     ci_sum = np.zeros(n)
     acc: dict[str, dict[str, list[Tensor]]] = {m: {} for m in basis.U}
     for ib, bt in enumerate(batches):
