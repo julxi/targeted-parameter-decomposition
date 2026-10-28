@@ -46,7 +46,10 @@ EXCLUDED_OOD = ("inventors_disj", "neg_element_symb_de", "neg_facts_de", "neg_sp
 N_OOD_FILES = 24
 # OOD files where the model is mostly right (B2: verdict-prompt accuracy >= 0.8 and AUC >= 0.9), the
 # subset for analyses against the ground-truth label (same LOG entry). Analyses against the model's
-# own verdict use all 24.
+# own verdict use all 24, except in the expensive scripts (termination, manipulation), which run on
+# these 13 only (ground_truth_ood): a cost cut decided by Julian, LOG entry *shortening phase D: which
+# OOD domains to drop* (26-10-28). The cheap ones (recovery, correlation) keep all 24, so correlation's
+# truth-vs-verdict test (K3) keeps the statements the model gets wrong, most of them in the 11 others.
 GROUND_TRUTH_OOD = (
     "animal_class_conj", "animal_class_de", "cities_conj", "cities_de", "element_symb_conj",
     "element_symb_de", "facts", "inventors", "inventors_de", "neg_cities_de", "neg_inventors_de",
@@ -155,6 +158,18 @@ def subset(st: Statements, rows: np.ndarray) -> Statements:
 def cap_per_dataset(st: Statements, n: int, seed: int) -> Statements:
     """At most n statements per dataset (OOD cost cap; quick checks)."""
     return subset(st, cap_rows(st, n, seed))
+
+
+def ground_truth_ood(st: Statements) -> Statements:
+    """The OOD statements of the GROUND_TRUTH_OOD files (the termination and manipulation set).
+
+    Applied after the quick-check caps (maybe_cap, --ood_cap), so a capped run keeps the same
+    statements of these files as a capped run on all 24 (the caps draw per dataset from one shared
+    generator); the phase D gate compares per-family results with runs made before the cut."""
+    assert st.split == "ood", st.split
+    out = subset(st, np.flatnonzero(np.isin(st.families, GROUND_TRUTH_OOD)))
+    assert set(out.families) == set(GROUND_TRUTH_OOD), sorted(set(out.families))
+    return out
 
 
 def control_rows(st: Statements, ood_cap_controls: int | None, seed: int) -> np.ndarray:

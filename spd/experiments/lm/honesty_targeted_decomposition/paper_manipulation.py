@@ -18,6 +18,7 @@ Fixed core (reported in full, whatever comes out):
   statement's verdict follow its affirmative twin's original verdict ("the 'not' is ignored")?
   Reported per condition: share of negated statements whose sign equals the twin's original sign
   (original model: near 0) and the correlation of the scores.
+OOD here is the 13 GROUND_TRUTH_OOD files only, not all 24 (cost cut; paper_common.ground_truth_ood).
 Controls (the random active components) run on OOD with --ood_cap_controls N only on a nested subset
 of at most N statements per dataset, as in paper_termination.py (main conditions on all statements,
 also summarised on the subset as "main_on_control_rows"; indices saved as ood_control_rows).
@@ -25,7 +26,9 @@ Exploratory (browsed on val only; anything interesting becomes a hypothesis test
 before it counts as a finding): the wide table, every active-set component reversed alone on val
 under the training prompt, per family and label. Activity profiles come from paper_correlation.py.
 
-Output in --out: manipulation_<run id>_<basis>.json, .npz (per-statement scores per condition).
+Output in --out: manipulation_<run id>_<basis>.json, .npz (per-statement score, KL and digit mass per
+condition, plus the original score and all-off KL per set and prompt, as in paper_termination.py; so
+every summary can be recomputed offline).
 
 Usage: python paper_manipulation.py --run <s-id or checkpoint> --basis decomposition --out <dir>
        --termination <json> --correlation <json> [--ood_cap N] [--ood_cap_controls N]
@@ -52,6 +55,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     cap_per_dataset,
     control_rows,
     edited_outputs,
+    ground_truth_ood,
     load_statements,
     make_basis,
     make_batches,
@@ -198,6 +202,8 @@ def main(
         st = maybe_cap(load_statements(split, task.prepared_datasets), n_per_dataset, seed)
         if split == "ood" and ood_cap is not None:
             st = cap_per_dataset(st, ood_cap, seed)
+        if split == "ood":
+            st = ground_truth_ood(st)
         rows = control_rows(st, ood_cap_controls, seed)
         capped = len(rows) < len(st.texts)
         pairs = twin_pairs(st) if split == "test" else None
@@ -222,9 +228,13 @@ def main(
                 orig = original_pass(model, batches, autocast, None)
                 base = (orig.base_lp[:, digits[0]] - orig.base_lp[:, digits[1]]).numpy()
                 _, kl_off, _ = run_edit(model, batches, orig, all_off, digits, autocast)
+                ref = f"{split}_{prompt.name}_{'control_rows_' if st_g is not st else ''}"
+                arrays[ref + "original_score"], arrays[ref + "all_off_kl"] = base, kl_off
                 for name in names:
                     s, k, ms = run_edit(model, batches, orig, conditions[name], digits, autocast)
                     arrays[f"{split}_{prompt.name}_{name}_score"] = s.astype(np.float32)
+                    arrays[f"{split}_{prompt.name}_{name}_kl"] = k.astype(np.float32)
+                    arrays[f"{split}_{prompt.name}_{name}_mass"] = ms.astype(np.float32)
                     n_boot = N_BOOT if name.endswith("group") else 0
                     r = summarize_state(
                         s, k, ms, base, kl_off, st_g.labels, st_g.families, n_boot, seed
@@ -260,12 +270,14 @@ def main(
         for i, mc in enumerate(active):
             s, k, ms = run_edit(model, batches, orig, scaled([mc], -1.0), digits, autocast)
             arrays[f"wide_val_{_name(mc, layer)}_score"] = s.astype(np.float32)
+            arrays[f"wide_val_{_name(mc, layer)}_kl"] = k.astype(np.float32)
+            arrays[f"wide_val_{_name(mc, layer)}_mass"] = ms.astype(np.float32)
             r = summarize_state(s, k, ms, base, kl_off, val.labels, val.families, 0, seed)
             wide[_name(mc, layer)] = {"pooled": r["pooled"], "per_family": r["per_family"]}
             if i % 50 == 0:
                 print(f"  wide table {i}/{len(active)}", flush=True)
         summary["wide_val_reverse"] = wide
-        arrays["wide_val_base_score"] = base
+        arrays["wide_val_base_score"], arrays["wide_val_all_off_kl"] = base, kl_off
         arrays["wide_val_labels"], arrays["wide_val_datasets"] = val.labels, val.datasets
 
     out_dir = Path(out)

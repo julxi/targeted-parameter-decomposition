@@ -270,3 +270,23 @@ New file `spd/scripts/vast_rtxpro6000_config.yaml` (`spd-vast --config rtxpro600
 
 [verified: `spd-vast --list_offers --config rtxpro6000` 26-10-21: 9 offers, $1.37–1.76/h, reliability 0.984–0.998, none on blacklisted hosts]. Not yet rented: torch on sm_120 and per-step speed remain untested (see the entry *H100 shortage: cheaper alternatives* above). One offer (53871957, host 168410) reports half the DLPerf of the others (152 vs ~283), and the perf-per-dollar sort puts it last.
 OUTDATED (26-10-21): "not yet rented" and "untested" no longer hold: Julian rented an RTX PRO 6000 later that day, torch ran on it and its speed was measured; see `convos/julian/26-10-16_faithful_targeting_LOG.md`, entry *what do the components carry: extended ablations*. Whether that rental used `--config rtxpro6000` is not recorded.
+
+---
+
+Julian (chat, 26-10-28): "I can't get any H100 right now. Is there any configuration that I could change to get one?"
+
+---
+
+26-10-28, Claude Opus 5.5 — *H100 shortage 26-10-28: no verified H100 at all, H200 NVL as substitute*; I have read INDEX.md, this topic's SUMMARY and the tail of this LOG, `spd/scripts/vast_h100_config.yaml`, and the offer-search code in `spd/scripts/run_vast.py`.
+
+Offer searches 26-10-28 (single GPU, `rentable=true`, no other filter; snapshot, offers change within minutes) [verified]:
+- **H100 SXM: 4 offers, 0 of them on verified hosts.** The search hardcodes `verified=true` (`_search_offers` in `run_vast.py`, not a config field), so no config edit can make `spd-vast --config h100` find one today. The four, and what else each would fail: 54322830 (host 169960, India, $1.93/h, rel 0.992): `cuda_max_good` 12.6 < `min_cuda` 12.8. 58034401 and 58034547 (host 743471, Japan, $2.40/h, rel 0.987/0.985, CUDA 13.4, 790 GB disk): pass every filter except `verified`. 57386400 (host 719241, Germany, $4.00/h): 24 GB disk < 100.
+- H100 PCIe: 1 offer (France, $2.00/h, 32 GB disk). H100 NVL: 2 offers (Bulgaria rel 0.927; Japan $3.17/h rel 0.980, which fails `reliability>0.98` by the strict inequality), neither verified.
+- **H200 NVL (140 GB, Hopper): 16 offers, 8 verified.** `spd-vast --list_offers --config h100 --gpu_name H200_NVL` lists 7 matching offers at $4.01–6.01/h (6 of them $4.01–4.16/h, reliability 0.990–0.998, US/Canada/Japan) [verified: run 26-10-28]. H200 (SXM): 1 verified offer, Japan, $4.58/h.
+
+Options, in my order of preference:
+1. **H200 NVL via `--gpu_name H200_NVL` with `--config h100`**: no code change. About the usual H100 price ($3.91/h) plus ~3%. Same architecture as the H100 (Hopper, sm_90), so the cu128 torch build should run [concluded: same compute capability as the H100 we ran on]. Speed is not measured for our workload; vast.ai's DLPerf reads 391–454 vs 345–363 for H100 SXM offers on 26-10-21 [assumed: at least H100 speed, since it has more memory bandwidth (4.8 vs 3.35 TB/s per NVIDIA's specs) and the 7B tPD trainings are not compute-bound; the NVL is a PCIe card with a lower power limit than the SXM, so this is not certain]. Measuring it/s on the first run would settle it.
+2. **The unverified Japan H100 SXM via `--offer_id 58034401` with `--config h100`**: `--offer_id` skips the config filters (including `verified`), checking only the blacklist and excluded countries. $2.40/h. Risk [assumed]: "unverified" means vast.ai has not run its host checks; our earlier failures (ssh, `uv sync`) came from unvetted non-datacenter hosts. The blacklist handling still destroys the instance on a host failure.
+3. Not recommended: lowering `min_cuda` for the India offer (driver 12.6 with the `cuda-12.8.1` image is untested), or an H100 PCIe (slower card, and 32 GB disk is below our 100 GB).
+
+No config file was changed.

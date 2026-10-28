@@ -21,6 +21,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     edited_outputs,
     family_of,
     form_of,
+    ground_truth_ood,
     load_statements,
     projected_out,
     smallest_reaching,
@@ -56,6 +57,17 @@ def test_ood_statements() -> None:
     assert all(st.datasets[i].endswith("_true") == st.labels[i] for i in range(len(st)))
     assert st.german[st.families == "neg_cities_de"].all()
     assert not st.german[st.families == "facts"].any()
+
+
+def test_ground_truth_ood_keeps_capped_draws() -> None:
+    """Restricting after a cap keeps exactly the capped statements of the 13 files, so capped runs
+    before and after the cut are comparable per family."""
+    capped = cap_per_dataset(load_statements("ood", TRAIN_DIRS), 4, seed=0)
+    gt = ground_truth_ood(capped)
+    assert set(gt.families) == set(GROUND_TRUTH_OOD)
+    keep = np.isin(capped.families, GROUND_TRUTH_OOD)
+    assert gt.texts == [t for t, k in zip(capped.texts, keep, strict=True) if k]
+    assert (gt.labels == capped.labels[keep]).all()
 
 
 def test_state_metrics() -> None:

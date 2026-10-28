@@ -1343,3 +1343,206 @@ So: implement the nested control cap in `paper_termination.py` and `paper_manipu
 **Chain prepared** (`step3_6.sh`, `check_cap.py`, session scratchpad; not launched): waits for steps 1–2, then a gate: (1) regression: termination and manipulation (plain s1 and data-aligned) re-run with the smoke settings and without the option must reproduce the smoke JSONs (max |macro difference| < 1e-4); (2) a tiny capped run (`--n_per_dataset 8 --ood_cap_controls 4`) must give control arrays of the subset's length, main arrays of full length and a `main_on_control_rows` entry per main condition. Then per decomposition termination → correlation → manipulation → directions: the 6 finals (`--a8 --ood_cap_controls 100`), the 2 untrained, the data-aligned basis (`--extra_k` = the finals' active-set sizes, `--remove_directions`). Any failure stops the chain.
 
 C: (transcribed from chat) yes commit and sync
+Committed `8ca8bad`, synced (instance at `8ca8bad`), `step3_6.sh` and `check_cap.py` uploaded to `/root/spd_out/paper_d/` and launched 21:18 UTC; it waits for steps 1–2 (≈ 22:20), then the gate, then the full runs. Progress file: `/root/spd_out/paper_d/step3_6.progress`, logs `…/logs/<tag>.log`, outputs `…/out/`.
+
+---
+
+26-10-27, Claude Opus 5.5 — *run stopped for the night; state for tomorrow*; same session. Julian in chat:
+
+C: (transcribed from chat) I want to stop the run and do the rest tomorrow
+
+**Stopped** ≈ 21:35 UTC [verified: no `step*`/`paper_*` process left, GPU memory 1 MiB]: `step12.sh` (in the recovery of ortho s1 `s-0c2fa0d7`, which had finished val and test but not OOD) and the waiting chain `step3_6.sh` (it never started: it waits for step 1–2's end marker). My first `pkill -f step3_6.sh` matched its own ssh command line and killed the session; `pkill -f "[s]tep3_6.sh"` avoids that.
+
+**Copied** to `~/spd_out/26-10-22_tpd_truth_paper/phase_d/instance_paper_d/` (110 MB; all files sha256-identical to the instance) [verified]: smoke outputs and logs, `recovery/` (JSON, npz, val CI values) of 4 runs, all scripts (`smoke.sh`, `rec1.sh`, `step12.sh`, `step3_6.sh`, `check_cap.py`), the untrained configs. Not copied: the two untrained checkpoints (333.5 MB each; recreated from `config_paper_untrained.yaml` with seed 1/2 in ≈ 20 s; any new run gets a new id).
+
+**Recovery done** (val, CI-weighted components, Δ off; reproduction targets from *A5 part 1*) [verified: recovery logs]:
+
+| run | all components | stored | active set | its KL recovered (≥ 95% target) |
+|---|---|---|---|---|
+| plain s1 `s-7152548c` | 0.9639 | 0.9640 | 27 | 0.9172 |
+| plain s2 `s-46efc525` | 0.9631 | 0.9629 | 44 | 0.9195 |
+| recon s1 `s-eeac663f` | 0.9770 | 0.9769 | **387** | 0.9339 |
+| recon s2 `s-edc17041` | 0.9714 | 0.9718 | **432** | 0.9385 |
+| ortho s1 `s-0c2fa0d7` (interrupted, val+test only) | 0.9047 | 0.9071 | 32 | 0.8697 |
+
+- Reproduction: plain and recon within 0.0004; ortho s1 0.0024 lower than stored, larger than the others' gap [assumed: bf16/batch-composition noise; ortho's components may be more sensitive; check when it is re-run, e.g. compare with the second seed's gap].
+- **Recon's active sets are ≈ 10× larger** (387, 432 of 672) [concluded: consistent with tuning, where recon at coefficient 10 had L0 48 on the statements]. Cost consequence for tomorrow [assumed: rate 5.4 ms per statement and condition]: T1 over 387–432 candidates on val (≈ 35 min) and on test (≈ 1 h), larger T2 grids and the manipulation wide table (val, every active component) add ≈ 2–3 h per recon run, so the whole remaining work is ≈ 26 h rather than ≈ 23 h.
+
+**To resume tomorrow** (on a new or the same instance): sync (`uv run spd-vast --mode sync`, after provisioning), copy `instance_paper_d/` back to `/root/spd_out/paper_d/` (the recovery JSONs and the smoke JSONs the gate compares against), recreate the untrained checkpoints, recovery on ortho s1, ortho s2 and both untrained, then `step3_6.sh`. It reads the untrained run dirs from `untrained/dir_s{1,2}.txt` and waits for "STEP12 DONE" in `step12.progress`, so either rerun a trimmed `step12.sh` or adapt those two lines.
+
+---
+
+26-10-28, Claude Opus 5.5 — *shortening phase D: which OOD domains to drop*; new session. I have read CLAUDE.md, INDEX.md, this topic's SUMMARY, this LOG's entries *A5 part 3* to *run stopped for the night*, `paper_common.py` (OOD constants), `step3_6.sh`, the tiu v3 manifests and B2's `b2.json`. Julian in chat:
+
+C: (transcribed from chat) Ok, I'm back. I want to continue the experminets, but do some changes so that they don't take so long. My suggestion is that we just exclude some domains
+
+**Where the OOD statements are** [verified: manifests of the 24 used files, `n_records` of the test split; accuracy/AUC from `~/spd_out/26-10-22_tpd_truth_paper/b2_full/b2.json`, original model, training prompt]: 8,713 statements, 83% of test + OOD (10,507) per condition.
+
+| group | files | statements | model accuracy (verdict prompt) |
+|---|---|---|---|
+| disjunctions | 5 (cities, element_symb, sp_en_trans, animal_class, facts; inventors_disj already excluded) | 2,369 | 0.506–0.814; second prompt 0.504–0.756 |
+| conjunctions | 6 (cities_conj alone 1,498) | 3,986 | 0.761–0.988 |
+| facts, neg_facts, inventors, neg_inventors | 4 | 1,908 | 0.715–0.926 |
+| German | 9 | 450 | 0.660–1.000 |
+
+**Where the time goes** [assumed: rough, derived from the estimates in *phase D rental* and *OOD budget* (34 h full OOD, 21 h at cap 100, 17 h at cap 50, 23 h for the current design), which assumed plain's active-set sizes]: a linear fit gives ≈ 12 h that does not depend on OOD; of the ≈ 11 h on OOD, ≈ 3 h are main conditions on full OOD and ≈ 7–8 h the control repetitions on the nested subset (3,450 statements: ≤ 100 per dataset, i.e. ≤ 200 per file). So the controls dominate the OOD cost even capped, and a dropped file saves mostly through its ≤ 200 statements in the control subset. Recon's large active sets (387/432) add to the val/test part, which domain exclusion does not touch: even dropping all of OOD would leave ≈ 15 h of the ≈ 26 h remaining.
+
+**Options** (savings rough, same assumption):
+1. **Drop the 5 disjunction files** (2,369 statements, 1,000 in the control subset): ≈ −3 h. Grounds independent of any decomposition result: the model is unreliable on them (accuracy 0.51–0.81), the two prompts disagree on them (cities_disj 0.814 vs 0.556, element_symb_disj 0.719 vs 0.504), so the second-prompt transfer test is muddied there; none of them is in the 13 ground-truth files; and inventors_disj is already out, so the whole form goes rather than 5 of 6. Loses: the disjunction form (no training-form counterpart, so K2 transfer never used it).
+   OUTDATED (26-10-28): wrong, K2 maps affirmative → affirmative, conjunction, disjunction (`TRANSFER_FORMS` in `paper_correlation.py`), so the disjunctions were K2 verdict-transfer targets; see entry *K3 loses most of its OOD statements* below.
+2. **Keep only the 13 ground-truth files** (drops the disjunctions plus facts_conj, inventors_conj, neg_facts, neg_inventors, facts_de, neg_animal_class_de: 4,421 statements, 1,900 in the subset): ≈ −5 to −6 h. Label and verdict analyses then use the same OOD set. Loses: the only full-size negated OOD sets (neg_facts, neg_inventors); negation OOD would rest on 2 German files of 50.
+3. **Lower `--ood_cap_controls` from 100 to 50** (no domain lost; control subset 3,450 → 1,950): ≈ −3 h; combinable with 1 or 2. Cost: wider error bars on the OOD controls.
+
+**Recommendation** [assumed]: 1, plus 3 if you want more. 1 has the cleanest justification; 2 removes the negation OOD test the paper may want.
+
+**Conditions for any of these:**
+- Decide on B2 numbers only (original model), before anyone looks at per-family OOD results of the decompositions. The 4 finished recovery JSONs contain OOD numbers; I have not opened their OOD parts.
+- It amends the frozen D3 plan (OOD budget part); the amendment and its reason go into the SUMMARY.
+- Mechanics: `EXCLUDED_OOD` and `N_OOD_FILES` in `paper_common.py`; the 4 finished recoveries were run on all 24 files (re-run ≈ 4 × 16 min, or recompute their OOD macro numbers without the dropped families, if the npz holds per-statement values, to check); the gate's regression check compares against smoke JSONs made with all 24 files, so it must compare val/test only or use a fresh smoke reference.
+
+Julian's answer (chat, multiple choice among the options above): **"Ground-truth + cap 50"** [decided: Julian, chat]: the OOD set becomes the 13 ground-truth files (4,292 statements), control repetitions are capped at 50 per dataset. Accepted losses: the disjunction form, facts_conj, inventors_conj, and the full-size negated OOD sets (neg_facts, neg_inventors); negation OOD rests on neg_cities_de and neg_inventors_de (50 each). Label and verdict OOD analyses now use the same set.
+
+---
+
+26-10-28, Claude Opus 5.5 — *K3 loses most of its OOD statements*; same session. Reading `paper_correlation.py` before implementing the cut:
+- **K3** (truth vs verdict: does a selective component follow the label or the verdict?) uses only test/OOD statements where the model's verdict contradicts the label. Model errors by B2 (verdict prompt, `n × (1 − accuracy)`) [verified: `b2.json`]: the 24 files hold ≈ 1,600 (affirmative-form incl. conj/disj ≈ 1,310, negated ≈ 293); the 13 ground-truth files ≈ 280 (affirmative 267, negated **15**); in-distribution test ≈ 38. So the cut leaves K3 with ≈ 320 statements instead of ≈ 1,640, and negated K3 nearly empty.
+- **K2** verdict transfer used the conjunctions and disjunctions as affirmative-form targets (my claim in the previous entry was wrong, marked OUTDATED there); after the cut it keeps the 4 ground-truth conjunctions.
+- **Cost**: correlation is one forward pass per statement (smoke: 11 s for plain s1); full OOD adds ≈ 8,713 × 5.4 ms ≈ 50 s per basis versus ≈ 25 s for the 13 files [assumed: rate from *phase D rental*]. Termination and manipulation are where the hours are.
+
+Proposal [assumed]: the 13 files for recovery, termination and manipulation (the cost); correlation keeps all 24 (K3's disagreement statements, K2's targets), at ≈ 24 s extra per basis (4,421 dropped statements × 5.4 ms), ≈ 4 min over 9 bases. Asked Julian.
+
+C: (transcribed from chat) use all files wherever it's cheap
+
+---
+
+26-10-28, Claude Opus 5.5 — *OOD cut implemented: 13 files in termination and manipulation, controls capped at 50*; same session.
+
+**Decision as implemented** [decided: Julian's two chat answers above]: termination and manipulation (the cost) run OOD on the 13 ground-truth files; recovery and correlation (cheap: one pass per condition or statement) keep all 24, so the 4 finished recoveries stay valid and K2/K3 keep their statements; directions has no OOD. Control repetitions on OOD: `--ood_cap_controls 50`. This amends the frozen D3 plan's OOD budget (entry *OOD budget…*).
+
+**Sizes** [verified: CPU, `load_statements` + `ground_truth_ood` + `control_rows`, seed 1]: main OOD conditions 8,713 → 4,292 statements; control subset 3,450 → 950. Untrained decompositions and the data-aligned basis (no tagged controls, everything on full OOD) drop to 4,292 as well.
+
+**Estimate** [assumed: rough, same linear model as in *shortening phase D*: ≈ 3.3 h main OOD and ≈ 7.4 h controls before the cut, scaled by statement counts]: OOD part ≈ 1.6 h + ≈ 2.0 h instead of ≈ 11 h, so ≈ 19 h remaining instead of ≈ 26 h (≈ $13 at $0.66/h). The val/test part (≈ 15 h, recon's T1 over 387/432 components and its wide manipulation table) is now the larger share.
+
+**Code** [verified: `make check` clean, `tests/test_paper_common.py` 13 pass; not committed]: `paper_common.ground_truth_ood` (restricts OOD to `GROUND_TRUTH_OOD`, applied after the quick-check caps so capped runs keep the same statements of those files as before; asserts all 13 families present), called in `paper_termination.py` and `paper_manipulation.py`; comments and docstrings say which scripts use which OOD set; new test `test_ground_truth_ood_keeps_capped_draws`.
+
+**Rental scripts** (local copies in `~/spd_out/26-10-22_tpd_truth_paper/phase_d/instance_paper_d/`, edited in place):
+- `step12.sh`: recovery only on ortho s1 `s-0c2fa0d7` and s2 `s-4186f973` plus the 2 recreated untrained checkpoints.
+- `step3_6.sh`: `CAP=50`.
+- `check_cap.py`: regression (1) compares test macro values (< 1e-4) and OOD per-family values of the 13 kept files (< 1e-2; the OOD batches change composition, so bf16 kernels may differ; the OOD macro is over other families and cannot be compared). Checked offline on the 4 smoke JSONs [verified]: a copy cut to the 13 families gives difference 0, a +0.05 perturbation of one family's accuracy is caught.
+
+**Resume steps** (unchanged otherwise from *run stopped for the night*): rent, commit, `spd-vast --mode sync`, copy `instance_paper_d/` to `/root/spd_out/paper_d/` (move the old `step12.progress` aside first, so the chain's wait sees only the new run), `step12.sh`, then `step3_6.sh`.
+
+---
+
+26-10-28, Claude Opus 5.5 — *before spending 19 h: how to catch wrong numbers early*; same session. Julian in chat: "I'm just a bit afraid to spend 19h of compute and then find out that some number wasn't computed correctly..."
+
+**State of verification** [verified: grep of this LOG for review/seeded defects, no hits]: the six `paper_*.py` scripts (2,280 lines) were never reviewed. What exists: unit tests of parts of `paper_common.py` (metrics, AUC vs sklearn, the shared edit hook, caps), synthetic checks of K2/K3, the smoke test (all scripts run to the end at 4 statements per dataset), and recovery's reproduction of the stored val numbers (within 0.0004 for 4 runs; ortho s1 0.0024 open).
+
+**Two kinds of error, different costs** [verified: npz keys of the smoke termination output; docstrings of all scripts]: every script saves per-statement scores and KLs of every condition (termination, manipulation, recovery) or all features (correlation). So an error in a *summary* (metric, macro average, bootstrap, AUC orientation, family grouping) can be fixed afterwards on CPU without rerunning anything. Only an error in *what a forward pass does* (wrong mask, wrong components, wrong positions, wrong layer, a control that isn't what it says) costs GPU hours.
+
+**Proposal** [assumed: not yet agreed]:
+1. Before renting, no GPU: (a) invariant checks on the existing smoke and recovery outputs: summaries recomputed from the npz arrays with separate code; the original model's scores identical across scripts on the same statements; states that must coincide do (all components kept = recovery's full state; ×1 = original; full data-aligned basis = original). (b) A read of each intervention against the frozen plan, condition by condition (which mask, which positions, which layers, which statements).
+2. Optionally an independent review by a fresh sub-agent with seeded defects (`docs/procedures/code_review.md`), which measures whether the review was thorough; needs Julian's go.
+3. In the rental: a pilot first, the full chain on plain s1 and the data-aligned basis only (≈ 3–4 h [assumed]); the checks of step 1 at full size plus a look at every number; then the rest. Cost of the pilot: nothing extra, it is part of the 19 h; it only adds one stop.
+
+---
+
+26-10-28, Claude Opus 5.5 — *phase D resumed on an H200 NVL: checks, pilot, parallelism*; same session. Julian in chat:
+
+C: (transcribed from chat) I rented an instance with 140GB of vram. Can you do 1 and 3 there. Also can you check how much of the training can be done in parallel there?
+
+**Host** [verified: `nvidia-smi`, `free`, `df` over ssh]: NVIDIA H200 NVL, 143,771 MiB, power limit 600 W; 96 CPUs, 377 GB RAM, 93 GB disk free. The instance's tree is at `8ca8bad` plus the uncommitted working-tree changes of this session (the OOD cut): the four changed code/test files are sha256-identical to the local ones, so the sync copied the working tree [verified]. "Training" read as the remaining analysis jobs (no training is left in phase D); parallelism measured with them.
+
+**Step 1(b), the code read** (all six `paper_*.py` against the frozen plan, condition by condition) [concluded: reading, no bug found that changes a number]:
+- Shared edit (`paper_common.edited_outputs`): y' = d_on·(y − x V U) + Σ mask·(v·x)u at the statement tokens only; down_proj has no bias (asserted), so y − x V U = Δx exactly; edits propagate to later layers; CI weights come from the unedited pass. Metrics (`state_metrics`, `summarize_state`, bootstrap within family) match their definitions.
+- Termination: removals act on the **full model** (mask 1 → 0, Δ kept), as the plan's T1 wording ("from the full model (Δ kept)") and as 4e's A1 in `ablate_4e.py` ("removal from the FULL model (all components mask 1 + delta = the original weights)"). Not CI-weighted: a removal subtracts a component's whole write even where its CI ≈ 0. Consistent with the plan, but worth one sentence in the paper, since inactive components can write large cancelling vectors (4a). A8 spans, PCA and random controls, per-subset references: as specified.
+- Manipulation: reverse = mask −1 (y − 2(v·x)u), amplify = mask 2; twin test compares the edited negated statement with its twin's original verdict; as specified.
+- Correlation: coefficient = CI·(v·x) from the unedited pass, residual after layer 17; K2/K3 as specified.
+- Directions: A + I + D = y exactly in fp32; the logistic-regression direction is mapped back to raw space correctly.
+- Recovery: the active set is found by grid + bisection. On a non-monotone curve (plain s1's dips below 0 for m ≤ 8) that is the first crossing found, not guaranteed the smallest m; the paper should say "found by bisection". Not a bug.
+
+**Gap found and fixed** [verified: `make check` clean; uploaded, sha256-equal on the instance]: termination's npz lacked the original scores, the all-off KL and the digit mass, manipulation's also the KLs. So their summaries could not be recomputed without a GPU. Both now save `<set>_<prompt>_original_score`, `…_all_off_kl` (with `control_rows_` for the capped subset), `…_<condition>_kl` and `…_mass`; manipulation's wide table also its KLs and all-off KL.
+
+**Step 1(a), invariant checks**: `~/spd_out/26-10-22_tpd_truth_paper/phase_d/checks/paper_checks.py` (written independently of the analysis code). Recovery: full state = original; every summary recomputed from the npz with separately written metric code; all-off recovers 0; active set m reaches the target and m − 1 does not; original scores per statement vs B2's (other script, other GPU). Termination/manipulation: summaries recomputed (main and control rows); original scores and all-off KL equal recovery's on the same statements. Correlation: its verdict score equals recovery's original; val mean CI per component ≈ recovery's. Directions: A + I + D = 1. Results [verified: runs 26-10-28]:
+- Smoke outputs: all pass (termination/manipulation skipped there: written before the reference arrays existed).
+- The 4 full 4090 recoveries: all pass. Against B2, the scores differ by a median 0.125 log-odds (one bf16 step at these logit sizes; p99 0.25–0.375), and the verdicts that differ (84 of 8,713 OOD statements, training prompt; 35 second prompt) all sit at near-ties (|score| ≤ 0.375 / 0.75). My first version of this check compared correct counts per file and flagged facts_disj (9 of 499); the per-statement comparison shows it is the same bf16 noise in a near-chance file. Every analysis compares with its own original pass, so this noise does not enter any metric.
+
+**Hardware sensitivity of the active set** [verified: recovery log, H200]: ortho s1 recovers 0.9065 here (4090: 0.9047; stored at training: 0.9071), and its active set is **29** components here vs **32** on the 4090; the curve is flat at the target (m = 29: 0.8622 vs target 0.8612). So the 4 recoveries made on the 4090 are rerun on the H200 (their outputs moved to `/root/spd_out/paper_d/recovery_4090/`, local copies in `instance_paper_d/recovery/`), so all active sets come from one GPU type. The paper should report the active-set size as sensitive at the ±3 level for flat curves.
+
+**Gate adapted** (`check_cap.py`): its regression compared summaries with the 4090 smoke outputs within 1e-4, impossible across GPUs given the bf16 step above. Now per statement: median |score diff| ≤ 0.25 and differing verdicts only at near-ties (|score| < 1), over the conditions that have the same components in both runs (a near-tied val ranking may reorder on another GPU; the count compared is printed). The structural check (2) of the capped run is unchanged.
+
+**Running** (scripts in the session scratchpad and on the instance under `/root/spd_out/paper_d/`): `resume12.sh` (untrained checkpoints `s-d5c56fb0` seed 1, `s-25d2cca7` seed 2, not on WandB; ortho s1 alone, then ortho s2 + both untrained in parallel), `rec4.sh` (the 4 reruns, all at once), `pilot.sh` (gate → plain s1 chain and data-aligned chain side by side → `paper_checks.py` → stop). First timing: ortho s1's recovery alone **381 s** on the H200 (plain s1's took 977 s on the 4090).
+
+**Two launch bugs of mine** (≈ 20 min of idle GPU; FEEDBACK entry 26-10-28): `resume12.sh` ended with a bare `wait`, which also waits for its `nvidia-smi -l` logger, so it hung after the jobs had finished (08:27 → 08:46) and the chained scripts never started; fixed by waiting on job PIDs in `rec4.sh` and `pilot.sh`. The relaunch then went through plain ssh instead of `bash -lc`, so the WandB key was missing and the 4 reruns crashed in 5 s; the pilot refused to start, as designed. Relaunched correctly 08:47:23 (failed logs in `failed_nokey/`).
+
+**Parallelism on the H200** [verified: `gpu.csv` samples every 10 s, progress timestamps]: one recovery alone (ortho s1) took 381 s at 67% utilisation, 440 W, 25 GB peak. Three at once (ortho s2 + both untrained): 98% utilisation, 562 W of the 600 W limit, 75 GB; ortho s2 took 765 s (2.0× its twin alone), so total throughput ≈ 1.5× one-at-a-time [concluded: 3 jobs in 765 s vs 3 × 381 s; the untrained jobs are not the same shape, so rough]. More than 3 jobs cannot add much compute (already 98%), though memory would fit ≈ 5. The 4-job rerun gives a second point.
+
+**Checks on the first 4 H200 recoveries** (ortho s1/s2, untrained s1/s2) [verified: `paper_checks.py`, all pass]. Active sets: ortho s1 29, ortho s2 31; untrained: no active set (components recover 0.003 / 0.002 on test, Δ alone 0.877 / 0.972: an untrained Δ is nearly W) [verified: recovery JSONs].
+
+**A reporting issue (not a computation error)** [verified: per-family KLs from the npz]: the macro average of per-family KL recovered is dominated by families whose all-off KL is small. Ortho s2, test, second prompt: pooled 0.735, macro 0.162, because cities has all-off KL 0.182 but components-only KL 0.773 (recovered −3.24): the components really do disturb that family more than switching the MLPs off, but one family moves the macro by 0.25. Under the training prompt ortho s1 is pooled 0.906 (= its val value) vs macro 0.804. Options for the write-up, decidable later without a GPU (all per-statement arrays are saved): macro of ratios (current), ratio of family-averaged KLs, or median over families, each with the per-family table. Note: I looked at these test/OOD recovery numbers only as part of the checks, after the OOD cut had been decided.
+
+**4-job recovery rerun** [verified: progress timestamps, `gpu_rec4.csv`]: plain s1/s2, recon s1/s2 together in 1,176 s (08:47:23 → 09:06:59), 99% utilisation, 564 W, 100 GB peak; ≈ 1.35× the throughput of one job at a time [concluded: rough, vs ≈ 400 s per job alone], so 4 jobs give no more than 3. Results equal the 4090's: active sets 27 / 44 / 387 / 432 on both GPUs, all-components val recovery within 0.0005 (0.9644 vs 0.9639, 0.9632 vs 0.9631, 0.9768 vs 0.9770, 0.9716 vs 0.9714). Only ortho s1's set changed (32 → 29), its curve being flat at the target.
+
+**Gate** (first run 09:07–09:16) **failed, then passed after a fix** [verified: `logs/g_check_fail_before_a8_fix.log`, `logs/g_check_pass.log`]:
+- Failure: in decomposition termination, 17 of 445 score arrays had single statements off by up to 3.1 log-odds, with a verdict differing at |score| 1.6. All 17 were A8 random-subspace controls (`randall`, 96 dimensions). By condition type, median |diff| is 0.125 everywhere, but `randall` has mean |diff| 0.145 vs ≈ 0.09 for every other type and correlation ≥ 0.9974 vs ≥ 0.9992.
+- Reading [assumed: fits all of the above; not verified by drawing on both GPUs]: the subspaces themselves differ. `a8_conditions` drew them with `torch.randn` on the CUDA device, and CUDA's randn with a fixed seed is not guaranteed to give the same numbers on another GPU model. Two random 96-dimensional subspaces have similar but not identical effects.
+- Fix [verified: `make check`; uploaded, sha256-equal]: the random subspaces are drawn from a seeded CPU generator and then moved to the GPU, so they are reproducible on any machine (needed for the registry). It was the only GPU-side random draw in the six scripts [verified: grep]. The gate's regression skips A8 random-subspace conditions (new draws either way). Everything else passes: median |diff| 0.125, max 1.0, differing verdicts only at |score| < 1. Data-aligned termination compares only 3 of 10 conditions, because its val ranking reorders near-tied directions on the other GPU, so most top-k sets differ.
+- The numpy-drawn controls (T2's random component subsets, manipulation's random components) reproduced across GPUs.
+
+**Pilot launched** 09:19:44 (`pilot2.sh`: the chains and checks of `pilot.sh` without the gate): plain s1 and the data-aligned basis, side by side; data-aligned `--extra_k` = 27, 29, 31, 44, 387, 432.
+
+---
+
+26-10-28, Claude Opus 5.5 — *pilot passed; final chains launched*; same session.
+
+**Pilot** (09:19:44 → 10:09:58; plain s1 and data-aligned side by side) [verified: `logs/checks.log`, `pilot.progress`]: plain s1 chain 50 min (termination 35.6 min, correlation 55 s, manipulation 13 min, directions 24 s); data-aligned chain 44 min (termination 26.5 min). **All 173 invariant checks pass** over the 6 finals' recoveries and the pilot's outputs: original scores and all-off KL equal recovery's (test identical; OOD ≤ 0.07% of statements differ, by ≤ 0.25 log-odds, no verdict change); every summary recomputed from the npz within 1.4e-6; control rows nested and capped; correlation's verdict score equals recovery's original; directions' shares sum to 1. No warnings and no NaN in any log.
+- Check adjusted during the pilot: the OOD cross-check against recovery first required |diff| ≤ 0.1 and failed at 0.25. Cause: termination/manipulation run OOD on the 13-file subset, batched differently from recovery's 24 files (other padding lengths, bf16 summation order); 3 of 4,292 statements differed, by ≤ 0.25, no verdict change, mean all-off KL equal to 5e-5 relative. New criterion: ≤ 1% of statements differ, ≤ 0.5 log-odds, no verdict change away from a near-tie, mean all-off KL within 1e-3.
+
+**Plausibility pass over the pilot's numbers** [verified: JSONs; read for implausibility only, not interpreted]: T2 removal of plain s1's top-k lowers the test separation share 0.81 (k = 1) → 0.37 (2) → 0.25 (10) → 0.00 (27 = the whole active set, agreement 0.53); random 5-sets of active components 0.29–0.68 vs top-5 0.39. A8 (projection of the original MLP output onto the components' write span removed): spanall 0.97–1.01, random 96-dimensional subspaces 0.99–1.00, top principal directions 0.73–0.89; i.e. removing the components' span barely matters while removing the components themselves abolishes the separation, the cancellation pattern known from plain tPD (4a) [assumed: reading, to be examined]. Manipulation (test, training prompt): reversing the top-10 group flips 35% of "1" and 48% of "0" verdicts, twin test 0.61 (original 0.057); amplifying flips ≤ 5%. Correlation: K0 probes on all coefficients reach 0.77 test (residual 0.997); K2: 29 negated- and 12 affirmative-selective components, transfer to OOD 0.84 / 0.92 (label); K3: n = 309 / 1,325 disagreeing statements. Directions: the components' share of the mass-mean truth gap 0.02 (L11), 0.04 (L14), 0.48 (L17).
+
+**Final chains launched** 10:13:54 (`rest.sh`; 3 at a time, longest first: recon s1, recon s2, plain s2, then ortho s1, ortho s2, untrained s1, untrained s2; then `paper_checks.py` over all 8 runs). Started without waiting for Julian, per the agreed step 3 ("then the rest") and because the GPU would otherwise idle. Estimate ≈ 4–5 h [assumed: rough; recon's T1 over 387–432 components on val and test is the largest unknown].
+
+---
+
+26-10-28, Claude Opus 5.5 — *final chains checked after the session break*; new session (Julian ended the previous one during the run). I have read INDEX.md, this topic's SUMMARY, the uncommitted LOG entries of 26-10-28, and `rest.sh` from the previous session's scratchpad. Julian in chat: "I killed the last conversation during the run of the expremintes. Can you continue the administration?"
+
+**State at 12:14 UTC** [verified: `rest.progress`, `nvidia-smi`, `ps` over ssh]: `rest.sh` was not affected by the session ending, since it runs on the instance. Plain s2 (`s-46efc525`) chain done (10:13:54 → 11:30:46; termination 50 min, correlation 1.3 min, manipulation 25 min, directions 36 s). Recon s1/s2 termination done (93 / 97 min), both now in manipulation; ortho s1 (`s-0c2fa0d7`) in termination since 11:30:56. Still to run: ortho s2, untrained s1/s2, then `paper_checks.py` over all 8 runs. GPU 100%, 560 W, 63 GB; disk 28 of 100 GB. No exit code ≠ 0.
+- Recon's manipulation includes the exploratory wide table over its whole active set (387 / 432 single-component reversals on val, vs 27 / 44 for plain), so the recon chains are the longest; s1's table passed 50/387 at 12:14. End of the whole run not estimated precisely; roughly 14:00–15:00 UTC [assumed: from the step times above, not measured for recon's wide table].
+
+**Logs** [verified: grep for nan/warn/error/traceback over the finished logs]: one warning, in plain s2's directions: scipy `ConstantInputWarning`, which gives NaN for `spearman_t1_drop_vs_abs_gapshare` at L16 (mass-mean and logistic regression). Cause [verified: directions npz/json]: the 3 L16 candidates (L16:18, :68, :87; T1 drops 0.18 / 0.09 / 0.07) all have gap share exactly 0.0, as do 45 of the 96 L16 components. The gap share uses the CI-weighted write at the statement's **last token**, so these components have CI = 0 there on every test statement, while T1 removes them at all statement tokens. The NaN is a correctly undefined correlation, not a computation error. For the write-up [assumed]: the directions' "link to function" compares a last-token, CI-weighted quantity with an all-token, full-removal one, so for components active only before the last token it says nothing; report how many candidates have zero CI at the last token next to the correlation.
+
+**Watcher**: a local background loop polls `rest.progress` every 5 min and stops on `REST DONE`, a non-zero step exit, or 5 ssh failures in a row (`watch.sh` in this session's scratchpad). Next, when it stops: read `checks_all`'s log, run the plausibility pass over the new outputs, copy `/root/spd_out/paper_d/` to `~/spd_out/26-10-22_tpd_truth_paper/phase_d/` with a sha256 check, then ask Julian before destroying the instance.
+
+Addendum (same entry): the H200 launch scripts (`resume12.sh`, `rec4.sh`, `pilot.sh`, `pilot2.sh`, `rest.sh`) existed locally only in the previous session's temporary scratchpad, which this LOG did not name. They are now copied to `~/spd_out/26-10-22_tpd_truth_paper/phase_d/instance_paper_d/h200_scripts/` (the instance has its own copies under `/root/spd_out/paper_d/`).
+
+Addendum 13:21 UTC (same entry): faster than the estimate above. Recon's wide tables took ≈ 40 min (manipulation 11:47:57 → 12:27:38 and 11:52:07 → 12:34:10) [verified: `rest.progress`]. Done: plain s2, recon s1/s2, ortho s1 (all exit 0). Running: ortho s2 manipulation (from 13:20), untrained s1 manipulation (from 13:11), untrained s2 termination (near its end). Projected end ≈ 13:50 UTC [assumed: ortho s1's manipulation took 25 min, untrained s1's termination 23 min; untrained manipulation has no wide table; the final checks took 2 s in the pilot].
+
+---
+
+26-10-28, Claude Opus 5.5 — *phase D run complete: all checks pass*; same session.
+
+**Run finished** 13:41:40 UTC (`REST DONE`; projected ≈ 13:50) [verified: `rest.progress`]. Every step exited 0. Last chains: ortho s2 (12:28:37 → 13:41:34), untrained s1 `s-d5c56fb0` (12:35:08 → 13:30:58), untrained s2 `s-25d2cca7` (12:47:08 → 13:40:06). Wall time of `rest.sh` 3 h 28 min; of phase D on the H200 with the pilot and recovery reruns ≈ 5.5 h.
+
+**Invariant checks** over all 8 runs (`checks_all`, `paper_checks.py`): **457 PASS, 0 FAIL, "ALL PASS"** [verified: `logs/checks_all.log`]. The data-aligned basis is not in this list; it was checked in the pilot (173 checks, all pass).
+
+**Log scan** (nan/warn/error/traceback over all chain logs) [verified]: two flags, both correctly undefined values, not errors.
+- Plain s2 directions L16: Spearman NaN, explained in entry *final chains checked after the session break*.
+- Ortho s2 correlation K2 (CI features): 0 affirmative-selective components, so their OOD transfer is NaN and K3 affirmative "None" (empty set). With the coefficient features the same run has 2 affirmative-selective components. Worth a sentence in the write-up: ortho's affirmative-selective sets are tiny (s1: 3 / 5, s2: 2 / 0), so its K2/K3 affirmative numbers rest on ≤ 5 components.
+
+**Plausibility pass** (test, training prompt; read only for implausibility, not interpreted) [verified: chain logs]. T2 removal of the top-k components, separation share left (k = 1 / 5 / 10): plain s1 0.81 / 0.39 / 0.25, plain s2 0.88 / 0.82 / 0.39, recon s1 0.95 / 0.76 / 0.72, recon s2 0.96 / 0.89 / 0.85, ortho s1 0.52 / 0.41 / 0.38, ortho s2 0.90 / 0.53 / 0.30, untrained s1 0.99 / 0.97 / 0.95, untrained s2 0.99 / 0.98 / 0.96. So untrained components barely matter while all trained ones do, as a control should behave. Plain s1 reproduces the pilot (top-10 0.248 vs 0.25). Twin-test baseline in manipulation ≈ 0.06 in every run, as in the pilot (0.057). K3 n = 309 negated / 1,325 affirmative disagreeing statements in every run (same statements, as designed).
+
+**Next**: local copy to `~/spd_out/26-10-22_tpd_truth_paper/phase_d/h200_paper_d/` with a sha256 comparison (running); then ask Julian about destroying the instance (≈ $4/h). Open for later (offline, no GPU): the aggregation of KL recovered (macro of ratios vs alternatives), then the analysis and write-up. The code changes of 26-10-28 (OOD cut, npz fields, CPU-drawn A8 subspaces) are still uncommitted.
+
+---
+
+26-10-28, Claude Opus 5.5 — *outputs copied, H200 destroyed*; same session. Julian in chat:
+
+C: (transcribed from chat) yes, please destroy when it's not needed anymore
+
+**Copy** [verified: sha256 of every file on both sides, sorted by path with `LC_ALL=C`]: `/root/spd_out/paper_d/` → `~/spd_out/26-10-22_tpd_truth_paper/phase_d/h200_paper_d/` (5.4 GB, 244 files, all equal; checksum lists next to it as `h200_paper_d.{remote,local}.sha`). The first comparison showed only sort-order differences (the two machines' locales) plus `gpu_rest.csv`, which the GPU logger was still appending to; after stopping the logger and re-syncing, all 244 files are equal. Also copied: the untrained checkpoints `s-d5c56fb0` (seed 1) and `s-25d2cca7` (seed 2) → `…/phase_d/h200_untrained_ckpts/` (6 files, sha256-equal; 637 MB). They can be recreated in seconds, but these exact files are what the analyses ran on. The final checkpoints in `/root/spd_out/runs/` were not copied again: they are on WandB and already in `~/spd_out/runs/`.
+
+**Code provenance** [verified: sha256]: the six `paper_*.py` on the instance equal the local working tree, so the uncommitted local code (OOD cut, the extra npz fields, A8 subspaces drawn on the CPU) is exactly what produced these outputs. Commit it before any further analysis builds on the outputs.
+
+**Instance 58066178 destroyed** (H200 NVL, $4.02/h, 6.1 h up) [verified: `vastai destroy` confirmed "destroying instance 58066178.", `vastai show instances` empty afterwards].
+
+**Next** (offline, no GPU): Julian's review and commit of the code changes; then the analysis of the phase D outputs and the choice of aggregation for KL recovered.

@@ -23,6 +23,7 @@ T3  (A8; --a8, needs an active set) one layer at a time, everything else origina
     controls of the same dimension: N_RAND_SUB random subspaces and the top principal directions of y
     (uncentred second moment over the val decomposed positions). Test and OOD, both prompts.
 
+OOD here is the 13 GROUND_TRUTH_OOD files only, not all 24 (cost cut; paper_common.ground_truth_ood).
 Controls (T2's random subsets, A8's random and principal-direction subspaces) are tagged. With
 --ood_cap_controls N they run on OOD only on a nested subset of at most N statements per dataset
 (paper_common.control_rows), the main conditions on all OOD statements; each main condition is then
@@ -30,8 +31,10 @@ also summarised on that subset ("main_on_control_rows"), so every main-vs-contro
 on the same statements. The subset's indices are saved as ood_control_rows; the control arrays have
 that length.
 
-Output in --out: termination_<run id>_<basis>.json (summaries; T1 tables), .npz (per-statement scores
-and KLs of every condition, set and prompt).
+Output in --out: termination_<run id>_<basis>.json (summaries; T1 tables), .npz (per-statement score,
+KL and digit mass of every condition, set and prompt, plus the references the summaries use: the
+original score and the all-off KL, "<set>_<prompt>_original_score" / "_all_off_kl", and with "control_rows_"
+before "original"/"all_off" for the capped control subset; so every summary can be recomputed offline).
 
 Usage: python paper_termination.py --run <s-id or checkpoint> --basis decomposition --out <dir>
        [--recovery <recovery json>] [--a8] [--extra_k=57,63] [--sets test,ood] [--ood_cap N]
@@ -60,6 +63,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     cap_per_dataset,
     control_rows,
     edited_outputs,
+    ground_truth_ood,
     load_statements,
     make_basis,
     make_batches,
@@ -219,6 +223,8 @@ def main(
         st = maybe_cap(load_statements(split, task.prepared_datasets), n_per_dataset, seed)
         if split == "ood" and ood_cap is not None:
             st = cap_per_dataset(st, ood_cap, seed)
+        if split == "ood":
+            st = ground_truth_ood(st)
         rows = control_rows(st, ood_cap_controls, seed)
         capped = len(rows) < len(st.texts)
         arrays[f"{split}_labels"], arrays[f"{split}_datasets"] = st.labels, st.datasets
@@ -241,10 +247,13 @@ def main(
                 orig = original_pass(model, batches, autocast, None)
                 base = score_of(orig, digits)
                 _, kl_off, _ = run_edit(model, batches, orig, all_off, digits, autocast)
+                ref = f"{split}_{prompt.name}_{'control_rows_' if st_g is not st else ''}"
+                arrays[ref + "original_score"], arrays[ref + "all_off_kl"] = base, kl_off
                 for name in names:
                     s, k, ms = run_edit(model, batches, orig, conds[name], digits, autocast)
                     arrays[f"{split}_{prompt.name}_{name}_score"] = s.astype(np.float32)
                     arrays[f"{split}_{prompt.name}_{name}_kl"] = k.astype(np.float32)
+                    arrays[f"{split}_{prompt.name}_{name}_mass"] = ms.astype(np.float32)
                     n_boot = 0 if name.startswith("T1 ") else N_BOOT
                     res["conditions"][name] = summarize_state(
                         s, k, ms, base, kl_off, st_g.labels, st_g.families, n_boot, seed
@@ -301,7 +310,10 @@ def a8_conditions(
         for m in bas.U:
             y = cache[m][bt.dec].float() @ model.target_weight(m).float().T
             second[m] += y.T @ y
-    gen = torch.Generator(device=device).manual_seed(int(rng.integers(2**31)))
+    # Random subspaces drawn on the CPU, then moved: CUDA's randn with a fixed seed is not guaranteed to
+    # give the same numbers on another GPU model (the 26-10-28 gate saw RTX 4090 and H200 runs differ
+    # in exactly these controls), and the registry runs must be reproducible elsewhere.
+    gen = torch.Generator().manual_seed(int(rng.integers(2**31)))
     for m in bas.U:
         evecs = torch.linalg.eigh(second[m])[1]  # ascending eigenvalues
         in_layer = [c for mm, c in active if mm == m]
@@ -312,7 +324,7 @@ def a8_conditions(
             k = cols.shape[1]
             subs = {f"span{span_name}": orthonormal(cols), f"pca{span_name}": evecs[:, -k:]}
             for r in range(N_RAND_SUB):
-                g = torch.randn(cols.shape[0], k, device=device, generator=gen)
+                g = torch.randn(cols.shape[0], k, generator=gen).to(device)
                 subs[f"rand{span_name} #{r}"] = orthonormal(g)
             for sub_name, q in subs.items():
                 conditions[f"A8 L{layer[m]} {sub_name}"] = lambda _ib, bt, q=q, m=m: projected_out(
