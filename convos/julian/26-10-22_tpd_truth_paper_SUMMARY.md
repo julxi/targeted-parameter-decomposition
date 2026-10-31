@@ -69,6 +69,7 @@ All 23 run directories (trials, tuning, finals) are copied to `~/spd_out/runs/sp
 
 ## See also
 
+- See also: [convos/julian/26-10-29_paper_writing_SUMMARY.md] — continuation: offline analysis of the phase D outputs, explanations, lesson and the paper text.
 - See also: [convos/julian/26-10-16_faithful_targeting_SUMMARY.md] — Exp 4d/4e (orthogonality method), its tuning, ablations, A8 and reprogramming results; the paper's third method and most of its current evidence.
 - See also: [convos/julian/26-10-10_bolder_experiments_SUMMARY.md] — Exp 0–3 (lens comparison), the causal layer scan that justifies all tokens and layers 11–17, Exp 4a/4b/4c (plain tPD and reconstruction method), the cancellation test.
 - See also: [convos/julian/26-10-16_component_steering_SUMMARY.md] — manipulation evidence on 4c (reversal, mask search) and the recall test showing verdict inversion leaves knowledge intact.

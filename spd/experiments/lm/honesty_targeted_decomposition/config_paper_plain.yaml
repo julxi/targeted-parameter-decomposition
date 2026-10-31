@@ -122,7 +122,7 @@ slow_eval_freq: 2500
 # compare runs.
 n_eval_steps: 16
 slow_eval_on_first_step: true
-# Final checkpoint only (238 MB each): the WandB account has 5 GB, and intermediate checkpoints
+# Final checkpoint only (333.5 MB each, per the run register): the WandB account has 5 GB, and intermediate checkpoints
 # have no planned use.
 save_freq: null
 ci_alive_threshold: 0.01
