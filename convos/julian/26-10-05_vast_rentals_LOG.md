@@ -290,3 +290,22 @@ Options, in my order of preference:
 3. Not recommended: lowering `min_cuda` for the India offer (driver 12.6 with the `cuda-12.8.1` image is untested), or an H100 PCIe (slower card, and 32 GB disk is below our 100 GB).
 
 No config file was changed.
+
+---
+
+Julian (chat, 26-10-31): "The machine I'm trying to rent does not accept my ssh. Do you know why?"
+
+---
+
+26-10-31, Claude Opus 5.5 — *H100 host 161249 refuses ssh: bad modes on authorized_keys*; I have read INDEX.md, this topic's SUMMARY and the tail of this LOG, and the ssh/attach code in `spd/scripts/run_vast.py`.
+
+The rental: instance 58526819, H100 SXM, machine 154313, host 161249 (Idaho, verified host), started by `spd-vast --mode provision --config h100` at 12:30 local time; the launcher was still in its 300 s ssh wait when I looked.
+
+Findings [verified: live checks 26-10-31, about 12:33–12:36]:
+- Our key is on the vast.ai account (the local `~/.ssh/id_rsa.pub` matches registered key 691586), and the generated ssh stanza points at the right direct address (174.27.185.39:40201).
+- Direct and proxied ssh (ssh7.vast.ai:18522) reach the same sshd (same host key) and both get `Permission denied (publickey)`.
+- `vastai logs 58526819` names the cause on every attempt: `Authentication refused: bad ownership or modes for file /root/.ssh/authorized_keys`. sshd's StrictModes ignores an authorized_keys file when it, `/root/.ssh` or `/root` is owned by another user or writable by group/others. The key does reach the file; sshd will not read it. `vastai execute` refuses to run on a running instance, so the actual modes could not be inspected.
+- Conclusion [concluded]: a fault of this host (how its container sets up `/root`), not of our key or the launcher: the same key and the same attach flow work on other hosts, and re-attaching rewrites the file's contents, not its modes, so waiting will not help. The launcher should blacklist host 161249 and destroy the instance when its 300 s run out.
+- The earlier publickey blacklistings (hosts 256524, 33035, 393491) may have had the same cause; their logs were not read then [assumed].
+
+Proposed, not done: on a publickey failure, have the launcher grep `vastai logs` for "bad ownership or modes" and fail at once (the cause is certain then), and write that cause into the blacklist `reason`.
