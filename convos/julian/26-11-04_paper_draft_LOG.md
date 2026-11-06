@@ -320,3 +320,72 @@ Replaced the subsection `<capture>` (Julian's rework of *Intuition* and *Modelin
 12. *Open points*: which question the criterion answers, which constraints, hard verdict vs s, the set S, pairs.
 
 Julian's two `//` comments in the old text ("This is a critical point…", "This doesn't work as described here…") were removed; they are quoted and answered in the evaluation-categories LOG (entry *stuck on the basis…* and the answer *the general picture without tPD*). Compiles without errors [verified: `typst compile`, 26-11-06]. Everything in the new section is an agent proposal, not ratified.
+
+---
+
+26-11-06, Claude Opus 5.5 — *variable length and absent features added to "Two views of the model"*; context: my answer in `convos/julian/26-11-05_evaluation_categories_LOG.md` (entry *variable input length and input-dependent features in H and L*)
+
+C: (transcribed from chat) can you add this in the .typ?
+
+Added two paragraphs to subsection *Two views of the model* in `reports/26-11-04_tpd_truth_paper_draft.typ`: *Fixed variables, varying values* (after "$cal(H)$ is the claim"; X ranges over strings of any length, absent features take the value "absent", the one-statement domain restriction is part of the claim, the fixed F_1…F_k is a simplification the narrowed model doesn't need) and *Variable length* (after the L paragraph; one L_n per length with the same weights or padding, sites named relative to the statement end and answer position, swaps need a position map, pairs of equal length). New labels `<ca-narrow>` and `<ca-measure>` on the subsections *Narrowing to the truth question* and *Measuring with the verdict*. Compiles [verified: `typst compile`, 26-11-06]. Agent proposal, not ratified.
+
+---
+
+26-11-06, Claude Opus 5.5 — *variable-length paragraphs shortened to a footnote*
+
+C: (transcribed from chat) can you change this into a short footnote. The details doen't matter much I think
+
+Replaced the two paragraphs *Fixed variables, varying values* and *Variable length* (previous entry) by one footnote on "at every position" in the L paragraph: fixed variable set; in H, X ranges over strings of any length and inapplicable features are "absent"; in L, one model per length with the same weights, sites named relative to the statement's end and the answer position. Labels `<ca-narrow>`, `<ca-measure>` left in place (unused, harmless). Compiles [verified: `typst compile`, 26-11-06].
+
+---
+
+26-11-06, Claude Opus 5.5 — *proofread of Julian's unstaged edits to the capture section*; read `git diff` of `reports/26-11-04_tpd_truth_paper_draft.typ` (subsections Intuition, Two views, Linking the views; labels)
+
+C: (transcribed from chat) Can you go through the currently unstaged changes of @reports/26-11-04_tpd_truth_paper_draft.typ  and proofread them / flag anything that might be wrong?
+
+Findings (nothing edited; reported in chat):
+- Substantive: the footnote in *Intuition* uses `^[…]` (Pandoc syntax); Typst prints it literally — needs `#footnote[…]` [concluded: `^` and `[` are not markup in Typst text mode]. Its content overlaps the H bullet "With one statement per input there is one T", and it ends in a note to self.
+- Substantive: the readout τ is now "from L to H (a value for every feature)"; τ maps a *state* of L (all activations on one run) to a state of H, not model to model, and the parenthesis now dangles.
+- Wording: missing punctuation after the bold headings of L and H; "nets computations", "paddet", "a models computation", "platonic idea what", "on the L", capital "The" inside the quoted claim, "hard but we give an attempt", "basic … basic north star".
+- Minor: labels `<ca-narrow>`, `<ca-measure>` now unreferenced (harmless). The removed sentence about grouping does not break "Without the grouping…" later, because the basis subsection introduces the grouping first.
+
+---
+
+26-11-06, Claude Opus 5.5 — *proofreading fixes applied*
+
+C: (transcribed from chat) ok to "#footnote[A model may compute several truth values, e.g. for several statements in one input; we restrict to inputs with one statement.]" but add the messy message, because this can already be seen as a mayor sipmlification from uncovering the models truth mechanism
+C: (transcribed from chat) About 2. In Geiger I think the models were stateless, so a different state is always an intervention. But you are right that's better.
+C: (transcribed from chat) You can apply the fixes
+
+Applied in `reports/26-11-04_tpd_truth_paper_draft.typ`: the Intuition footnote as `#footnote[…]` with the added sentence "This is already a major simplification of the task of uncovering the model's truth mechanism."; the duplicate "With one statement per input there is one T" removed from the H bullet; τ now "from a state of L (a value for every activation, i.e. one run, possibly under an edit) to a state of H (a value for every feature)"; the wording fixes listed in the previous entry. Labels `<ca-narrow>`, `<ca-measure>` kept. Compiles [verified: `typst compile`, 26-11-06].
+
+On Julian's point about states: in Geiger, τ maps *total settings* (a value for every variable) of the low-level model to total settings of the high-level one (Def. 25, `τ: Val_V → Val_V*`; notation table: "A map from total settings of M to total settings of M*") [verified: `papers/Causal_Abstraction/ca_paper.md`, 26-11-06]. There is no hidden state: a run on an input, edited or not, yields one total setting, which is what "state" means in the draft. So the two readings agree [concluded].
+
+---
+
+26-11-06, Claude Opus 5.5 — *ladder subsection added to the capture section*; content from `convos/julian/26-11-05_evaluation_categories_LOG.md` (answers *the missing middle* and *ladder derived from the definition*); read the draft's `<capture>` section as it is on disk today
+
+C: (transcribed from chat) I'll ignore question 2. for now, because I want to read your writedown into the paper draft under 1 first
+
+New subsection *From one definition to a ladder of tests* `<ca-ladder>` in `reports/26-11-04_tpd_truth_paper_draft.typ`, after *Measuring with the verdict* and before *What this says about our analyses*. Content: why the verdicts alone can't catch a re-implementation (uncancelled writes in the P-swap; the narrowed H has no output that reads them); three assumptions (one T computed from content Z; truth readouts read only T; other-quality readouts Q read only Z); the definition of "P captures T" as one "for every" sentence; measurement and the form of the conditional guarantee (confidence 1 − α, accuracy ≥ q on D; nothing outside D; not unique); the grid (interventions: swaps / settings / at P's input; readouts: Y_1 / other Y / Q; statements: in-distribution / OOD and model errors); the ladder table (rungs 0–6 with cell, H's prediction, alternative ruled out, which of our analyses touch it, named by glossary entries); why this order; A-checks with the site swap; where a re-implementation can show. One sentence added at the end of *Narrowing to the truth question* pointing to `@ca-ladder`. Julian's text elsewhere unchanged. No result numbers in the subsection (the data column names analyses only). Table columns set to fractional widths after the first render collapsed two `auto` columns. Compiles; pages 10–11 rendered and checked by eye [verified: `typst compile`, 26-11-06].
+
+Not yet adjusted to the new subsection [assumed: left for Julian]: the *Open points* list (its first bullet, representation vs weights, is partly answered by the ladder) and the document summary at the top, which still lists "categories, controls, measures".
+
+---
+
+26-11-06, Claude Opus 5.5 — *evaluation section redone around the definition and the ladder*; read the whole section 2 as on disk, `spd/experiments/lm/honesty_targeted_decomposition/paper_common.py` (docstring, `state_metrics`, `data_aligned_basis`, all-off assertion), `scratch/26-10-29_paper_writing/tables/tables.md` (header notes on shift, bootstrap, bases)
+
+C: (transcribed from chat) can you redo the whole of "How the decompositions are evaluated"?
+
+Reading: restructure section 2 so that it runs from the definition to the tests, now that the ladder exists, instead of the ladder sitting as an appendix to the capture subsection. Julian's own text (*Intuition*, *Two views of the model*, *Linking the views*) is kept verbatim apart from one added sentence each in *Intuition* ("Our criterion answers the second…") and *Linking* ("Two mechanisms that agree on every edit in Ψ cannot be told apart…"). Backup of the previous version: session scratchpad `draft_before_eval_redo.typ` (not kept; the staged git version also has it).
+
+New structure of section 2:
+- Intro paragraph (roadmap).
+- 2.1 *What it means…* `<capture>`: Intuition; Two views; Linking `<ca-link>`; *Bases and superposition* `<ca-superposition>` (the former subsections *The special case: a basis* and *Superposition* merged, text kept); *What keeps the general link from being empty* (+ pointer: specificity becomes testable via content readouts); **rewritten** *The truth question: content, truth value and two kinds of readout* `<ca-narrow>`: H = X → Z → T → (Y_1…Y_r) plus Z → (Q_1…Q_m), assumptions A1–A3 numbered here, why both kinds of readout, and *Which T* (B3 read under the judgement vs stored-fact versions of T, replacing "the verdict prompt may read a truth assessment that is not the model's knowledge"); *Which weights compute T* `<ca-weights>` (kept; one sentence added: the new variables are ours, the network only sees their sum); new *The definition* `<ca-def>` with the conditional guarantee and its three limits.
+- 2.2 *From the definition to tests: a ladder* `<ca-ladder>`: the grid; the ladder table (rung, cell, prediction, alternative; the analyses column moved to a separate table); why this order (removals = whether, not how, Geiger Sec. 3.5); *Swaps in practice* `<ca-measure>` (the former *Measuring with the verdict*, plus: equal-verdict pairs can't test, site swap as reference also for rung 3, hard verdict vs s); *Checking the assumptions with the site swap* `<ca-acheck>`; *Re-implementation: why the verdicts alone are not enough* `<ca-reimpl>`; *Our analyses on the ladder* `<ca-analyses>` (table rung → analyses run → what they show → missing; replaces *What this says about our analyses*; plus analyses not on the ladder: K0–K3, Dir, valley check, active set, cancellation norms); *Open points* (updated: which Q_k, pairs, the set S, the 4a edit class and 4b mean set, which T; dropped: representation vs weights (answered in Intuition), the constraints question, hard verdict vs s (moved into the text)).
+- 2.3 new *Evaluation setup* `<eval-setup>`: statement sets (with Julian's `// neeeds to go into evaluation setup` sentence on the model's weak families, moved here from the end of the file, subject "It" → "The model"); prompts; states (the edit formula y' = m_Δ D + Σ m_c U_c V_c^T x; original, components only, Δ alone, all off, removals, reversal/amplification) [verified: `paper_common.py` docstring; all-off writes exactly 0]; measures (KL recovered, accuracy, agreement, separation share, shift (descriptive, added after reading), flips, digit mass, AUC; per run, pooled and macro, 95% bootstrap with 1,000 resamples within family) [verified: `state_metrics`, `tables.md`]; controls (untrained = step-0 checkpoint; data-aligned basis = 96 top principal directions of the input, U = W V, remainder W(1 − P_V), no CI; random subsets/subspaces/components 5/3/10) [verified: `data_aligned_basis` docstring; counts from the glossary]; pre-registration (frozen plan; G0–G2 and the shift added after).
+- 2.4 Glossary: descriptions unchanged; new column *rung*; B3's description drops its interpretation ("the verdict prompt reads a truth assessment…"), now discussed under *Which T*.
+- Document summary at the top updated to the new section content.
+
+Compiles; pages 6–14 rendered and checked by eye (tables laid out with fractional columns) [verified: `typst compile`, 26-11-06]. Everything new is an agent proposal, not ratified.
+

@@ -81,3 +81,4 @@ Venue/audience/format and co-authors; aggregation (macro over families is in the
 
 - See also: [convos/julian/26-11-04_paper_draft_SUMMARY.md] — the paper text (stage 4), drafted section by section in its own topic.
 - See also: [convos/julian/26-10-22_tpd_truth_paper_SUMMARY.md] — the experiments, methods, tuning, frozen analysis plan and phase D runs this paper reports.
+- See also: [convos/julian/26-11-05_evaluation_categories_SUMMARY.md] — section *The missing middle*: T0 and G0–G2 placed on a ladder of tests; argues G2's removal version compares broken models and proposes a swap version with the site swap as reference.

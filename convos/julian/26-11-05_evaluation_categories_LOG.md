@@ -575,3 +575,351 @@ Two points that answer your earlier worry:
 - **Not measured:** (i) in G4, "P computes T rather than passing it on", which needs a readout of Z at the input side; (ii) the off-distribution problem of G3: swapping T between statements of different truth creates content/T combinations the model rarely sees.
 
 Open for Julian: does G1–G4 work as the solid beginning? If it does, the next step is to decide which of G2 (representation) and G4 (mechanism) the paper's criterion is about. My view: G4, with G2's limits (G3) stated as a caveat.
+
+---
+
+C: (transcribed from chat) I'm currentlty understanding and rewritiren "how the decompositions are evaluated". I have a question about the high-level model. How does the variable input length fit into the picture here? Or the variable features   dependingon the input?
+
+---
+
+26-11-06, Claude Opus 5.5 — *variable input length and input-dependent features in H and L*; I have read INDEX.md (head), the draft's `<capture>` section as Julian saved it (`reports/26-11-04_tpd_truth_paper_draft.typ`), the tails of this LOG and of `convos/julian/26-11-04_paper_draft_LOG.md`. A grep of `papers/Causal_Abstraction/ca_paper.md` for "variable length", "sequence length", "input length", "padding", "positions" found no treatment of variable-length inputs [verified: grep, 26-11-06; only these terms searched]. Geiger's examples I remember use fixed-length inputs [assumed: from memory].
+
+**The rule that answers both questions:** a causal model has a fixed set of variables, but a variable's *values* can come from any set. So whatever varies with the input has to go into the values, or the input domain has to be restricted, or one model per input shape is needed. [concluded: Geiger's Def. of a causal model fixes the variable set; nothing else follows]
+
+**1. Variable length, in H: no problem.** X is one variable whose values are token strings of any length. Z, T and Y are statement-level variables, not per-position ones (Y = the next-token logits at the answer position). The narrowed H (X → Z → T → Y_1…Y_r) has the same variables for every input. [concluded]
+
+**2. Variable length, in L: here it bites.** The network on n tokens has n positions of activations, so a different set of variables for each n. Two equivalent standard fixes [concluded; equivalence holds because with a causal mask and right-padding, padded positions influence no earlier position]:
+- (a) a *family* L_n, one low-level model per length, all with the same weights. "H describes the network" then means: for every n there are τ_n, Ψ_n, ω_n that satisfy the link condition. H is shared.
+- (b) one L padded to a maximum length N; padded positions hold a fixed value and influence nothing.
+
+Consequences:
+- *Sites must be named independently of the length*: relative to anchors (the statement's last token `.\n`, the answer position, "all statement tokens"), not by absolute index. This is what *locality* has to mean in our setting.
+- *Swaps between inputs need a map between positions.* The draft avoids it by requiring pairs of equal length with aligned positions; that is why good pairs are hard to find (open point *Pairs*). An alternative would be to swap only at anchored positions (e.g. only `.\n`), which tests a weaker claim. The layer scan shows the verdict also reads the other statement tokens (removing block 11–17 at `.\n` alone leaves 0.82 of the separation), so swapping at `.\n` alone would miss most of it.
+- The tPD split itself does not depend on length: P = Σ_{c∈S} U_c V_c^T acts per position with the same weights at every position.
+
+**3. Input-dependent features: fixed variables, variable values.**
+- *A feature absent on an input* takes a value ⊥ ("not present"), and its mechanism outputs ⊥. The sparsity behind superposition is exactly this (inactive = 0 / ⊥).
+- *A variable number of features of one kind* (one T per statement with several statements; one entity feature per token) cannot be a fixed list unless it is bounded. Options: bound the count and pad with ⊥, or restrict the input domain. The draft does the second ("With one statement per input there is one T"): the claim holds only on verdict prompts with one statement, and this domain restriction is part of the claim, like the edit set Ψ.
+- *Features of different kind across families* (cities: city and country; larger_than: two numbers): Z's value set is a union of these, which H allows. The difficulty moves to the readout τ, which must read Z in every family. We never read Z, so this costs nothing yet; it matters for R3 (does P compute T from Z).
+- *Position-indexed features* (a "subject" feature at the subject token): a general H that has these inherits the length problem from point 2, with the same fixes. The narrowed H avoids it, because Z and T are statement-level; where in the network they are read (possibly spread over positions) is τ's business.
+- *Input-dependent active components* (the set S changes from statement to statement): this is the refinement's property 3 in the draft ("if the split depends on the input, it is a function of the network's own activations"), so it is allowed; with CI as that function, it is natural for tPD.
+
+**Proposed sentences for the draft** (not inserted; Julian is rewriting the section):
+- after the H bullets: "The variables of $cal(H)$ are fixed; what varies between inputs is their values. $X$ takes token strings of any length as values, and a feature that does not apply to an input takes the value 'absent'. The claim is made only for verdict prompts with one statement, so there is one $T$."
+- after the L paragraph: "The network on $n$ tokens has $n$ positions of activations, so there is one low-level model $cal(L)_n$ per length, all with the same weights. $cal(H)$ describes the network if it describes every $cal(L)_n$; the sites of readouts and edits are therefore named relative to the statement's end and the answer position, not by absolute position."
+
+Whether H's general version ("feature variables F_1, …, F_k") needs to say more than this is open: with arbitrary text inputs the number of features is unbounded, and the fixed k is a simplification that only the narrowed H gets rid of. [assumed]
+
+---
+
+C: (transcribed from chat) what is Phi that is going to be relevant for our evaluations?
+
+---
+
+26-11-06, Claude Opus 5.5 — *which edit set Ψ our evaluation uses*; the draft has no Φ, so I read the question as the edit set Ψ of the draft's subsection *Linking the views*; context: the draft's `<capture>` section as of today
+
+C: yes I meant Ψ
+
+**Ψ for the weight question (R1/R2)** [concluded; agent proposal]: the swaps of the draft's *Measuring with the verdict*, on the refined network (down_proj 11–17 split into P = chosen components, R = the rest plus Δ), at all seven layers and all statement tokens at once, for pairs (x, x') of equal length with aligned positions and different verdicts:
+
+| edit e (base x, source x') | ω(e) in H = X → Z → T → (Y_1…Y_r) | prediction if P captures T |
+|---|---|---|
+| P-swap | set T := T(x') (strictly: Z := Z(x'), which gives T(x')) | verdicts as for x' |
+| R-swap | no intervention (identity) | verdicts as for x |
+| site swap (P and R) | set T := T(x') | verdicts as for x' (reference, because routes outside layers 11–17 exist) |
+
+C: what does the first row mean with ω(e)?
+
+Answer (26-11-06, Claude Opus 5.5): ω is the second half of the link in the draft's *Linking the views*. For each edit e on the network, ω(e) names the intervention in H that e is claimed to carry out. The link condition then says: "edit the network with e, then read out" gives the same as "intervene in H with ω(e), then run H".
+
+The first row in words: the P-swap (run x, replace P's writes by their values on x') is claimed to carry out "set T to its value on x'". In H the outputs Y_j depend only on T, so H predicts that every verdict comes out as on x'. That prediction is the third column.
+- *ω is not measured; choosing it is the claim.* ω(P-swap) = "set T := T(x')" is the claim "P's writes carry T". ω(R-swap) = identity is the claim "R's writes carry nothing of T that the outputs use". The test checks whether the network agrees with these claims.
+- *"Strictly Z := Z(x')".* P's writes carry the content as well as T (the draft's *Two readings that are too strong*). So the swap sets the whole bundle Z to its value on x', and H's mechanism Z → T then gives T(x'). Because the outputs read only T, both versions predict the same verdicts.
+
+- τ needs no readout of T: the network's outputs are H's outputs Y_j (the verdict under each truth question), and τ reads them directly. This is where the assumption "the verdict measures T" enters.
+- Intervention-algebra check comes free: P-swap ∘ R-swap from the same x' = site swap, and ω(P) ∘ ω(R) = "set T(x')" ∘ identity = ω(site). Consistent [concluded].
+- Not in Ψ: the removals we actually ran (R, T0, T1, T2, M-core: components set to 0, −1 or 2). They produce states no statement produces, and H has no intervention they implement. They could enter only if T gets an extra value ("no truth information") with a stated effect on the verdict, which H does not specify [assumed]; mean ablation would be the closest to such an edit.  
+C: I don't understand what you mean by this comment
+
+Answer (26-11-06, Claude Opus 5.5): Restated. Ψ may only contain edits for which ω can say which intervention in H they carry out. Without that, H makes no prediction for the edit, and the edit tests nothing. Our removal analyses have no such ω:
+- The analyses meant: T0 (all components switched off, Δ alone), T1/T2 (single components or the top k switched off), M-core (components reversed with mask −1 or amplified with mask 2), R (recovery: the components alone).
+- A swap puts in writes that a real statement x' produces. Those writes mean what they mean on x' (Z(x'), hence T(x')), so ω follows from the inputs (Geiger Def. 47: the readout is defined on the network's own states). A removal puts in writes (zero, negated, doubled) that no statement produces. T in H has only the values true and false, and neither is what "P's writes switched off" means. So there is no ω(removal), and H predicts nothing about the verdict after a removal.
+- To bring removals in, H would need an extra value of T, say "unknown", plus a rule for what the readouts do when T is unknown (verdict 50/50? the model's default "true"?). H says neither. Picking one would be an extra assumption.
+
+In short: removals answer "is P used for the verdict?", not "does P carry T the way H says?". They remain useful evidence, just not tests of the link condition. The draft says the same in *What this says about our analyses*, second bullet.
+- Open choices that change Ψ: S = all components or the input-dependent active set; whether to also allow swaps restricted to some layers or positions (finer Ψ = stronger claim).  
+C: These are future questions for experiments but not important right now in the conceptual phase
+
+Answer (26-11-06, Claude Opus 5.5): Agreed. They stay in the draft's *Open points* (the set S) and are left out of the conceptual discussion here.
+
+**Ψ for the representation question** (not the paper's main criterion, per my earlier view): edits on the unsplit network that set T, e.g. B3's steering along a truth direction with ω = "set T := true/false". The superposition caveat applies to exactly these.
+
+C: What is the representation question? Also I think edits on the network altering T should be one criterion even if we don't meet it (is it the first row in the table). It would be strange to say, we have the mechanism for T but we can't do anything with it.
+
+Answer (26-11-06, Claude Opus 5.5):
+
+**The representation question** is the first of the two questions in the draft's *Intuition*: "Where is T represented?" Is there a site in the *unsplit* network with a readout of T and an edit that sets T to a chosen value (`@ca-link`)? Example edit: "add v at layer 14 of the last statement token", with ω = "set T := true". The other question, "Which weights compute T?" (`@ca-weights`), needs the split W = P + R and edits on P's writes. In the entry above I treated only the second as our criterion.
+
+**Edits that alter T as a criterion: agreed. The first row is one, but a weak one.** The P-swap is an edit on P's writes that changes T, and R1 says the verdicts follow. So "we can do something with it" is already in the definition: if P carries T in the R1 sense, swapping P's writes moves T. What the P-swap cannot do is set T to a value *of our choosing while keeping the content*. It carries over x''s whole bundle Z(x') and only ever produces T(x') = f(Z(x')), a combination that occurs on a real statement. The strong sense of "we can do something with the mechanism" would be:
+
+- **R4 control (proposal):** there is an edit of P's writes, from a stated small class (e.g. a fixed vector per component, or a rescaling of components), that carries out "set T := t, Z unchanged": every readout Y_j follows t.
+
+Why R4 is a separate criterion and not implied by R1/R2 [concluded]: R1/R2 only use edits that lead to states the network reaches on some statement. R4 asks for states where T contradicts Z, which the network reaches only where it errs. That is where superposition bites (draft, *Consequence for T*): if T is stored entangled with Z, no such edit may exist even when R1/R2 hold perfectly. So a decomposition can carry T in the R1/R2 sense and fail R4. I agree it belongs on the list. My suggestion: state it together with this reason, so that failing it is not read as the method's fault alone.
+
+R4 needs two things R1/R2 did not:
+- *Its ω cannot come from the inputs*, since no statement has "content of x, T flipped". H has to be trusted off the network's natural states. That is an extra assumption and should be stated.
+- *A control.* Some edit always flips the verdict, e.g. a large enough push towards "0". R4 says something about P only if the edit class is restricted (the simplicity and specificity constraints of the draft's *What keeps the general link from being empty*) and the same edit class is tried on a random or untrained split. Relevant precedent: in Exp 4e an untrained data-aligned basis swapped verdicts about as well as the trained components (`convos/julian/26-10-16_faithful_targeting_SUMMARY.md`).
+
+**Side point on B3, possibly relevant to the draft's *Narrowing* paragraph** [concluded, from H's graph]. In H = X → Z → T → Y, recalling the fact ("Paris is in …") reads Z, not T. An edit that sets T against Z should therefore move the verdicts and *leave recall unchanged*. Two earlier results show exactly this: B3 (steering along the truth direction flipped the verdict, the model still recalled the fact) and the gradient-mask search (`convos/julian/26-10-16_component_steering_SUMMARY.md`: verdicts inverted within some families, direct-question recall unchanged). Under H, that is what an R4 edit should do, not evidence against one. The draft reads B3 as "the verdict prompt reads an assessment, not the model's knowledge", and the steering topic concluded "no belief lever". Both readings are right if T is meant as the stored fact (part of Z). They are not objections if T is the judgement "the statement agrees with what I know", which is how the draft's *Intuition* currently words it ("whether it takes the statement to be true"). Worth pinning down which of the two T is.
+C: also how did you come up with these swaps, why do we choose these as the criteria?
+
+Answer (26-11-06, Claude Opus 5.5): Where they came from: step 5 (entry *perfect decomposition in causal-abstraction language*, E2). There I took Geiger's standard test, the interchange intervention, and applied it to the split. I did not derive it there; here is the derivation:
+
+1. *The edits must act on P and R separately.* The claim under test is about the split (R1: P's writes carry T; R2: R's writes don't supply it). Edits on the unsplit network (steering, the site swap) predict the same outcome whatever the split is, so they cannot test it.
+2. *Each edit needs an ω* (answer to the removal comment above). The only edits whose ω follows from the inputs alone put in values that another input x' produces. Those values mean what they mean on x', so ω = "set Z, and with it T, to its value on x'". Those are interchange interventions (Geiger Def. 44).
+3. *One edit per claim.* Applied to the two parts of the split, this gives two edits: the P-swap tests R1 (prediction: verdicts of x'), the R-swap tests R2 (prediction: verdicts of x). The site swap does not test the split. It is the reference for the partial case: how far swapping these layers can move the verdict at all, i.e. the most any split of them can reach.
+4. *Pairs with different verdicts.* For a pair with equal verdicts, H predicts the same output with and without the swap, so the test cannot fail.
+
+What the derivation does not show [concluded]:
+- That interchange interventions are the only reasonable edits. They are the weakest edits that can test the split: they stay on the network's natural states and need no extra assumption for ω, at the price of saying nothing about states off them (R4 above).  
+OUTDATED (26-11-06): "stay on the network's natural states" holds for each refined variable (P's write, R's write) separately, not for the run as the network sees it. With cancelling writes, c(x') + r(x) can be far from anything the network produces. See the answer to the comment on re-implementations at the bottom (*re-implementation under the swaps*).
+- That passing R1/R2 means P *computes* T rather than passing it on (R3, untested).
+
+The criteria list then reads: R1 and R2 (swaps; ω from the inputs), R3 (computation; path test), R4 (control; ω assumed, needs a control split), plus the size of P. Ψ for the weight question = the P- and R-swaps, the site swap as reference, and R4's edit class if R4 is adopted. Open for Julian: adopt R4 as a criterion in this form, and which T (the judgement or the stored fact) the draft means.
+C: we might adopt R4 as criterion, but let's keep talking
+C: T could be both I suppose. The intersting thing is too make predictions about decompositions of either of them.
+
+Answer (26-11-06, Claude Opus 5.5): Agreed. Then they are two high-level models that predict different outcomes for the same edit:
+- **H_J (judgement):** X → Z → T → verdicts, with recall reading Z. An edit of T moves the verdicts and leaves recall.
+- **H_F (stored fact):** the fact B is part of Z, recall reads B, and T = f(B, the statement's claim). An edit of B moves recall *and* the verdicts together; an edit of T alone exists only in H_J's sense.
+
+A decomposition can be tested against both: its swaps or R4 edits either move recall along with the verdicts or they don't. The tiu twins ("Paris is in France / Spain") keep B fixed and change the claim, so swaps between them test H_J. Testing H_F needs pairs that differ in the fact, not the claim, which is hard with one model's fixed knowledge [assumed: not thought through].
+
+C: So we haven't really though about which edits should we test? One question is what do we expect what the current tests predict on a reimplementation (what we most likely see in plain tPD). In my understanding I think plain tPD will ace these tests.
+
+Answer (26-11-06, Claude Opus 5.5) — *re-implementation under the swaps*; context: this LOG, the cancellation results in `convos/julian/26-10-10_bolder_experiments_SUMMARY.md` (Exp 4a) and `convos/julian/26-10-29_paper_writing_SUMMARY.md` (*Cancellation in plain tPD*). Nothing run.
+
+**I think you're right: a re-implementation passes R1 and R2, possibly better than a faithful decomposition** [concluded under a linear-readout simplification; not measured].
+
+Recall what re-implementation means (from those topics): the active components write a vector c that is not a part of the real output y (Exp 4a: 12.9 × |y| at cosine 0.03 with y), and the inactive components plus Δ write r ≈ y − c, cancelling it. Plain tPD in the paper does this moderately (C and Δ each 1.2–2.3 |y|, writing against each other).
+
+Simplify the readout: the verdict depends on one linear function v of the site's output (its truth signal), with sign v = the verdict. tPD's loss makes c alone give the right verdict, so sign v(c(x)) = τ(x), and |v(c)| is free; with large writes it can exceed |v(y)|. For a pair with τ(x) ≠ τ(x'):
+- P-swap: the site writes y(x) + [c(x') − c(x)], so v = v(y(x)) + v(c(x')) − v(c(x)). The last two terms both have the sign of τ(x'). If |v(c)| ≥ |v(y)| the verdict follows x': **R1 passes.**
+- R-swap: the site writes y(x) + [r(x') − r(x)] = y(x') − [c(x') − c(x)], so v = v(y(x')) − v(c(x')) + v(c(x)). With |v(c)| ≥ |v(y)| the verdict stays at x: **R2 passes.**
+
+A faithful split (c a real part of y, |v(c)| ≤ |v(y)|) passes only if c carries nearly all of v(y); a re-implementation passes by overshooting. The hard-verdict IIA can't see the overshoot. With the logit difference s instead, the overshoot would show as a P-swap that moves s *beyond* x''s value, which is a symptom but not a criterion.
+
+**Why the test is blind, and which assumption of mine it breaks.** The two decompositions differ in the part of c(x') − c(x) that v doesn't read. In a re-implementation that part can be large, and in the full model it is cancelled by r; in the swap it is not cancelled, because c comes from x' and r from x. H can't see it, because we marginalized H down to T and the verdicts: nothing in H reads the other directions. So my earlier claim that swaps "stay on the network's natural states" was wrong at the level that matters (marked OUTDATED above). Each refined variable takes a value some input produces, but the network only sees their sum, and the sum can be foreign. The refined variables are our hypothesis, not the network's; naturalness has to be judged in L, the real network.
+
+Whether the swap state actually is foreign depends on how much c *varies* between twins. If the cancelling part is mostly constant across statements (e.g. always-active components), c(x') − c(x) is small and close to y(x') − y(x), and then the swap is natural. That case is arguably fine: for swaps only the variation matters, and P does carry the variation. Re-implementation hurts swaps only if the cancellation sits in the *differences*: c(x') − c(x) and r(x') − r(x) large and opposite. Not measured for any run [assumed].
+
+**What follows for which edits to test.**
+1. *Design principle:* a test belongs in the evaluation only if we know what a re-implementation predicts for it and the prediction differs from a faithful split. R1/R2 with the hard verdict fail this as stated. I hadn't checked that.
+2. *Anchor the swap in the real network* (a specificity condition, the draft's constraint 2): written as an edit of the real activations, the P-swap is y ↦ y + [c(x') − c(x)]. Require it to be a part of the site swap y ↦ y + [y(x') − y(x)]:
+   - in the writes: |c(x') − c(x)| not larger than |y(x') − y(x)|, and no cancellation between c(x') − c(x) and r(x') − r(x) (the cancellation test, applied to differences);
+   - in behaviour: readouts other than the verdict (next-token predictions at the statement tokens, the answer format) stay within what the x and x' runs show. This puts back some of what the marginalization removed.
+3. *R4 does not help here*: a re-implementation has a strong verdict handle and likely passes R4 too [assumed]. R4 stays a criterion about controllability, not a re-implementation test.
+4. *Seeded defect for the evaluation:* Exp 4a is a known strong re-implementation (checkpoint kept on WandB per `convos/julian/26-10-03_wandb_storage_SUMMARY.md` [assumed: not re-checked today]). Any proposed test can be run on 4a first. If 4a passes, the test can't distinguish re-implementation from decomposition. Recon (Exp 4b-style, components a part of y) is the opposite reference.
+
+So far the edits were derived from H alone. This shows they also have to be derived from the failure modes we want to catch, re-implementation first among them. Open: whether to list the failure modes (re-implementation; Δ carrying T; P = W; passing on instead of computing) and derive one test per failure mode, with the anchoring condition in point 2 as the candidate for re-implementation.
+
+C: What kind of test could expose a reimplemenatition. And how does such a test fall in the causal model framework?
+
+Answer (26-11-06, Claude Opus 5.5) — *exposing re-implementation: P-swaps that leave the network's states*; context: this LOG, the draft's `<capture>` section and its ortho method description (`reports/26-11-04_tpd_truth_paper_draft.typ`), Geiger Defs. 28 and 46 in `papers/Causal_Abstraction/ca_paper.md`. Nothing run.
+
+**Short answer.** H can't see a re-implementation. In the framework it is a failure of the *refinement* (the split y = p + r), not of the link between H and the network. It shows up as P-swaps that put the network in a state it never reaches. There the readout τ is outside its domain, so a "pass" there means nothing. The verdict hides this, because read off the network's output it is defined on every state. The test that exposes it asks whether each P-swap is, at every split site, a genuine interchange intervention of the *network*, not only of the refined model. That has an exact geometric form: the P-difference and the R-difference between the twins are orthogonal.
+
+### 1. Where the hole is [concluded]
+
+- The draft's τ is partial: "defined only on states the network actually reaches, or close to them" (*Linking the views*). The link condition can only be checked on edits that keep the run in τ's domain.
+- In *Measuring with the verdict*, τ is the verdicts, read from the outputs. That readout is defined on any state, so it silently extends τ to states the network never reaches. That is the loophole a re-implementation uses.
+- Why ordinary interchange interventions don't have this problem: in Geiger's setting the edit acts on the network's own variables, possibly after a bijective translation (Def. 28; a rotation for distributed interchange interventions, Def. 46). Each coordinate of the swapped state then takes its value from x or from x'. The joint state is new, but every coordinate is natural. As an edit of the site's output, a distributed swap is y(x) ↦ y(x) + Π[y(x') − y(x)], with Π an orthogonal projection. It can never move the state further than the site swap, nor in a direction the site swap doesn't go.
+- The split is not a bijective translation (draft, *Which weights compute T*: "p and r cannot be recovered from y"). Written as an edit of the network, the P-swap is y(x) ↦ y(x) + [p(x') − p(x)], and nothing forces p(x') − p(x) to be a part of y(x') − y(x). The draft names the hole itself: "What it buys is new edits: 'replace only the P-part of this layer's output' has no counterpart in L". An edit without a counterpart in L gets its ω only from the refined model, i.e. from our own hypothesis. That is the reason removals were excluded from Ψ (answer under the removal comment above), and it applies to cancelling P-swaps as well.
+
+### 2. The test: is each P-swap an interchange intervention of the network?
+
+Per split site and position, for a pair (x, x'):
+- Δ_site = y(x') − y(x), the site swap's edit;
+- Δ_P = p(x') − p(x) and Δ_R = r(x') − r(x), so Δ_P + Δ_R = Δ_site.
+
+**Fact** [concluded: two lines of linear algebra]: Δ_P is the orthogonal projection of Δ_site onto some direction (equivalently: in some orthonormal basis the P-swap state takes, coordinate by coordinate, the value of x or of x') **if and only if ⟨Δ_P, Δ_R⟩ = 0.** Proof: if ⟨Δ_P, Δ_R⟩ = 0, take u = Δ_P/|Δ_P|; then ⟨Δ_site, u⟩ = |Δ_P|, so Δ_P = ⟨Δ_site, u⟩ u. Conversely, a projection Π gives ⟨ΠΔ, (1 − Π)Δ⟩ = 0.
+
+As a graded number, summed over split layers and positions:
+
+κ = (|Δ_P|² + |Δ_R|²) / |Δ_site|² = 1 − 2⟨Δ_P, Δ_R⟩ / |Δ_site|².
+
+- κ = 1: the P-swap is a part of the site swap, as for a rotation.
+- κ ≫ 1: the P- and R-differences cancel. The P-swap pushes the network where the site swap doesn't go: re-implementation in the differences.
+- κ < 1: P and R carry overlapping parts of the variation (both move the same way). Overlap, not cancellation.
+
+Predictions: a re-implementation whose cancellation varies between twins gives κ ≫ 1; a faithful split gives κ near 1 (or below with overlap). A re-implementation with a *constant* cancelling part (the harmless case in the previous answer) also gives κ ≈ 1, which is right: its swaps are natural.
+
+**Where it sits in the framework.** κ does not test H against the network; it decides which edits are admissible in Ψ. A P-swap (and likewise an R-swap, since Δ_R = Δ_site − Δ_P) tests R1/R2 only where κ is near 1. Elsewhere its ω has no basis in the network. Equivalently, κ ≈ 1 is a condition on the refinement that Geiger's bijective translations meet automatically. It could join the draft's list of properties of the split, but it is a property of the split *together with the edits*, not of the split alone. Proposal: report κ next to IIA(P) and IIA(R), and count a high IIA(P) as evidence only where κ is near 1. Filtering pairs by κ is the other option, but it would hide failures.
+
+Remarks:
+- Positions before the first token where the twins differ have identical activations (causal attention), so all three differences are 0 there and drop out.
+- κ comes from the clean runs on x and x'; no swap run is needed. In the actual swap run, later layers see changed inputs, so per layer the clean-run κ is an approximation.
+- The direction u differs from pair to pair, while Def. 46 uses one rotation for all inputs. A fixed subspace would bring back the superposition problem (G3). The per-pair version asks only for no cancellation: weaker, on purpose [concluded].
+- κ ≈ 1 shows absence of cancellation, not faithfulness. Conversely, the model itself may contain sub-mechanisms that write against each other, and a faithful split that separates them fails κ. Telling "the decomposition invented the cancellation" from "the model has it" needs a reference, e.g. κ for splits of the layer along its own hidden neurons [assumed: not thought through].
+
+### 3. Two weaker tests
+
+- **Other outputs (specificity, the draft's constraint 2).** Under the P-swap, next-token predictions at the statement tokens after the differing token should lie between the base run and the site-swap run, e.g. KL(base, P-swap) ≤ KL(base, site). This brings back outputs the marginalization removed. H says nothing about them; the condition comes from the same requirement as κ (the edit stays a part of the site swap), checked by behaviour instead of geometry. It catches the uncancelled residue only if something downstream reads it; κ catches it regardless.
+- **Overshoot of the score s (graded IIA, Def. 41).** With the logit difference s and the site swap as reference, a P-swap that moves s further than the site swap does is suspicious. Cheap, but only a symptom. A faithful split shows it when R's difference pushes s the other way, and a re-implementation whose verdict signal happens to match |v(y)| doesn't show it.
+
+### 4. Calibration: seeded re-implementations with a dial
+
+Every test should first be shown to fail on a known re-implementation. Besides Exp 4a (previous answer), there is a construction that works on any decomposition and has a dial k: scale the components and let Δ absorb the difference,
+
+W_c ↦ (1 + k) W_c, Δ ↦ Δ − k Σ_c W_c.
+
+W is unchanged. On every input p ↦ (1 + k) p and r ↦ r − k p, so Δ_P ↦ (1 + k) Δ_P and Δ_R ↦ Δ_R − k Δ_P. Starting from κ = 1, κ becomes 1 + 2k(1 + k) |Δ_P|² / |Δ_site|² [concluded: algebra]. Meanwhile the hard-verdict R1/R2 get *easier* to pass as k grows (overshoot, previous answer). So the dial shows directly that the hard-verdict swaps can't detect it and κ can. Honest CI is kept approximately: the inactive components' writes scale too, which matters only if they weren't negligible. Recon is the opposite reference (components ≈ the whole output, Δ_R ≈ 0, so κ ≈ 1 trivially).
+
+### 5. Side observation on ortho (a consequence, not an argument for the method)
+
+κ = 1 has the same geometry as ortho's loss term (C on the sphere with diameter y), but for the *differences* between twins and for the active set rather than all components at full strength. Ortho's term does not imply it: ⟨C(x), D(x)⟩ = 0 and ⟨C(x'), D(x')⟩ = 0 leave the cross terms free. They bound |Δ_P| only by |y(x)| + |y(x')|, which can be far above |Δ_site| for twins. So κ would be a held-out finding for ortho too, not something it was trained to pass [concluded].
+
+### 6. Back to the failure-mode list
+
+With this, the failure modes from the previous answer each have a test: re-implementation → κ (calibrated with the dial and Exp 4a); Δ carrying T → R-swap; P = W → the size of P; passing on instead of computing → R3, still without a practical test. Open for Julian: adopt κ as the admissibility condition for the swaps in Ψ.
+
+C: kappa is some internal measurement. I would have liked to have a real behavioural difference between a a real decomposition that captures T and a re-implementation of T. Somehow a reimplementation should hurt some other parts of the computation in some way.
+You are on a quite abstract level, which is great and can provide great benefits. But somehow theory and expectation are quite far away. I'd expected something like: if we have a good decomposition we can e.g. (assuming certain conditions on how the model works internally)
+- change the verdict, while keeping verdicts of other qualities unchanged
+- make the model oblivious to the truth of a statement
+Let's say that I'm aiming for these kind of things, at least as the final best tests for a decomposition. So there are some basic sanity checks but then some tests for which my decompositions fail.
+It feels a bit like that from the theory that you have extracted we are at the lower end of the spectrum. What I have in mind is on the higher end of the spectrum and we're missing something in the middle.
+Also it feels to me that we don't have (or I'm overlooking something) that brings the high level H down to the decomposition level. We talked about the basis and stuff, but I don't see this anywhere. But the technical reality of the model has to enter the description somewhere. What I mean maybe best understood in an example, let's say we have a high level model H that does not capture what the net actually does but still predicts everything perfectly. We might even have readuouts and edits that work great for the bits we are interested, but all of this is not grounded on he computation itself but on a different mechanism that produces the same outputs.
+My comment is a bit rambly. The meta problem is that:
+- I don't fully understand all the theory you are providing and I asked you to setup
+- I don't know if there's still a gap or a theory mismatch with what we have and what we actually need to informatively talk about tPD
+- If the theory leads to a usefull class of evaluations for the tPD decompositions
+- I don't know if all this theory actually brings any benefit (like showing us blind spots in our evaluation setup. Have a suit of evaluations that within the theory guarantees that a decomposition that aces them all, can be called a decomposition of the/a truth mechanism)
+
+Answer (26-11-06, Claude Opus 5.5) — *the missing middle: a ladder of alternatives, and where a re-implementation can show at all*; context: this whole LOG re-read; `convos/julian/26-10-29_paper_writing_SUMMARY.md` (sections *Where plain tPD fails*, *Why Δ alone isn't worse than all-off*, the side-effect test G0–G2); `convos/julian/26-10-16_component_steering_SUMMARY.md` (mask search, recall test); the T0 table in `scratch/26-10-29_paper_writing/tables/tables.md` §2a. Nothing run.
+
+Your comment is fair. Short answers to your four meta questions first, then the substance.
+
+**Short answers**
+
+1. *Is there a gap between the theory and what we need?* Yes, and I made it. In the entry *stuck on the basis* (section 1) I narrowed H to "statement → T → verdict" and dropped every other output. You wanted to start general, and you were right. A narrowed H can only predict the verdict, so every test derived from it is a verdict test, and a re-implementation that gets the verdict right passes all of them. Your high-end tests ("flip the verdict, other qualities unchanged"; "make the model oblivious to truth") need H to have outputs besides the verdict. The theory has room for them; my version of it didn't.
+2. *Where does H get grounded in the model?* Only through the edits it has to predict. In causal abstraction, "H describes the network" means: for every edit in a chosen set Ψ, editing the network and running it gives what the matching intervention in H gives. Your example (an H that predicts everything, but via a different mechanism) can exist only relative to a Ψ: two mechanisms that agree on every edit in Ψ can't be told apart at that level, and they come apart only on an edit outside Ψ. The re-implementation is exactly your example, for Ψ = {P-swap, R-swap} with the verdict as the only readout. The model's technical reality enters in three places: which weights (the split P/R), which edits are applied to the real network, and which outputs are read. If those three are thin, H floats.
+3. *Does it lead to useful evaluations?* Only when used as a recipe: each test is an edit, H's prediction, and what each named alternative predicts. A test is worth running only if some alternative predicts something different. On its own the theory generates nothing; the list of alternatives does the work.
+4. *Can it give a guarantee?* Only a conditional one: "passes every test in the suite ⇒ H describes the network for every edit in the suite". No framework gives "this is *the* truth mechanism" (non-identifiability, Méloux et al., *literature* entry: several decompositions can pass the same tests). Realistic goal: a suite that rules out a named list of alternatives, plus a statement of what it doesn't rule out.  
+C: I disagree. The goal might not be tenable for me now, or maybe I have a wrong understanding but you are right. But I sill don't see why we can't have the following methodogical setup:
+   (1) assumption about how the model works
+   (2) theory about decomposition
+   (3) theory of uncertainty from measurments
+   (4) a theory of a suit of tests that show that something captuers what we want under the assumptions (1) & (2) to some degree of certainty under the assupmiton (3)
+However, I don't need to follow this ideal any longer as I don't feel any closer to it.
+
+Answer (26-11-06, Claude Opus 5.5): I think your setup holds, and my short answer 4 was too pessimistic. It mixed two things. No framework gives "this is the truth mechanism" *unconditionally*, and that stays true. But your (4) is conditional by construction ("under the assumptions (1) & (2)", "under (3)"), and a guarantee of that shape is possible [concluded]. How the pieces map:
+- (1) = the high-level model H with its readouts: X → Z → T; truth readouts read only T; other-quality readouts read only Z; one T for all truth readouts. The guarantee is conditional on this.
+- (2) = the split W = P + R (with CI) as a refinement of the network, and "P captures T" defined as: H abstracts the refined network with T aligned to P's writes, for a stated set of interventions, readouts and inputs.
+- (3) = per-test statistics: each test is an accuracy (graded IIA) on a sample from a stated distribution D, with an interval. We already do this (bootstrap intervals).
+- (4) = the ladder, derived from (1) and (2): answer under your comment on the proposal below (*ladder derived from the definition*).
+
+The resulting statement: "if (1) holds, then with confidence 1 − α the split meets each clause of 'captures T' with accuracy ≥ q on D". It keeps two limits, which I'd state rather than count as failure: it says nothing outside D (your forall point under (a)/(b)), and other splits may pass as well (non-identifiability), so what it certifies is *a* truth mechanism. One thing it needs that we don't have: tests on the unsplit network that check (1) itself, so that a failure can be attributed either to the assumption or to the decomposition (the A-checks, below).
+
+What the theory has bought so far: removals answer "is P used", not "does P carry T" (so T0/T1/T2 can't be the main criterion); swaps need pairs with different verdicts; control edits (R4) live where superposition bites, so failing them isn't automatically the method's fault; in H recall reads content, not T, so "verdict flipped, recall intact" is what an edit of T should do. What it did *not* buy: it didn't find the re-implementation blind spot (your intuition did), it only explained it. Beyond "edit, prediction, alternative", the formal machinery adds little for us.
+OUTDATED (26-11-06): "it didn't find the re-implementation blind spot" and "the formal machinery adds little" are wrong: rung 3 of the ladder is the earlier P5 and rung 4b is close to the informational D3, both dropped earlier in this LOG; the definition produces the ladder. See *ladder derived from the definition*, under Julian's comment on the proposal below.
+
+### 1. Where can a re-implementation show at all? [concluded, partly from existing data]
+
+A fact that constrains everything: in the unedited model a re-implementation can't hurt anything, because W = P + R exactly, so the model is unchanged. Any behavioural difference must come from an edit that separates P from R. "Hurts other parts of the computation" therefore means *collateral effects of edits on P*.
+
+What plain tPD's re-implementation looks like in the verdict channel. The T0 table (components removed, Δ only; separation share 1 = unchanged true-false gap of the verdict score, 0 = gap gone; test, training prompt): plain s1 0.052, plain s2 0.037, recon s1/s2 0.167/0.164, ortho s1/s2/s3 0.193/0.217/0.238 [verified: `tables.md` §2a, re-read today]. Plain's Δ carries *less* verdict separation than the other methods' Δ. The paper-writing topic also found that plain's write vectors align with the truth direction only at the random level. Reading [concluded, under the linear-readout simplification of the previous answers]: in the direction the verdict reads, plain's components carry the truth signal as a faithful split would, and the cancelling writes sit in directions the verdict doesn't read. So the overshoot scenario of the previous answers (|v(c)| > |v(y)|) is probably not what plain does, and plain would likely pass R1/R2 *legitimately* in the verdict channel.
+
+That leaves two places where plain's re-implementation can show in behaviour. They are two different failure modes, which I had lumped together:
+- **(a) Junk writes.** Large cancelled writes in directions the verdict ignores. Visible only if some *other* output reads those directions, and only under an edit that breaks the cancellation. → side effects on other qualities.
+- **(b) A different route.** P's verdict signal is computed from different input features than the model's own (e.g. a cue that correlates with truth on tiu). On the training distribution P's write and the model's agree in the verdict direction, so nothing shows. They come apart where the cue and the model's route disagree. → transfer failures: other truth prompts, OOD forms, statements the model gets wrong.  
+C: I like these. I like them conceptually and I also like them because they are tricky. They are something like a forall statement. So these might result in a test that is not practical or does not give us any conclusion, wich is ok.
+
+Answer (26-11-06, Claude Opus 5.5): Agreed. Both are statements about all inputs, so finite tests can refute them but not prove them. Under (3), a pass reads "no failure at a rate above q on D, with confidence 1 − α", and its value depends on D. So D should be where a failure is most likely. (b) lives where a shortcut cue and the model's own route disagree: OOD forms, other truth prompts, statements the model gets wrong. (a) lives under edits that break the cancellation, read on outputs nothing was trained on. An active search for failures (like the gradient mask search) is a stronger D than a random sample, at the price of a guarantee that is harder to state [assumed].
+
+If neither shows, plain's extra writes are invisible to the model's behaviour, and only internal measures (κ, write norms) see them. Whether that is a failure then depends on what the decomposition is for: as an account of the model's mechanism, yes; as a behavioural handle, no. I'd demote κ accordingly: a diagnostic that explains a behavioural failure, not a criterion (your objection holds).
+
+### 2. The ladder, with your high-end tests at the top
+
+Each rung is defined by the alternative it rules out. H gets back the outputs it lost: statement X → content Z → T, with *truth readouts* (verdict prompt, second prompt, Yes/No) that read T, and *other-quality readouts* (recall "Paris is in …", the humor/emotion/surprise/word-count digit questions, next-token predictions within the statement) that read Z, not T.
+
+| rung | claim | alternative ruled out | edit and H's prediction | existing data |
+|---|---|---|---|---|
+| 0 sanity | it is a decomposition | broken CI; P = W | inactive off: no change on Pile; components alone give the verdict; size of P | done (recovery, Pile KL) |
+| 1 used | P matters for the verdict | P irrelevant | remove P: the verdict loses truth | done (T0/T1/T2). Doesn't separate methods: Δ alone ≈ all-off for all of them (first-order argument in the paper-writing topic) |
+| 2 carries T | P's writes carry T, R's don't supply it | Δ holds a second route to T | P-swap: truth readouts follow x'; R-swap: they stay at x | not run; plain probably passes (section 1) |
+| 3 carries only T *(the missing middle)* | the P-swap changes nothing that H doesn't predict | junk writes, failure (a) | same swaps; other-quality readouts that the twins share stay as in the x run. Reference: the site swap (all of layers 11–17's output from x'), a state the network actually reaches | removal version done (G2, Δ alone against all-off): plain above all-off at recall / object + end in both seeds (2.16/1.55 and 1.34/1.94 × all-off), but so is ortho s3 (1.87/1.37), which has no cancellation: inconclusive. Swap version not run |
+| 4a control: flip | an edit of P flips T and nothing else | P is only a verdict lever (bias, sentence form) | a small fixed edit of P's writes: every truth readout flips, other-quality readouts unchanged; the same edit class on a random or untrained split as control | partly: mask search on 4c (an earlier decomposition, one seed): inversion in some families (cities, number comparisons, negated families), collapse in others, recall intact |
+| 4b control: oblivious | an edit of P removes T and nothing else | Δ holds a second route; P is only a lever | replace P's write by its mean over a twin-balanced set: truth readouts independent of truth; other-quality readouts unchanged | verdict half ≈ T0 (zero instead of mean ablation): plain is the closest to oblivious. Other-quality half: G2 above. Mean version not run |
+| 5 coherent use | the same weights carry T for every reader and every input | P is a verdict-prompt mechanism; failure (b) | rungs 2–4 under the second prompt, Yes/No, OOD forms | partly, and every method fails: components-only recovery under Yes/No falls from 0.89–0.97 (1/0 prompt) to 0.24–0.85 (G2) |
+| 6 computes | P computes T from Z rather than passing it on | P copies T from upstream | path test (R3) | not run, no practical design yet |
+
+Notes on the table:
+- *Your high-end tests are rungs 4a and 4b, and they are well defined in H.* For removals I objected earlier that H doesn't say what the verdict does once T is gone (50/50? the default "true"?). Your "oblivious" sidesteps that: the prediction is not a value but an *independence*. Across a twin-balanced set, the truth readouts no longer depend on truth, and the other-quality readouts don't move. That's a statistical prediction, which Geiger's graded version allows (Def. 41), and the erasure work (LEACE, amnesic probing; *literature* entry) has the same form. Cost, stated once: 4a and 4b put the network into states no statement produces, so their ω is an extra assumption rather than derived from inputs. For a top rung that's acceptable if stated.
+- *Why the middle rung uses swaps, not removals.* G2 measured side effects under Δ alone, against all-off. All-off is itself a broken model, so every method lands near or above it, and the comparison is between two broken models (the same problem as the "C alone on non-target" cell in the first entry). With swaps between twins the reference is the site swap, a state the network reaches. Qualities the twins share should stay put, and "how much more does the P-swap disturb them than the site swap" is a clean number [assumed: that this separates the methods better than G2 did; it may not].
+- *Your grounding question, at the level of weights.* What is specifically weight-level about a tPD claim is rung 5: the same P must work on every input and under every truth prompt, with the CI it computes itself. A probe direction claims something only about the activations it was fit on. Rung 5 is where "the weights do it" gets tested, and there the existing data already shows every method failing (Yes/No).
+
+### 3. Conclusions and proposal
+
+- [concluded] The tests you have in mind are not beyond the theory; they need the outputs the narrowed H dropped. With other-quality readouts back in H, rungs 3–5 come from the same recipe as the swaps.
+- [concluded, from the table's data column] The decompositions already fail a high rung (5, Yes/No transfer), and the removal version of rung 3 is inconclusive. So the suite isn't trivially aced; the spectrum you describe shows up in the data.
+- [assumed] If plain's re-implementation shows anywhere in behaviour, it is at rung 3 (junk writes, under swaps) or rung 5 (different route). Rung 2, and the verdict half of 4b, will likely not separate it.
+OUTDATED (26-11-06): the proposal in the next bullet (stop extending the formal theory) is replaced by *ladder derived from the definition*, under Julian's comment below it.
+- Proposal: stop extending the formal theory. Use the ladder as the structure of the evaluation section: each rung = claim, alternative, edit, prediction. The paper's theory part then needs only H with the two kinds of readouts, the edit/prediction idea, and the conditional guarantee (short answer 4).  
+C: My hope was to have a formal theory that basically produces the ladder as a consequence of it as of validating a decomposition against it
+
+Answer (26-11-06, Claude Opus 5.5) — *ladder derived from the definition*: I think it nearly does, and most of the pieces are already in this LOG. Derivation [concluded unless tagged]:
+
+**Definition.** "P captures T" = H (your (1)) abstracts the refined network, with T (more exactly: T together with the part of the content Z that P's writes carry) aligned to P's writes and nothing of T to R's writes, *for every intervention on the aligned variables, every readout and every statement*. That is one sentence. The ladder is what you get by splitting its "for every" into parts.
+
+**Three axes**, one per "for every":
+- *Interventions:* (i) values that another statement produces (interchange: P-swap, R-swap; ω follows from the inputs); (ii) values that no statement produces (T := not T with Z kept; T := "absent"; ω is an extra assumption taken from (1)); (iii) interventions on what P reads (Z at P's input; needs H's mechanism Z → T).
+- *Readouts:* the training truth readout; the other truth readouts (second prompt, Yes/No); the other-quality readouts.
+- *Inputs:* in-distribution twins; OOD forms and statements the model gets wrong.
+
+**The rungs are cells of this grid:**
+
+| rung | interventions | readouts | inputs |
+|---|---|---|---|
+| 2 carries T | (i) | training truth readout | in-distribution |
+| 3 carries only T | (i) | other-quality readouts the twins share | in-distribution |
+| 4a flip, 4b oblivious | (ii) | all truth and other-quality readouts | in-distribution |
+| 5 coherent use | (i), (ii) | other truth readouts | OOD, model errors |
+| 6 computes | (iii) | truth readouts | in-distribution |
+
+Rung 0 (P + R = W, honest CI) is the precondition that makes the split a refinement at all, i.e. part of (2). Rung 1 (removals) does *not* come out of the definition: removals have no ω. It stays as a sanity check outside the theory, consistent with the earlier answer on removals.
+
+**The order also follows.** Each step up relies on more of (1): (i) on natural states needs the least; other-quality readouts additionally need "they read only Z"; (ii) needs H to hold off the natural states; more inputs widen D; (iii) needs a finer H. So the higher a rung, the more of its failure can be the assumption's fault rather than the decomposition's. That is also why the next point is needed.
+
+**A-checks: one column the ladder still lacks.** Each cell has a counterpart on the unsplit network that tests (1) itself, using the site swap (all of layers 11–17's output taken from x'). Does it move every truth readout together (one T)? Does it leave the other qualities that the twins share in place (they read only Z)? If the site swap fails a cell, that cell can't test the decomposition. Example: the Yes/No failure at rung 5 has to be checked this way first. If the site swap doesn't move the Yes/No answer the way it moves the 1/0 verdict, the failure belongs to (1) (no single T read by both prompts at these layers), not to the decomposition [assumed: not checked].
+
+**Re-reading this LOG with the grid.** The clauses were all on the table before:
+- rung 2 = E2 (step 5);
+- rung 3 = P5 ("outputs that don't depend on τ … should still follow x"). I dropped it under the broad reading, because twins differ in content too. Restricting it to the qualities the twins share repairs that;
+- rung 4b is close to the informational D3 ("the Δ-network carries no information about τ"), demoted to optional in step 5;
+- rung 4a = R4; rung 6 = R3.
+
+So the re-implementation blind spot came from clauses we dropped or deferred, not from a gap in the theory. That corrects my "the theory didn't find it" above (marked OUTDATED).
+
+**What is still missing for your (1)–(4):**
+- (1) written down once, as the fixed list of assumptions. The readout split (truth readouts read only T, other qualities read only Z) is new and unchecked; the A-checks test it.
+- (3) per cell: an accuracy with an interval on a stated D. Cells are combined as a conjunction, so the result is a profile over the cells, not one score.
+- The A-check column.
+
+Proposal: I write this up as one section (definition → grid → ladder → A-checks). It can go into a DRAFT file in this topic or straight into the paper draft's `<capture>` section; your choice.
+
+Open for Julian:
+1. Is the ladder the shape you had in mind (sanity checks → middle → your high-end tests)? Rungs to add or drop?  
+C: I really really like the ladder.
+
+Answer (26-11-06, Claude Opus 5.5): Noted. With the derivation above, the ladder and the theory are now one thing: the rungs are cells of the definition's "for every". Question 2 (which other qualities) stays open.
+2. Which other qualities? The twins must share them for rung 3. Already validated in G0: the digit questions (humor, emotion, surprise, word count) and the Yes/No prompts; recall and next-token KL within the statement are used in G1/G2.
+
+---
+
+26-11-06, Claude Opus 5.5 — *ladder written into the paper draft*
+
+C: (transcribed from chat) I'll ignore question 2. for now, because I want to read your writedown into the paper draft under 1 first
+
+Written as the subsection *From one definition to a ladder of tests* (`<ca-ladder>`) of the draft's `<capture>` section (`reports/26-11-04_tpd_truth_paper_draft.typ`); details of the edit in `convos/julian/26-11-04_paper_draft_LOG.md`, entry *ladder subsection added to the capture section*. It follows the two answers above (*the missing middle*, *ladder derived from the definition*), with the result numbers left out. Question 2 (which other qualities) deferred by Julian.
+
