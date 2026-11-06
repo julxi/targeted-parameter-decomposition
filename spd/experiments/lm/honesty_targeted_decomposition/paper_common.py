@@ -190,7 +190,7 @@ def maybe_cap(st: Statements, n_per_dataset: int | None, seed: int) -> Statement
 
 @dataclass(frozen=True)
 class Prompt:
-    name: Literal["train", "second"]
+    name: str  # "train", "second", or a probe prompt's key (paper_side_effects.py)
     lens: StimulusLens
     max_seq_len: int
 

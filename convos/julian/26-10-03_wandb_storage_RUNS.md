@@ -27,6 +27,9 @@ Columns: *size* = the whole run on WandB, checkpoint included [verified: WandB A
 | s-edc17041 | 26-10-27 | paper_final_rest_recon_s2 (paper final, + reconstruction, coef. 10, seed 2) | 334 MB (`.pth` 333.5 MB) | yes | paper topic, canonical run candidate | keep |
 | s-0c2fa0d7 | 26-10-27 | paper_final_rest_ortho_s1 (paper final, + orthogonality, LR 2e-3, coef. 10, seed 1) | 334 MB (`.pth` 333.5 MB) | yes | paper topic, canonical run candidate | keep |
 | s-4186f973 | 26-10-27 | paper_final_rest_ortho_s2 (paper final, + orthogonality, LR 2e-3, coef. 10, seed 2) | 334 MB (`.pth` 333.5 MB) | yes | paper topic, canonical run candidate | keep |
+| s-f48d3fc2 | 26-10-31 | paper_untrained_L11_17 seed 1, recreated on the H100 (byte-identical to `s-d5c56fb0`; checkpoint not on WandB) | — | no | `convos/julian/26-10-29_paper_writing_LOG.md` | WandB metadata only |
+| s-cad69866 | 26-10-31 | paper_untrained_L11_17 seed 2, recreated on the H100 (byte-identical to `s-25d2cca7`, used under that name in G2; checkpoint not on WandB) | — | no | `convos/julian/26-10-29_paper_writing_LOG.md` | WandB metadata only |
+| s-6acf4d80 | 26-10-31 | paper_final_ortho_s3 (third ortho seed, same config as s1/s2 with seed 3; trained on an H100 SXM, s1/s2 on an RTX PRO 6000) | 334 MB (`.pth` 333.5 MB) | yes | `convos/julian/26-10-29_paper_writing_LOG.md`, GPU list item 4; may replace s1 or s2 in the main figures | keep |
 
 ## Runs without a checkpoint (metrics only, 1–3 MB each)
 

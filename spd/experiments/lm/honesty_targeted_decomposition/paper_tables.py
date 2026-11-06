@@ -1,9 +1,10 @@
 """Offline tables and figures of the paper analyses (topic convos/julian/26-10-29_paper_writing_LOG.md,
 stage 1a; the analyses themselves: convos/julian/26-10-22_tpd_truth_paper_LOG.md, frozen plan D3).
 
-Reads the outputs of paper_{recovery,termination,correlation,manipulation,directions}.py for the 6
-final decompositions, the 2 untrained ones and the data-aligned basis, plus the finals' val readout
-of phase C (side effects: Pile KL with delta only), and writes, CPU only:
+Reads the outputs of paper_{recovery,termination,correlation,manipulation,directions}.py for the 7
+final decompositions (plain and recon 2 seeds, ortho 3), the 2 untrained ones and the data-aligned
+basis, plus the finals' val readout of phase C (side effects: Pile KL with delta only), and writes,
+CPU only:
   tables.md            the frozen plan's tables, every run and control side by side
   details.md           per-family recovery, single-component conditions, per-layer tables
   wide_val_reverse_<run>.csv   exploratory: every active component reversed alone, val
@@ -20,14 +21,19 @@ whose all-off KL is small (paper topic, entry *final chains checked after the se
 choice is open (this topic, Julian's call), so KL recovered is shown pooled AND macro, and the
 per-family values are in details.md. Separation share and flip rates are macro, as stored.
 
-Usage: python paper_tables.py --phase_d <dir with out/ and recovery/> --phase_c <rounds dir> --out <dir>
+Ortho s3 was trained and analysed after phase D (topic 26-10-29, GPU list), with the same scripts
+and settings but on an H100 SXM instead of phase D's H200 NVL, so its outputs live in their own
+directory (--s3) and it has no phase C readout.
+
+Usage: python paper_tables.py --phase_d <dir with out/ and recovery/> --s3 <the same for ortho s3>
+    --phase_c <rounds dir> --out <dir>
 """
 
 import csv
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import fire
 import matplotlib
@@ -47,7 +53,8 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_correlation import 
 N_BOOT = 1000
 SETS = (("test", "train"), ("test", "second"), ("ood", "train"), ("ood", "second"))
 LAYERS = tuple(range(11, 18))
-# categorical slots 1-5 of the dataviz reference palette, in fixed order; seed 2 dashed
+# categorical slots 1-5 of the dataviz reference palette, in fixed order; colour = method, line
+# style / dot outline = seed
 COLOR = {
     "plain": "#2a78d6",
     "recon": "#eb6834",
@@ -56,6 +63,9 @@ COLOR = {
     "untrained": "#e87ba4",
 }
 GRAY = "#8a8a85"
+LINESTYLE = {0: "-", 1: "-", 2: "--", 3: ":"}  # seed 0 = the data-aligned basis
+EDGE = {0: "white", 1: "white", 2: "black", 3: GRAY}
+METHODS = ("plain", "recon", "ortho")
 
 
 @dataclass(frozen=True)
@@ -66,6 +76,7 @@ class Obj:
     seed: int
     run_id: str
     basis: str  # decomposition | data_aligned
+    src: Literal["phase_d", "s3"]  # which output directory holds its analyses (see module doc)
 
     @property
     def label(self) -> str:
@@ -81,22 +92,47 @@ class Obj:
 
 
 FINALS = [
-    Obj("plain", 1, "s-7152548c", "decomposition"),
-    Obj("plain", 2, "s-46efc525", "decomposition"),
-    Obj("recon", 1, "s-eeac663f", "decomposition"),
-    Obj("recon", 2, "s-edc17041", "decomposition"),
-    Obj("ortho", 1, "s-0c2fa0d7", "decomposition"),
-    Obj("ortho", 2, "s-4186f973", "decomposition"),
+    Obj("plain", 1, "s-7152548c", "decomposition", "phase_d"),
+    Obj("plain", 2, "s-46efc525", "decomposition", "phase_d"),
+    Obj("recon", 1, "s-eeac663f", "decomposition", "phase_d"),
+    Obj("recon", 2, "s-edc17041", "decomposition", "phase_d"),
+    Obj("ortho", 1, "s-0c2fa0d7", "decomposition", "phase_d"),
+    Obj("ortho", 2, "s-4186f973", "decomposition", "phase_d"),
+    Obj("ortho", 3, "s-6acf4d80", "decomposition", "s3"),
 ]
 UNTRAINED = [
-    Obj("untrained", 1, "s-d5c56fb0", "decomposition"),
-    Obj("untrained", 2, "s-25d2cca7", "decomposition"),
+    Obj("untrained", 1, "s-d5c56fb0", "decomposition", "phase_d"),
+    Obj("untrained", 2, "s-25d2cca7", "decomposition", "phase_d"),
 ]
 # built from plain s1's target model; the target model is the same for every run, so it is the one
 # data-aligned basis of the paper
-DATA_ALIGNED = Obj("data-aligned", 0, "s-7152548c", "data_aligned")
+DATA_ALIGNED = Obj("data-aligned", 0, "s-7152548c", "data_aligned", "phase_d")
 DECOMPS = FINALS + UNTRAINED
 ALL = DECOMPS + [DATA_ALIGNED]
+
+
+@dataclass(frozen=True)
+class Roots:
+    """Output directories (each with out/ and recovery/), one per Obj.src."""
+
+    phase_d: Path
+    s3: Path
+
+    def of(self, o: Obj) -> Path:
+        match o.src:
+            case "phase_d":
+                return self.phase_d
+            case "s3":
+                return self.s3
+
+    def out(self, o: Obj, kind: str, ext: str) -> Path:
+        return self.of(o) / "out" / f"{kind}_{o.stem}.{ext}"
+
+    def recovery(self, o: Obj, ext: str) -> Path:
+        return self.of(o) / "recovery" / f"recovery_{o.run_id}.{ext}"
+
+    def ci_val(self, o: Obj) -> Path:
+        return self.of(o) / "recovery" / f"ci_val_{o.run_id}.npz"
 
 
 # ---- formatting ----
@@ -128,7 +164,29 @@ def md_table(header: list[str], rows: list[list[str]]) -> str:
 
 
 def style(o: Obj) -> dict[str, Any]:
-    return {"color": COLOR[o.method], "linestyle": "--" if o.seed == 2 else "-", "lw": 2}
+    return {"color": COLOR[o.method], "linestyle": LINESTYLE[o.seed], "lw": 2}
+
+
+def method_grid(
+    objs: list[Obj], figsize: tuple[float, float], **kw: Any
+) -> tuple[Any, np.ndarray, list[tuple[Any, Obj]]]:
+    """One panel per basis: a row per trained method (seeds side by side), then a row of the
+    untrained/data-aligned bases; unused panels hidden. Returns (fig, axes, [(ax, basis)])."""
+    rows = [[o for o in objs if o.method == m] for m in METHODS] + [
+        [o for o in objs if not o.trained]
+    ]
+    rows = [r for r in rows if r]
+    ncols = max(len(r) for r in rows)
+    fig, axes = plt.subplots(len(rows), ncols, figsize=figsize, squeeze=False, **kw)
+    pairs = []
+    for i, r in enumerate(rows):
+        for j in range(ncols):
+            if j < len(r):
+                pairs.append((axes[i, j], r[j]))
+            else:
+                axes[i, j].set_axis_off()
+    assert [o for _, o in pairs] == [o for r in rows for o in r] and len(pairs) == len(objs)
+    return fig, axes, pairs
 
 
 # ---- loading ----
@@ -212,18 +270,18 @@ def add_shift(
     SHIFT_CHECKED[kind] = SHIFT_CHECKED.get(kind, 0) + 1
 
 
-def load_with_shift(phase_d: Path, kind: str, o: Obj) -> dict[str, Any]:
+def load_with_shift(roots: Roots, kind: str, o: Obj) -> dict[str, Any]:
     """The stored json of one analysis output, with add_shift applied to every summary whose
     per-statement scores are in the npz: recovery states; termination and manipulation conditions
     (controls on the capped OOD subset with that subset's reference pass) and the main conditions
     restricted to that subset; manipulation's val wide table. Not covered (no per-statement scores
     stored): termination's t1_val ranking, the directions' direction removal."""
     if kind == "recovery":
-        j = load_json(phase_d / "recovery" / f"recovery_{o.run_id}.json")
-        z = np.load(phase_d / "recovery" / f"recovery_{o.run_id}.npz")
+        j = load_json(roots.recovery(o, "json"))
+        z = np.load(roots.recovery(o, "npz"))
     else:
-        j = load_json(phase_d / "out" / f"{kind}_{o.stem}.json")
-        z = np.load(phase_d / "out" / f"{kind}_{o.stem}.npz")
+        j = load_json(roots.out(o, kind, "json"))
+        z = np.load(roots.out(o, kind, "npz"))
     for split, prompt in SETS:
         lab, fam = z[f"{split}_labels"], families(z[f"{split}_datasets"])
         ref = f"{split}_{prompt}_"
@@ -260,12 +318,12 @@ def load_with_shift(phase_d: Path, kind: str, o: Obj) -> dict[str, Any]:
 # ---- consistency checks: stored summaries vs per-statement arrays ----
 
 
-def check_recomputation(phase_d: Path) -> list[str]:
+def check_recomputation(roots: Roots) -> list[str]:
     """Recompute stored summaries of every script from its npz arrays; assert agreement."""
     log = []
     for o in DECOMPS:
-        rec = load_json(phase_d / "recovery" / f"recovery_{o.run_id}.json")
-        z = np.load(phase_d / "recovery" / f"recovery_{o.run_id}.npz")
+        rec = load_json(roots.recovery(o, "json"))
+        z = np.load(roots.recovery(o, "npz"))
         for split, prompt in SETS:
             for state in ("components_ci", "delta_only"):
                 kl = z[f"{split}_{prompt}_{state}_kl"]
@@ -273,18 +331,22 @@ def check_recomputation(phase_d: Path) -> list[str]:
                 mine = kl_recovered(kl, z[f"{split}_{prompt}_all_off_kl"])
                 assert abs(mine - stored) < 1e-9, (o.label, split, prompt, state, mine, stored)
     log.append(
-        "recovery: pooled KL recovered of components_ci and delta_only, 8 runs x 4 sets: equal"
+        "recovery: pooled KL recovered of components_ci and delta_only, "
+        f"{len(DECOMPS)} runs x 4 sets: equal"
     )
-    # the all-off state (decomposed MLP outputs 0) does not depend on the basis
-    offs = [
-        np.load(phase_d / "recovery" / f"recovery_{o.run_id}.npz")["test_train_all_off_kl"]
-        for o in DECOMPS
-    ]
-    dev = max(float(np.abs(a - offs[0]).max() / offs[0].mean()) for a in offs)
-    log.append(f"recovery: all-off KL across the 8 runs, max |diff| / mean = {dev:.2e}")
+    # the all-off state (decomposed MLP outputs 0) does not depend on the basis; it may depend on the
+    # GPU, so the s3 directory (another GPU type) is reported apart
+    for src in ("phase_d", "s3"):
+        offs = [np.load(roots.recovery(o, "npz"))["test_train_all_off_kl"] for o in DECOMPS
+                if o.src in ("phase_d", src)]  # fmt: skip
+        dev = max(float(np.abs(a - offs[0]).max() / offs[0].mean()) for a in offs)
+        what = "phase D" if src == "phase_d" else "phase D + ortho s3"
+        log.append(
+            f"recovery: all-off KL across the {len(offs)} runs ({what}), max |diff| / mean = {dev:.2e}"
+        )
     for o in ALL:
-        t = load_json(phase_d / "out" / f"termination_{o.stem}.json")
-        z = np.load(phase_d / "out" / f"termination_{o.stem}.npz")
+        t = load_json(roots.out(o, "termination", "json"))
+        z = np.load(roots.out(o, "termination", "npz"))
         lab, fam = z["test_labels"], families(z["test_datasets"])
         for k in (t["ks"][0], t["ks"][-1]):
             name = f"T2 top{k}"
@@ -302,18 +364,19 @@ def check_recomputation(phase_d: Path) -> list[str]:
             stored = t["sets"]["test"]["train"]["conditions"][name]["macro"]["sep_share"]
             assert abs(mine - stored) < 1e-5, (o.label, name, mine, stored)  # npz is float32
     log.append(
-        "termination: macro separation share of T2 at the smallest and largest k, 9 bases: equal"
+        "termination: macro separation share of T2 at the smallest and largest k, "
+        f"{len(ALL)} bases: equal"
     )
     for o in ALL:
-        mj = load_json(phase_d / "out" / f"manipulation_{o.stem}.json")
-        z = np.load(phase_d / "out" / f"manipulation_{o.stem}.npz")
+        mj = load_json(roots.out(o, "manipulation", "json"))
+        z = np.load(roots.out(o, "manipulation", "npz"))
         name = "reverse top10 group"
         s = z[f"test_train_{name}_score"].astype(np.float64)
         base = z["test_train_original_score"]
         mine = float((s[base > 0] <= 0).mean())
         stored = mj["sets"]["test"]["train"]["conditions"][name]["pooled"]["flip_1_to_0"]
         assert abs(mine - stored) < 1e-9, (o.label, mine, stored)
-    log.append("manipulation: pooled 1->0 flips of 'reverse top10 group', 9 bases: equal")
+    log.append(f"manipulation: pooled 1->0 flips of 'reverse top10 group', {len(ALL)} bases: equal")
     return log
 
 
@@ -333,6 +396,7 @@ def side_effects_section(phase_c: Path) -> str:
     return (
         "## 0. Finals on val and side effects (phase C readout)\n\n"
         "From the finals' val readout (`verdict_lens_analysis.py`, val, training prompt), not phase D. "
+        "Ortho s3 was trained after phase C and has no such readout. "
         "Pile Δ-only KL = KL on Pile text with all components removed (side effects off-target); "
         "PGD = adversarial-mask loss; L0 = mean active components per token on the target data "
         "(CI > 0 rounding of the eval metric; not used as a definition of 'active').\n\n"
@@ -352,10 +416,10 @@ def side_effects_section(phase_c: Path) -> str:
     )
 
 
-def recovery_section(phase_d: Path, figs: Path) -> tuple[str, str, str]:
+def recovery_section(roots: Roots, figs: Path) -> tuple[str, str, str]:
     """Returns (main tables, details, the T0 table that belongs to termination)."""
-    rec = {o.run_id: load_with_shift(phase_d, "recovery", o) for o in DECOMPS}
-    z = {o.run_id: np.load(phase_d / "recovery" / f"recovery_{o.run_id}.npz") for o in DECOMPS}
+    rec = {o.run_id: load_with_shift(roots, "recovery", o) for o in DECOMPS}
+    z = {o.run_id: np.load(roots.recovery(o, "npz")) for o in DECOMPS}
     hdr = ["run"] + [f"{s}/{p}" for s, p in SETS]
 
     def state_rows(
@@ -567,7 +631,7 @@ def recovery_section(phase_d: Path, figs: Path) -> tuple[str, str, str]:
     return md, details, t0
 
 
-def valley_section(phase_d: Path, figs: Path) -> tuple[str, str]:
+def valley_section(roots: Roots, figs: Path) -> tuple[str, str]:
     edges = [0.0, 1e-4, 1e-3, 1e-2, 0.1, 0.5, 0.9, 0.99, 1.0]
     labels = ["=0", "(0,1e-4)", "[1e-4,1e-3)", "[1e-3,.01)", "[.01,.1)", "[.1,.5)", "[.5,.9)",
               "[.9,.99)", "[.99,1)", "=1"]  # fmt: skip
@@ -581,10 +645,10 @@ def valley_section(phase_d: Path, figs: Path) -> tuple[str, str]:
         assert sum(counts) == n, (sum(counts), n)
         return [c / n for c in counts]
 
-    fig, axes = plt.subplots(2, 4, figsize=(14, 6), sharey=True)
+    fig, axes, panels = method_grid(DECOMPS, (11, 11), sharey=True)
     rows, rows_layer = [], []
-    for ax, o in zip(axes.flat, DECOMPS, strict=True):
-        d = np.load(phase_d / "recovery" / f"ci_val_{o.run_id}.npz")
+    for ax, o in panels:
+        d = np.load(roots.ci_val(o))
         allv = np.concatenate([d[f"L{lay}"].astype(np.float32).ravel() for lay in LAYERS])
         rows.append([o.label] + [f(s, 4) for s in shares(allv)])
         for lay in LAYERS:
@@ -601,8 +665,8 @@ def valley_section(phase_d: Path, figs: Path) -> tuple[str, str]:
             f"{o.label}: =0 {np.mean(allv <= 0):.3f}, =1 {np.mean(allv >= 1):.4f}", fontsize=9
         )
         ax.set_xlabel("CI in (0, 1)")
-    axes[0, 0].set_ylabel("count (log)")
-    axes[1, 0].set_ylabel("count (log)")
+    for ax in axes[:, 0]:
+        ax.set_ylabel("count (log)")
     fig.suptitle("CI values at every statement token × component × layer, val (valley check)")
     fig.tight_layout()
     fig.savefig(figs / "ci_histograms.png", dpi=150)
@@ -610,7 +674,7 @@ def valley_section(phase_d: Path, figs: Path) -> tuple[str, str]:
     # mean CI per component; linear y chosen by Julian over log (log stretched the tail, compressed the top)
     fig, ax = plt.subplots(figsize=(7, 4.2))
     for o in DECOMPS:
-        m = np.load(phase_d / "recovery" / f"ci_val_{o.run_id}.npz")["mean_ci"]
+        m = np.load(roots.ci_val(o))["mean_ci"]
         ax.plot(np.arange(1, len(m) + 1), np.sort(m)[::-1], label=o.label, **style(o))
     ax.set_xscale("log")
     ax.set_xlabel("component rank by mean CI (val)")
@@ -625,7 +689,7 @@ def valley_section(phase_d: Path, figs: Path) -> tuple[str, str]:
         "\n## 1d. Valley check: distribution of CI values (val)\n\n"
         "Share of all (statement token × component × layer) CI values in each bin; 9,895 val "
         "statement tokens × 672 components. A valley = a minimum between a mode near 0 and a mode near "
-        "1, in both seeds. Histograms of the values strictly inside (0, 1) below (log counts).\n\n"
+        "1, in every seed. Histograms of the values strictly inside (0, 1) below (log counts).\n\n"
         + md_table(["run"] + labels, rows)
         + "\n![CI histograms](figs/ci_histograms.png)\n\n![mean CI](figs/mean_ci_sorted.png)\n"
     )
@@ -635,8 +699,8 @@ def valley_section(phase_d: Path, figs: Path) -> tuple[str, str]:
     return md, details
 
 
-def termination_section(phase_d: Path, figs: Path) -> tuple[str, str]:
-    T = {o.stem: load_with_shift(phase_d, "termination", o) for o in ALL}
+def termination_section(roots: Roots, figs: Path) -> tuple[str, str]:
+    T = {o.stem: load_with_shift(roots, "termination", o) for o in ALL}
     md = ""
     # ---- T1 ----
     fig, ax = plt.subplots(figsize=(7, 4.2))
@@ -819,7 +883,7 @@ def termination_section(phase_d: Path, figs: Path) -> tuple[str, str]:
                         f"(max 0→1 {f(max(x['flip_0_to_1'] for x in rnd), 2)})"]  # fmt: skip
             rows.append(row)
     # figure: separation drop of the span vs the same-dimension controls, per method and span kind;
-    # random draws shown only as a band (min-max over both seeds' draws) to keep it readable
+    # random draws shown only as a band (min-max over all seeds' draws) to keep it readable
     fig, axes = plt.subplots(2, 3, figsize=(15, 8), sharey=True)
     for col, meth in enumerate(("plain", "recon", "ortho")):
         for row_i, span in enumerate(("all", "active")):
@@ -839,7 +903,7 @@ def termination_section(phase_d: Path, figs: Path) -> tuple[str, str]:
                         1 - r[f"A8 L{lay} rand{span} #{d}"]["macro"]["sep_share"] for d in range(3)
                     ]
                     lo[i], hi[i] = min(lo[i], *rnd), max(hi[i], *rnd)
-                ls = "--" if o.seed == 2 else "-"
+                ls = LINESTYLE[o.seed]
                 ax.plot(
                     LAYERS,
                     drop["span"],
@@ -925,8 +989,8 @@ def transfers(x: np.ndarray, y: np.ndarray) -> np.ndarray:
 def k2_figures(C: dict[str, Any], figs: Path) -> None:
     """Scatter of val vs OOD AUC per basis (one figure per target) and a dot plot of the shares."""
     for target in ("label", "verdict"):
-        fig, axes = plt.subplots(3, 3, figsize=(13, 12), sharex=True, sharey=True)
-        for ax, o in zip(axes.flat, ALL, strict=True):
+        fig, axes, panels = method_grid(ALL, (13, 16), sharex=True, sharey=True)
+        for ax, o in panels:
             k2 = C[o.stem]["K2_coef"]
             pairs = k2_pairs(k2, target)
             for g, name, color in K2_GROUPS:
@@ -968,7 +1032,7 @@ def k2_figures(C: dict[str, Any], figs: Path) -> None:
                 x, y = k2_pairs(k2, target)[g]
                 if len(x):
                     ax.scatter(transfers(x, y).mean(), yi + dy, marker=marker, s=40, color=COLOR[o.method],
-                               edgecolors="white" if o.seed != 2 else "black", linewidths=0.8)  # fmt: skip
+                               edgecolors=EDGE[o.seed], linewidths=0.8)  # fmt: skip
             ax.text(1.04, yi, f"n = {n_sel}", va="center", fontsize=8)
         ax.set_title(name)
         ax.set_xlim(-0.02, 1.02)  # room for dots at exactly 0 or 1
@@ -982,8 +1046,9 @@ def k2_figures(C: dict[str, Any], figs: Path) -> None:
         plt.Line2D([], [], ls="", marker="s", ms=8, color=GRAY, label="target: verdict (all 24 files)"),
         plt.Line2D([], [], ls="", marker="o", ms=8, color=GRAY, markeredgecolor="white", label="seed 1 (no outline)"),
         plt.Line2D([], [], ls="", marker="o", ms=8, color=GRAY, markeredgecolor="black", label="seed 2 (black outline)"),
+        plt.Line2D([], [], ls="", marker="o", ms=8, color="white", markeredgecolor=GRAY, label="seed 3 (gray outline)"),
     ]  # fmt: skip
-    fig.legend(handles=keys, loc="lower center", ncol=4, fontsize=10, frameon=False)
+    fig.legend(handles=keys, loc="lower center", ncol=5, fontsize=10, frameon=False)
     fig.suptitle("K2: transfer shares by OOD form (coef; n = selective components on val)")
     fig.tight_layout(rect=(0, 0.07, 1, 1))
     fig.savefig(figs / "k2_shares.png", dpi=150)
@@ -1007,8 +1072,8 @@ def check_k2_split(C: dict[str, Any]) -> None:
                     o.label, form, target, ok.mean(), stored)  # fmt: skip
 
 
-def correlation_section(phase_d: Path, figs: Path) -> tuple[str, str]:
-    C = {o.stem: load_json(phase_d / "out" / f"correlation_{o.stem}.json") for o in ALL}
+def correlation_section(roots: Roots, figs: Path) -> tuple[str, str]:
+    C = {o.stem: load_json(roots.out(o, "correlation", "json")) for o in ALL}
     targets = (("label", "test"), ("label", "ood"), ("verdict", "test"), ("verdict", "ood"))
     hdr = ["basis", "features"] + [f"{t} {s}" for t, s in targets]
 
@@ -1077,7 +1142,7 @@ def correlation_section(phase_d: Path, figs: Path) -> tuple[str, str]:
     # single-component AUC summaries from the npz tables
     rows = []
     for o in ALL:
-        z = np.load(phase_d / "out" / f"correlation_{o.stem}.npz")
+        z = np.load(roots.out(o, "correlation", "npz"))
         for kind in ("coef", "ci"):
             if f"K1_{kind}_test_label_auc" not in z.files:
                 continue
@@ -1294,8 +1359,8 @@ def manipulation_group_figures(M: dict[str, Any], figs: Path) -> None:
     plt.close(fig)
 
 
-def manipulation_section(phase_d: Path, out: Path) -> tuple[str, str]:
-    M = {o.stem: load_with_shift(phase_d, "manipulation", o) for o in ALL}
+def manipulation_section(roots: Roots, out: Path) -> tuple[str, str]:
+    M = {o.stem: load_with_shift(roots, "manipulation", o) for o in ALL}
 
     def get(o: Obj, split: str, prompt: str, name: str) -> dict[str, Any]:
         return M[o.stem]["sets"][split][prompt]["conditions"][name]
@@ -1512,8 +1577,8 @@ def directions_figures(D: dict[str, Any], figs: Path) -> None:
     plt.close(fig)
 
 
-def directions_section(phase_d: Path, figs: Path) -> tuple[str, str]:
-    D = {o.stem: load_json(phase_d / "out" / f"directions_{o.stem}.json") for o in ALL}
+def directions_section(roots: Roots, figs: Path) -> tuple[str, str]:
+    D = {o.stem: load_json(roots.out(o, "directions", "json")) for o in ALL}
     directions_figures(D, figs)
     md = (
         "\n## 5a. Truth directions vs the components' writes (test, statement's last token)\n\n"
@@ -1568,25 +1633,31 @@ def directions_section(phase_d: Path, figs: Path) -> tuple[str, str]:
     return md, details
 
 
-def main(phase_d: str, phase_c: str, out: str) -> None:
-    pd, pc, od = Path(phase_d), Path(phase_c), Path(out)
+def main(phase_d: str, s3: str, phase_c: str, out: str) -> None:
+    roots, pc, od = Roots(Path(phase_d), Path(s3)), Path(phase_c), Path(out)
     figs = od / "figs"
     figs.mkdir(parents=True, exist_ok=True)
-    checks = check_recomputation(pd)
+    checks = check_recomputation(roots)
     for c in checks:
         print("check:", c)
-    rec_md, rec_det, t0 = recovery_section(pd, figs)
-    val_md, val_det = valley_section(pd, figs)
-    term_md, term_det = termination_section(pd, figs)
-    corr_md, _ = correlation_section(pd, figs)
-    man_md, man_det = manipulation_section(pd, od)
-    dir_md, dir_det = directions_section(pd, figs)
+    rec_md, rec_det, t0 = recovery_section(roots, figs)
+    val_md, val_det = valley_section(roots, figs)
+    term_md, term_det = termination_section(roots, figs)
+    corr_md, _ = correlation_section(roots, figs)
+    man_md, man_det = manipulation_section(roots, od)
+    dir_md, dir_det = directions_section(roots, figs)
     runs = "; ".join(f"{o.label} = `{o.stem}`" for o in ALL)
     head = (
         "# Paper analyses: tables (stage 1a)\n\n"
         "Generated by `spd/experiments/lm/honesty_targeted_decomposition/paper_tables.py` from the "
-        f"phase D outputs in `{pd}` and the phase C finals readout in `{pc}`. No interpretation here; "
-        "see the topic LOG `convos/julian/26-10-29_paper_writing_LOG.md`.\n\n"
+        f"phase D outputs in `{roots.phase_d}`, ortho s3's outputs in `{roots.s3}` and the phase C "
+        f"finals readout in `{pc}`. No interpretation here; see the topic LOG "
+        "`convos/julian/26-10-29_paper_writing_LOG.md`.\n\n"
+        "Ortho s3 was trained and analysed after phase D with the same config (seed 3) and the same "
+        "analysis scripts, on an H100 SXM instead of phase D's H200 NVL. The functional active set is "
+        "GPU-sensitive (ortho s1: 32 components on an RTX 4090, 29 on the H200); ortho s1's active set "
+        "reproduced on that H100 (29 components, val KL recovered 0.8622, as on the H200). Ortho s3 is "
+        "not in the phase C table (section 0).\n\n"
         f"Bases: {runs}. Seeds are never pooled. KL recovered is shown pooled and macro "
         "(aggregation open); separation share and flips are macro over families, agreement pooled.\n\n"
         "Shift (added after the outputs were read; descriptive, not in the frozen plan) = signed move "

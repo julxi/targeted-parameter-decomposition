@@ -462,3 +462,218 @@ Yes ortho only.
 Your plan is fine, except that in 2. you can delete whatever you want as long as it's not the papers runs (plain/recon/ortho x s1/s2)Answer (26-10-30, Claude Opus 5.5): Both noted [decided: the C: comment and the line "Yes ortho only." above]: no headline numbers fixed in advance; s3 gets the full analysis, all numbers reported, and you pick the seeds to show once you've seen them. s3 is for ortho only. The one thing I'd still keep is the sentence in the paper that the seeds shown were chosen after the results were seen, with all three in the appendix. It costs nothing and answers the obvious reviewer question. The SUMMARY's GPU list is updated; the headline-list proposal is dropped.
 
 The configs' comment "Final checkpoint only (238 MB each)" in `config_paper_{plain,recon,ortho,untrained}.yaml` was wrong (run register: 333.5 MB) and caused the error marked OUTDATED above; corrected to 333.5 MB in all four (comment only, no setting changed).
+
+---
+
+26-10-31, Claude Opus 5.5 — *GPU list prepared: side-effect probe script and ortho s3 bundle*; new session. I have read CLAUDE.md, INDEX.md, this topic's SUMMARY and the LOG from *Where plain tPD fails* on, the experiments topic's SUMMARY, `docs/CODING.md`, `paper_common.py`, `paper_recovery.py`, `paper_manipulation.py` and the phase D driver scripts. Julian in chat: "I want to do the extra GPU work of the GPU list now", then, after asking why I write `.sh` driver scripts (answer: detached multi-hour chains with a progress file, as in phase D): "Ok, keep going. I'll rent the machine meanwhile".
+
+**Code** [verified: `make check` clean, `tests/test_paper_common.py` 13 passed; not yet run on a model]:
+- New `spd/experiments/lm/honesty_targeted_decomposition/paper_side_effects.py`, two modes. `g0`: original model, 20 val statements per dataset; 8 Yes/No prompt candidates (mass on 'Yes'/'No' and ' Yes'/' No', accuracy, AUC, next to the 1/0 prompt) and the 4 digit questions (humor, emotion, surprise, word count: digit mass, spread and label means of the mean digit); prints decoded prompts with top next tokens. `g1`: one decomposition on val, states full (sanity), all_off, delta_only, components_ci, reverse_top10 (= manipulation's group, from the T1 ranking in the termination JSON). Readouts: next-token KL at the statement positions per class (prefix / recall / object_end) as a share of all-off with bootstrap intervals; the digit questions (renormalised 0–9 KL, mean-digit shift); Yes/No vs 1/0 KL recovered. All per-statement log-probs stored in the npz.
+- Object position per family = the token holding the first character after the last anchor (" in ", " a(n) ", " symbol ", " mean(s) '", " than "). CPU check over all val (986) and test (1,794) statements [verified]: every statement has positions in all three classes; token ids from the offset tokenization equal the batch ids; one tagged example per family read by eye, e.g. cities `' is'/P ' in'/R ' Nigeria'/O '.\n'/O`, sp_en_trans `" '"/R 'dog'/O`, element_symb `' symbol'/R ' N'/O 'p'/O`.
+- `paper_common.Prompt.name` widened from `Literal["train", "second"]` to `str` (only printed), so probe prompts carry their own names.
+
+**Ortho s3 bundle** in `~/spd_out/26-10-29_paper_writing/gpu/`: `ortho_s3.yaml` = phase C's `ortho_s2.yaml` with `seed: 3` and name `paper_final_ortho_s3` (diff checked: only those lines; validated by `Config`), `s3.sh` (training, then the phase D chain with the same arguments as `phase_d/h200_paper_d/rest.sh`, then `paper_checks.py`), `g0.sh`, the B2 scores and check script, the termination JSONs of plain s1, recon s1, ortho s1, untrained s1, and the untrained s1 checkpoint (G1 runs).
+
+**WandB** [verified: API storage counter 26-10-31]: 4.42 GB used; s3's checkpoint (333.5 MB) brings it to ≈ 4.75 GB, under the 5 GB cap, so no deletion. (Julian's last word on deletions, under *side-effect test: revised design*: I may delete anything except the six paper runs; the SUMMARY said "Julian picks", corrected there.)
+
+Plan for the rental (H200 NVL, the phase D GPU type, so the active set is comparable): `s3.sh` and `g0.sh` at once; G0 results go here before G1, whose prompts I pick by the rule in the GPU list (most Yes/No mass among prompts about as accurate as 1/0; digit questions with low digit mass dropped).
+
+---
+
+26-10-31, Claude Opus 5.5 — *G0 results and G1 prompt choice*; same session. Rental: vast.ai instance 58527420, H100 SXM 80 GB (power limit 700 W), $2.98/h, rented by Julian (an earlier instance, 58526819, disappeared during setup). **Not the H200 NVL of phase D**: the active set was GPU-sensitive between the RTX 4090 and the H200 (ortho s1 32 vs 29), so ortho s1's recovery is rerun here (`rec_check.sh`) and compared with the H200 output before s3's numbers count as comparable [assumed: Hopper ≈ Hopper, unverified]. Ortho s3 training started 11:43 UTC (run `s-6acf4d80`, 3.26 it/s, ~26 min).
+
+**G0** [verified: one run, original model, 316 val statements = 20 per dataset (fewer where a dataset is smaller); outputs `/root/gpu/side/g0.{json,npz}`, to be copied to `~/spd_out/26-10-29_paper_writing/gpu/`]:
+- Reference, 1/0 training prompt: digit mass 0.977, accuracy 0.937, AUC 0.987.
+- Yes/No: every candidate answers with the leading-space tokens; the bare 'Yes'/'No' get < 3e-5 of the mass even after a prompt ending in ': ' (the model writes ' No' after the space token). With ' Yes'/' No' (mass, accuracy, AUC): is_true_sp 0.826 / 0.649 / 0.976; is_true 0.910 / 0.687 / 0.963; is_true_nl 0.998 / 0.861 / 0.946; true_or_false 0.989 / 0.797 / 0.924; correct 0.992 / 0.756 / 0.923; **question** 0.924 / 0.908 / 0.990; **same_line** 0.991 / 0.896 / 0.995; same_line_sp 0.886 / 0.851 / 0.990. Every prompt leans towards 'No' (share answered Yes 0.15–0.41 at threshold 0, vs 0.50 for 1/0), which is why no accuracy reaches 1/0's while the AUCs do. The KL readout uses the whole distribution, so the threshold doesn't matter for it.
+- Digit questions, all usable (digit mass; mean digit ± std across statements; true / false mean): humor 0.995; 0.94 ± 0.60; 0.91 / 0.97. emotion 0.984; 0.60 ± 0.31; 0.69 / 0.50. surprise 0.998; 0.73 ± 0.36; 0.74 / 0.72. words 1.000; 5.99 ± 0.84; 6.05 / 5.94 (argmax '1' for 94 statements, else 5–9). Surprise does not separate true from false in the model, so it is not the truth-adjacent readout I expected.
+
+**G1 prompt choice** [assumed: my call under the rule in the GPU list]: the rule (most Yes/No mass among prompts about as accurate as 1/0) picks same_line. But same_line puts the question on the statement's line, so the statement ends with '.' instead of the merged '.\n': its last decomposed token differs from training as well as the answer format (as for the second prompt). question keeps the statement tokens identical to training, so it isolates the format change. G1 is cheap, so both run. All four digit questions run. `paper_side_effects.py g1` now takes several Yes/No keys and always scores ' Yes'/' No' (flag dropped, see the G0 finding).
+
+G1 started 11:50 UTC (`g1.sh`: plain s1, recon s1, ortho s1, untrained s1, one after the other, next to the s3 training and the recovery check).
+
+---
+
+26-10-31, Claude Opus 5.5 — *G1 results: next-token damage yes, Yes/No no, digits mixed*; same session. G1 crashed once at once on all four runs (fire passes `question,same_line` as a tuple; fixed, nothing had been measured), then ran 11:52–11:59 UTC [verified: one run per basis, val, 986 statements; outputs copied to `~/spd_out/26-10-29_paper_writing/gpu/results/side/g1_<run>.{json,npz}`]. Sanity: the full state reproduces the original (statement KL 0.0000 everywhere). Bases: plain s1 `s-7152548c`, recon s1 `s-eeac663f`, ortho s1 `s-0c2fa0d7`, untrained s1 `s-d5c56fb0`.
+
+**1. Next-token KL at the statement positions, Δ alone, as a share of the all-off KL** (pooled; 95% bootstrap within family; all-off KL 2.28 / 2.46 / 2.47 nats per position for prefix / recall / object_end, the same for every basis because it doesn't depend on the basis):
+
+| basis | prefix | recall | object_end |
+|---|---|---|---|
+| plain s1 | 0.763 [0.752, 0.774] | **2.239** [2.177, 2.300] | **1.665** [1.628, 1.704] |
+| recon s1 | 0.828 [0.820, 0.835] | 0.561 [0.535, 0.587] | 0.844 [0.822, 0.864] |
+| ortho s1 | 0.131 [0.126, 0.135] | 0.609 [0.589, 0.629] | 0.801 [0.784, 0.818] |
+| untrained s1 | 0.050 | 0.150 | 0.157 |
+
+- Criterion (a) is **met**: plain's Δ alone is clearly worse than switching the MLPs off at the recall position and at object + end, recon's (and ortho's) are not. Per family at object_end, plain is above 1 in 8 of 10 families (0.88 cities, 0.91 animal_class are the exceptions; up to 2.49 smaller_than); recon 0.45–0.92, ortho 0.29–0.95.
+- Where: the excess damage sits where plain's components are active (the recall token and from the object on), not in the prefix (0.76 < 1). That fits the earlier reading that the large cancelling writes exist where the components fire [concluded: matches the position pattern; C's norm per position class not measured].
+- Reading against Julian's ideal [concluded]: at the prefix, ortho comes closest (0.13: its components barely matter where truth isn't determined yet), recon and plain are near all-off there. From the recall token on, every trained method changes the next-token prediction substantially (0.56–0.84 of all-off), so none is "only truth"; plain alone goes beyond the all-off damage.
+- Untrained: Δ alone ≈ original (0.05–0.16), as expected for components that write almost nothing; it is the "everything in Δ" reference.
+- Side observation: ortho's components alone (mask = CI, Δ off) are worse than all-off at every position class (1.23–1.30), plain's only at object_end (1.43); recon's components alone stay close to the original (0.07–0.15), as its reconstruction term demands.
+
+**2. Digit questions** (digit KL of Δ alone and of reverse-top10, as a share of the all-off digit KL, [95% interval], signed mean-digit shift):
+
+| question | state | plain | recon | ortho |
+|---|---|---|---|---|
+| humor | Δ alone | 0.94 [0.87, 1.02] | 1.21 [1.07, 1.35] | 1.27 [1.16, 1.39] |
+| emotion | Δ alone | 0.44 [0.42, 0.47] | 0.77 [0.73, 0.81] | 0.57 [0.54, 0.60] |
+| surprise | Δ alone | 0.45 [0.42, 0.48] | 1.23 [1.17, 1.29] | 1.48 [1.43, 1.53] |
+| words | Δ alone | **1.14** [1.05, 1.22], shift −0.66 | 0.83 [0.76, 0.89], +0.30 | 0.86 [0.80, 0.92], −0.02 |
+| humor | reverse-top10 | 0.91 | 0.71 | 1.08 |
+| emotion | reverse-top10 | 0.43 | 0.26 | 0.47 |
+| surprise | reverse-top10 | 0.60 | 0.32 | 1.09 |
+| words | reverse-top10 | **1.12** [1.04, 1.21] | 0.22 [0.21, 0.24] | 0.62 [0.57, 0.67] |
+
+(untrained ≤ 0.19 everywhere.) Criterion (b) as I wrote it ("plain clearly above recon and ortho on at least one question") is met by the word count only, under both edits. On humor and surprise plain does the *least* damage under Δ alone; ortho's Δ alone is worse than all-off on humor and surprise (1.27, 1.48). So the digit questions show no general "plain writes into another conceptual space" [concluded]; the word count is a single exception, and found among 4 questions × 2 states, so it could be chance selection. reverse-top10 is not comparable across methods anyway, because the groups differ in how much they move the verdict.
+
+**3. Yes/No transfer** (components-only KL recovered, 1/0 → Yes/No):
+
+| basis | 1/0 | question | same_line |
+|---|---|---|---|
+| plain s1 | 0.964 | 0.654 (−0.31) | 0.829 (−0.14) |
+| recon s1 | 0.977 | 0.818 (−0.16) | 0.868 (−0.11) |
+| ortho s1 | 0.906 | 0.557 (−0.35) | 0.783 (−0.12) |
+
+Criterion (c) **not met**: ortho drops as much as plain. Under the staged rule this is a null probe and stops. All methods transfer only partly to a Yes/No answer when the statement tokens are the training ones (question), better when the question shares the statement's line (same_line).
+
+**Decision needed (G2)** [assumed: my reading of the staged rule; the criteria were my proposal, not confirmed by Julian]: (a) goes to G2 (all 9 bases, test, intervals). (b): only the word count passed, and the pattern across questions runs against the hypothesis, so I'd stop it or carry only the word count along at no extra cost (it rides on the same script). (c) stops. G2 needs one addition: the data-aligned basis (the script only handles decompositions so far). The current rental (busy with s3 for ~3 more hours) can run G2 at no extra rental time.
+
+Also [verified: rec_check on the H100, val part]: ortho s1's active set on the H100 is 29 components with KL recovered 0.8622, identical to the H200 (29, 0.8622). Per-statement comparison pending.
+
+---
+
+26-10-31, Claude Opus 5.5 — *G2 for all readouts*; same session. Julian in chat, after the G1 results and the Yes/No prompt questions:
+
+C: (transcribed from chat) These probes are cheap, right? So let's run them all. I find it interesting that yes/no performance drops for all of them I also find it interesting that plain is beter for other digit questions which is surprising for me. I don't know if we use the numbers for the paper, but let's collect the data. (It is cheap right?)
+
+So G2 runs for every readout, regardless of the G1 criteria [decided: the comment above]. Cost [assumed: estimate from G1's 1.5–3 min per basis on 986 val statements]: test has 1,794 statements; with T2 under both Yes/No prompts ≈ 10–15 min per basis, ≈ 1.5–2 h for the 9 bases + s3, on the rental already running for s3.
+
+Code [verified: `ruff`, `basedpyright` clean; smoke test on the instance pending]: `paper_side_effects.py g1` now takes `--basis decomposition|data_aligned` (the data-aligned basis via `paper_common.make_basis`, as in phase D; no CI network, so no components_ci state), `--split val|test` and `--t2`. T2 = phase D's removal sets under both Yes/No prompts: top-k of the T1 ranking for every k in the termination JSON's `ks`, and for an active set 5 random size-k subsets, redrawn with paper_termination.py's generator (`default_rng(0)`; they are its first draws, so the sets are identical). Two sets (top10, rand10 #0) also run under the 1/0 prompt, to compare per statement with phase D's stored scores: this checks the redraw and the GPU. Outputs renamed to `side_<run>_<basis>_<split>.{json,npz}` (G1's files renamed to `…_decomposition_val`, local and on the instance). Driver `~/spd_out/26-10-29_paper_writing/gpu/g2.sh`: smoke test (2 statements per dataset, plain s1 and data-aligned), then the 9 bases on test one at a time, then ortho s3 once its termination JSON exists.
+
+---
+
+26-10-31, Claude Opus 5.5 — *token identification checks*; same session. Julian in chat, before G2 started: "before you start the script. Is there any reasonable test you can run to make sure that the token identifications for the runs are actually correct?" Three checks of `object_token` / `position_classes` (scripts `~/spd_out/26-10-29_paper_writing/gpu/{token_check,recall_check}.py`):
+
+1. **String check** [verified: CPU, all 4,742 tiu statements of train, val and test]: the tokens before the object index decode exactly to the text before the object, and the tokens from it to the statement's last token decode to the object plus the final punctuation and the merged '\n'. 0 failures.
+2. **Pair check** [verified: CPU, same statements]: grouped by family and the text before the object, the 1,186 groups that hold both true and false statements all have identical token ids before the object and the same object index, so the prefix positions really are the same input for true and false. sp_en_trans and neg_sp_en_trans have only 5 such groups each (true and false translations rarely share the Spanish word); there the object is the English word by construction.
+3. **Model check** [verified: H100, original model, 1,794 test statements]: P(object's first token) at the recall position (obj − 1), and as a control one position earlier. Where the object follows from knowledge in a fixed phrase, the model predicts the correct object at exactly that position: element_symb true 0.77 (top-1 1.00), sp_en_trans true 0.86 (0.97), neg_element_symb false (stated symbol correct) 0.36 (0.89), neg_sp_en_trans false 0.50 (0.88); the same families with a wrong object ≤ 0.09. One position earlier: ≤ 0.011 in every family. Cities are weaker than I assumed: true 0.10 (top-1 0.09); after "… is in" the model often continues differently, so for cities "recall position" overstates what happens there (the position itself is right, by checks 1 and 2). Comparisons and animal classes are low by nature (many continuations fit after "than" / "is a").
+
+Also [verified: rec_check finished]: ortho s1's recovery rerun on the H100 completed; per-statement comparison with the H200 outputs pending (files to be copied).
+
+G2 started after these checks.
+
+---
+
+26-10-31, Claude Opus 5.5 — *H100 reproduces the H200; untrained s2 recreated byte-identically*; same session.
+
+**GPU type** [verified: ortho s1's recovery rerun on the H100, outputs `~/spd_out/26-10-29_paper_writing/gpu/results/rec_check/`, compared array by array with `phase_d/h200_paper_d/recovery/`]: same active set (29 components, same order), the active-set curve equal to 4 decimals at every point, per-statement differences with median 0 in every array and at most one bf16 step (0.375–0.5 log-odds, a few OOD statements), verdict signs equal for 100% of test and 99.98% of OOD statements, pooled summaries equal to 4 decimals (components-only KL recovered test 0.9056 / 0.9250, OOD 0.1979 / 0.2914, training / second prompt). So s3's analysis on this H100 is comparable with the H200 runs [concluded]. (The 4090-vs-H200 difference in phase D came from a different GPU architecture; Hopper H100 and H200 agree.)
+
+**Untrained s2**: uploading phase D's checkpoint ran at ~18 KB/s, so I stopped it and recreated both untrained decompositions on the instance exactly as phase D's `resume12.sh` did (`config_paper_untrained.yaml`, seed patched to 1 / 2, `steps: 0`; script `gpu/untrained.sh`). sha256 equal to phase D's checkpoints for both seeds (s1 `a4bde0cf…`, s2 `ee9055b3…`) [verified]. The recreated seed-2 checkpoint was copied to `/root/spd_out/spd/s-25d2cca7/`, the path phase D's termination JSON names, so G2 uses that name. The recreation made two WandB runs without checkpoints (`s-f48d3fc2`, `s-cad69866`, `sync_checkpoints_to_wandb: false`).
+
+G2 smoke tests passed (plain s1 and data-aligned; T2 sets as in phase D: 31 and 15). G2 on the 9 bases is running.
+
+---
+
+26-10-31, Claude Opus 5.5 — *destroy instruction*; same session. Julian in chat:
+
+C: (transcribed from chat) also when you have all the data kill the instance
+
+Plan [decided: the comment above]: when G2 (9 bases + s3) and the s3 chain (through the invariant checks) are done, copy `/root/gpu/` (outputs, logs, progress files) and s3's run directory to `~/spd_out/26-10-29_paper_writing/gpu/results/`, verify with sha256 on both sides, then destroy instance 58527420 and confirm the destroy output. (Status so far: G2 plain s1 on test done; its T2 sets reproduce phase D's stored scores per statement, max |diff| 0.25 log-odds, median 0.)
+
+---
+
+26-10-31, Claude Opus 5.5 — *G2 results, 9 bases on test*; same session. G2 ran 12:33–13:12 UTC without failures [verified: one run per basis, test, 1,794 statements; tables generated from the stored summaries by `~/spd_out/26-10-29_paper_writing/gpu/g2_tables.py` into `…/gpu/results/g2_tables_test.md`; raw outputs `…/results/side/side_<run>_<basis>_test.{json,npz}`]. Check: plain s1's redrawn T2 sets reproduce phase D's stored 1/0 termination scores per statement (top10 and rand10 #0: max |diff| 0.25 log-odds, median 0, verdict sign equal for 99.6% / 99.7%; original scores max 0.125) [verified]. Exploratory (designed after the phase D outputs were read). Ortho s3 follows after its termination.
+
+**1. Next-token KL at the statement positions, Δ alone, share of all-off [95%]** (all-off 2.28 / 2.31 / 2.54 nats per position):
+
+| basis | prefix | recall | object_end |
+|---|---|---|---|
+| plain s1 / s2 | 0.69 / 0.46 | **2.16** [2.12, 2.20] / **1.34** [1.31, 1.37] | **1.55** [1.52, 1.58] / **1.94** [1.90, 1.98] |
+| recon s1 / s2 | 0.82 / 0.84 | 0.54 / 0.67 | 0.85 / 0.87 |
+| ortho s1 / s2 | 0.12 / 0.10 | 0.62 / 0.52 | 0.78 / 1.04 [1.02, 1.06] |
+| untrained s1 / s2 | 0.05 / 0.04 | 0.14 / 0.12 | 0.15 / 0.13 |
+| data-aligned | 0.80 | 0.59 | 0.78 |
+
+The val result replicates on test in both plain seeds: plain's Δ alone damages the next-token predictions clearly beyond all-off at the recall position and from the object on, every other basis stays below all-off there (ortho s2 at object_end only marginally above, 1.04) [concluded: intervals don't overlap 1 for plain, both seeds]. At the prefix ortho is near the ideal (0.10–0.12); plain, recon and data-aligned are at 0.46–0.84. reverse-top10 (same table in the file): plain 2.20 / 1.74 at object_end, ortho 1.23 / 1.44, recon 0.24 / 0.18, data-aligned 0.72.
+OUTDATED (26-10-31): ortho s3 (no cancellation: |C|/|y| 0.16–0.41, <C,D> ≈ 0) also exceeds all-off at recall (1.87) and object_end (1.37), so this test does not single out plain or cancelling writes; see the entry *ortho s3 results; G2 reading corrected*.
+
+**2. Digit questions, Δ alone** (digit KL share of all-off): no consistent method pattern. humor: plain 0.84 / 1.18, recon 1.20 / 1.22, ortho 1.20 / 1.75, data-aligned 1.12. emotion: plain 0.45 / 0.78, recon 0.79 / 0.86, ortho 0.53 / 0.55. surprise: plain 0.48 / 0.39, recon 1.23 / 1.07, ortho 1.45 / 1.05, data-aligned 0.90. words: plain 0.98 / 0.88, recon 0.73 / 0.64, ortho 0.73 / 0.91. **The val word-count signal (plain 1.14) does not replicate on test** (plain s1 0.98 [0.92, 1.04]); what replicates is that plain's Δ alone disturbs surprise least (both seeds 0.39–0.48 vs ≥ 1.05 for recon and ortho). Under reverse-top10, ortho s2 is an outlier: humor 8.81, surprise 3.90, emotion 1.31, words 1.32 (ortho s1: 1.06 / 1.07 / 0.44 / 0.55); data-aligned humor 2.44.
+
+**3. Yes/No transfer, components-only KL recovered (1/0 → question / same_line):**
+- plain s1 / s2: 0.961 → 0.662 / 0.781; 0.958 → 0.680 / 0.773
+- recon s1 / s2: 0.974 → 0.814 / 0.840; 0.971 → 0.848 / 0.846
+- ortho s1 / s2: 0.906 → 0.553 / 0.716; 0.894 → **0.244 / 0.326**
+
+Every method loses recovery under Yes/No; recon loses least, ortho s2 collapses, as it did on the second 1/0 prompt (val 0.808, test pooled 0.735). Δ alone under same_line is strongly negative for every trained basis (−0.34 to −1.32), so the verdict-neutrality training gave Δ holds for '1'/'0' only.
+
+**4. T2 under Yes/No** (separation share left, top-k / mean of 5 random k, question prompt): plain s1 k = 10 0.31 / 0.32, k = 20 0.11 / 0.08; plain s2 k = 10 0.48 / 0.43, k = 20 0.17 / 0.32 (random worse than top); recon s1 k = 10 0.74 / 0.98, recon s2 0.92 / 0.97 (k = 20: 0.66 / 0.99); ortho s1 0.39 / 0.76, ortho s2 0.32 / 0.83. So phase D's finding transfers to the Yes/No readout: plain's T1 ranking picks out nothing specific (top ≈ random), recon's and ortho's do [concluded]. same_line gives the same picture.
+
+**Reading for the paper** [assumed: proposal, not discussed with Julian]: (1) is a further original-model-anchored test for L4 (within-decomposition metrics can't tell decomposing from re-implementing): plain's Δ alone, the state the training made verdict-neutral, is the only one that damages ordinary next-token prediction beyond removing the MLPs. (2) is null for the method question. (3) shows limited transfer for all methods and singles out ortho s2. (4) repeats T2's L4 evidence on an untrained readout.
+OUTDATED (26-10-31): ortho s3 (no cancellation: |C|/|y| 0.16–0.41, <C,D> ≈ 0) also exceeds all-off at recall (1.87) and object_end (1.37), so this test does not single out plain or cancelling writes; see the entry *ortho s3 results; G2 reading corrected*.
+
+---
+
+26-10-31, Claude Opus 5.5 — *Julian away: autonomous to the end*; same session. Julian in chat:
+
+C: (transcribed from chat) I'm away so if there's any problem in the later runs, you have to make your own judgment calls. So don't want for any confiramition from me. Tasks ends when you have destroyed the instance and gathered the data
+
+Status 13:13 UTC: s3 termination in its last part (OOD, second prompt); s3's active set has 58 components (s1 29, s2 31) [verified: s3_term.log, T1 over 58 candidates].
+
+---
+
+26-10-31, Claude Opus 5.5 — *ortho s3 results; G2 reading corrected; instance destroyed*; same session, Julian away (autonomous, see *Julian away*).
+
+**Runs finished** [verified: progress files]: s3 chain 12:31–13:37 UTC (recovery, termination with A8, correlation, manipulation, directions), invariant checks **53 PASS, 0 FAIL** (the same 53 as every other trained decomposition in phase D); s3's G2 13:25. Everything copied to `~/spd_out/26-10-29_paper_writing/gpu/results/` (`instance_gpu/` = the instance's `/root/gpu/`: s3's phase D outputs in `out/` and `recovery/`, G0/G1/G2 in `side/`, logs, progress files, scripts; `run_s-6acf4d80/` = s3's run directory with `model_5000.pth`, also on WandB), sha256 identical on both sides for all 134 files [verified]. Instance 58527420 destroyed 13:4x UTC (`vastai`: "destroying instance 58527420", none listed afterwards) [verified].
+
+**Ortho s3 next to s1 / s2** (test unless noted; pooled) [verified: read from the stored JSONs]:
+
+| | s1 | s2 | s3 |
+|---|---|---|---|
+| active set | 29 | 31 | **58** |
+| components-only KL rec., training / second prompt | 0.906 / 0.925 | 0.893 / 0.735 | 0.875 / 0.797 |
+| Δ only KL rec., training / second | 0.170 / 0.148 | 0.011 / −0.545 | −0.107 / −0.078 |
+| OOD components-only, training / second | 0.198 / 0.291 | 0.168 / 0.101 | 0.171 / 0.093 |
+| T2 top10 vs random-10 separation share (macro) | 0.380 / 0.924 | 0.303 / 0.853 | 0.554 / 0.852 |
+| A8 all-96 span, separation share per layer | 0.84–1.05 | 0.80–1.00 | 0.80–0.99 |
+| G2 Δ alone, statement KL share of all-off (prefix / recall / object_end) | 0.12 / 0.62 / 0.78 | 0.10 / 0.52 / 1.04 | 0.14 / **1.87** / **1.37** |
+| G2 Yes/No components-only (question / same_line) | 0.553 / 0.716 | 0.244 / 0.326 | **0.017** / 0.436 |
+| write norms |C|/|y| per layer, <C,D>/|y|² | 0.16–0.43, ≈ 0 | 0.16–0.42, ≈ 0 | 0.16–0.41, ≈ 0 |
+
+On transfer (second prompt, OOD, Yes/No) s3 sits with s2, not s1; its active set is twice as large; on T2 its top-10 matter less than s1's and s2's [concluded: from the table; no seed choice made, that is Julian's]. The paper tables (`paper_tables.py`) do not include s3 yet: the script reads phase D's directory and a fixed run list.
+
+**Correction of the G2 reading.** s3 has no cancellation (norms above, like s1 and s2; plain: |C| 1.2–2.0 |y|, <C,D> −3.6 to −14), yet its Δ alone damages the statement's next-token predictions beyond all-off (recall 1.87 [1.84, 1.92], object_end 1.37 [1.35, 1.40]), as plain's does. So next-token damage beyond all-off does not identify cancelling writes or re-implementation, and it is not specific to plain [concluded: one counterexample with no cancellation]. The passages in *G2 results* that said so are marked OUTDATED. What remains: plain exceeds all-off in both seeds, ortho in one of three seeds (s3; s2 marginally at object_end), recon in none. Possible reading [assumed]: removing even a small C (0.3 |y|) can hurt more than removing y entirely when the remaining D is an off-distribution write; the norm of C doesn't decide it. Also s3 resembles plain on the surprise digit question (Δ alone 0.42 vs plain 0.39–0.48, recon 1.07–1.23, ortho s1/s2 1.45 / 1.05). The T2-under-Yes/No result (plain top ≈ random; recon and ortho, s3 included, top < random: s3 0.51 / 0.90 at k = 10) is unaffected.
+
+Tables with all 10 bases: `…/gpu/results/g2_tables_test.md`.
+
+---
+
+26-11-04, Claude Opus 5.5 — *ortho s3 added to paper_tables.py*; new session. I have read CLAUDE.md, INDEX.md, this topic's SUMMARY, the LOG entries from *Julian away* on, `docs/CODING.md` and `paper_tables.py` in full. Julian in chat:
+
+C: (transcribed from chat) Can you update `tables.md` with the ortho s3 results?
+
+**Changes to `paper_tables.py`:**
+- `ortho s3` (`s-6acf4d80`) added to `FINALS`, so every table and figure now shows 10 bases.
+- Each basis carries its output directory (`Obj.src`, class `Roots`), because s3's outputs live in `~/spd_out/26-10-29_paper_writing/gpu/results/instance_gpu/{out,recovery}/` and not in phase D's directory. New argument `--s3`.
+- Seed 3 is drawn dotted in the line plots and with a gray outline in the K2 dot plot.
+- The two fixed grids (CI histograms 2×4, K2 scatter 3×3) now use one row per method (plain, recon, ortho; seeds side by side), then a row for the untrained and data-aligned bases.
+- Counts in the check lines are computed, not hard-coded. "Both seeds" is now "every seed".
+- The `tables.md` header says s3 was trained and analysed on an H100 SXM, not phase D's H200 NVL. It also says ortho s1's active set reproduced there (29 components, 0.8622; LOG entry *G1 results…*) and that s3 has no phase C readout (section 0 table).
+
+Command (CPU, ~30 s):
+`python spd/experiments/lm/honesty_targeted_decomposition/paper_tables.py --phase_d ~/spd_out/26-10-22_tpd_truth_paper/phase_d/h200_paper_d --s3 ~/spd_out/26-10-29_paper_writing/gpu/results/instance_gpu --phase_c ~/spd_out/26-10-22_tpd_truth_paper/phase_c/instance_paper_c/rounds --out scratch/26-10-29_paper_writing/tables`
+
+**Checks** [verified: run 26-11-04, `make check` clean]:
+- All recomputation checks pass for the 10 bases, including the shift checks: 236 / 4,496 / 3,008 recovery / termination / manipulation summaries.
+- No number of the 9 earlier bases changed. Against a copy of the previous output, every removed line of `tables.md` is header or count text. All 76 removed lines of `details.md` are per-family rows that reappear unchanged once the new s3 column is dropped. The 6 earlier `wide_val_reverse_*.csv` files are byte-identical.
+- s3's rows match the s3 table in *ortho s3 results…* (test unless noted; pooled):
+
+| measure | s3 |
+|---|---|
+| components-only KL recovered, training / second prompt | 0.875 / 0.797 |
+| same on OOD | 0.171 / 0.093 |
+| Δ-only KL recovered, training / second prompt | −0.107 / −0.078 |
+| active set | 58 |
+| T2 top-10 separation share vs random 10 of the active set | 0.554 vs 0.852 |
+
+New observation [verified: recomputation check line]: the all-off KL (the denominator of KL recovered, with the decomposed MLP outputs set to 0, so independent of the basis) is identical across the 8 phase D runs (max |diff| / mean = 0). Between s3's H100 run and the H200 runs it differs by at most 1.33e-02 of the mean, on the worst statement. This is GPU numerics. It shifts s3's KL recovered a little relative to the others but is much smaller than the seed differences [concluded: size comparison only, not propagated through to the ratios].
+
+Still open, unchanged: Julian picks which ortho seeds go into the main figures.
