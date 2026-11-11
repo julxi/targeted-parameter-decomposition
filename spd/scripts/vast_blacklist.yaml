@@ -41,3 +41,8 @@ hosts:
   date: 26-10-31
   reason: 'ssh failing after 300s: root@174.27.185.39: Permission denied (publickey). (instance 58526819,
     machine 154313, H100 SXM, Idaho, US)'
+- host_id: 647743
+  date: 26-11-11
+  reason: 'hand entry: uv sync downloads at ~450 KB/s (eth0 rx), 174 MB after ~3 min (instance 60219221,
+    machine 148714, RTX 4090, California, US); earlier the same day rsync to this machine ran at 8-12
+    KiB/s (instance 60216654)'
