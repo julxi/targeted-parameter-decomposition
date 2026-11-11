@@ -389,3 +389,256 @@ New structure of section 2:
 
 Compiles; pages 6–14 rendered and checked by eye (tables laid out with fractional columns) [verified: `typst compile`, 26-11-06]. Everything new is an agent proposal, not ratified.
 
+
+---
+
+26-11-07, Claude Opus 5.5 — *section 2 restructured: question, definition, tests, status*; read INDEX, both SUMMARYs (paper draft, evaluation categories), the whole section 2 as on disk
+
+C: (transcribed from chat) I think you can clenup 2. even more. It doesn't read well right now and feels confusing. You can rearrange the structure also you don't have to tie the tests of the ladder to the tests we already have. I'm pretty sure there are some tests that we neend to redo
+C: (transcribed from chat) or rather add
+
+Backup of the previous version: session scratchpad `draft_before_sec2_cleanup.typ` (not kept; the staged git version also has it).
+
+What I found confusing in the old version [concluded]: the causal-abstraction machinery (intervention algebra, basis vs superposition, constraints) came before the reader knew what the model of the truth computation was; the small model H (X → Z → T → Y, Q) appeared only in the sixth subsection; the ladder cells were written in grid code ("(i) × Y_1 × in-distribution"); the failure modes were spread over the re-implementation subsection and the "rules out" column; and our existing analyses were mixed into the ladder ("Our analyses on the ladder"), so the tests looked like a re-labelling of what we had.
+
+New structure of section 2:
+- Intro: four steps; the tests follow from the definition alone, and only 2.6 meets the existing analyses.
+- 2.1 *The question*: Intuition (Julian's text kept, the "two questions" list dropped, one closing sentence on needing only the part through T); *A small model of the truth computation* `<ca-narrow>` (H with a bullet per variable, A1–A3, why two kinds of readout, which T: now stated as different predictions for recall, reported separately, so no reading is chosen).
+- 2.2 *When a part of the weights captures the truth value*: Two causal models (Julian's causal-model and L paragraphs kept; H now points to 2.1 instead of the generic feature list); Readouts and edits `<ca-link>` (τ, Ψ, ω and the equation kept; the "three consequences" list absorbs "two mechanisms agreeing on Ψ", the graded version and the old *What keeps the link from being empty*; the intervention-algebra detail dropped; *Bases and superposition* compressed into one paragraph with the F1/F2 example); Splitting the weights `<ca-weights>` (shortened; *sites* defined; R1–R3); The definition (two too-strong readings, conditional guarantee).
+- 2.3 *From the definition to tests*: *What the tests must catch* `<ca-failures>` (six named failures: second route, re-implementation, lever, different route, passing on, everything; the old re-implementation subsection lives here); the grid; the ladder table (test, edit/readouts/statements, passes if, rules out); *The tests in detail* (a protocol paragraph per test).
+- 2.4 *Validating the tests* (new grouping): assumption checks with the site version of every test; seeded defects (scaling dial, Exp 4a, P = W); controls; κ as internal diagnostic (renamed differences δ_P, δ_R to avoid a clash with tPD's Δ).
+- 2.5 *Evaluation setup*: as before, plus a *Pairs and twin groups* paragraph, the swap measures, and a pre-registration sentence for the not-yet-run tests.
+- 2.6 *Status: what has been run and what has to be added* (new; replaces "Our analyses on the ladder"): per test what exists, what it covers, what to add or redo; analyses not tied to a test; proposed order; open points.
+- 2.7 Glossary: the rung column removed (2.6 holds the mapping); descriptions unchanged.
+
+Test protocols that are new or changed against the old ladder [concluded unless tagged; none run]:
+- Test 2 gets a graded measure, the swap fraction ν = (s_swap − s(x)) / (s(x') − s(x)), next to IIA, both relative to the site swap.
+- Test 3: Q_k must be shared by the pair; measure = KL of Q_k under the P-swap from its clean value, against the same under the site swap. For same-subject twins, recall of the subject's fact is a shared Q (under the judgement reading of T). In-statement next-token predictions dropped as a test-3 readout: positions before the first differing token are untouched by any swap, and after it the twins' predictions differ anyway.
+- Test 4a made concrete: one fixed vector (mean P-write difference false − true over training pairs, one scale factor chosen on validation), with random-set, control-basis and whole-output (ceiling, assumption check) versions.
+- Test 4b changed: the old version (P-writes replaced by their mean over a twin-balanced set) would also remove the content the P-writes carry, so "Q_k unchanged" could not be predicted. Now: P-writes replaced by their average over the statement's *twin group* (same subject and form, both truth values), which removes what varies with truth inside the group and keeps what it shares; mirror on the R-writes as a second form of R2.
+- Test 5 (c), pairs with model errors: the P-swap should carry the model's verdict, not the label.
+- Test 6: still no protocol; stated what it would need (same-truth, different-content swaps at the first site's input plus a Z readout).
+- Seeded defects as a validation step, run per test. I dropped a "bias split" defect I first wrote, because a fixed bias is not a part of W and so not a split.
+
+Status table (2.6), what has to be added or redone: test 0 on the Pile with only the inactive components removed (SE-Pile is Δ alone); test 2 entirely (pair builder, P-/R-/site swap, IIA, ν, κ); test 3 redone as swaps; 4a with Q_k and controls; 4b twin-group averages; 5 redone as swaps under every truth question, OOD pairs, model-error pairs; 6 a protocol; the site versions of all tests (first: site swap under Yes/No); the seeded defects. Proposed order [assumed]: site versions first, then tests 2 + 3 + scaling dial (shared code), then 4b, 4a, 5.
+
+Pair count (new fact): disjoint label-twin pairs in the test split with the same subject and the same Qwen token length: 476 of 1,794 statements; cities 115, neg_cities 115, larger_than 103, smaller_than 103, element_symb 18, neg_element_symb 18, animal_class 2, neg_animal_class 2, sp_en_trans 0, neg_sp_en_trans 0 [verified: script `pairs.py` in the session scratchpad over `data/tiu/*/v3/test.jsonl`, Qwen2.5-7B-Instruct tokenizer from the local HF cache, 26-11-06; pairs by label, before filtering by the model's verdicts]. In larger_than/smaller_than a twin is the same two numbers in the opposite order. OOD and model-error pairs not counted. sp_en_trans has 0 with the subject key; I did not check whether its `subject` field holds the Spanish word or something else.
+
+Document summary at the top updated. Compiles; pages 10 and 13 (ladder, status table) rendered and checked by eye [verified: `typst compile`, 26-11-07]. Everything here is an agent proposal, not ratified.
+
+---
+
+26-11-10, Claude Opus 5.5 — *does Julian's 2×2 outline cover the tests?*; read INDEX, this SUMMARY, the uncommitted diff of the draft, section 2 and the glossary as on disk
+
+C: (transcribed from chat) I'm rewriting the paper. I have thought about the experiments and for me it looks like they are described by the summary that I've selected
+
+The selection is Julian's new text in the draft, section 2.1 *The tests*: two assertions (P captures the truth computation, R captures the rest), split into four: (PT) P influences T, (P¬O) P does not influence other non-truth mechanisms, (R¬T) R does not influence T, (RO) R influences all other features; three ways to measure influence (remove/average, swap, edit); readouts in several formats (training verdict, other 0/1 prompts, Yes/No, other language).
+
+**Verdict [concluded]: mostly yes.** The four assertions × three interventions generate tests 1–4b and 5(a) of the ladder, and the existing analyses fall into the cells. It is a cleaner organising principle than the ladder. Seven things are missing or need a qualifier.
+
+Where the tests and existing analyses sit (names from the glossary; "planned" = in the ladder, not run):
+
+| | remove / average | swap | edit |
+|---|---|---|---|
+| PT | test 1: T0, T1, T2, T3 (removal); test 4b twin-group average of the P-writes (planned) | test 2, P-swap (planned) | test 4a fixed vector (planned); M-core, M-twin, M-wide (masks −1, 2) |
+| P¬O | G2 next-token, G2 digit questions under Δ alone (removal version); SE-Pile (Δ alone on the Pile) | test 3 (planned) | test 4a, its Q_k half (planned) |
+| R¬T | R (components only = R removed: the verdict should survive); test 4b mirror on the R-writes (planned) | test 2, R-swap (planned) | none: a new cell (fixed vector added to the R-writes should not flip) |
+| RO | nothing run (components only on the Pile would be it) | nothing | nothing |
+
+Gaps and qualifiers:
+1. **The readout list has only truth readouts.** P¬O and RO need readouts of the *other* features (the Q_k: recall, digit questions about humour/emotion/surprise/word count, Pile next-token). As written, two of the four assertions have no readout.
+2. **P¬O is too strong as stated** and conflicts with the current definition. The P-writes carry T together with the content it is computed from; a P-swap between twins ("… in China" / "… in Turkey") moves that content too. The current draft solves this by restricting test 3 to Q_k *shared by the pair*. The assertion needs that qualifier, e.g. "P does not influence features other than T and its inputs". Recall sits on the boundary (*Which T*).
+3. **RO is weak and not required by the definition.** R = the other components plus Δ, which holds most of the matrix, so removing R breaks almost everything whatever the split; this only rules out failure 6 (P ≈ W). And a targeted decomposition does not need R to carry all non-truth content, since P may carry content too. I would drop it and report the size of P instead, or keep it only as "P is not the whole matrix".
+4. **The statement axis is missing.** Readouts vary, but statements do not: OOD sets (5b) and pairs where the model errs (5c, K3) are absent. 5c is the only test that tells belief from label, so I would not lose it.
+5. **Test 0 (faithfulness / honest CI) is not an influence claim.** P + R = W, and removing the inactive components changes nothing. It is a precondition and belongs before the grid.
+6. **"Captures the computation" vs "influences".** The first assertion says computation, but all four sub-assertions test influence; failure 5 (passing on a T computed before layer 11) passes all of them. Either weaken the headline to "carries T" or keep test 6 as an explicitly open item. Test 6 has no protocol yet, so the first is more honest.
+7. **Controls are a cross-cutting layer, not a cell:** random part of the same size, the site version (assumption check), untrained and data-aligned bases, seeded defects. The text should say that every cell is read against them; the table's first row already does this for removal.
+
+Smaller points:
+- "Removing / averaging" lumps two edits of different status: a removal produces states no statement produces (it shows *whether* P is used, not *how*), while the twin-group average stays near natural states and removes only what varies with truth. Worth one sentence.
+- "Other language" is ambiguous: a truth question asked in another language (a readout; the model's in-format answering would need a G0-style check first) or statements in another language (the statement axis). Open question for Julian.
+- Analyses outside the grid stay outside: K0–K2 and Dir (decodability), cancellation norms, valley check, active set. These describe the decomposition and do not test an assertion; the draft already says so.
+- The table under the selection still mixes the new first row with the old numbering and "rules out" column; a natural rewrite is rows = the four assertions, columns = the three interventions, as above.
+
+Nothing in the draft changed in this entry.
+
+---
+
+26-11-10, Claude Opus 5.5 — *what Julian's detailed experiment list leaves out*; read INDEX, this SUMMARY, the previous entry, the whole draft as on disk (section 2 incl. ladder, validation, setup, status, glossary)
+
+C: (transcribed from chat) I'm describing the expermintes that we want to report myself. Which ones have I forgotten?
+
+The list in question is Julian's new text in the draft after "Now we describe what we measure in more detail" (influence of P on the truth verdict: only P, P deactivated, P-patching with IIA and ν, hand edits of P; influence of P on other verdicts: only P, no P, median P; influence of P on next-token prediction: Pile, statement; influence of R on the verdict: unfinished). Compared against his own outline just above it (four assertions × remove/average, swap, edit × readout formats), the ladder (tests 0–6), the validation subsection and the glossary [concluded, all items below are agent proposals]:
+
+**Cells of the outline the list leaves empty**
+1. *R on the verdict* (unfinished): R-swap (verdict should stay with x; ideally 0 relative to the site swap; the other half of test 2); twin-group average of the R-writes (separation should survive; 4b mirror); a fixed vector added to the R-writes (should not flip; new). R removal = "only P", already listed under P; say so to avoid counting it twice.
+2. *Averaging on the verdict:* the twin-group average of the P-writes (test 4b). Averaging is one of the three named ways but appears only under "other verdicts". It is the least off-distribution removal.
+3. *Swaps read by other verdicts* (test 3): P-swap, read by Q_k shared by the pair, against the site swap. This is the only behavioural test that catches a re-implementation, the failure recon and ortho were built against. Without it nothing in the list separates plain tPD from ortho on that point.
+4. *Non-hand edits:* the fixed mean-difference vector (4a) is automatic; M-core, M-twin, M-wide (reversal at mask −1, amplification at 2) already ran and are edits. If edits are "by hand" only, these results drop out of the paper.
+5. *Other truth formats:* the readout list names other 0/1 prompts, Yes/No, other language, but no experiment in the list uses them. Existing: R and T2 under the second prompt, G2 Yes/No transfer, T2 Yes/No.
+
+**Axes missing entirely**
+6. *Statements:* OOD sets (R and T2 ran on them) and statements the model gets wrong (K3; test 5c: a swap should carry the model's verdict, not the label). The model-error check is the only one that tells belief from label.
+   OUTDATED (26-11-10): the belief-vs-label argument is moot. The decompositions are trained on the model's own verdict distribution, never on labels, so a split cannot track the label (Julian's correction, LOG entry *tests section cleaned up around Julian's list*). OOD statements stay as an axis.
+7. *Controls:* random component sets of the same size (T2, M-core), untrained decomposition, data-aligned basis. The site comparison (the sentence below the list) gives a ceiling but not the "any part this size would do it" baseline.
+8. *Size of P* reported with every test (P = W passes everything).
+9. *Validation of the tests:* the site version is there; seeded defects are not (scaling dial k, Exp 4a, P = W).
+10. *Sanity (test 0):* P + R = W numerically; inactive components removed changes nothing, on statements (R-inactive, ran) and on the Pile (not run). Plus which P each experiment uses: all components at CI, or the active set.
+11. *Internal diagnostics:* cancellation norms (ran) and κ (planned). The direct check of what ortho optimises, and the one place where a re-implementation shows without a readout.
+12. *Computes (test 6):* still nothing tests "computation" rather than "carries"; flagged in the previous entry.
+
+**Ran, not a test; report or drop explicitly:** K0–K3, Dir, Dir-remove, T3 (A8), active-set curve, valley check, seed comparison; on the original model B3 (steering; the "which T" argument) and G0 (format check, a precondition for the other-verdict readouts).
+
+**Problems in the listed items**
+- *Verdict recovered = separation under P-ablation / separation under site ablation* has a near-zero denominator: mean-ablating MLP 11–17 leaves 0.05 of the separation (Table 2, layer scan) [verified: draft table re-read 26-11-10]. Suggest the damage ratio (1 − sep_P) / (1 − sep_site), the same form as ν; and the same ablation type (zero or mean) for P and the site, since the layer scan used mean and "all off" is zero.
+- The IIA bullet breaks off mid-sentence ("We can also measure the separat").
+- "Other verdicts" is ambiguous: other-quality digit questions (Q_k), or other truth formats. The bullet's expectation (P irrelevant) fits only the first.
+
+Nothing in the draft changed in this entry.
+
+---
+
+26-11-10, Claude Opus 5.5 — *tests section cleaned up around Julian's list*; context: the previous entry, the whole draft as on disk
+
+C: (transcribed from chat) OK. I'd like you to clean the mess a bit up. Here some comments first:
+- first, I like my presentation of the tests so far, so try to keep it similar
+- the test I have described are something like "behavioural tests"
+- there is some symmetrie between R and P that we could use in presenting the tests to make it more systematic 
+- things that need to be added:
+   - R on verdict, yes the first tw
+   - Averaging P on the verdict yes
+   - p-swaps on other verdicts, yes
+   - fixed mean-difference, yes
+- the presentation should make clear that a lot of the tests are kind of a cross-product: test x quality x verdict style x size of P x in/out of distribution (x maybe others I forgot)
+- about 6. There is no way the decomposition reports the label. The training is unsupervised
+- yes, the controls should be described in the tests as well
+- the discussion about what the test cannot detect should come later
+- Sanity is not important. P + R is real output by construction. ci-masked, or active-masked P might break, but this is more of a problem of the method than showing thet the decomposition is bad
+- about 11. yes, we also need a paragraph about other inspection tests
+- you can also decsrie test 6
+- you are right my general description of how we compare effect vs base was too simplistic. you can fix that
+
+Backup of the draft before this edit: session scratchpad `draft_before_tests_cleanup.typ` (not kept; the git index also has an earlier version).
+
+**Section 2.1.3 *The tests* `<tests>`, rewritten** (from the heading to the small-model subsection). Julian's text kept where possible (assertions, three interventions, readout formats, his wording of the P-on-verdict items). Removed from it: the old half-converted ladder table with the "rules out" column, the duplicated old test paragraphs (2, 3, 4a, 4b, 5, 6) and the duplicated pair definition, Julian's drafting notes "It's not clear what capturing the computation means…", "*Functionality*…" and the "We cluster the test as following" fragment (their content is covered by the new text). New structure:
+- Intro: the two assertions and their four parts, stated as mirror pairs (what P should do on truth, R should do on the rest); three interventions; truth readouts in four formats; other-quality readouts (digit questions, recall, next-token on statement and Pile); "behavioural tests".
+- `<tests-behav>` bullet list in Julian's style, four groups: P on truth verdict (only P, P removed, twin-group average [added], P-swap with IIA and ν, fixed mean-difference shift [added], hand edits; M-core etc. named as the component edits already run); P on other qualities (removed / median / twin average; P-swap and fixed shift read by qualities the pair shares [added]); R on truth verdict (R removed = only P; twin average [added]; R-swap [added]); R on other qualities (only P; stated as weak, it mainly shows P ≠ W). Table 3 `<tab-tests>`: interventions × {P, R} × {truth, other}, expected outcomes, "–" for cells not run (no R edit, per "the first two").
+- `<tests-compare>` (replaces Julian's one-line "compare with the whole site"): each measurement against the original, the site version (ceiling and readout check), random sets of the same size, and the control bases; effect fraction φ = (m − m_0)/(m_site − m_0); for removal φ = (1 − sep_P)/(1 − sep_site), with the reason the plain ratio fails (site removal leaves 0.05, Table 2); for swaps φ = ν_P/ν_site; for other qualities KL, compared directly when the site effect is ≈ 0; same ablation type for part and site.
+- `<tests-grid>`: the cross-product axes (test, quality, verdict style, size of P, statements in/out of distribution, decomposition and seed, comparison runs) and the combinations that don't exist.
+- `<tests-compute>` (test 6): projection protocol [assumed]: project the truth directions (Dir) out of the residual entering layer 11 at the statement tokens and repeat the twin average and P-swap; the site version = original model under the projection; limits (only the linear part of T is removed; later layers of P may pass on what earlier ones computed).
+- `<tests-inspect>`: cancellation norms and κ; structure (active set, valley check, seed comparison); alignment and decodability (Dir, K1, K2; K0 as the reason probe accuracy is not evidence).
+
+**Section 2.3 renamed *What the tests can and cannot detect*** (the later discussion Julian asked for): the six failure modes (model errors dropped from "different route"); new *Which test catches which* (failure → test); *Limits* (assumptions each test needs, incl. superposition for the fixed shift and "removal shows whether, not how"; routes around the sites; what no behavioural test sees). Removed: the grid, the ladder fragment, the per-test protocols (now in 2.1.3).
+
+**Section 2.4 Validating:** site version and seeded defects rewritten with the new test names; P = W "passes every test on P; only its size and the tests of R on other qualities expose it". Controls and κ paragraphs removed (now in `<tests-compare>`, `<tests-inspect>`).
+
+**Status (2.6):** the table now has one row per test of Table 3, plus does-P-compute, inspection, site versions, seeded defects. Test 0 (sanity) dropped per Julian. Test 5(c) (model-error pairs carry the model's verdict, not the label) dropped: Julian pointed out training never sees labels; K3 is kept as descriptive under "not tied to a test". Proposed order and open points updated ("another language" added; "the set S" now the size-of-P axis).
+
+**Evaluation setup:** "OOD pairs and model-error pairs" → "OOD pairs"; φ added to the measures; swap measures point to `<tests-behav>`. Document summary at the top updated.
+
+Not touched, flagged for Julian: the small-model subsection `<ca-narrow>` now lists only X and T as variables, but A1–A3 and the following paragraphs use Z, Y_j, Q_k; and the simplified picture X → C → T → Y uses C for the content, while C is already the write of all components in section 1 (the rest of section 2 uses Z).
+
+Compiles without warnings; pages 8, 9 and 15 (Table 3, comparison and cross-product, status table) rendered and checked by eye [verified: `typst compile`, 26-11-10]. Everything new is an agent proposal, not ratified.
+
+---
+
+26-11-10, Claude Opus 5.5 — *pair vs twin vs twin group*; context: this session's edits of section 2, the test-split jsonl files
+
+C: (transcribed from chat) I'm confused by this. What is the difference between a pair, a twin and a twin group?
+
+(About the paragraph opening `<tests-behav>` in the draft.)
+
+New fact: in the test split every twin group (statements with the same `subject` field within a family) has exactly one true and one false statement: animal_class 18 such groups + 1 singleton, cities 166, element_symb 28, larger_than 204, smaller_than 204, negated families the same; sp_en_trans and its negation almost no groups (1 matched group; the subject is the Spanish word, which the false statements mostly don't share) [verified: count over `data/tiu/{family}_{true,false}/v3/test.jsonl` by `subject`, 26-11-10]. So "twin group" = "the two twins", and the term adds nothing for this data.
+
+Answer [concluded]: twins = the true and the false statement about the same subject in the same form (always two here). A pair (x, x') = twins that additionally have the same token length and different verdicts *of the model*, ordered (x receives, x' donates). Twins are defined by the labels, pairs by the model's verdicts; they differ only where the model errs on one twin or the tokenizations differ in length (cities: 166 twin groups, 115 equal-length). The twin-group average also needs aligned positions, i.e. equal token length, which the draft does not say. Proposed to Julian: drop "twin group", call the average the *twin average*, and state that it runs on equal-length twins. Draft not changed yet.
+
+---
+
+26-11-10, Claude Opus 5.5 — *twins only: pairs and twin groups dropped*; context: previous entry
+
+C: (transcribed from chat) "The writes are compared"? Are they compared?
+
+Answer: no, wrong word in my proposed text: swaps and averages replace the writes position by position, which needs matching positions; equal token length is the simplest way (our choice, not a necessity).
+
+C: (transcribed from chat) We should only describe what twins are. Statement from the same sentence form / domain that disagree on their truth value, which usually means on their last token (let's ignore numbers for now).
+
+Done in the draft:
+- The paragraph opening `<tests-behav>` now only defines twins: two statements of the same sentence form and domain that disagree in their truth value, usually differing only in the last word (Lu'an example). I wrote "last word" instead of "last token": the statement's last token is `.\n` for both twins, and the object can span several tokens.
+- "Pair" and "twin group" removed throughout: "averaged over the twin group" → "averaged over twins" / "twin average"; "on a pair" → "on twins x and x'"; IIA = share of swaps after which the verdict is that of x'; fixed shift from the false and true twin in the training split; Table 3, 2.3, 2.4, status table, open points, κ, the compute protocol likewise.
+- The evaluation-setup paragraph *Pairs and twin groups* → *Twins*: definition, each subject has exactly two statements in the test split (except sp_en_trans), equal token length needed for swaps and twin averages, swaps only on twins with different model verdicts, the 476 count (now "pairs of twins").
+- Not changed: the glossary's M-twin, where "twin" means a negated statement and its affirmative counterpart, a different sense.
+
+Compiles [verified: `typst compile`, 26-11-10].
+
+---
+
+26-11-10, Claude Opus 5.5 — *results section skeleton with placeholders*; context: the whole draft as on disk (incl. Julian's own edits since the last entry: section 2.3 onwards now under `= Discussion`, `<tests-compute>` and `<ca-def>` removed), `convos/julian/26-10-29_paper_writing_SUMMARY.md`, the file list of `scratch/26-10-29_paper_writing/tables/`
+
+C: (transcribed from chat) The current write down has now a decently good section describing all the tests. I'd like to include the results of the tests right after it. Some tests still need to be run. I'd like you to include the test at `//Results should go in here`. Before you provide all the data (at least for the tests for which we have data). I'd like you to fill the section first with placeholders for how you would imagine this part to look like.
+
+Done: `= Results <results>` replaces the `// Results should go in here` line. No numbers anywhere; only the planned tables and figures. Placeholder conventions (helpers defined at the top of the section, to be removed when the numbers come in): red ⟨…⟩ = what goes in a text slot; dashed red box = placeholder figure with its axes described; in tables ● = data exist, ○ = to run, – = does not apply; a grey *Data status* box per subsection (Have / To run).
+
+Structure [concluded: agent proposal, not ratified]:
+- Intro: per-decomposition reporting (plain s1/s2, recon s1/s2, ortho s1–s3, untrained s1/s2, data-aligned), φ against the site version next to φ_rand. **Default P = the active set** [assumed: open choice for Julian]; the size dependence shown along T1's top-k; the data-aligned basis has no active set, so its P is the top-k by T1 at the median active-set size (also a proposal).
+- 3.1 *Overview*: scorecard table (Table 3's cells × plain/recon/ortho/untrained/data-aligned; ✓/✗/~/n/a; filled last) and a headline "mirror plot" (φ on truth readouts vs φ on other qualities; P ideal at (1,0), R at (0,1); one panel per intervention).
+- 3.2 *Can the tests judge a split at these layers?*: site versions table (intervention × readout) and seeded defects table (tests × dial k, Exp 4a, P = W) + dial figure. Placed before the P/R results because a test whose site version fails can't judge any split.
+- 3.3 *P on the truth readouts*: removal table (only P, P removed, φ_remove, φ_rand) + size-of-P figure (T2 as φ); twin average / P-swap / fixed shift table + per-family ν figure; component edits (M-core, M-twin).
+- 3.4 *R on the truth readouts*: R twin average, R-swap.
+- 3.5 *P on the other qualities*: removal table (next-token prefix/recall/object+end, digit questions, recall question, Pile, relative to the site removal) and the median / twin average / swap / shift table.
+- 3.6 *R on the other qualities*: only P under the other-quality readouts.
+- 3.7 *Other verdict styles and OOD*: only-P recovery and φ_remove under training / second / Yes/No / OOD + a heat-map figure for all tests.
+- 3.8 *Inside the decompositions*: norms, κ, alignment, K2 + cancellation/CI figure; seed comparison slot.
+
+The ●/○ marks come from the SUMMARYs (paper-writing topic, the draft's own status table `<ca-status>`), not from opening each output file [assumed]; check each cell when filling in. Known caveats written into the captions: the existing other-quality numbers (G2, SE-Pile) remove *all* components, not the active set, and the Pile numbers are validation only; the existing only-P transfer numbers are R (all components at mask = CI), not the active set; the existing "fixed shift" site cells are B3 (shift along a truth direction), not the mean difference of the site writes.
+
+Compiles; result pages 10–17 rendered and checked by eye [verified: `typst compile` + pdftoppm, 26-11-10].
+
+Open for Julian: the default P (active set vs all components vs a fixed k); whether the overview/scorecard should lead or close the section; whether 3.2 (test validity) belongs in Results or in an appendix.
+
+---
+
+26-11-11, Claude Opus 5.5 — *can the site-version tests (3.2.1) be run individually?*; context: draft section 3.2.1 (`tab-res-site`), `paper_common.py` (edit hooks), `paper_side_effects.py` (g1), docstrings of the other `paper_*.py`, file lists of `~/spd_out/26-10-22_tpd_truth_paper/{phase_b,b1_full,b3_v2}` and `~/spd_out/26-10-10_bolder_experiments/layer_scan/`; I have not run anything
+
+Julian asked (chat): "I want to do the tests for 3.2.1. Are the scripts set up that this can be done individually?"
+
+Answer: no [verified: code read]. Per row of `tab-res-site`:
+- *Zero removal (all off).* Exists as the `all_off` state in `paper_recovery.py` (verdict, second prompt) and `paper_side_effects.py g1` (Yes/No, digit questions, next-token KL by position class). It cannot be run alone: `g1` always also runs `full`, `delta_only`, `components_ci`, `reverse_top10`, needs a decomposition `--run` and its `--termination` JSON, and asserts the JSON matches the run. All-off itself does not depend on the basis, so the G2 outputs already hold these cells. Recall question: no in-repo readout.
+- *Mean removal.* Only the verdict, from the 26-10-16 layer scan (`~/spd_out/26-10-10_bolder_experiments/layer_scan/layer_scan.py`) and B1 (`~/spd_out/26-10-22_tpd_truth_paper/phase_b/b1_attn_scan.py`), both outside the repo. `paper_common.edited_outputs` can only rescale basis writes (y' = d_on (y − C) + Σ mask_c (v_c·x) u_c), so a mean replacement needs a new hook (simple, like `projected_out`).
+- *Twin average, swap.* Nothing exists: no twin builder for same-subject, equal-length, different-verdict twins (`paper_manipulation.twin_pairs` pairs negated with affirmative statements, a different sense), and no hook that caches one statement's site outputs and writes them into another's forward pass.
+- *Fixed shift.* B3 (`phase_b/b3_belief_steering.py`, outside the repo) steers the residual stream along a truth direction; the draft's test shifts the `down_proj` outputs by the mean difference of the site writes. Not the same intervention; nothing implements the latter.
+- *Recall readout.* B3's recall is greedy generation with string matching, cities and elements only. A recall readout for all families has to be designed.
+
+Proposal [assumed: not discussed]: one new script, `paper_site_versions.py`, that needs only the model and the run config's data and positions (no decomposition), takes `--intervention {zero,mean,twin_average,swap,shift}` and `--readouts` (subset of verdict, second, yes_no, digit, next_token, recall), so each cell of the table can be run alone.  
+C: Will you use a good architecture so that there are not two completely independent scripts for site ablations & component ablations?
+Answer (26-11-11, Claude Opus 5.5): Yes. The site is the special case of a split with P = the whole output (P = W, which is also the seeded defect "everything" of 2.4), so one code path covers both. Design [assumed: proposal]:
+  - *Split*: per module, a function that returns the P-part of y at the decomposed positions; R-part = y − P-part. Site: P-part = y. Component set S of a basis: Σ_{c∈S} (v_c·x) u_c (the existing `Basis`); P and R tests use the same split with the roles exchanged.
+  - *Intervention* on the chosen part, one forward hook: zero, mean (a stored train mean of that part), twin average / swap (the part from the twin's forward pass, cached in a first pass), shift (part + α · a stored direction). The existing `edited_outputs` (mask rescaling) is the zero/scale case and stays as is.
+  - *Readouts*: one module with verdict, second prompt, Yes/No, digit questions, next-token KL per position class, recall; each takes any edit. Moved out of `paper_side_effects.run_prompt`, not copied.
+  - *One driver*: `--split site|components --part P|R --intervention ... --readouts ...`, so each cell of the site table and of the P/R tables is one call.
+  The frozen phase D scripts (`paper_recovery/termination/...`) stay untouched, because their outputs are final; the new code is checked against them: its zero removal of the site must reproduce G2's stored all-off KLs and scores per statement, and its zero removal of a T2 top-k set the stored T2 scores.
+It reuses `paper_common` (statements, batching, prompts, bootstrap) and `paper_side_effects` (Yes/No and digit prompts, position classes). The twin builder and the swap hook would be written once here and reused for the P-/R-swaps (the status section's proposed order puts the site swap first anyway). Open before coding: the recall question's form;  
+C: we should have recall of subject and object
+Answer (26-11-11, Claude Opus 5.5): Agreed. The data allow it: every statement has a `subject` field, and `paper_side_effects.object_char` already locates the object (the part where twins differ) in every family. Proposed readout [assumed]: after the statement, one question per family for the subject and one for the object it stated, e.g. cities "<statement>\nThe city in this statement is" / "…\nThe country in this statement is"; scored as the teacher-forced log-prob of the answer string (handles multi-token names such as "New South Memphis" without generation and string matching), reported as the change against the original and as accuracy within a fixed candidate set (the family's subjects / objects). Two things to settle: (1) *stated vs true object*: for a false statement they differ ("Lu'an … in Turkey"). I would score the stated one (in-context recall, a content quality the edit should keep) and add the true one (the model's knowledge, what B3 read) as a third readout;  
+C: What do you mean exactly? We ask for the country and then chec if the readout gives (a) the country in the statement or (b) the cities country? Or are you talking about swaps here?
+Answer (26-11-11, Claude Opus 5.5): Not about swaps. I meant two different questions after the statement, each scored against one answer: (a) *in-context recall*, "…\nThe country in this statement is" → scored on the country the statement names (Turkey for "Lu'an is in Turkey"); (b) *knowledge recall*, a question about the subject that doesn't refer to the statement, e.g. "…\nThe city of Lu'an is located in the country of" → scored on its real country (China), as B3 did by generation. For true statements the two answers coincide; for false ones they differ, and only the matching answer is scored under each question. Why (b) as well [assumed]: fact lookup is usually located in mid-layer MLPs at the subject tokens, i.e. inside our sites (MLPs 11–17 at the statement tokens), so the site removal may break knowledge recall even if it leaves in-context recall intact; that is a non-truth quality the removal damages and worth seeing. Subject recall is (c): "…\nThe city in this statement is" → Lu'an.  
+C: I don't want (b). We have enough tests already
+only cities and the comparisons store the correct object, the other families get it from the true twin. (2) Under the swap the twins share the subject but not the object, so subject recall is a shared other quality, while the object travels with the bundle the swap carries (the twin caveat in 2.3). As for every new prompt, first a G0-style check that the original model answers these in format.
+C: I would not do many readouts for the twin swaps. Just some selected view. So I wouldn't do recall for them
+Answer (26-11-11, Claude Opus 5.5): Fine: no recall under the swaps (and twin averages). Proposed selected view [assumed]: the three truth readouts (training verdict, second prompt, Yes/No), since whether they move together is the A2 check, plus one other quality the twins share, the digit question with the cleanest format from G0 (e.g. word count), to see whether the site swap carries more than truth. Recall and next-token KL stay with the removals and the shift.  
+C: ok
+mean over which statements (train split, all statement tokens per position?);  
+C: mean over train. This is about `removed, mean`, right? Mean would be easier but I'm unsure what effects come from that, e.g. the giant activations at the first tokens. At least for cities mean over position could work, but on the other hand sentences like this "The city of New South Memphis is in the United States" and "The city of Zibo is in China" have quite different token counts. I'm unsure
+Answer (26-11-11, Claude Opus 5.5): Yes, `removed, mean`. A precedent exists: the 26-10-16 layer scan (whose 0.05 the draft cites in Table 2) took the train mean separately for three position groups, for exactly your worry: the statement's first token (attention sink, massive activations), its end token '.\n', and all tokens in between (`~/spd_out/26-10-10_bolder_experiments/layer_scan/layer_scan.py`, docstring). Its norm check (`mean_norms.out`, 1,000 train statements) shows the worry is not limited to position 0: at layer 11 the max |down_proj output| is ~320 against a median of 16 at the first token and 23 in the middle group, and 7.6% of the *middle* tokens exceed 10× the median, so the middle mean is pulled by a few massive-activation tokens [verified: read `mean_norms.out`, layer 11 rows; not checked which tokens these are]. Your token-count point means a mean per absolute position would mix roles across statements of different lengths. Proposal [assumed]: (a) default = the layer scan's three groups, so the cited 0.05 and the new site removal are the same intervention; (b) on val, one alternative that groups by role instead (first token, massive-activation tokens, subject, relation words, object, end; the object located by `object_char`), with the off-distribution damage read directly as the next-token KL at the prefix positions, where truth is not yet determined: the variant with less prefix damage at a similar verdict effect is the cleaner removal. If the two agree on the verdict, the choice doesn't matter for the paper and (a) stays.
+C: yes, lLet's test it out first.
+Answer (26-11-11, Claude Opus 5.5): OK: both groupings (the layer scan's first/middle/end, and the role groups) are computed on train and compared on val by verdict effect and prefix next-token KL; the default is fixed from that before test runs.
+the shift's direction (mean true − mean false site writes on train, per layer and token position?) and its size.
+C: maybe here we could test for the right parameters for the sites?
+Answer (26-11-11, Claude Opus 5.5): Yes, a good use of the site version: it depends only on the model, so tuning on it tunes nothing towards a decomposition. Proposal [assumed]: direction per layer and position group (the groups of the mean, answer above) = mean site write of the false minus the true statements on train; on val, sweep the size α and fix the smallest α at which the site shift flips a target share of the verdicts (e.g. as many as the site swap, which makes shift and swap comparable), checking that the digit mass stays up. The P-shift then uses P's own mean difference at the same α; random sets and control bases likewise their own. α, the direction and the target share are fixed on val before test is read, as the draft's pre-registration paragraph requires. The same val sweep can settle the mean-removal grouping (answer above).
+
+C: ok, so there is a script to be build and also some experiments to run. 
+Answer (26-11-11, Claude Opus 5.5): Yes. Order [assumed: proposal]:
+  1. *Code* (no GPU): shared module (split × intervention × readout) and one driver as in the first answer; twin builder (same subject, equal token length, different model verdicts); recall prompts per family (subject, stated object, knowledge); train statistics (group means, false − true mean differences per layer and group). CPU smoke test on a few statements if the 7B model fits in RAM, else the first GPU minutes.
+  2. *GPU, val*: format check of the new recall questions on the original model (G0-style: probability mass on the answer, accuracy among candidates); mean grouping comparison; site swap; shift α sweep against the site swap's flip share.
+  3. *Fix on val*: mean grouping, α, readouts per intervention; recorded here before step 4.
+  4. *GPU, test*: the full site table; regression check of the new code against G2's stored all-off outputs (needs one decomposition checkpoint; G2 ran on an H100).
+  Steps 2 and 4 need only the model, not the decompositions, except for the regression check.
