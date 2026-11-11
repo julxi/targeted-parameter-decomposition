@@ -309,3 +309,48 @@ Findings [verified: live checks 26-10-31, about 12:33–12:36]:
 - The earlier publickey blacklistings (hosts 256524, 33035, 393491) may have had the same cause; their logs were not read then [assumed].
 
 Proposed, not done: on a publickey failure, have the launcher grep `vastai logs` for "bad ownership or modes" and fail at once (the cause is certain then), and write that cause into the blacklist `reason`.
+
+---
+
+Julian (chat, 26-11-11): "I'm trying to provision a vm via `spd-vast --mode provision` it's taken very long (maybe a bad host) but mayabe my it's also my upload speed. (this is my second try today)"
+
+---
+
+26-11-11, Claude Opus 5.5 — *slow provision: the repo upload, not the host's boot*; I have read INDEX.md, this topic's SUMMARY and the tail of this LOG, and the provision path and rsync code in `spd/scripts/run_vast.py`.
+
+The rental: instance 60216654, RTX 4090, machine 148714, $0.5467/h, direct ssh 38.146.30.19:50372, ssh stanza written 15:07:59. When I looked (~10 min into the launcher), it had booted and accepted ssh; it was 9 min into `_rsync_repo`, i.e. before `uv sync`.
+
+Findings [verified: live measurements 26-11-11, around 15:17–15:20]:
+- Upload size: the rsync selection (gitignore filter, no `.venv`, no `papers/`) is 3,444 files, 108.8 MB, of which `.git` is 78 MB (already-compressed packs, so `-z` gains little there). Without `.git`: 35.4 MB.
+- rsync progress: 11 MiB sent by the ssh process after ~9 min; rate sampled at 12 KiB/s and 8 KiB/s. At that rate the rest takes well over an hour.
+- Julian's own uplink: a 5 MB POST to speed.cloudflare.com reached 79,005 B/s (~0.63 Mbit/s), measured while the rsync was also running (so the line's total is ~80–90 KB/s). Dropbox reported "Up to date" and wrote nothing during a 15 s sample, so it is not competing.
+- Conclusion [concluded]: both. Julian's uplink is slow (~0.6 Mbit/s; even at full line speed the 109 MB upload takes ~20+ min), and the route to this host gets only ~10–15% of that line rate. Not a host failure in the blacklist's sense: the cause is mostly on our side, so blacklisting host 148714's operator is not justified on this evidence.
+
+Proposed, not done: upload less. The remote could `git clone` the repo from GitHub (the host's download is fast; local `main` matches `origin/main` today) and the rsync would then run over that checkout with `.git` excluded, so only working-tree differences cross the uplink (rsync's delta transfer sends block checksums for unchanged files). Open question: is `julxi/targeted-parameter-decomposition` public, or would the instance need a token? Also open: the remote `.git` would then lack local-only commits if `main` is ahead of `origin`.
+
+---
+
+C: (transcribed from chat) Ok, I stopped it. Can you do the code change?
+
+---
+
+26-11-11, Claude Opus 5.5 — *repo sync via GitHub clone implemented*; same context as the entry above, plus `docs/CODING.md` and the git calls in `spd/utils/git_utils.py` (`ExecutionStamp` needs branch, `git rev-parse HEAD`, `git status --porcelain`).
+
+Instance 60216654 is gone (`vastai show instances` empty). `julxi/targeted-parameter-decomposition` is public (GitHub API answered 200 without auth), so the instance can clone it without credentials.
+
+Implemented in `spd/scripts/run_vast.py` (proposal (g) of the entry *slow provision: the repo upload, not the host's boot*):
+- `_local_git_state()` (run before renting, and in `--mode sync`): asserts `origin` is an https URL, HEAD is on a branch (not detached), and HEAD is on some `origin/*` branch per the local remote-tracking refs; otherwise it fails with "push it first". Returns origin URL, branch, commit.
+- `_build_checkout_script()`, run over ssh before every rsync: clone `origin` into `/root/spd` if no `.git` is there, `git fetch origin`, point the local branch at our commit (`update-ref` + `symbolic-ref`), `git reset --mixed` (index only, working tree untouched, so a re-sync over uncommitted edits cannot conflict), restore `papers/` from the index. `GIT_TERMINAL_PROMPT=0`, so a private repo fails instead of waiting for a password.
+- rsync now excludes `/.git/`; the rest of its arguments are unchanged. rsync's delta transfer against the clone sends only the differences.
+- Removed `_hide_unsynced_dir_from_git` (the skip-worktree trick for `papers/`): `papers/` now comes from the clone, so it is no longer missing on the instance.
+- `--dry_run` (both paths) prints the remote git script.
+- Behaviour change: every mode, `--mode sync` included, now needs HEAD pushed. The instance's index does not reproduce what was staged versus unstaged locally; `repo_is_clean()` and the run stamp do not depend on that.
+- `docs/PROJECT_REFERENCE.md`: the `spd-vast` sync paragraph marked OUTDATED, pointing to this topic's SUMMARY.
+
+Verification [verified: local simulation 26-11-11, one run; no rental]: the generated checkout script run against a scratch directory standing in for `/root/spd` (clone from GitHub took ~14 s on this machine), then the real `_rsync_args()` with the destination swapped to that directory and `--no-whole-file` (local rsync otherwise skips the delta algorithm, which over ssh is on by default):
+- First sync: 162,340 bytes sent (188,188 bytes literal data), versus 108.8 MB for the old upload.
+- Branch `main` and commit `be84d48` identical on both sides; `git status --porcelain` lists the same 11 paths on both sides (staged/unstaged columns differ, as expected); `papers/` clean.
+- Re-sync (the `--mode sync` path, clone skipped): 49,226 bytes sent, 0 files transferred, status unchanged.
+- The unpushed check: on an empty test commit in the scratch clone, `git branch -r --list 'origin/*' --contains HEAD` returned nothing; for `be84d48` it returned `origin/main`.
+- `ruff format`, `ruff check`, `basedpyright` on the file: clean. `spd-vast --mode sync --dry_run` prints the script and rsync command as intended.
+- Not tested: a real instance (ssh path, vast.ai image's git). The old code already ran `git` on the instance, so git is there [concluded].

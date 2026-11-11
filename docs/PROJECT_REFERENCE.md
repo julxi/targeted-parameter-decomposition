@@ -364,6 +364,8 @@ Add more as `vast_<name>_config.yaml` and select with `--config <name>`; `--conf
 filename in `spd/scripts/` or an explicit path. `--gpu_name`, `--max_price`, `--min_gpu_ram`,
 `--disk` and `--image` override individual fields for a single launch.
 
+OUTDATED (26-11-11): the next paragraph's sync description is wrong since then: the instance clones the repo from GitHub and rsync uploads the working tree without `.git` (HEAD must be pushed); `papers/` comes from the clone, there is no skip-worktree step. Current fact: `convos/julian/26-10-05_vast_rentals_SUMMARY.md`, bullet *Repo sync via GitHub clone*.
+
 It searches offers, rents one, attaches your public key to the instance, waits for sshd to accept
 it, writes an ssh stanza to `~/.ssh/config.d/vastai.conf` (host alias `vastai`), rsyncs the working
 tree (respecting `.gitignore`, and skipping `papers/`) to `/root/spd`, then `uv sync`s and runs the

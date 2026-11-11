@@ -1,8 +1,8 @@
 """SPD experiment runner for rented vast.ai GPUs.
 
 vast.ai is a GPU marketplace, not a job service: this script searches offers, rents a machine,
-attaches an ssh key to it, writes an ssh config stanza, rsyncs the working tree over, and starts
-training. Checkpoints are synced to WandB because the machine (and its disk) disappear when the
+attaches an ssh key to it, writes an ssh config stanza, has the machine clone the repo from GitHub,
+rsyncs the local working tree over that clone, and starts training. Checkpoints are synced to WandB because the machine (and its disk) disappear when the
 instance is destroyed.
 """
 
@@ -34,6 +34,14 @@ from spd.utils.wandb_utils import get_wandb_entity, get_wandb_run_url
 Mode = Literal["run", "detached", "provision", "sync"]
 
 
+class LocalGitState(NamedTuple):
+    """Where the local checkout stands, recreated on the instance from a GitHub clone."""
+
+    origin_url: str
+    branch: str
+    commit: str
+
+
 class ExperimentLaunch(NamedTuple):
     """The experiment to run on the rented machine, absent when provisioning a bare one."""
 
@@ -62,7 +70,8 @@ DEAD_STATUSES = frozenset({"missing", "exited"})
 # vast.ai's error for an ask it will not rent out: one already rented by someone else, or one
 # that is unavailable although the search listed it as rentable (e.g. its host went offline).
 TAKEN_OFFER_ERROR = "no_such_ask"
-# Tracked, but not needed to train, so not worth the upload.
+# Tracked, but not needed to train, so never uploaded: the instance keeps the committed version
+# from its GitHub clone, and local edits to it are not synced.
 UNSYNCED_REPO_DIR = "papers"
 BLACKLIST_PATH = REPO_ROOT / "spd/scripts/vast_blacklist.yaml"
 # Rewritten on top of the file whenever spd-vast adds a host, which drops any other comments.
@@ -180,7 +189,9 @@ def main(
         mode: 'run' streams training until it exits, 'detached' starts it and returns,
             'provision' only rents + syncs and leaves the run for you to start over ssh,
             'sync' re-rsyncs the working tree to the instance behind the `vastai` ssh alias
-            without renting anything (dependencies are not re-synced).
+            without renting anything (dependencies are not re-synced). Every mode needs the local
+            HEAD commit pushed to origin: the instance fetches the git history from GitHub, and
+            only the working tree is uploaded.
         gpu_name: Override the config's gpu_name.
         max_price: Override the config's max_price.
         min_gpu_ram: Override the config's min_gpu_ram.
@@ -207,10 +218,16 @@ def main(
         assert SSH_CONFIG_PATH.exists(), (
             f"{SSH_CONFIG_PATH} not found - rent an instance first with --mode provision"
         )
+        git_state = _local_git_state()
         if dry_run:
-            logger.values({"rsync": shlex.join(_rsync_args())})
+            logger.values(
+                {
+                    "remote git": _build_checkout_script(git_state),
+                    "rsync": shlex.join(_rsync_args()),
+                }
+            )
             return
-        _rsync_repo()
+        _sync_repo(git_state)
         logger.info(f"Synced working tree to {SSH_HOST_ALIAS}:{REMOTE_REPO_DIR}")
         return
 
@@ -238,6 +255,8 @@ def main(
     )
     assert not (destroy_on_exit and mode != "run"), "destroy_on_exit requires mode='run'"
     identity_file = _ssh_identity_file()
+    # Checked before renting, so an unpushed commit costs nothing.
+    git_state = _local_git_state()
 
     run_id = generate_run_id("spd")
     launch = _build_launch(experiment, run_id, project) if experiment is not None else None
@@ -259,6 +278,7 @@ def main(
             {
                 "create": shlex.join(["vastai", *redacted_args]),
                 "host": offers[0]["host_id"],
+                "remote git": _build_checkout_script(git_state),
                 "rsync": shlex.join(_rsync_args()),
                 "remote command": launch.remote_script if launch else _build_sync_script(),
                 "wandb": launch.wandb_url if launch else "-",
@@ -280,7 +300,7 @@ def main(
         logger.info(f"Wrote {SSH_CONFIG_PATH} - connect with `ssh {SSH_HOST_ALIAS}`")
         _wait_until_ssh_ready(instance_id, identity_file)
         _install_remote_env(env_vars)
-        _rsync_repo()
+        _sync_repo(git_state)
         _sync_dependencies(vast_config.max_sync_minutes)
 
         _log_summary(instance_id, offer, run_id, launch, mode)
@@ -929,19 +949,78 @@ def _install_remote_env(env_vars: dict[str, str]) -> None:
     logger.info(f"Wrote credentials to {REMOTE_ENV_FILE} for ssh sessions")
 
 
-def _rsync_args() -> list[str]:
-    """Sync the working tree, `.git` included.
+def _local_git_state() -> LocalGitState:
+    """Read the local branch and HEAD commit, asserting the instance can fetch that commit.
 
-    Every target-model training script stamps its run via `ExecutionStamp.create`, which shells out
-    to `git`. Without the repo those scripts die on `git status --porcelain` before training starts,
-    and the run loses its branch and commit provenance.
+    The instance clones from `origin` over https without credentials, so `origin` must be a public
+    https remote and HEAD must be on one of its branches. The check reads our remote-tracking refs
+    (as of the last fetch/push); a commit missing on GitHub after all still fails on the instance,
+    in `git update-ref`.
+    """
+
+    def git(*args: str) -> str:
+        return subprocess.check_output(["git", "-C", str(REPO_ROOT), *args], text=True).strip()
+
+    origin_url = git("remote", "get-url", "origin")
+    assert origin_url.startswith("https://"), (
+        f"origin is {origin_url}; the instance clones it without credentials, so it must be https"
+    )
+    branch = git("rev-parse", "--abbrev-ref", "HEAD")
+    assert branch != "HEAD", "Detached HEAD: check out a branch, the run is stamped with its name"
+    commit = git("rev-parse", "HEAD")
+    assert git("branch", "-r", "--list", "origin/*", "--contains", commit), (
+        f"HEAD {commit[:8]} is on no origin branch: push it first. The instance gets the git "
+        f"history from {origin_url}; only the working tree is uploaded."
+    )
+    return LocalGitState(origin_url=origin_url, branch=branch, commit=commit)
+
+
+def _build_checkout_script(git_state: LocalGitState) -> str:
+    """Put the instance's checkout on our branch and HEAD commit, with the history from GitHub.
+
+    Run before every rsync. It sets only git's view (HEAD, branch, index); the rsync then makes the
+    files match our working tree, so `git status` there shows our uncommitted changes as such.
+    Training scripts stamp each run with branch, commit and `repo_is_clean()` via
+    `ExecutionStamp.create`, and die without a git repo.
+
+    `.git` is fetched rather than uploaded because it is most of the upload (78 of 109 MB on
+    26-11-11) and a home uplink is far slower than the instance's download.
+
+    `git update-ref` + `symbolic-ref` + `reset --mixed` instead of `git checkout`: they never touch
+    the working tree, so a re-sync onto a tree that holds our uncommitted edits cannot conflict.
+    The unsynced directory is then restored from the index, because the rsync never writes it and
+    it would otherwise show as modified or deleted.
+    """
+    return "\n".join(
+        [
+            "set -euo pipefail",
+            # A private or mistyped repo must fail, not wait for a password nobody will type.
+            "export GIT_TERMINAL_PROMPT=0",
+            f"[ -d {REMOTE_REPO_DIR}/.git ] || "
+            f"git clone -q {shlex.quote(git_state.origin_url)} {REMOTE_REPO_DIR}",
+            f"cd {REMOTE_REPO_DIR}",
+            "git fetch -q origin",
+            f"git update-ref refs/heads/{git_state.branch} {git_state.commit}",
+            f"git symbolic-ref HEAD refs/heads/{git_state.branch}",
+            "git reset -q --mixed",
+            f"git checkout -q -- {UNSYNCED_REPO_DIR}",
+        ]
+    )
+
+
+def _rsync_args() -> list[str]:
+    """Sync the working tree onto the instance's clone, `.git` excluded.
+
+    `.git` comes from GitHub instead (`_build_checkout_script`). The clone also makes the upload
+    small: rsync's delta transfer sends only block checksums for files that already match, so only
+    our uncommitted changes cross the uplink. Excluded paths (`.git`, `.venv`, gitignored files,
+    the unsynced directory) are never deleted on the instance despite `--delete`.
 
     Ownership is deliberately not preserved: `-a` would carry our local uid across, and the
     container runs as root, so git would then refuse the repo as having dubious ownership.
 
-    `papers/` is left out: it is a fifth of the upload, mostly figures, and nothing on the rented
-    machine reads it. `--info=progress2` prints one running total, since a slow route to the host
-    otherwise looks like a hang.
+    `--info=progress2` prints one running total, since a slow route to the host otherwise looks
+    like a hang.
     """
     return [
         "rsync",
@@ -951,6 +1030,7 @@ def _rsync_args() -> list[str]:
         "--delete",
         "--info=progress2",
         "--filter=:- .gitignore",
+        "--exclude=/.git/",
         "--exclude=.venv",
         f"--exclude=/{UNSYNCED_REPO_DIR}/",
         f"{REPO_ROOT}/",
@@ -958,24 +1038,12 @@ def _rsync_args() -> list[str]:
     ]
 
 
-def _rsync_repo() -> None:
+def _sync_repo(git_state: LocalGitState) -> None:
+    logger.info(f"Fetching {git_state.branch} @ {git_state.commit[:8]} on the instance from GitHub")
+    _ssh(f"bash -c {shlex.quote(_build_checkout_script(git_state))}")
     args = _rsync_args()
     logger.info(f"Syncing working tree: {shlex.join(args)}")
     subprocess.run(args, check=True)
-    _hide_unsynced_dir_from_git()
-
-
-def _hide_unsynced_dir_from_git() -> None:
-    """Mark the tracked files we did not sync as skip-worktree in the remote checkout.
-
-    Otherwise git sees them as deleted, `repo_is_clean()` fails, and every run is stamped as having
-    uncommitted changes with no commit hash. The rsync overwrites `.git/index` with our local one,
-    so this has to run again after every sync.
-    """
-    _ssh(
-        f"cd {REMOTE_REPO_DIR} && git ls-files -z -- {UNSYNCED_REPO_DIR} "
-        f"| git update-index -z --skip-worktree --stdin"
-    )
 
 
 def _ssh(remote_command: str) -> None:
