@@ -42,11 +42,11 @@ Plain tPD constrains only outputs: the verdict, and the next-token predictions o
 
 == Shared training setting
 
-*Model and prompt.* The model is Qwen2.5-7B-Instruct, frozen. The target data consists of a statement followed by a fixed question,
+*Model and prompt.* The model is Qwen2.5-7B-Instruct, frozen. The target data consists of a statement followed by a fixed text that asks the model about it,
 
 #align(center)[`<statement>\nThe amount of truth in this statement is␣`]
 
-and we study the mechanism behind the model's prediction of the next token. That (greedy) token is almost always the digit `1` (true) or `0` (false) (see digit mass in @tab-verdict-accuracy). We call the whole input the *verdict prompt* and the digit the *verdict*. Statement and question are tokenized as one string, as the model would read the text, and the *statement tokens* are all tokens up to and including the one that contains the statement's final period.#footnote[Usually this token is `.\n` as the period merges with the line break that follows it. A character just before the period can merge as well. In the two translation families every statement ends in a quoted word, so the token is `'.\n`, and a few out-of-distribution `facts` statements end in `).\n`, `.'\n` or `."\n`.] We score a statement by the *logit difference* $s = log P(1) - log P(0)$ (equal to the difference of the two digits' logits) at the answer position; the model calls it true if $s > 0$.
+and we study the mechanism behind the model's prediction of the next token. That (greedy) token is almost always the digit `1` (true) or `0` (false) (see digit mass in @tab-verdict-accuracy). We call such an appended text a *probe* (not to be confused with a classifier trained on activations) and statement plus probe a *prompt*. This probe, the one used in training, is *truth rating 1*; the other probes follow in @eval-setup. The answer to a probe about truth is the *verdict*. Statement and probe are tokenized as one string, as the model would read the text, and the *statement tokens* are all tokens up to and including the one that contains the statement's final period.#footnote[Usually this token is `.\n` as the period merges with the line break that follows it. A character just before the period can merge as well. In the two translation families every statement ends in a quoted word, so the token is `'.\n`, and a few out-of-distribution `facts` statements end in `).\n`, `.'\n` or `."\n`.] We score a statement by the *logit difference* $s = log P(1) - log P(0)$ (equal to the difference of the two digits' logits) at the answer position; the model calls it true if $s > 0$.
 
 The model does this task well (@tab-verdict-accuracy): 97.9% of the test statements are judged correctly, and the two digits together get 98.4% of the probability mass on average, so the model answers in the format.
 
@@ -66,14 +66,14 @@ The model does this task well (@tab-verdict-accuracy): 97.9% of the test stateme
     [`neg_sp_en_trans`], [64], [0.953], [0.969], [0.938], [0.997], [0.989],
     [*all*], [1,794], [0.979], [], [], [], [0.984],
   ),
-  caption: [The model on the verdict prompt. Accuracy: share with the right sign of $s$; AUC: of $s$ for true vs false within the family; digit mass: $P(1) + P(0)$, averaged. Each family holds a true and a false set of equal size. Run B2 (2026-10-26).],
+  caption: [The model under truth rating 1. Accuracy: share with the right sign of $s$; AUC: of $s$ for true vs false within the family; digit mass: $P(1) + P(0)$, averaged. Each family holds a true and a false set of equal size. Run B2 (2026-10-26).],
 ) <tab-verdict-accuracy>
 
 *What is decomposed.* The `down_proj` matrix of each of the layers 11 to 17. `down_proj` is the MLP's output projection, so its output is everything the MLP writes into the residual stream. Each of these seven matrices is written as
 $ W = sum_(c=1)^(96) U_c V_c^top + Delta, $
 96 rank-1 *components* per layer (672 in all) plus a full-rank remainder $Delta$. A single *causal-importance (CI)* network, shared by the seven layers, reads the inputs of all seven matrices at a token and gives every component a CI value in $[0, 1]$ at that token. $Delta$ has no CI value.
 
-*Why these layers.* We replaced the outputs of MLP layers at all statement tokens by their mean over the training statements and measured what is left of the verdict (@tab-layer-scan). The measure is the *separation share*: the gap between the mean logit difference $s$ of true and of false statements, as a fraction of the original gap (8.66). The question tokens are never ablated.
+*Why these layers.* We replaced the outputs of MLP layers at all statement tokens by their mean over the training statements and measured what is left of the verdict (@tab-layer-scan). The measure is the *separation share*: the gap between the mean logit difference $s$ of true and of false statements, as a fraction of the original gap (8.66). The probe tokens are never ablated.
 - No single MLP layer is necessary: from layer 5 to 24, removing one layer leaves at least 0.77 of the separation (the minimum is at layer 17). The verdict is built up across many layers.
 - The block 11–17 is sufficient: removing these seven MLPs leaves 0.05 of the separation (accuracy 0.538, chance level) while the model still answers with a digit (digit mass 0.977). So the block carries the judgement, not the answer format. It is the smallest block in the scan with this property; the blocks 11–14 and 15–19 each leave about a third.
 - The block 6–10 also matters (0.18 left). We left it out: it would make the decomposition 12 layers long, and its role may be processing the statement's content (recognising the entities, recalling the fact) rather than judging it. This was not tested #assumed.
@@ -93,12 +93,12 @@ $ W = sum_(c=1)^(96) U_c V_c^top + Delta, $
     [attention 11–17], [0.655], [0.21], [0.977], [0.66],
     [MLP + attention 11–17], [0.518], [0.02], [0.983], [0.66],
   ),
-  caption: [Causal scan of the original model on the verdict prompt (run B1, 2026-10-26, test split, 1,794 statements). KL: of the answer distribution against the original, full vocabulary. Mean ablation of the single layers 3, 4, 25 and 26 is left out: there a few tokens have outputs of very large norm, so the mean itself is an unusual write. The original row's accuracy is 0.977 here and 0.979 in @tab-verdict-accuracy; the two runs differ in the third digit for a reason we did not trace.],
+  caption: [Causal scan of the original model under truth rating 1 (run B1, 2026-10-26, test split, 1,794 statements). KL: of the answer distribution against the original, full vocabulary. Mean ablation of the single layers 3, 4, 25 and 26 is left out: there a few tokens have outputs of very large norm, so the mean itself is an unusual write. The original row's accuracy is 0.977 here and 0.979 in @tab-verdict-accuracy; the two runs differ in the third digit for a reason we did not trace.],
 ) <tab-layer-scan>
 
 *Why only `down_proj`.* Mean-ablating an MLP's output is the same as replacing its `down_proj` output, so the scan above is a scan of `down_proj` outputs. Decomposing only this matrix has two limits. First, the MLP's input side (`gate_proj`, `up_proj`) is not decomposed, so the components show which hidden directions the MLP reads out and where it writes them, not how those hidden directions are computed. Second, attention matters too: mean-ablating the attention outputs of layers 11–14 leaves 0.44 of the separation, about as little as the MLPs of the same layers (0.38). We still do not decompose attention, because removing MLPs 11–17 alone already takes the verdict to chance: every route to the verdict passes through these MLPs, with attention in series. (The restriction to `down_proj` was originally made for memory; the tPD paper decomposes the attention and MLP input matrices as well.)
 
-*Positions.* The components replace the weights only at the *statement tokens*: every token of the statement, the first included, up to and including `.\n`. The question tokens always run on the original weights. So whatever the decomposition changes, it changes inside the statement, and it reaches the verdict only through the attention of the later question tokens to the statement.
+*Positions.* The components replace the weights only at the *statement tokens*: every token of the statement, the first included, up to and including `.\n`. The probe tokens always run on the original weights. So whatever the decomposition changes, it changes inside the statement, and it reaches the verdict only through the attention of the later probe tokens to the statement.
 
 *Data streams.* Each training step uses one batch of *target* data and one batch of *non-target* data; the gradients of both are summed before the optimizer step (as in the tPD paper).
 - Target data: 64 statements per batch from the training split of the Truth-is-Universal statement sets (the 10 families of @tab-verdict-accuracy, each in a true and a false version; at most 130 statements per set, 1,962 in all). Details of the data in a later section.
@@ -124,7 +124,7 @@ These terms make up *plain tPD*. The two other methods add one term each.
 
 + *Verdict loss under random masks* (target data). One masked forward pass per batch. At every statement token, every component gets $m_c = upright("CI")_c + (1 - upright("CI")_c) u$ with $u$ uniform in $[0, 1]$, drawn independently per component and position, and $Delta$ gets $m_Delta$ uniform in $[0, 1]$, drawn per layer and position. In addition, at each position a random number $k$ of the seven layers (uniform in 1 to 7) uses the masked decomposition and the other layers use their original weights. This routing is the SPD codebase's standard stochastic reconstruction loss, which we inherited unchanged; it generalises the SPD paper's two losses ($k = 1$ is its layerwise loss, which masks one layer at a time, and $k = 7$ its full loss). Its purpose is not clear to us, and it looks like an engineering choice; we would have preferred results without it. We kept it because all experiments had already been run with it.
 
-  The loss is the KL divergence between the original model's next-token distribution at the last question token (the verdict distribution, over the full vocabulary) and the masked model's. *The loss signal comes only from the verdict*: the model's next-token predictions at the statement tokens (what it expects as the statement's next word) are not compared, and neither are the matrices' outputs. Implementation detail: the verdict KL is counted once per decomposed position, so a statement weighs in proportion to its number of tokens.
+  The loss is the KL divergence between the original model's next-token distribution at the last probe token (the verdict distribution, over the full vocabulary) and the masked model's. *The loss signal comes only from the verdict*: the model's next-token predictions at the statement tokens (what it expects as the statement's next word) are not compared, and neither are the matrices' outputs. Implementation detail: the verdict KL is counted once per decomposed position, so a statement weighs in proportion to its number of tokens.
 + *Verdict loss under adversarial masks* (target data, last 20% of training only). The same verdict KL, but with mask values chosen to maximise it (components within $[upright("CI")_c, 1]$, $Delta$ within $[0, 1]$, all seven layers masked), using persistent adversarial masks: they are kept across training steps and moved by a few gradient-ascent steps in each one.
 + *Importance minimality* (target data). A penalty on the CI values at the statement tokens (an $L_p$ norm, $p$ annealed from 2 to 1), which pushes towards few components with non-zero CI per token.
 + *Non-target loss* (Pile). The model's next-token predictions at every position of the Pile windows, compared by KL with the original model's, under masks with $Delta$ fixed at 1, the components' masks random in $[upright("CI")_c, 1]$ and the same random layer subset as in loss 1. Plus importance minimality on the Pile CI values, at twice the target coefficient, which moves mechanisms that the statements do not use into $Delta$.
@@ -187,12 +187,12 @@ A very simple model of the truth computation has two variables
 - $X$: the tokens of the statement.
 - $T$: the internal truth value attributed to the statement.
 
-We don't know what form $T$ has or where it lives (at which token position or layer). So we use readouts to read $T$ off the model's own outputs. We don't use probes or truth directions for the definition, as to not bake further assumptions in our setup. Some assumptions that we do make for the design of the following test are
+We don't know what form $T$ has or where it lives (at which token position or layer). So we use readouts to read $T$ off the model's own outputs. We don't use classifiers on activations or truth directions for the definition, as to not bake further assumptions in our setup. Some assumptions that we do make for the design of the following test are
 + *(A1) One truth value.* On a statement there is one $T$
-+ *(A2) Truth verdicts mainly depend on $T$.* Every verdict prompt urges the model to surface it's truth value.
++ *(A2) Truth verdicts mainly depend on $T$.* Every truth probe urges the model to surface its truth value.
 + *(A3) Other-quality readouts don't depend on $T$.* The other readouts we choose like hosety, or humor do not depend on $T$ or are only weakly influenced.
 
-*Why two kinds of readout.* The $Y_j$ make "uses the belief coherently" testable: if there is one $T$, one edit at the statement moves every $Y_j$ together. Because attention is causal, the activations at the statement tokens do not depend on the question that follows, so the same edit can be tested under every question. The $Q_k$ make specificity testable: an edit meant to change $T$ must leave them alone. With truth readouts only, every prediction of $cal(H)$ is about $T$, and a split can pass every test while disturbing everything the truth readouts do not read (@ca-failures).
+*Why two kinds of readout.* The $Y_j$ make "uses the belief coherently" testable: if there is one $T$, one edit at the statement moves every $Y_j$ together. Because attention is causal, the activations at the statement tokens do not depend on the probe that follows, so the same edit can be tested under every probe. The $Q_k$ make specificity testable: an edit meant to change $T$ must leave them alone. With truth readouts only, every prediction of $cal(H)$ is about $T$, and a split can pass every test while disturbing everything the truth readouts do not read (@ca-failures).
 
 *Which $T$.* Two readings of $T$ make different predictions for one readout, recall. If $T$ is the *judgement* "the statement agrees with what I know", recall reads $Z$, not $T$, and an edit of $T$ leaves recall unchanged. If $T$ is the *stored fact* itself, recall reads it, and an edit of $T$ changes recall too. Steering the original model along a truth direction at the statement (B3, @glossary) flipped the verdict and left recall intact, which fits the first reading. Both readings are legitimate high-level models; the tests below report recall separately, so a decomposition can be judged against each.
 
@@ -211,14 +211,13 @@ The tests come in mirror pairs. What we expect of $P$ on the truth value, we exp
 - *removing or averaging* them should change the value;
 - *swapping* them in from another statement should transcribe the value;
 - *editing* them should move the value in a predictable way.
-We can't measure the truth value directly, so we have to resort to the model's answers to truth questions (*truth readouts*), best in different formats:
-- the verdict prompt from training;
-- other 0/1 prompts;
-- Yes/No prompts;
+We can't measure the truth value directly, so we have to resort to the model's answers to truth probes (*truth readouts*), best in different formats (@tab-probes):
+- the truth ratings, answered with a digit: truth rating 1 (the probe from training) and truth rating 2;
+- the Yes/No probes: Yes/No 1 and Yes/No 2;
 - another language.
-The other features are read off answers that should not depend on the truth value (*other-quality readouts*): digit questions about other properties of the statement (humour, emotion, surprise, word count), recall of the fact about the statement's subject (but see *Which $T$* in @ca-narrow), and the next-token predictions on the statement itself and on non-target text (the Pile).
+The other features are read off answers that should not depend on the truth value (*other-quality readouts*): ratings of other properties of the statement (the humour, emotion and surprise ratings, and the word count), the recall probes (subject recall and object recall; but see *Which $T$* in @ca-narrow), and the next-token predictions on the statement itself and on non-target text (the Pile).
 
-All interventions act on the decomposed matrices at the statement tokens; the question tokens run on the original weights. Because attention is causal, the same edited statement can therefore be read under every question. All these tests look only at the model's outputs, so we call them *behavioural tests*. Tests that look inside the decomposition follow in @tests-inspect.
+All interventions act on the decomposed matrices at the statement tokens; the probe tokens run on the original weights. Because attention is causal, the same edited statement can therefore be read under every probe. All these tests look only at the model's outputs, so we call them *behavioural tests*. Tests that look inside the decomposition follow in @tests-inspect.
 
 ==== The behavioural tests <tests-behav>
 
@@ -234,14 +233,14 @@ The next tests use *twins*: two statements of the same sentence form and domain 
   - *Fixed shift:* add one fixed vector to the $P$-write at each site and position: the mean difference of the $P$-writes between the false and the true twin in the training split (added for statements the model calls true, subtracted for those it calls false), scaled by one factor chosen on validation. Expected: the verdict flips.
   - *Hand edits of $P$.* This is a tricky one, a shot in the dark as long as we don't understand the mechanisms that $P$ represents, so these edits have to be designed by hand. Edits of single components, reversed (mask $-1$) or amplified (mask 2), have been run (M-core, M-twin, M-wide in @glossary).
 - *Influence of $P$ on other qualities.* Here $P$ should be irrelevant.
-  - *$P$ removed, $P$ replaced by its median over the statements* (less out of distribution than removal) *and $P$ averaged over twins*, read by the other-quality questions and by the next-token predictions on the statement; on the Pile, $P$ removed. Expected: little change, at least on predictions that don't need the truth mechanism. Under the twin average, only the qualities the twins share are expected to stay.
-  - *$P$-swap and fixed shift,* read by the other-quality questions whose answer the twins share (the subject's fact, the word count). Expected: no more change than under the site swap or the site shift. This is the behavioural test that a re-implementation fails (@ca-failures). Next-token predictions on the statement can't be used here: before the first differing token the twins' activations are identical, so a swap changes nothing there, and after it the twins' predictions differ anyway.
+  - *$P$ removed, $P$ replaced by its median over the statements* (less out of distribution than removal) *and $P$ averaged over twins*, read by the other-quality probes and by the next-token predictions on the statement; on the Pile, $P$ removed. Expected: little change, at least on predictions that don't need the truth mechanism. Under the twin average, only the qualities the twins share are expected to stay.
+  - *$P$-swap and fixed shift,* read by the other-quality probes whose answer the twins share (the subject's fact, the word count). Expected: no more change than under the site swap or the site shift. This is the behavioural test that a re-implementation fails (@ca-failures). Next-token predictions on the statement can't be used here: before the first differing token the twins' activations are identical, so a swap changes nothing there, and after it the twins' predictions differ anyway.
 - *Influence of $R$ on the truth verdict.* Ideally $R$ should not affect it.
   - *$R$ removed* is the run "only $P$" above.
   - *$R$ averaged over twins:* expected, the verdict separates true from false as in the original model.
   - *$R$-swap:* the $R$-writes of $x'$ patched into the run on $x$. Expected: the verdict stays with $x$ (IIA and $nu$ near 0).
 - *Influence of $R$ on other qualities.* $R$ should carry everything else.
-  - *Only $P$* (= $R$ removed), read by the other-quality questions and by the next-token predictions on the statement and on the Pile. Expected: about as much change as removing the whole sites. This test is weak: $R$ contains the remainder $Delta$, i.e. most of the matrix, so removing it breaks almost everything whatever the split. It mainly shows that $P$ is not the whole matrix.
+  - *Only $P$* (= $R$ removed), read by the other-quality probes and by the next-token predictions on the statement and on the Pile. Expected: about as much change as removing the whole sites. This test is weak: $R$ contains the remainder $Delta$, i.e. most of the matrix, so removing it breaks almost everything whatever the split. It mainly shows that $P$ is not the whole matrix.
 
 #figure(
   tbl(
@@ -277,12 +276,12 @@ $phi$ is reported with its bootstrap interval, next to $phi_"rand"$, the control
 Most tests are a cross-product of several axes, and we run (most of) it:
 - *the test:* the intervention (removed, averaged, swapped, fixed shift, hand edit) on $P$ or on $R$;
 - *the quality:* the truth value, or one of the other qualities;
-- *the verdict style:* for the truth value, the format of the question (training verdict prompt, other 0/1 prompt, Yes/No, another language);
+- *the truth probe:* for the truth value, truth rating 1 (training) or 2, Yes/No 1 or 2, another language;
 - *the size of $P$:* the top $k$ components (ranked by the effect of removing each alone, T1 in @glossary), the active set, or all components; reported as the share of components and of parameters;
 - *the statements:* in distribution (test split) or out of distribution (the OOD sets);
 - *the decomposition:* method (plain, recon, ortho) and seed, plus the control bases;
 - *the comparison runs* of @tests-compare.
-Not every combination exists: swaps and twin averages need twins of equal token length, which so far are counted only for the test split (@eval-setup); the Pile has no truth readout; and "another language" is not defined yet (the question asked in another language, or statements in another language).
+Not every combination exists: swaps and twin averages need twins of equal token length, which so far are counted only for the test split (@eval-setup); the Pile has no truth readout; and "another language" is not defined yet (a truth probe in another language, or statements in another language).
 
 ==== Inspection tests <tests-inspect>
 
@@ -291,7 +290,7 @@ Not every combination exists: swaps and twin averages need twins of equal token 
 The behavioural tests see only what reaches an output and is also limited by the contexts we provide. A split can differ from the model's mechanism in ways none of our behavioural test detect. For that we also look inside the decomposition to see how they act within the model. None of the following decides whether $P$ captures $T$; they explain behavioural results and provide further data to judge the decompositions.
 - *Cancellation.* Per layer at the statement tokens, the norms $|C|$ and $|D|$ and $chevron.l C, D chevron.r \/ |y|^2$ (notation of @methods). Large opposing writes mean that the components and $Delta$ cancel each other, the signature of a re-implementation; this is what ortho penalises. For twins $x$ and $x'$, with $delta_P = p(x') - p(x)$ and $delta_R = r(x') - r(x)$, the cancellation ratio $kappa = (|delta_P|^2 + |delta_R|^2) \/ |delta_P + delta_R|^2$ is 1 for no cancellation and $>> 1$ for cancellation between the twins; then the $P$-swap is no longer a part of the site swap. Both show cancellation, not unfaithfulness: the model itself may contain cancelling parts.
 - *Structure of the decomposition.* How many components are active per statement (the active-set curve), whether the CI values have a gap between "off" and "on" (valley check), and whether the seeds find the same components (seed comparison).
-- *Alignment and decodability.* The cosine of each component's write with the truth directions, the share of the true–false gap along these directions carried by the active components, the inactive ones and $Delta$ (Dir), and per-component selectivity for truth within a family and its transfer to the OOD sets (K1, K2). These describe the representation. That truth can be read from a part doesn't mean the model uses it (K0 in @glossary, the reason probe accuracy is not evidence).
+- *Alignment and decodability.* The cosine of each component's write with the truth directions, the share of the true–false gap along these directions carried by the active components, the inactive ones and $Delta$ (Dir), and per-component selectivity for truth within a family and its transfer to the OOD sets (K1, K2). These describe the representation. That truth can be read from a part doesn't mean the model uses it (K0 in @glossary, the reason a classifier's accuracy is not evidence).
 
 = Results <results>
 // Results skeleton (26-11-10): placeholders only, no numbers yet. Red ⟨…⟩ text describes what goes
@@ -336,7 +335,7 @@ After an overview of all outcomes (@res-overview), the section checks which test
     table.cell(colspan: 6)[_$R$ on the other qualities_],
     ..rows(("only P (= R removed)",), ("n", "n", "n", "n", "n")),
     table.cell(colspan: 6)[_other axes and inspection_],
-    ..rows(("second prompt", "Yes/No", "OOD statements", "cancellation (norms, κ)"), ("n", "n", "n", "n", "n")),
+    ..rows(("truth rating 2", "Yes/No 1, 2", "OOD statements", "cancellation (norms, κ)"), ("n", "n", "n", "n", "n")),
   ),
   caption: [Scorecard, filled in last (· = not filled yet). Each cell: ✓ (the expectation of @tab-tests holds within the interval, and beyond the random sets of the same size), ✗ (it fails), \~ (the seeds disagree; the cell then lists them), n/a (the site version already fails, so the test cannot judge the split; @res-validity). The thresholds behind ✓ are fixed before the outputs are read (@eval-setup).],
 ) <tab-res-scorecard>
@@ -352,21 +351,31 @@ After an overview of all outcomes (@res-overview), the section checks which test
 
 === Site versions
 
-Before any split is judged, each intervention is applied to the whole sites (all seven `down_proj` outputs at the statement tokens) and read by every readout. A readout that the site version does not move cannot judge a split; a truth readout that the site swap moves while another does not means that A2 (one $T$ read by every truth question) fails at these layers (@ca-validate).
+Before any split is judged, each intervention is applied to the whole sites (all seven `down_proj` outputs at the statement tokens) and read by every readout. A readout that the site version does not move cannot judge a split; a truth readout that the site swap moves while another does not means that A2 (one $T$ read by every truth probe) fails at these layers (@ca-validate).
 
 #figure(
   tbl(
-    columns: (auto, auto, auto, auto, auto, auto, auto),
-    [site version], [verdict (training)], [second prompt], [Yes/No], [digit questions], [recall], [next token],
-    ..rows(("removed, zero (= all off)",), ("h", "h", "h", "h", "r", "h")),
-    ..rows(("removed, mean",), ("h", "r", "r", "r", "r", "r")),
-    ..rows(("averaged over twins", "swapped"), ("r", "r", "r", "r", "r", "r")),
-    ..rows(("fixed shift",), ("h", "h", "r", "r", "h", "r")),
+    columns: (auto, auto, auto, auto, auto, auto, auto, auto),
+    [site version], [truth rating 1 (training)], [truth rating 2], [Yes/No 1], [Yes/No 2], [other ratings], [subject / object recall], [next token (prefix / object, end)],
+    [nothing (original)], [1 ($nu = 0$)], [1 ($nu = 0$)], [1 ($nu = 0$)], [1 ($nu = 0$)], [0], [0.87 / 0.89], [0 / 0],
+    [removed, zero (= all off)], [0.08 [0.07, 0.10]], [0.16 [0.14, 0.18]], [0.15 [0.13, 0.17]], [0.16 [0.14, 0.18]], [0.08–0.30], [0.87 / 0.80], [2.28 / 2.53],
+    [removed, mean], [0.07 [0.05, 0.08]], [0.03 [0.02, 0.04]], [0.03 [0.01, 0.04]], [0.06 [0.05, 0.07]], [0.04–0.11], [0.95 / 0.91], [0.47 / 1.09],
+    [removed, mean (layer-scan groups)], [0.05 [0.04, 0.06]], [0.07 [0.06, 0.08]], [0.07 [0.06, 0.08]], [0.06 [0.05, 0.07]], [0.04–0.11], [0.94 / 0.91], [1.07 / 1.25],
+    [averaged over twins ($nu$)], [0.45 [0.43, 0.46]], [0.49 [0.47, 0.52]], [0.48 [0.45, 0.52]], [–], [0.02 (words)], [–], [–],
+    [swapped ($nu$)], [0.93 [0.93, 0.94]], [0.94 [0.93, 0.95]], [0.95 [0.94, 0.96]], [–], [0.08 (words)], [–], [–],
+    [fixed shift, $alpha = 1$], [−0.55 [−0.59, −0.52]], [−0.40 [−0.42, −0.37]], [−0.37 [−0.40, −0.34]], [−0.41 [−0.44, −0.38]], [0.04–0.13], [0.88 / 0.89], [0.001 / 0.62],
   ),
-  caption: [The site versions. Cell: the effect $m_"site" - m_0$ (separation share for the truth readouts, $nu$ for the swap, KL from the original for the other qualities), with interval. The mean removal of the verdict is the layer scan (@tab-layer-scan, 0.05 of the separation left); the zero removal is the all-off state of every analysis. The existing fixed-shift cells are B3, a shift along a truth direction rather than the mean difference of the site writes. #ph[which readouts the site swap moves, and whether all truth readouts move together]],
+  caption: [The site versions on the test split (1,794 statements; the twin interventions on the 898 statements whose twin has the same token length and the opposite verdict), one run on an RTX 4090. Truth readouts: for the removals and the shift, the separation share left (1 = untouched, 0 = no separation, < 0 = inverted); for the twin average and the swap, $nu$ (0 = the statement's own score, 1 = its twin's); 95% bootstrap intervals within family. Other ratings: KL of the digit distribution from the original's, range over the four probes (humour, emotion, surprise rating, word count; only the word count under the twin interventions). Recall: mean summed probability of the subject's and of the stated object's spellings. In the original row, every value except recall holds by definition. Next token: mean KL of the next-token distribution from the original's at the statement positions before the object and at the object and end positions. The mean removal replaces each site output by its training-split mean within a group of positions: the statement's first token, the words before the object, the object, the end token, and, separately, tokens whose output is more than 5 times the site's median size (one per statement at layers 11 and 12, the second token after a leading "The", otherwise the first; none at layers 13–17). The layer scan's grouping (@tab-layer-scan: first / middle / end token, 0.05 of the separation left) averages the object with the words before it and the oversized token with ordinary ones; it is shown as a side row. The fixed shift adds, in the same groups, the training mean of the false minus the true statements' site outputs (statements with a twin), signed by the model's verdict, at $alpha = 1$: the average difference between twins, fixed before the test run. The zero removal is the all-off state of every analysis.],
 ) <tab-res-site>
 
-#ph[result: which tests remain usable; for each unusable one, which assumption failed]
+What the site versions show [concluded: from the table, one run]:
+- *Every truth readout moves under every intervention, and together.* The swap carries 0.93–0.95 of the way to the twin's score under all three truth probes run with it; the twin average lands halfway (0.45–0.49). So truth rating 1, truth rating 2 and Yes/No 1 read what the sites write at the statement tokens in the same way, as A2 requires at these sites.
+- *The swap and the shift are selective at the site level.* Neither touches the next-token predictions before the object (prefix KL ≤ 0.001 for the shift; the swap and twin average leave the prefix unchanged by construction), the shift lowers neither the recall of the subject nor that of the stated object (recall was not run under the twin interventions), and the other ratings move little (KL ≤ 0.13, against up to 0.30 for the zero removal).
+- *The removals are not.* Both remove nearly all of the separation, but they also change the next-token predictions everywhere in the statement (prefix KL 2.28 zero, 0.47 mean), and they push the verdict to one side: the zero removal towards "true" (0.72 of false verdicts flip, 0.18 of true ones), the mean removal towards "false" (0.80 of true verdicts flip; under truth rating 2 and both Yes/No probes all of them). The zero removal also lowers the recall of the stated object (0.89 → 0.80); the mean removal does not (0.91).
+- *The shift's verdict effect is asymmetric under the other truth probes*: under truth rating 1 both directions flip about equally (0.79 / 0.73), under truth rating 2 and both Yes/No probes true → false almost always (0.97–0.99) and false → true only 0.23–0.46.
+- *The twin average under truth rating 2 and Yes/No 1* lands almost every statement on "false" (true → false 0.95–0.99, false → true ≤ 0.06), so its $nu approx 0.5$ there is an average of "moved fully" and "not moved", not a halfway score per statement; under truth rating 1 both directions move (0.54 / 0.39).
+So all the truth readouts and all the other-quality readouts can judge a split at these sites; the removals carry large side effects of their own, which a part's removal must be read against.
+
 
 === Seeded defects
 
@@ -398,7 +407,7 @@ Each test is run on splits known to be wrong in the way it should catch (@ca-val
     ..rows(bases, ("h", "h", "h", "h", "h", "h")),
     ..rows(("site version",), ("–", "–", "–", "h", "–", "–")),
   ),
-  caption: [Removal tests on the training verdict prompt. Only $P$: the active set at mask = CI, everything else off (R-active). $P$ removed: the active set set to 0, everything else kept (T2 at the active-set size); $phi_"remove" = (1 - "sep"_P) \/ (1 - "sep"_"site")$ against the zero site removal; $phi_"rand"$: the same for 5 random subsets of the active set of the same size (for the controls: the same rule on their bases).],
+  caption: [Removal tests under truth rating 1. Only $P$: the active set at mask = CI, everything else off (R-active). $P$ removed: the active set set to 0, everything else kept (T2 at the active-set size); $phi_"remove" = (1 - "sep"_P) \/ (1 - "sep"_"site")$ against the zero site removal; $phi_"rand"$: the same for 5 random subsets of the active set of the same size (for the controls: the same rule on their bases).],
 ) <tab-res-removal>
 
 #figure(
@@ -429,7 +438,7 @@ Each test is run on splits known to be wrong in the way it should catch (@ca-val
 
 The reversal (mask $-1$) and amplification (mask 2) of single components and of the top-10 group (M-core, M-twin) are already run; their figures `m_share_shift` and `m_twin` from the analysis tables go here, re-expressed against the site version where one exists (B3 for the steering of the unsplit model).
 
-#phfig(height: 4cm)[M-core: separation share and shift under reversal and amplification of the top-10 group and of the label-selective group, per decomposition, against 10 random active components alone and the control bases; both prompts, test and the 13 OOD files.]
+#phfig(height: 4cm)[M-core: separation share and shift under reversal and amplification of the top-10 group and of the label-selective group, per decomposition, against 10 random active components alone and the control bases; both truth ratings, test and the 13 OOD files.]
 
 #status[only $P$ and $P$ removed (R-active, T2, random subsets, control bases); component edits (M-core, M-twin).][the twin builder; twin averages, $P$-swap and site swap ($"IIA"$, $nu$); the fixed shift on $P$, on random sets, on the control bases and on the sites; $phi$ for all removals.]
 
@@ -456,11 +465,11 @@ Removing $R$ is the run "only $P$" (@tab-res-removal).
 #figure(
   tbl(
     columns: (auto, auto, auto, auto, auto, auto, auto),
-    [basis], [next token: prefix], [next token: recall position], [next token: object + end], [digit questions], [recall question], [Pile],
+    [basis], [next token: prefix], [next token: recall position], [next token: object + end], [other ratings], [subject / object recall], [Pile],
     ..rows(bases, ("h", "h", "h", "h", "r", "h")),
     ..rows(("site version (all off)",), ("h", "h", "h", "h", "r", "h")),
   ),
-  caption: [$P$ removed, read by the other qualities. Cell: KL from the original, as a share of the site removal's KL (ideal: near 0). The existing numbers (G2, SE-Pile) remove *all* components ($Delta$ alone), not the active set, and the Pile numbers are on validation only. Digit questions: humour, emotion, surprise, word count (one column each in the appendix).],
+  caption: [$P$ removed, read by the other qualities. Cell: KL from the original, as a share of the site removal's KL (ideal: near 0). The existing numbers (G2, SE-Pile) remove *all* components ($Delta$ alone), not the active set, and the Pile numbers are on validation only. Other ratings: humour, emotion, surprise rating, word count (one column each in the appendix).],
 ) <tab-res-p-other-removal>
 
 #figure(
@@ -475,39 +484,39 @@ Removing $R$ is the run "only $P$" (@tab-res-removal).
 
 #ph[result: does plain tPD's $P$-swap disturb the shared qualities beyond the site swap, and do recon and ortho stay at the site level]
 
-#status[next-token and digit-question KL for all components removed and for the reversed top-10 group (G2); Pile KL with all components off (validation).][the same for the active set; the recall question; the median version; twin average, $P$-swap and fixed shift on the shared qualities, with site and random-set versions.]
+#status[next-token and other-rating KL for all components removed and for the reversed top-10 group (G2); Pile KL with all components off (validation).][the same for the active set; subject and object recall; the median version; twin average, $P$-swap and fixed shift on the shared qualities, with site and random-set versions.]
 
 == $R$ on the other qualities <res-r-other>
 
 #figure(
   tbl(
     columns: (auto, auto, auto, auto, auto),
-    [basis], [next token on the statement], [digit questions], [recall question], [Pile],
+    [basis], [next token on the statement], [other ratings], [subject / object recall], [Pile],
     ..rows(bases, ("r", "r", "r", "r")),
     ..rows(("site version (all off)",), ("h", "h", "r", "h")),
   ),
   caption: [Only $P$ (= $R$ removed), read by the other qualities. Cell: KL as a share of the site removal's (ideal: near 1). Weak test: $R$ holds $Delta$, so its removal breaks nearly everything whatever the split; it mainly separates $P$ from the whole matrix.],
 ) <tab-res-r-other>
 
-#status[the site removal (all off) for the next-token, digit-question and Pile readouts.][only $P$ under every other-quality readout.]
+#status[the site removal (all off) for the next-token, other-rating and Pile readouts.][only $P$ under every other-quality readout.]
 
-== Other verdict styles and out-of-distribution statements <res-transfer>
+== Other truth probes and out-of-distribution statements <res-transfer>
 
 #figure(
   tbl(
     columns: (auto, ..range(8).map(i => 1fr)),
-    [basis], [only $P$, training], [only $P$, second], [only $P$, Yes/No], [only $P$, OOD], [$phi_"remove"$, training], [$phi_"remove"$, second], [$phi_"remove"$, Yes/No], [$phi_"remove"$, OOD],
+    [basis], [only $P$, truth rating 1], [only $P$, truth rating 2], [only $P$, Yes/No 1, 2], [only $P$, OOD], [$phi_"remove"$, truth rating 1], [$phi_"remove"$, truth rating 2], [$phi_"remove"$, Yes/No 1, 2], [$phi_"remove"$, OOD],
     ..rows(bases, ("h", "h", "h", "h", "h", "h", "h", "h")),
   ),
-  caption: [The removal tests across verdict styles (training verdict prompt, the second 1/0 prompt, the Yes/No question) and on the OOD statements (only $P$: all 24 OOD files; removal: the 13 files of T2, training and second prompt). Existing only-$P$ numbers use all components at mask = CI (R), not the active set. "Another language" is not defined yet (@tests-grid).],
+  caption: [The removal tests across truth probes (truth ratings 1 and 2, Yes/No 1 and 2) and on the OOD statements (only $P$: all 24 OOD files; removal: the 13 files of T2, truth ratings 1 and 2). Existing only-$P$ numbers use all components at mask = CI (R), not the active set. "Another language" is not defined yet (@tests-grid).],
 ) <tab-res-transfer>
 
 #figure(
-  phfig(height: 5cm)[Heat map per method (columns: verdict style × in/out of distribution; rows: removal, twin average, $P$-swap, $R$-swap, fixed shift; cell colour: $phi$, with ✗ where the site version fails). Shows at a glance whether a decomposition's effect transfers beyond the prompt it was trained on.],
+  phfig(height: 5cm)[Heat map per method (columns: truth probe × in/out of distribution; rows: removal, twin average, $P$-swap, $R$-swap, fixed shift; cell colour: $phi$, with ✗ where the site version fails). Shows at a glance whether a decomposition's effect transfers beyond the probe it was trained on.],
   caption: [Transfer of each test across the axes of @tests-grid. #ph[result: which methods transfer to Yes/No and to OOD; ortho s2 and s3 against s1]],
 ) <fig-res-transfer>
 
-#status[R under the training and second prompts and on OOD (phase D), under Yes/No (G2); T2 under all three styles and on 13 OOD files.][every swap, twin-average and shift test under the other styles and on OOD twins (OOD twins not yet counted).]
+#status[R under truth ratings 1 and 2 and on OOD (phase D), under Yes/No 1 and 2 (G2); T2 under all four truth probes and on 13 OOD files.][every swap, twin-average and shift test under the other truth probes and on OOD twins (OOD twins not yet counted).]
 
 == Inside the decompositions <res-inspect>
 
@@ -540,7 +549,7 @@ Removing $R$ is the run "only $P$" (@tab-res-removal).
 + *A second route.* $R$ supplies $T$ too, by a route of its own.
 + *A re-implementation.* The components write a large vector $c$ that is not a part of the layer's real output $y$, and $R$ writes $y - c$, cancelling it. On every input $p + r = y$, so no test on the unedited model can see it. Under an edit that separates $P$ from $R$ (e.g. $P$-writes from $x'$, $R$-writes from $x$), whatever in $c(x') - c(x)$ the truth readouts do not read is no longer cancelled. The truth readouts cannot notice, because they read only $T$. It shows only in other outputs that read those directions, i.e. in the other-quality readouts.
 + *A lever.* $P$ moves the verdict without carrying $T$: a bias towards "1" or "0", or a feature of the sentence form.
-+ *A different route.* $P$ produces the verdict from a cue that agrees with the model's own computation on the training data, and the two come apart elsewhere (other questions, other sentence forms).
++ *A different route.* $P$ produces the verdict from a cue that agrees with the model's own computation on the training data, and the two come apart elsewhere (other probes, other sentence forms).
 + *Passing on.* $P$ carries a $T$ computed elsewhere (before layer 11, or in attention).
 + *Everything.* $P$ is (nearly) the whole matrix.
 
@@ -548,7 +557,7 @@ Removing $R$ is the run "only $P$" (@tab-res-removal).
 
 - *A second route:* the $R$-swap and the $R$ twin average (the verdict must not move). The $P$-swap catches it too, if the second route is used: the $R$-writes are recomputed under the $P$-swap, so a route of their own from $x$ to $T$ would pull the verdict back towards that of $x$ #concluded. A copy of $T$ in the $R$-writes that nothing reads does not matter.
 - *A re-implementation:* the $P$-swap and the fixed shift read by the other qualities the twins share, and internally the cancellation norms and $kappa$ (@tests-inspect). The truth readouts alone may even look *better* under a re-implementation (overshoot, @ca-validate).
-- *A lever:* the twin average (a bias survives it but cannot separate the true twin from the false one), the $P$-swap (a bias does not transcribe the verdict of $x'$), and the other truth formats (a bias towards the digit "1" does not move a Yes/No answer).
+- *A lever:* the twin average (a bias survives it but cannot separate the true twin from the false one), the $P$-swap (a bias does not transcribe the verdict of $x'$), and the other truth probes (a bias towards the digit "1" does not move a Yes/No answer).
 - *A different route:* the other truth formats and the OOD statements.
 - *Passing on:* only; every behavioural test is passed by a $P$ that passes $T$ on.
 - *Everything:* the size of $P$, the random sets of the same size, and the tests of $R$ on the other qualities.
@@ -565,7 +574,7 @@ Removing $R$ is the run "only $P$" (@tab-res-removal).
 
 A test counts as evidence only if it could have failed. Besides the comparison runs of @tests-compare (random sets of the same size, control bases), two checks make sure it could.
 
-*Assumption checks with the site version.* Every behavioural test on $P$ has a site version (@tests-compare), run first: the same intervention on the whole layer outputs (site swap, site shift, twin average of $y$, site removal). Under A1–A3 the site swap moves every truth readout together and leaves the shared other qualities in place. If the site version fails a test, that test cannot judge the split at these layers. Example: if the site swap moves the 1/0 verdict but not the Yes/No answer, then a split whose effect does not transfer to the Yes/No question has not failed; A2 (one $T$ read by every truth question) has, at these layers.
+*Assumption checks with the site version.* Every behavioural test on $P$ has a site version (@tests-compare), run first: the same intervention on the whole layer outputs (site swap, site shift, twin average of $y$, site removal). Under A1–A3 the site swap moves every truth readout together and leaves the shared other qualities in place. If the site version fails a test, that test cannot judge the split at these layers. Example: if the site swap moves the 1/0 verdict but not the Yes/No answer, then a split whose effect does not transfer to the Yes/No probes has not failed; A2 (one $T$ read by every truth probe) has, at these layers.
 
 *Seeded defects.* Each test is run on splits that are known to be wrong in the way it is meant to catch:
 - *Re-implementation by construction:* for any decomposition, $W_c |-> (1 + k) W_c$ and $Delta |-> Delta - k sum_c W_c$ keep the model exactly and turn the components into a re-implementation of growing strength $k$. The $P$-swap and the fixed shift read by the other qualities must fail increasingly with $k$; the $P$-swap read by the hard verdict may get *easier* (overshoot), which is why the truth readouts alone are not enough.
@@ -578,7 +587,23 @@ A test counts as evidence only if it could have failed. Besides the comparison r
 
 *Twins.* Two statements of the same sentence form and domain that disagree in their truth value. In our sets they are the true and the false statement about the same subject ("The city of Lu'an is in China." / "… in Turkey."; in `larger_than`, the same two numbers in the opposite order). In the test split each subject has exactly these two statements, except in `sp_en_trans` and its negation, where the false statements mostly use another Spanish word #verified[count by subject, 26-11-10]. The swaps and the twin averages replace the writes at each token position by those of the other twin at the same position (or by the mean of the two), so only twins with the same number of tokens are used. The swaps also use only twins on which the model's verdicts differ, so that they are balanced with respect to the model's belief. The test split holds 476 pairs of twins of equal token length: 115 each in `cities` and `neg_cities`, 103 each in `larger_than` and `smaller_than`, 18 each in `element_symb` and its negation, 2 each in `animal_class` and its negation, none in `sp_en_trans` and its negation #verified[count with the Qwen tokenizer, 26-11-06; before filtering by the model's verdicts]. More twins can come from the training and validation splits; OOD twins have not been counted.
 
-*Prompts.* The training verdict prompt; the held-out *second prompt* "Is this statement true (1) or false (0)? Answer: ", a different truth question with the same 1/0 format; two Yes/No truth questions; four digit questions about other properties of the statement (humour, emotion, surprise, word count). G0 checks that the model answers the last two kinds in format. Every edit acts at the statement tokens; the appended question runs on the original weights.
+*Probes.* A probe is the fixed text appended to the statement (@tab-probes). They fall into *quality probes*, which ask the model to judge the statement, and *recall probes*, which ask it to repeat a word of it. Among the quality probes, the four *truth probes* give the truth readouts, grouped by answer format: the two truth ratings are answered with a digit, the two Yes/No probes with Yes or No; the two probes of a format are there to check generalisation. Truth rating 1 allows graded answers ("0.8", "75%"), truth rating 2 only 1 or 0; in practice the model answers truth rating 1 with a plain 1 or 0 as well: in continuations sampled after the digit, 99.6% of those after "1" mean "true", and after "0" 2.4% are "0.5" hedges at near-ties and none lie between 0.7 and 0.9 #verified[200 test statements, 2026-11-05]. G0 checks that the model answers the Yes/No probes and the other ratings in format. Every edit acts at the statement tokens; the probe runs on the original weights.
+
+#figure(
+  tbl(
+    columns: (auto, 1fr, 2.4fr, 1.2fr),
+    align: (left, left, left, left),
+    [group], [probe], [text after the statement], [answer],
+    [quality, truth], [truth rating 1 (training)], [`\nThe amount of truth in this statement is␣`], [digit; graded possible, in practice 1 / 0],
+    [], [truth rating 2], [`␣Is this statement true (1) or false (0)? Answer:␣`], [1 / 0],
+    [], [Yes/No 1], [`\nQuestion: Is the statement above true? (Yes/No)\nAnswer:`], [Yes / No],
+    [], [Yes/No 2], [`␣Is this true? Yes or No? Answer:`], [Yes / No],
+    [quality, other], [humour, emotion, surprise rating], [`\nThe amount of humor in this statement is␣` (emotion, surprise likewise)], [digit 0–9],
+    [], [word count], [`\nThe number of words in this statement is␣`], [digit 0–9],
+    [recall], [subject recall, object recall], [`\nThe {noun} in the statement above is␣"` ({noun}: city, country, …, per family)], [the subject or the stated object, scored over its spellings],
+  ),
+  caption: [The probes. `␣` marks a space. Truth rating 2 and Yes/No 2 continue on the statement's line, so there the statement's last token is a bare period instead of the period merged with the line break. The next-token readouts use no probe.],
+) <tab-probes>
 
 *States of the analyses run so far.* These analyses replace the output of each decomposed matrix at the statement tokens by
 $ y' = m_Delta D + sum_c m_c U_c V_c^top x $
@@ -610,34 +635,34 @@ Our analyses were planned before these tests, and most of them are removals (com
   align: (left, left, left, left),
   breakable: true,
   [test (@tab-tests)], [run so far (@glossary)], [what it covers], [to add or redo],
-  [$P$ removed, truth], [T0, T1, T2, T3 (A8), Dir-remove; T2 under the second prompt, Yes/No and on OOD], [against random sets of the same size and the control bases], [*add:* $phi$ against the site removal],
-  [only $P$ (= $R$ removed), truth], [R, R-active, R-mean, active set; under the second prompt, Yes/No (G2) and on OOD], [complete], [*add:* $phi$],
-  [$P$ removed, other qualities], [G2 next-token, G2 digit questions ($Delta$ alone and the reversed top-10 group, against all off); SE-Pile ($Delta$ alone)], [removal against all off; no random sets], [*add:* recall question; median of $P$; random-set and site versions],
-  [only $P$, other qualities], [none], [–], [*add:* digit questions, next-token on the statement and on the Pile],
+  [$P$ removed, truth], [T0, T1, T2, T3 (A8), Dir-remove; T2 under truth rating 2, Yes/No 1 and 2 and on OOD], [against random sets of the same size and the control bases], [*add:* $phi$ against the site removal],
+  [only $P$ (= $R$ removed), truth], [R, R-active, R-mean, active set; under truth rating 2, Yes/No 1 and 2 (G2) and on OOD], [complete], [*add:* $phi$],
+  [$P$ removed, other qualities], [G2 next-token, G2 ratings ($Delta$ alone and the reversed top-10 group, against all off); SE-Pile ($Delta$ alone)], [removal against all off; no random sets], [*add:* subject and object recall; median of $P$; random-set and site versions],
+  [only $P$, other qualities], [none], [–], [*add:* other ratings, next-token on the statement and on the Pile],
   [$P$ / $R$ averaged over twins], [none (T0 sets the components to zero instead of averaging)], [–], [*add:* both, truth and shared other qualities, site version],
   [$P$-swap / $R$-swap, truth], [none], [–], [*add:* twin builder (equal length, different verdicts); $P$-, $R$- and site swap; $"IIA"$, $nu$, $phi$, $kappa$],
   [$P$-swap, other qualities], [none], [–], [*add:* choose the qualities the twins share; KL against the site swap],
   [fixed shift], [B3 on the unsplit model (steering along a truth direction)], [a site-like version for the verdict and recall], [*add:* the shift on $P$, random-set, control-base and site versions; truth and other readouts],
-  [hand and component edits], [M-core, M-twin, M-wide (masks −1 and 2)], [whether reversing or amplifying components moves the verdict, against random components; G2 digit questions under the reversed top-10 group], [hand edits, if we find a hypothesis to edit],
+  [hand and component edits], [M-core, M-twin, M-wide (masks −1 and 2)], [whether reversing or amplifying components moves the verdict, against random components; G2 ratings under the reversed top-10 group], [hand edits, if we find a hypothesis to edit],
   [does $P$ compute $T$], [none], [–], [*add:* the projection protocol of ],
   [inspection], [cancellation norms, active set, valley check, seed comparison, Dir, K1, K2], [complete for the decompositions], [*add:* $kappa$ on the twins],
-  [site versions], [layer scan, B1, B3], [removal versions on the original model (which layers the verdict needs)], [*add:* the site version of every new test, first of all the site swap under the Yes/No prompts],
+  [site versions], [layer scan, B1, B3], [removal versions on the original model (which layers the verdict needs)], [*add:* the site version of every new test, first of all the site swap under the Yes/No probes],
   [seeded defects], [none], [–], [*add:* scaling dial $k$, Exp 4a, $P = W$],
 )
 
-*Analyses not tied to a test.* K0 (probes over all features of one kind) is reported as the reason probe accuracy is not evidence. K3 (on statements the model gets wrong, does a selective component follow the label or the model's verdict) is descriptive: the decompositions are trained on the model's own verdict distribution, never on labels.
+*Analyses not tied to a test.* K0 (linear classifiers over all features of one kind) is reported as the reason a classifier's accuracy is not evidence. K3 (on statements the model gets wrong, does a selective component follow the label or the model's verdict) is descriptive: the decompositions are trained on the model's own verdict distribution, never on labels.
 
 *Proposed order* #assumed: the site swap under every readout first (it decides which tests can work at these layers); then the $P$- and $R$-swaps, read by the truth and the other qualities, together with the scaling dial, since they share the twins and the swap code; then the twin averages, the fixed shift, and the remaining axes of @tests-grid.
 
 *Open points.*
 - *Which other qualities.* The swaps need qualities that the twins share, read off the model in a format it answers reliably.
 - *Twins.* Twins differ in content as well as truth; the swap carries that content along. This is allowed (the $P$-writes carry a bundle containing $T$), but restricts which qualities the twins share.
-- *Another language:* the question in another language, or the statements.
+- *Another language:* a truth probe in another language, or the statements.
 - *Thresholds* $q$ and the statement distribution $D$ for each test.
 
 == Glossary of experiments <glossary>
 
-All analyses run on every decomposition (plain, recon, ortho; all seeds) and, where they apply, on the controls. Test split unless stated; *OOD* = the out-of-distribution statement sets; *both prompts* = the training verdict prompt and the second prompt. Removals and edits act at every statement token. Which test of @tests each analysis bears on is listed in @ca-status.
+All analyses run on every decomposition (plain, recon, ortho; all seeds) and, where they apply, on the controls. Test split unless stated; *OOD* = the out-of-distribution statement sets; *both truth ratings* = truth ratings 1 and 2 (@tab-probes). Removals and edits act at every statement token. Which test of @tests each analysis bears on is listed in @ca-status.
 
 #tbl(
   columns: (auto, 1fr),
@@ -646,33 +671,33 @@ All analyses run on every decomposition (plain, recon, ortho; all seeds) and, wh
   [name], [what is done],
   [*layer scan*], [Original model. The output of single MLP layers or blocks replaced by its mean over training statements, at all statement tokens or at the last one only; verdict accuracy, separation share, digit mass. Chose layers 11–17 (@tab-layer-scan).],
   [*B1*], [Original model. The layer scan repeated for MLP and attention outputs, single layers and blocks, mean and zero ablation; why attention is not decomposed.],
-  [*B2*], [Original model on every test and out-of-distribution statement set under three candidate prompts: accuracy, AUC, digit mass per set. Chose the second prompt and which OOD sets are usable.],
-  [*B3*], [Original model. Steering along the in-context truth direction at the statement tokens flips the verdict under both prompts, but the model still recalls the fact correctly afterwards.],
-  [*G0*], [Original model, validation subset. Checks that the extra prompts of G2 (Yes/No questions, digit questions) are answered in format.],
-  [*R* (recovery)], [Components only: every component at mask = CI, $Delta$ off. KL recovered, accuracy, agreement with the model, separation share, digit mass; test, all 24 OOD files, both prompts.],
+  [*B2*], [Original model on every test and out-of-distribution statement set under three candidate probes: accuracy, AUC, digit mass per set. Chose truth rating 2 and which OOD sets are usable.],
+  [*B3*], [Original model. Steering along the in-context truth direction at the statement tokens flips the verdict under both truth ratings, but the model still recalls the fact correctly afterwards.],
+  [*G0*], [Original model, validation subset. Checks that the extra probes of G2 (the Yes/No probes, the other ratings) are answered in format (eight Yes/No wordings tried; G2 uses Yes/No 1 and 2).],
+  [*R* (recovery)], [Components only: every component at mask = CI, $Delta$ off. KL recovered, accuracy, agreement with the model, separation share, digit mass; test, all 24 OOD files, both truth ratings.],
   [*R-active*], [As R, but only the active set at mask = CI, all other components and $Delta$ off.],
   [*R-mean*], [As R, at the training's expected mask $upright("CI") + (1 - upright("CI")) \/ 2$.],
   [*active set*], [Components ranked by mean CI; the curve of KL recovered when only the top $m$ are on ($m$ = 1, 2, 4, …, 512); the active set is the smallest such set reaching 95% of R's KL recovered (validation). No CI threshold defines "active" anywhere.],
-  [*G2 Yes/No transfer*], [R under two Yes/No truth questions ("… Yes"/"No" instead of 1/0): does the decomposition transfer to an answer format it was not trained on? Added after the plan.],
+  [*G2 Yes/No transfer*], [R under Yes/No 1 and 2 ("Yes"/"No" instead of 1/0): does the decomposition transfer to an answer format it was not trained on? Added after the plan.],
   [*T0*], [All components removed from the full model ($Delta$ alone). KL recovered (ideal: 0, i.e. $Delta$ alone carries nothing of the verdict) and separation share.],
   [*R-inactive*], [The full model with every component outside the active set removed; plus the norms of the active and inactive writes and their cosine.],
   [*cancellation norms*], [At the statement tokens: $|C|$, $|D|$ and $chevron.l C, D chevron.r \/ |y|^2$ per layer. Large opposing writes = the components and $Delta$ cancel each other.],
   [*T1*], [Each candidate component removed alone from the full model (mask 1 → 0, everything else kept). On validation for all candidates (this ranking feeds T2 and M-core), on test for the active set.],
-  [*T2*], [The top $k$ candidates by T1 removed together, $k in {1, 2, 5, 10, 20, 50, 100, 200}$ plus the active-set sizes; against 5 random size-$k$ subsets of the active set, and the same rule on the untrained decomposition and the data-aligned basis. Test and 13 OOD files, both prompts (the random controls on OOD on at most 50 statements per file).],
-  [*T2 Yes/No*], [T2 under the Yes/No prompts (G2).],
+  [*T2*], [The top $k$ candidates by T1 removed together, $k in {1, 2, 5, 10, 20, 50, 100, 200}$ plus the active-set sizes; against 5 random size-$k$ subsets of the active set, and the same rule on the untrained decomposition and the data-aligned basis. Test and 13 OOD files, both truth ratings (the random controls on OOD on at most 50 statements per file).],
+  [*T2 Yes/No*], [T2 under Yes/No 1 and 2 (G2).],
   [*T3 (A8)*], [No decomposition in the forward pass: one layer at a time, the *original* MLP output loses its projection onto the span of (a) all 96 write vectors $u_c$ of that layer, (b) the active set's write vectors in it. Controls of the same dimension: 3 random subspaces and the top principal directions of the output.],
   [*Dir-remove*], [The mass-mean or logistic-regression truth direction projected out of the original MLP output, per layer and in all seven layers together; compared with removing the components.],
   [*SE-Pile*], [Side effect on general text: next-token KL on the Pile with all components off and $Delta$ on, from the training's evaluation.],
   [*G2 next-token*], [Side effect within the statement: next-token KL against the original at the statement tokens, split into prefix (before the object; truth not yet determined), recall position (predicts the object) and object + end; for $Delta$ alone and the reversed top-10 group, compared with all off.],
-  [*G2 digit questions*], [Same-format control judgements: four questions about other properties of the statement (humour, emotion, surprise, word count), answered with a digit, under $Delta$ alone and the reversed top-10 group.],
-  [*M-core*], [The top 10 components by T1, each alone and as a group, and the label-selective group (K2), reversed (mask −1) and amplified (mask 2); 10 random active components alone; the same rule on the controls. Flips, separation share and shift, digit mass; test and 13 OOD files, both prompts. Masks −1 and 2 lie outside the trained range.],
+  [*G2 ratings*], [Same-format control judgements: the humour, emotion and surprise ratings and the word count (@tab-probes), answered with a digit, under $Delta$ alone and the reversed top-10 group.],
+  [*M-core*], [The top 10 components by T1, each alone and as a group, and the label-selective group (K2), reversed (mask −1) and amplified (mask 2); 10 random active components alone; the same rule on the controls. Flips, separation share and shift, digit mass; test and 13 OOD files, both truth ratings. Masks −1 and 2 lie outside the trained range.],
   [*M-twin*], [The one prediction fixed in advance: under an edit, does a negated statement's verdict follow the original verdict of its affirmative twin ("the 'not' is ignored")?],
   [*M-wide*], [Exploratory, validation only: every active component reversed alone, per family and label.],
   [*Dir*], [Mass-mean and logistic-regression truth directions after layers 11–17 at the statement's last token (fit on training statements). Per component the cosine of its write with each direction, against random vectors; the share of the true–false gap along the direction carried by the active components, the inactive ones and $Delta$; the rank correlation of T1 with the gap share.],
   [*valley check*], [Histograms of all CI values (validation): is there a gap between "off" and "on" that would define "active"?],
   [*seed comparison*], [Every table shows all seeds side by side; no method is ranked above another where its seeds overlap.],
-  [*K0*], [Logistic probes over all features of one kind (all CI values; all coefficients; the residual stream after layer 17), fit on training statements, scored on test and OOD, for the label and the model's verdict. Reported as the reason probe accuracy is not evidence.],
-  [*K1*], [Per component the AUC for truth within each family; probes on the top $k$ components by training selectivity, $k in {1, 2, 5, 10}$, against the controls at the same $k$.],
+  [*K0*], [Logistic-regression classifiers over all features of one kind (all CI values; all coefficients; the residual stream after layer 17), fit on training statements, scored on test and OOD, for the label and the model's verdict. Reported as the reason a classifier's accuracy is not evidence.],
+  [*K1*], [Per component the AUC for truth within each family; logistic-regression classifiers on the top $k$ components by training selectivity, $k in {1, 2, 5, 10}$, against the controls at the same $k$.],
   [*K2*], [Components selective on validation within a sentence form ($|"AUC" - 0.5| >= 0.2$) keep their sign on the OOD sets of the same form ($|"AUC" - 0.5| >= 0.1$): share that transfers, against the controls.],
   [*K3*], [On the statements the model gets wrong: does a selective component follow the label or the model's verdict?],
 )

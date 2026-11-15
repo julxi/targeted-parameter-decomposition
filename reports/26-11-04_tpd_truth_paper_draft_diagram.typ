@@ -75,7 +75,7 @@
   line((_col(0) - _bw / 2, yb), (_col(ns - 1) + _bw / 2, yb), stroke: 0.6pt + palette.accent)
   content(((_col(0) + _col(ns - 1)) / 2, yb - 0.27), text(size: 6.5pt, fill: palette.accent)[statement: components replace `down_proj` here])
   line((_col(ns) - _bw / 2, yb), (_col(last) + _bw / 2, yb), stroke: 0.6pt + palette.muted)
-  content(((_col(ns) + _col(last)) / 2, yb - 0.27), text(size: 6.5pt, fill: palette.muted)[question: original weights])
+  content(((_col(ns) + _col(last)) / 2, yb - 0.27), text(size: 6.5pt, fill: palette.muted)[probe: original weights])
 })
 
 #let nontarget_panel = cetz.canvas(length: 1cm, {

@@ -46,3 +46,8 @@ hosts:
   reason: 'hand entry: uv sync downloads at ~450 KB/s (eth0 rx), 174 MB after ~3 min (instance 60219221,
     machine 148714, RTX 4090, California, US); earlier the same day rsync to this machine ran at 8-12
     KiB/s (instance 60216654)'
+- host_id: 513108
+  date: 26-11-14
+  reason: 'hand entry: stuck in `loading` pulling vastai/base-image:cuda-12.8.1-auto on two rentals
+    in a row, aborted by hand before the 900s timeout (instance 60659856, machine 156408, RTX 4090,
+    California, US)'

@@ -33,6 +33,9 @@ Position groups (GroupingName), both from the train statistics and applied per s
          scan's norm check (mean_norms.out) found such tokens in 40% of first tokens and 7.6% of
          middle tokens at layer 11, so a scan3 mean mixes them with ordinary tokens. Julian asked to
          compare the two groupings on val before one becomes the default (LOG, same entry).
+Default for the paper (Julian, 26-11-14, after the val comparison; LOG entry "role for mean and shift,
+massive at 5x"): role for both the mean removal and the shift. scan3 stays selectable so the layer
+scan's intervention can still be reproduced.
 """
 
 from collections.abc import Callable, Iterator
@@ -55,8 +58,9 @@ N_GROUPS: dict[GroupingName, int] = {"scan3": 3, "role": 5}
 ROLE_GROUPS = ("massive", "first", "pre_object", "object", "end")
 SCAN3_GROUPS = ("first", "middle", "end")
 # a position is "massive" at a site if its clean output norm exceeds this multiple of the site's train
-# median norm (the layer scan's norm check used the same factor)
-MASSIVE_FACTOR = 10.0
+# median norm. 5 (Julian, 26-11-14), lowered from the layer scan's 10: at 10 the one massive token per
+# statement counted only at layer 11 (14x the median), though it is still 8x at layer 12.
+MASSIVE_FACTOR = 5.0
 
 
 # ---- splits ----

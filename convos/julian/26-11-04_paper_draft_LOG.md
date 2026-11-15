@@ -666,3 +666,386 @@ Answer (26-11-11, Claude Opus 5.5): Yes. Order [assumed: proposal]:
 **Recall phrasing problem** [verified: smoke, 26 statements]: under "The animal named in this statement is", the model often continues with a judgement (' not' 0.30, ' incorrect' 0.24, ' actually' 0.05 on "The aardvark is a fish.") instead of the name; exact subject recall 0.35. So this form partly reads truth, which an other-quality readout must not. A second form, "The <noun> mentioned in the statement above:", is in the code; the val format check compares both, and the form is fixed before test.
 
 **GPU plan** (script `~/spd_out/26-11-04_paper_draft/site_versions/val.sh`, run from the instance; site only, `--run s-0c2fa0d7`, a final run with stored G2 outputs): smoke (2 per dataset) → recall format check on val (originals, both forms) → zero, mean:scan3, mean:role and shift α ∈ {0.25, 0.5, 1, 2, 4} for both groupings on val, read by verdict, second, yes_no:question, digit:words → site twin average and swap on val, same readouts → zero on test with every G2 readout, then `paper_tests.py check_g2` locally against `side_s-0c2fa0d7_decomposition_test.npz`. Then, from the val outputs, the choices to fix before test [assumed: proposal]: recall form, mean grouping, α.
+
+---
+
+26-11-11, Claude Opus 5.5 — *recall wording screen*; context: the previous entry; Julian in chat (transcribed below); screen run on the rented RTX 4090 (48 GB)
+
+C: (transcribed from chat) for the recall wording we should try to find a question that gets the right subject / object with high probiblity. For example the animal question could be "The name of the animal mentioned in the statament above is:" or something like that.
+
+C: (transcribed from chat) Can you give me an overview over the questions and their logits?
+
+Screen [verified: one run, original model, 26-11-11; script `~/spd_out/26-11-04_paper_draft/site_versions/recall_screen.py`, output `~/spd_out/26-11-04_paper_draft/site_versions/vm/recall_screen/recall_screen.json`]: seven wordings, each scored teacher-forced on the answer span as written in the statement (leading space, except after the opening quote of `quote`). Shown as probabilities rather than logits: P(answer span) = exp(summed log-prob of its tokens).
+
+Wordings ({noun} = city / element / animal / Spanish word / first number for the subject; country / symbol / animal class / English word / second number for the object):
+
+- `named`: '\nThe {noun} named in this statement is'
+- `colon`: '\nThe {noun} mentioned in the statement above:'
+- `name_of`: '\nThe name of the {noun} mentioned in the statement above is:'
+- `which_q`: '\nWhich {noun} is mentioned in the statement above? Answer:'
+- `question`: '\nQuestion: Which {noun} does the statement above mention?\nAnswer:'
+- `repeat`: '\nRepeat the {noun} from the statement above:'
+- `quote`: '\nThe {noun} in the statement above is "'
+
+Overall, mean over 190 val statements (10 per dataset) of P(answer span) / exact (every answer token the argmax):
+
+| wording | subject P | subject exact | object P | object exact |
+|---|---|---|---|---|
+| `named` | 0.12 | 0.14 | 0.19 | 0.23 |
+| `colon` | 0.20 | 0.26 | 0.41 | 0.46 |
+| `name_of` | 0.53 | 0.57 | 0.55 | 0.66 |
+| `which_q` | 0.59 | 0.62 | 0.48 | 0.55 |
+| `question` | 0.11 | 0.06 | 0.07 | 0.05 |
+| `repeat` | 0.25 | 0.29 | 0.12 | 0.14 |
+| `quote` | 0.66 | 0.70 | 0.77 | 0.83 |
+
+Per family, mean P(answer span), subject:
+
+| family | `named` | `colon` | `name_of` | `which_q` | `question` | `repeat` | `quote` |
+|---|---|---|---|---|---|---|---|
+| animal_class | 0.01 | 0.05 | 0.80 | 0.15 | 0.04 | 0.00 | 0.54 |
+| cities | 0.59 | 0.69 | 0.95 | 0.98 | 0.35 | 0.02 | 0.91 |
+| element_symb | 0.10 | 0.28 | 0.55 | 0.63 | 0.10 | 0.51 | 0.44 |
+| larger_than | 0.00 | 0.01 | 0.13 | 0.66 | 0.01 | 0.74 | 0.53 |
+| neg_animal_class | 0.01 | 0.09 | 0.76 | 0.06 | 0.01 | 0.00 | 0.46 |
+| neg_cities | 0.31 | 0.51 | 0.98 | 0.97 | 0.37 | 0.02 | 0.84 |
+| neg_element_symb | 0.16 | 0.27 | 0.62 | 0.91 | 0.11 | 0.22 | 0.47 |
+| neg_sp_en_trans | 0.00 | 0.02 | 0.21 | 0.09 | 0.00 | 0.07 | 0.99 |
+| smaller_than | 0.00 | 0.01 | 0.19 | 0.92 | 0.04 | 0.82 | 0.36 |
+| sp_en_trans | 0.00 | 0.03 | 0.19 | 0.31 | 0.00 | 0.01 | 1.00 |
+
+Per family, mean P(answer span), object:
+
+| family | `named` | `colon` | `name_of` | `which_q` | `question` | `repeat` | `quote` |
+|---|---|---|---|---|---|---|---|
+| animal_class | 0.09 | 0.07 | 0.47 | 0.41 | 0.02 | 0.00 | 0.63 |
+| cities | 0.33 | 0.41 | 0.94 | 0.91 | 0.12 | 0.03 | 0.94 |
+| element_symb | 0.08 | 0.71 | 0.68 | 0.88 | 0.29 | 0.18 | 0.89 |
+| larger_than | 0.35 | 0.83 | 0.92 | 0.31 | 0.00 | 0.30 | 0.99 |
+| neg_animal_class | 0.02 | 0.06 | 0.11 | 0.01 | 0.00 | 0.00 | 0.25 |
+| neg_cities | 0.35 | 0.39 | 0.84 | 0.24 | 0.03 | 0.08 | 0.84 |
+| neg_element_symb | 0.27 | 0.46 | 0.48 | 0.62 | 0.16 | 0.04 | 0.86 |
+| neg_sp_en_trans | 0.00 | 0.00 | 0.04 | 0.51 | 0.00 | 0.16 | 0.68 |
+| smaller_than | 0.37 | 0.95 | 0.92 | 0.32 | 0.00 | 0.29 | 0.99 |
+| sp_en_trans | 0.01 | 0.03 | 0.00 | 0.47 | 0.00 | 0.01 | 0.48 |
+
+Quote form, families below 0.6, the first example statement and the model's top first tokens:
+
+- subject animal_class (0.54): 'The kangaroo is a crustacean.' answer 'kangaroo' | top: 'k' 0.61, 'the' 0.29, 'The' 0.07, 'a' 0.01
+- subject element_symb (0.44): 'Molybdenum has the symbol Np.' answer 'Molybdenum' | top: 'm' 0.76, 'M' 0.13, 'N' 0.08, 'n' 0.01
+- subject larger_than (0.53): 'Fifty-three is larger than fifty-four.' answer 'Fifty-three' | top: 'f' 0.59, 'F' 0.28, '5' 0.13, 'five' 0.00
+- subject neg_animal_class (0.46): 'The lobster is not a crustacean.' answer 'lobster' | top: 'the' 0.48, 'lob' 0.26, 'not' 0.10, 'The' 0.07
+- subject neg_element_symb (0.47): 'Francium does not have the symbol Fr.' answer 'Francium' | top: 'fr' 0.68, 'Franc' 0.22, 'Fr' 0.08, ' franc' 0.01
+- subject smaller_than (0.36): 'Sixty-six is smaller than sixty-one.' answer 'Sixty-six' | top: 'six' 0.57, '6' 0.27, 'Six' 0.16, ' Six' 0.00
+- object neg_animal_class (0.25): 'The lobster is not a crustacean.' answer 'crustacean' | top: 'lob' 0.45, 'cr' 0.45, 'L' 0.02, 'not' 0.02
+- object sp_en_trans (0.48): "The Spanish word 'cerca' means 'dog'." answer 'dog' | top: 'cer' 0.66, 'near' 0.13, 'Spanish' 0.05, 'dog' 0.05
+
+Reading [concluded: from the tables and the printed top tokens]:
+- `quote` is best overall, and best or near-best in most families. Julian's `name_of` is second for the subject (strong for animals and cities), weaker for the Spanish families. The two forms that end in "Answer:" on a new line (`question`) or invite commentary (`named`) are the worst.
+- P(answer) ≈ P(first token) for every wording (totals in the log), so the misses are decided at the first answer token.
+- Most of `quote`'s remaining misses are surface form, not recall: the model starts the right word lowercased ('k'angaroo, 'm'olybdenum, 'f'ifty-three, 'fr'ancium) or with an article ('the' lobster). A single scored string undercounts these.
+  OUTDATED (26-11-11): 'k'angaroo is not a case miss: the answer is lowercase "kangaroo" and 'k' (0.61) is its correct first token; that statement's miss is the article ('the' 0.29). The case misses are subjects capitalised only because they open the sentence (Molybdenum, Fifty-three, Francium). Found while answering Julian's question about the quote form (entry *quote form explained* below).
+- Real confusions are rarer: the class question on "The lobster is not a crustacean." answers the lobster ('lob' 0.45 vs 'cr' 0.45); the English-word question on "The Spanish word 'cerca' means 'dog'." answers the Spanish word ('cer' 0.66) or the true translation ('near' 0.13), not the stated 'dog' (0.05).
+
+Proposal [assumed: not yet discussed]: use `quote`, and score the summed probability of the answer's surface variants (as written, first letter lowercased, first letter capitalized; for the animal subject also with "the "), so a readout measures whether the model still recalls the word, not its spelling. Re-screen that once before fixing it; the val runs' recall format step used the two old forms (`named`, `colon`) and will be superseded.
+
+---
+
+26-11-11, Claude Opus 5.5 — *quote form explained*; context: the recall wording screen above
+
+Julian asked in chat whether the quote form starts with a quote token. No [verified: tokenizer, 26-11-11]: the question `\nThe animal in the statement above is "` ends with the token ' "'; the scored answer follows it (kangaroo → 'k', 'ang', 'aroo'; Turkey → 'Turkey'), and the question's tokens are identical with and without the answer appended, so the quote never merges into the answer. Why it works best [assumed: reading of the screen]: inside quotes the model is expected to copy the literal word, which leaves little room for ' not', ' actually' or an article. Correction to the screen entry marked OUTDATED there (kangaroo).
+
+---
+
+26-11-11, Claude Opus 5.5 — *quote wording adopted, spelling variants, G2 reproduced*; context: the entries above; runs on the rented RTX 4090; outputs copied to `~/spd_out/26-11-04_paper_draft/site_versions/vm/`
+
+C: (transcribed from chat) Yes, the quote form looks strong so we take that. Would you just check `{noun} in lowercase({answer})` or what is the plan?
+
+**Recall readout now** [decided: quote form, Julian above; the scoring is my proposal, implemented, not yet ratified]: `recall:subject` / `recall:object` use `\nThe {noun} in the statement above is "`. Scored on a fixed rule set of spellings (`paper_tests.recall_variants`), not one string: as written; first letter's case flipped; for the animal subject also both with "the ". Their probabilities are summed per statement (disjoint strings; the code asserts the sum ≤ 1), and *recalled* = sum > 0.5. Julian asked how the set of spellings is chosen: by this rule, derived from the misses in the screen's top tokens; it does not cover other forms (digits for number words, abbreviations).
+
+**Re-screen through `paper_tests.py`** [verified: one run, val, 986 statements, original model, `tests_site_P_val_s-0c2fa0d7_original_recall-subject+recall-object.json`]:
+- Subject: mean summed probability 0.867, recalled 0.987. Mass by spelling: as written 0.642, case flipped 0.217, "the …" 0.009 (so the case rule matters, the article rule hardly).
+- Object: 0.901, recalled 0.939; case flipped adds 0.002.
+- Weak object families (mean summed probability): neg_animal_class 0.25, sp_en_trans 0.55, animal_class 0.64, neg_sp_en_trans 0.66; all other families ≥ 0.81. These are confusions, not spelling (screen entry: the animal named instead of its class; the Spanish word or its true translation instead of the stated English word). For the readout this means: in those families the object question measures less; reported per family.
+
+**G2 reproduction** [verified: test, 1,794 statements, `paper_tests.py check_g2` against `side_s-0c2fa0d7_decomposition_test.npz`]: the new code's site zero removal reproduces G2's all-off state. All 24 compared means (originals and zero removal; verdict, both Yes/No prompts, four digit questions, next-token KL per position class) agree within 1.1% relative (largest: the emotion digit KL); e.g. verdict KL 0.650 vs 0.647, prefix next-token KL 2.281 vs 2.284. Per statement the values scatter (mean |difference| 0.03–0.10 nats) as much as the unedited originals do between the two GPUs (0.046 for the verdict log-probs; G2 ran on an H100, this on an RTX 4090), and the all-off verdict sign agrees on 97.7% of statements. So `check_g2` now tests the means (relative tolerance) and prints the scatter; the first version asserted per-statement maxima, which cannot pass across GPU types.
+
+**Val runs done** (smoke, recall format with the old forms [superseded by the re-screen above], removal + shift sweep, site twin average / swap): outputs in `vm/val/`, not analysed yet. Next: a table script over them (removal with both mean groupings incl. the prefix next-token KL; shift sweep vs the site swap's flip share), then the choices to fix before test.
+
+---
+
+26-11-14, Claude Opus 5.5 — *val analysis: mean grouping and shift size*; context: INDEX, this SUMMARY, the entries from *can the site-version tests (3.2.1) be run individually?* on, `val.sh`, the val JSON/NPZ outputs in `~/spd_out/26-11-04_paper_draft/site_versions/vm/val/`, the summary code in `paper_tests.py` (`truth_summary`, `summarize`)
+
+Julian asked (chat) whether there is something to decide before the test runs or whether only a VM is needed. Answer: two choices to fix first (mean grouping, shift grouping and α); everything else is ready. Table script: `/tmp/claude-1000/-home-jx-projects-targeted-parameter-decomposition/26fb2e24-5d5d-4f4e-82f2-2e3ef4e398c2/scratchpad/val_tables.py` (scratchpad, not kept).
+
+**Val, site version, 986 statements, original model unless stated** [verified: read from the val outputs, one run, 26-11-11 on the RTX 4090]. sep = separation share (mean score of true minus false statements, relative to the original; 1 = untouched, 0 = no separation, < 0 = inverted); flips = share of statements whose training-prompt verdict changes; KL = KL of the answer distribution against the original; prefix KL = mean next-token KL at the statement positions before the object (where truth is not yet determined: a clean removal should leave it near 0).
+
+| state | verdict sep | verdict flips | verdict KL | second sep | Yes/No sep | digit KL (word count) | prefix KL | object/end KL |
+|---|---|---|---|---|---|---|---|---|
+| zero | 0.069 | 0.47 | 0.67 | 0.146 | 0.135 | 0.266 | 2.25 | 2.47 |
+| mean:scan3 | 0.042 | 0.48 | 0.60 | 0.064 | 0.060 | 0.102 | 1.01 | 1.31 |
+| mean:role | 0.051 | 0.47 | 0.83 | 0.029 | 0.024 | 0.094 | 0.58 | 1.14 |
+| shift:scan3:1 | 0.218 | 0.38 | 0.99 | 0.279 | 0.137 | 0.017 | 0.005 | 0.23 |
+| shift:scan3:2 | −0.569 | 0.74 | 3.13 | −0.205 | −0.405 | 0.057 | 0.018 | 0.76 |
+| shift:scan3:4 | −1.060 | 0.93 | 4.66 | −0.592 | −0.951 | 0.112 | 0.061 | 1.78 |
+| shift:role:0.5 | 0.180 | 0.40 | 1.13 | 0.249 | 0.178 | 0.010 | 0.001 | 0.21 |
+| shift:role:1 | −0.642 | 0.78 | 3.45 | −0.429 | −0.392 | 0.035 | 0.001 | 0.65 |
+| shift:role:2 | −1.073 | 0.98 | 4.59 | −1.026 | −1.278 | 0.079 | 0.001 | 1.30 |
+
+Twin interventions (506 rows: equal-length twins whose verdicts differ): swap sep −0.889 (verdict), −0.909 (second), −0.915 (Yes/No); verdict flips 0.955, IIA 0.955, ν 0.944; digit KL 0.069. Twin average: verdict sep 0.094, IIA 0.443, ν 0.453 (≈ 0.5 expected for a halfway point); digit KL 0.020. The shift's flip shares on twin rows equal those on all rows within 0.03 (checked from the NPZ), so the comparison with the swap is not a subset artefact.
+
+Bootstrap 95% intervals (within family) of the verdict separation: zero [0.053, 0.084], mean:scan3 [0.028, 0.055], mean:role [0.036, 0.067].
+
+**Reading.**
+- *Mean grouping* [concluded]. The two groupings remove the truth separation equally (0.042 vs 0.051, intervals overlap); scan3 reproduces Table 2's 0.05 from the layer scan (same intervention, val instead of the scan's split). They differ in side effects: role halves the prefix damage (0.58 vs 1.01), but pushes the verdict to "false" (true verdicts flipped 0.87, false ones 0.05; scan3 0.63 / 0.34; zero pushes to "true", 0.23 / 0.72) and has the larger answer KL on the second and Yes/No prompts (2.63 vs 1.63, 2.81 vs 2.24). Neither is clean on every measure. The rule agreed on 26-11-11 (answer under Julian's "yes, lLet's test it out first"): if both agree on the verdict, the choice doesn't matter for the paper and scan3 stays. By that rule: **scan3**.
+  OUTDATED (26-11-14): Julian chose role for the mean removal as well, with massive at 5× instead of 10×; entry *role for mean and shift, massive at 5x* below.
+- *Shift grouping* [concluded]. role is better on every count: it reaches a given flip share at half the α of scan3, leaves the prefix untouched (prefix KL ≤ 0.001 at every α; twins share the prefix, so role's direction is 0 there, while scan3's middle group averages prefix and object tokens and smears the direction onto the prefix), and moves the three truth readouts more evenly (role:2: sep −1.07 / −1.03 / −1.28 vs scan3:4: −1.06 / −0.59 / −0.95). Using role for the shift and scan3 for the mean is not inconsistent: the mean removal keeps the layer scan's intervention, the shift needs a direction that is 0 where twins agree.
+- *Shift size* [concluded, choice open]. The 26-11-11 proposal was "the smallest α that flips as many verdicts as the site swap" (0.955): on the grid that is role α = 2 (0.98, sep −1.07, slightly past the swap's −0.89). An alternative needs no tuning: α = 1 is by construction the *average* twin displacement (direction = train mean of false minus true site writes over statements with a twin), i.e. a swap with each statement's own twin difference replaced by the mean one. It flips 0.78 against the swap's 0.955; the gap is what the statement-specific part of the twin difference adds. α = 1 also keeps the site effect away from the ceiling: at α = 2 nearly every verdict flips, so a P carrying, say, 70% of the site's difference would flip almost as many, and the flip share would hardly separate P from the site (the continuous ν and sep still would). I recommend **role, α = 1** [assumed: recommendation, for Julian to decide].
+- *Side effects of the shift on a non-truth quality*: digit KL (word count) at role:1 0.035, below the swap's 0.069 and far below the zero removal's 0.266. So the site shift is a fairly selective truth edit at the site level.
+
+**Not covered by the val runs**: recall under interventions (the val recall runs scored only the originals; the quote form came after `val.sh` was written). Recall under zero / mean / shift is first measured on test. No choice depends on it.
+
+**What the test run will be** [assumed: proposal], one VM session, `--run s-0c2fa0d7 --target site --part P --split test`: (1) zero, mean:scan3, shift:role:<α> with verdict, second, yes_no:question, yes_no:same_line, the four digit questions, recall:subject, recall:object (next-token KL per position class comes with the verdict readout); (2) twin_average, swap with verdict, second, yes_no:question, digit:words (Julian's selected view). mean:role could go along as a side row (cheap) if Julian wants the role-vs-scan3 contrast in the paper. Zero on test already exists from the G2 reproduction, without recall.
+
+---
+
+26-11-14, Claude Opus 5.5 — *scan3 vs role on concrete statements*; context: the previous entry, `paper_interventions.group_ids`, a CPU forward pass of the original model on six val statements (script `/tmp/claude-1000/-home-jx-projects-targeted-parameter-decomposition/26fb2e24-5d5d-4f4e-82f2-2e3ef4e398c2/scratchpad/group_example.py`, scratchpad, not kept), the train group counts stored in the val NPZ
+
+Julian asked (chat) for a concrete example of how scan3 and role group the tokens.
+
+Statement tokens = the statement including its end token '.\n' (training prompt; the statement comes first, no BOS). Example, 'The city of Nanchong is in Nigeria.' [verified: CPU run, 26-11-14]:
+
+| pos | token | scan3 | role, layer 11 | role, layers 12–17 | norm / train median, layers 11, 12, 13 |
+|---|---|---|---|---|---|
+| 0 | 'The' | first | first | first | 0.7, 1.0, 0.7 |
+| 1 | ' city' | middle | **massive** | pre_object | 14.2, 8.0, 3.4 |
+| 2–7 | ' of', ' N', 'anch', 'ong', ' is', ' in' | middle | pre_object | pre_object | 0.8–1.2 |
+| 8 | ' Nigeria' | middle | **object** | object | 1.2, 1.0, 1.0 |
+| 9 | '.\n' | end | end | end | 0.9, 0.8, 1.2 |
+
+In 'Fifty-one is larger than fifty-seven.' the massive token is position 0 ('F', 14.1 at layer 11); the object is ' fifty', '-seven'. In 'The lobster is not a crustacean.' it is position 1 again (' lobster', 14.3).
+
+Observations [verified: the six statements, and the train counts below]:
+- The two groupings differ in two places only: role splits scan3's *middle* into pre_object and object, and at layer 11 it moves one token per statement into *massive*.
+- The massive token is a positional effect, not a word: its layer-11 norm is the same (14.1–14.3 × median) whether the token is ' city', ' lobster', ' arm' or 'F'. It sits at position 1 after a leading 'The', otherwise at position 0. Train counts at layer 11: 1,962 massive positions for 1,962 statements, 724 of them at position 0 (first: 1,238 = 1,962 − 724) and 1,238 at position 1 (pre_object 11,978 vs 13,216 at the other layers). At layers 12–17 no position passes the 10× threshold (massive count 0), although the same token is still elevated at layer 12 (8.0×) and 13 (3.4×). So the role grouping's massive group acts only at layer 11; this matches the layer scan's norm check (40% of first tokens, 7.6% of middle tokens at layer 11), now located: it is this one token.
+- Consequences for the two uses: in a scan3 mean, layer 11's middle mean averages one ~14× token per statement into ~8 ordinary ones, so every middle token gets a part of that massive value, and the massive token itself gets an ordinary-sized middle mean. That plausibly explains scan3's larger prefix damage (1.01 vs 0.58) [assumed: not isolated]. For the shift, the split of middle into pre_object and object is what matters: twins share all pre-object tokens, so role's pre_object difference is ≈ 0 and the shift lands on object and end only; scan3's middle difference is the object's difference diluted over all middle tokens and added to the prefix too.
+
+---
+
+26-11-14, Claude Opus 5.5 — *role for mean and shift, massive at 5x*; context: the two entries above; `paper_interventions.py`; the draft's site table (`tab-res-site`)
+
+C: (transcribed from chat) Since role is clearly better in shift and we have to use it anyway, I want to use role for mean-ablation and shift. Also massive can be 5x median.
+
+Decided [decided: Julian, above]: the role grouping for the mean removal and the shift; "massive" = clean site-output norm > 5 × the site's train median (was 10). This overrides the 26-11-11 rule "same verdict effect → keep scan3" (entry *val analysis: mean grouping and shift size*). The consequence that rule protected: the paper's mean removal is no longer the layer scan's intervention, so Table 2's 0.05 and the site table's mean row come from different groupings (on val they agree on the verdict: scan3 0.042, role 0.051).
+
+Changes:
+- `paper_interventions.py`: `MASSIVE_FACTOR = 5.0`, with the reason in the comment; module docstring records role as the paper default (scan3 stays selectable). `ruff` clean.
+- Draft, `tab-res-site` caption: it said the mean removal *is* the layer scan; it now describes the role groups and says the layer scan's grouping is coarser, with a `#ph` for the per-layer count of massive tokens. Compiles.
+
+Consequence for the runs [concluded]: the val numbers for mean:role and shift:role (entry *val analysis*) used factor 10, so they are stale. At 5× the one massive token per statement should also count at layer 12 (8.0× there on six val statements), maybe more tokens elsewhere (on those six, everything else stayed ≤ 3.1×) [assumed: from six statements, not the train set]. So the VM session starts with a val re-run of mean:role and the shift:role sweep at 5× (minutes), which also prints the new group counts, and only then the test runs. Still open: the shift size α (my recommendation α = 1, the average twin displacement, no tuning; alternative α ≈ 2, matching the swap's flip share).
+
+C: Alright, let's take your recommendation. I'm currently renting a machine.
+Answer (26-11-14, Claude Opus 5.5): Fixed: shift size α = 1 (the average twin displacement, no tuning) [decided: Julian's comment above]. With that every val choice is made (role grouping, massive at 5×, α = 1). Prepared for the machine:
+  - Run script `~/spd_out/26-11-04_paper_draft/site_versions/test.sh` (same pattern as `val.sh`: copy it to `/root/spd_out/site_versions/` after `spd-vast --mode sync`, run with `bash`, progress in `progress`). Steps: (0) smoke, 2 statements per dataset, zero / mean:role / shift:role:1 with every readout incl. recall (recall under an intervention has not yet run on a GPU), stops on failure; (A) val re-run of mean:role and shift:role at α 0.5 / 1 / 2 at 5×, same readouts as the 26-11-11 val run, into `val5x/`; (B1) test, zero / mean:role / mean:scan3 / shift:role:1 with all readouts (verdict, second, both Yes/No, four digit questions, subject and object recall); (B2) test, twin average and swap with the selected view (verdict, second, Yes/No question, digit words). The 26-11-11 val session took 7 minutes on the RTX 4090; this one is of similar size plus recall [assumed: not timed].
+  - mean:scan3 runs along on test as one side row, my addition: it does not depend on the massive factor, costs one more intervention, and lets the paper say whether the role mean and the layer scan's grouping (behind Table 2's 0.05) also agree on test, as they did on val. Drop it from B1 if you'd rather not.
+  - Code: the outputs now record `massive_factor` (JSON field and NPZ array), because the file names don't show it and the 26-11-11 role outputs (10×) would otherwise be indistinguishable from the new ones (`paper_tests.py`; ruff and basedpyright clean). The group counts at 5× are printed in each log under "train statistics" (`describe_stats`).
+  - Sync: HEAD is on `origin/main`, so `spd-vast` can clone it; the uncommitted code changes go up with the working tree.
+  After the run: copy `/root/spd_out/site_versions/` back to `~/spd_out/26-11-04_paper_draft/site_versions/vm/` (the new outputs land in `smoke5x/`, `val5x/`, `test/` and do not overwrite the 26-11-11 files, except `progress` and `logs/`, whose new tags differ), then I check the 5× group counts and val rows against the 10× ones and fill the site table.
+
+---
+
+26-11-14, Claude Opus 5.5 — *site table on test: VM run and results*; context: the answer above, `test.sh`, the run's logs and JSON outputs, the draft's `tab-res-site`
+
+Julian (chat): "vm is up". I synced the working tree (`spd-vast --mode sync`; the instance had HEAD `779c1ee` from GitHub, the uncommitted 5× and `massive_factor` changes went up with the working tree, checked by grep on the instance), copied `test.sh` and ran it detached on the RTX 4090 (48 GB). All four steps exited 0 (smoke 15:03, val5x 15:06, test removal/shift 15:13, test twins 15:14 UTC). Outputs copied to `~/spd_out/26-11-04_paper_draft/site_versions/vm2/` (15 files, 36 MB, sha256 identical to the instance's); the 26-11-11 outputs in `vm/` are untouched. The VM is no longer needed. Table script: session scratchpad `site_tables.py` (not kept).
+
+**Group counts at 5×** [verified: train statistics in `logs/val5x.log`, 1,962 train statements]: the massive group holds exactly one position per statement at layers 11 and 12 (1,962 each), none at layers 13–17, as expected from the six-statement example in entry *scan3 vs role on concrete statements*.
+
+**Val, 5× against 10×** [verified: both val outputs, 986 statements]: the shift rows are unchanged within GPU noise (role α = 1: verdict sep −0.642 both, flips 0.777 vs 0.779), as expected since the massive token's twin difference is small (|diff| 0.27 at layer 11, 0.14 at layer 12, against 2.9–4.2 at the object). Mean:role changes little: verdict sep 0.055 [0.037, 0.072] (was 0.051), prefix next-token KL 0.52 (was 0.58), true → false flips 0.81 (was 0.87), false → true 0.13 (was 0.05).
+
+**Test, site version** [verified: `vm2/test/*.json`, one run; 1,794 statements; twin interventions on 898 statements = 449 twin pairs of equal length and opposite verdicts]. sep = separation share left; ν for twin interventions; intervals 95% bootstrap within family.
+
+| state | verdict | second | Yes/No question | Yes/No same line | digit KL (4 questions) | recall subj / obj p | prefix / object-end KL |
+|---|---|---|---|---|---|---|---|
+| original | 1 | 1 | 1 | 1 | 0 | 0.869 / 0.893 | 0 / 0 |
+| zero | 0.082 [0.071, 0.095] | 0.160 | 0.147 | 0.162 | 0.081–0.297 | 0.874 / 0.804 | 2.28 / 2.53 |
+| mean:role | 0.066 [0.052, 0.079] | 0.030 | 0.025 | 0.059 | 0.035–0.110 | 0.953 / 0.906 | 0.47 / 1.09 |
+| mean:scan3 | 0.050 [0.039, 0.060] | 0.066 | 0.068 | 0.059 | 0.036–0.109 | 0.943 / 0.905 | 1.07 / 1.25 |
+| shift:role:1 | −0.551 [−0.586, −0.517] | −0.395 | −0.369 | −0.411 | 0.036–0.128 | 0.876 / 0.891 | 0.001 / 0.62 |
+| twin average (ν) | 0.445 [0.427, 0.463] | 0.492 | 0.482 | – | 0.022 (words) | – | – |
+| swap (ν) | 0.933 [0.925, 0.940] | 0.938 | 0.948 | – | 0.081 (words) | – | – |
+
+Swap IIA (share of twins whose verdict becomes the twin's): 0.945 (verdict), 0.938 (second), 0.933 (Yes/No). Flip directions (true → false / false → true): zero 0.18 / 0.72 (pushes to "true"); mean:role 0.80 / 0.11, and 1.00 / 0.00 under second and both Yes/No prompts (pushes to "false"); shift 0.79 / 0.73 under the training prompt, 0.97–0.99 / 0.23–0.46 under the other three; twin average 0.54 / 0.39 under the training prompt, 0.95–0.99 / ≤ 0.06 under second and Yes/No. Test agrees with val (shift α = 1: val sep −0.64, flips 0.78; test −0.55, 0.76; swap ν val 0.944, test 0.933). Zero removal's verdict KL 0.650 equals the G2 reproduction's value.
+
+**Reading** [concluded: from the table; one run, site only]:
+- All three truth prompts move together under the swap (ν 0.93–0.95) and the twin average (≈ 0.45–0.49): what the sites write at the statement tokens is read the same way by every truth question, so A2 holds at the site level and every truth readout can judge a split.
+- The swap and the fixed shift are selective at the site level: prefix untouched, recall of subject and stated object unchanged under the shift, digit KL ≤ 0.13. The removals are not: prefix KL 2.28 (zero) / 0.47 (mean), and each pushes the verdict to one side (zero → "true", mean → "false"). The zero removal lowers object recall (0.89 → 0.80), the mean removal doesn't. So a part's removal has to be read against these side effects; the swap and shift are the cleaner tests.
+- New observations, not predicted: (1) the mean removal *raises* subject recall (0.87 → 0.95; mainly the case-flipped spelling and the weak families);
+  OUTDATED (26-11-14): the parenthesis was a guess, checked right after: the gain is split evenly between spellings (as written 0.643 → 0.682, case flipped 0.211 → 0.250) and comes from larger_than (0.86 → 0.98), smaller_than (0.83 → 0.97), neg_cities (0.86 → 0.95) and element_symb (0.81 → 0.88); the animal families are unchanged [verified: test JSON]. (2) under the second and Yes/No prompts the shift and the twin average act mostly in one direction (towards "false"), so the twin average's ν ≈ 0.5 there averages "moved fully" and "not moved" rather than a halfway score per statement. Under the training prompt both directions move. Possible reading [assumed]: those prompts have a stronger "false" default when the statement-token evidence is weak or mixed.
+- Role vs layer-scan grouping on test: verdict separation 0.066 vs 0.050 (intervals touch: [0.052, 0.079] vs [0.039, 0.060]); role halves the prefix damage (0.47 vs 1.07) but pushes harder towards "false" under the other prompts. Same picture as on val.
+
+**Draft** (`reports/26-11-04_tpd_truth_paper_draft.typ`, 3.2.1): `tab-res-site` filled with the test numbers (raw values instead of the placeholder's "effect m_site − m_0", stated in the caption), the layer-scan mean as a side row, the massive-token count and the shift's definition and α in the caption; the old caption sentence on B3 as the "existing fixed-shift cells" removed (superseded by this run); the result placeholder below the table replaced by a five-point reading (the one above, in paper voice, tagged [concluded]). Compiles; page 11 checked by eye.
+
+Not done: per-family breakdown (swap ν and shift flips per family), and recall under the twin interventions (excluded by Julian's choice). The seeded-defect table and every split (P/R) run are next.
+
+---
+
+26-11-14, Claude Opus 5.5 — *naming the appended questions*; context: the draft's sections 2 and Evaluation setup, `YES_NO_PROMPTS` / `DIGIT_QUESTIONS` in `paper_side_effects.py`, `SECOND_STIMULUS` in `verdict_lens_analysis.py`, `RECALL_TEMPLATE` in `paper_tests.py`
+
+C: (transcribed from chat) Alright I think we need names for the different "prompts" and a name for these type of prompts themselves
+
+(Prompted by Julian asking what "(question / same line)" in the 3.2.1 site table means: the two Yes/No prompts kept by G0, keys `question` and `same_line`.)
+
+**Proposal** [assumed: proposal, not yet ratified].
+
+*Category name: **question*** = the fixed text appended after the statement; *prompt* = statement + question; a *readout* = a question plus how its answer is scored (the next-token readout is the one readout without a question). Reason: the draft already uses "question" this way ("a statement followed by a fixed question", "truth questions", "digit questions", "the appended question runs on the original weights"), so this only makes it official. Weak point: `amount` and the recall questions are sentence stems, not grammatical questions; the definition should say so. Alternatives considered: *probe* (collides with linear probes, which the paper discusses), *query* (collides with attention queries), *stimulus* (the code's term; odd in a paper), *suffix* (accurate but colourless).
+
+*Names of the individual questions* (monospace in the paper):
+
+| name | kind | text after the statement (code constant) | answer | line |
+|---|---|---|---|---|
+| `amount` | truth, training | `"\nThe amount of truth in this statement is "` (training stimulus) | 1 / 0 | new |
+| `true-or-false` | truth, held out | `" Is this statement true (1) or false (0)? Answer: "` (`SECOND_STIMULUS`) | 1 / 0 | same |
+| `yes-no` | truth, held out | `"\nQuestion: Is the statement above true? (Yes/No)\nAnswer:"` (`YES_NO_PROMPTS["question"]`) | Yes / No | new |
+| `yes-no-inline` | truth, held out | `" Is this true? Yes or No? Answer:"` (`YES_NO_PROMPTS["same_line"]`) | Yes / No | same |
+| `humour`, `emotion`, `surprise`, `words` | other quality (digit questions) | `"\nThe amount of humor in this statement is "` etc. (`DIGIT_QUESTIONS`) | digit 0–9 | new |
+| `recall-subject`, `recall-object` | other quality | `'\nThe {noun} in the statement above is "'` (`RECALL_TEMPLATE`) | teacher-forced spellings | new |
+| (none) | other quality | next-token predictions on the statement (positions prefix / object, end) | – | – |
+
+Code keys stay as they are (`question`, `same_line`, `second`): existing output files are keyed by them; the paper maps them through this table.
+
+*Where in the draft.* One table like the above in *Evaluation setup → Prompts*, replacing the prose list; tables and captions then use the names (e.g. the 3.2.1 header "Yes/No (question / same line)" → `yes-no` / `yes-no-inline`). "Verdict" can stay as the name for the answer to any truth question; "the verdict prompt" (Methods) becomes "statement + `amount`".
+
+**Flag found while checking** [verified: `SECOND_STIMULUS` in `verdict_lens_analysis.py:68`; docstring of `paper_tests.py`]: the second prompt starts with a space, so like `same_line` it continues on the statement's line. The draft quotes it without the leading space and calls only the Yes/No prompt "same line". This matters beyond wording: with a same-line question the statement ends in a bare `.` token, while with a new-line question the period merges into `.\n`. So under `true-or-false` and `yes-no-inline` the edits act on a different last statement token than under `amount`. The "line" column above makes that visible.
+
+---
+
+26-11-14, Claude Opus 5.5 — *general names from scratch: question, rating, Yes/No*; context: the entry above
+
+C: (transcribed from chat) Let's talk about the general names first. I want good names and this shouldn't be influenced by what we have right now.
+
+statement and prompt are good. I'm not sure about question though. I also want an easy way to reference yes/no-question and digit question (the second one feel clunky)
+
+**Two levels need names** [assumed: proposal]: the general thing (the text after the statement that asks the model about it) and its kinds. The kinds are best told apart by how the model answers, because that also decides how the answer is scored:
+- the model completes "The amount of X in this statement is " with a digit 0–9;
+- the model picks one of two labelled options ("true (1) or false (0)");
+- the model answers Yes or No;
+- the model completes a word from the statement (recall).
+
+**Recommended scheme:**
+- General: *question*. Every alternative collides with a term the paper needs: *probe* (linear probes; the draft says explicitly that it does not use them), *query* (attention queries), *cue* ("truth cues" reads as surface features that give the truth away), *item* (statements are the data items), *suffix* (says where, not what for). Fault of *question*: some are sentence openings, not questions; one definition sentence fixes that.
+- Digit questions → *ratings*: the model rates an amount on a 0–9 scale ("the humour rating", "the ratings"). Side effect: the training question has exactly this form ("The amount of truth in this statement is "), so it becomes the *truth rating*, which tells the reader that it is the same template as the other-quality ratings, answered in practice with 1 or 0. The word-count question is a count, not a rating; it can stay in the group with that remark, or be named *word count* on its own.
+- Labelled options → *choice* ("the truth choice").
+- Yes/No → *Yes/No question*, short *Yes/No* in tables and running text ("under Yes/No"). *Polar question* (the linguists' term) rejected: next to the negated families it reads as polarity of the statement.
+- Recall → *recall* (subject / object).
+
+So the truth questions would be: truth rating (training), truth choice, Yes/No (two wordings: one starting on a new line, one on the statement's line), and the other-quality questions: the ratings (humour, emotion, surprise), word count, recall. The individual names in the entry above (`amount`, `true-or-false`, `yes-no`, ...) are set aside until the general names are fixed.
+
+Open, not asked by Julian but clunky in the same way: *other-quality readouts / questions*. No good short name found yet: *control* collides with the control bases, *off-target* with tPD's target data.
+
+C: I don't like question. I like probe a lot actually. Maybe we can call it a "verdic probe"?
+Answer (26-11-14, Claude Opus 5.5): *Probe* works, with one rename elsewhere in the paper. I rejected it above too quickly. *Verdict probe* is a good name, but only for the truth probes, not as the general term.
+
+  *Why probe is defensible* [concluded, except where tagged]. A probe is an instrument that measures without changing what it measures. That fits well: the appended text runs on the original weights and only reads out what the statement tokens hold. Prompt-based probes also have precedent: the LAMA "probe" (Petroni et al. 2019, *Language Models as Knowledge Bases?*) is a set of cloze sentences [assumed: from memory, check before citing].
+
+  *The collision is real but local* [verified: grep of the draft, 26-11-14]. "Probe" currently means a linear classifier on activations in four places: the setup sentence "We don't use probes or truth directions for the definition" (*A small model of the truth computation*), *Inspection tests* ("the reason probe accuracy is not evidence"), the status section's "Analyses not tied to a test" (K0), and the glossary (K0 "Logistic probes over all features…", K1 "probes on the top k components"). Fix: call those *linear classifiers* throughout, and define *probe* once in Evaluation setup ("a probe here is a fixed text appended to the statement, not a classifier on activations"). Without the rename, the first sentence would read "we don't use probes" a few lines before the paper starts using probes.
+
+  *Why "verdict probe" rather than "truth probe".* Our statements come from the Truth-is-Universal paper, and in that literature a "truth probe" is a linear classifier for truth. *Verdict probe* avoids this, and it matches the draft's own term: the *verdict* is already defined as the model's answer to a truth question.
+
+  *Why not as the general name.* The ratings for humour, emotion, surprise and word count, and the recall questions, give no verdict. "Verdict probe" for them would be wrong, so the general word stays bare *probe*. Proposed scheme [assumed: proposal]:
+  - *probe*: the text appended after the statement. *Prompt* = statement + probe. *Readout* = probe + how its answer is scored. The next-token readout is the one readout without a probe.
+  - *verdict probes* (truth): the training probe ("The amount of truth in this statement is "), the *choice probe* ("true (1) or false (0)"), and the two *Yes/No probes*. The training probe needs its own short name once "verdict probe" means the whole class. "Training probe" is the plainest option.  
+  - *content probes* (the other qualities): *rating probes* (humour, emotion, surprise; word count is a count, which one remark covers) and *recall probes* (subject, object). Why "content": in the small model H these readouts are the Q_k, which read the content Z and not T (assumption A3). So "verdict probe / content probe" names the split that the tests use, and it also gives the clunky "other-quality readouts" a replacement. Weak point: humour or surprise is "content" only in the broad sense of "what the statement says, apart from whether it is true". If that reads oddly, *quality probes* is the fallback.
+  OUTDATED (26-11-14): the *verdict / content probe* scheme above is replaced by names by format with "truth" in each truth probe's name, built on Julian's quality / recall grouping (answer beneath his next comment).
+  C: Ok, I like probe. The different probes need better names. So I've just come to realise that the training probe and the second probe are actually qualitavely different, since the first one allows for a gradet answer like 0.8 or 75%, but the second just allows a binary answer. I don't want to make a big dealt out of this though, because I don't think it matter much. What do you think about my suggestions:
+  - quality probes:
+   - rating probe 1
+   - tating probe 2
+   - yes/no probe 1
+   - yes/no probe 2
+   - humor probe (etc)
+- recall probes
+   - subject/object probe
+
+  Answer (26-11-14, Claude Opus 5.5): **Graded vs binary: agreed on both counts.** The difference is real: "The amount of truth in this statement is " allows "0.8" or "75%", while "true (1) or false (0)" offers two options. It also matters little in practice. The verdict-digit check (`convos/julian/26-11-05_verdict_digit_trust_SUMMARY.md`) sampled continuations on 200 in-distribution test statements. After '1', 99.6% meant "true". After '0', 96.1% were plain "0"/"0%", 2.4% were "0.5" hedges (at near-ties), and none were "0.7"–"0.9" [verified: that SUMMARY, re-read 26-11-14; one run, out-of-distribution statements and interventions not covered]. So the model answers the graded probe as if it were binary. One sentence in the paper with that number covers it.
+
+  **Your grouping (quality vs recall) is a good cut** [concluded]: it separates probes that ask the model to judge the statement from probes that ask it to copy a word. Three points in the list:
+  1. *"Rating probe 2" contradicts your own observation.* The "true (1) or false (0)" probe is the binary one, so in a format-based scheme it belongs with the Yes/No probes as a choice, not with the ratings.
+  2. *The humour probe is a rating probe.* Its text is "The amount of humor in this statement is ", the same template as the training probe, answered with a digit 0–9. So the rating probes are truth, humour, emotion, surprise and word count; only the quality rated differs.
+  3. *The truth / other split is missing from the names.* The tests are organised by it (Table 3: truth readouts vs other qualities), but in your list the four truth probes and the humour probe sit in one group with nothing marking which are which. Putting "truth" into each truth probe's name fixes that without an extra group level.
+
+  On the numbers 1 / 2: the two Yes/No probes differ in a way that matters. One starts on a new line and one continues on the statement's line, so the statement's last token is '.\n' in one and a bare '.' in the other (flag in the entry *naming the appended questions*). A descriptive name carries that, while a number sends the reader to the table every time.
+
+  Proposed names [assumed: proposal]:
+
+  | group | name | text after the statement | answer |
+  |---|---|---|---|
+  | quality probes (truth) | *truth rating* (training) | `\nThe amount of truth in this statement is ` | digit; graded answers possible, in practice 1 / 0 |
+  | | *truth choice* | ` Is this statement true (1) or false (0)? Answer: ` | 1 / 0 |
+  | | *Yes/No* | `\nQuestion: Is the statement above true? (Yes/No)\nAnswer:` | Yes / No |
+  | | *inline Yes/No* | ` Is this true? Yes or No? Answer:` | Yes / No |
+  | quality probes (other) | *humour / emotion / surprise rating*, *word count* | `\nThe amount of humor in this statement is ` etc. | digit 0–9 |
+  | recall probes | *subject recall*, *object recall* | `\nThe {noun} in the statement above is "` | the word, teacher-forced |
+
+  In running text: "the truth probes" (the first four) and "the rating probes" (all five ratings, the truth rating included), so both groupings stay available. "Truth probe" is safe here only because the linear classifiers get renamed (answer above). *Subject recall* rather than *subject probe*, because "subject probe" could be read as a probe for the subject's representation.
+
+
+
+  Nothing in the draft is changed until you confirm the scheme. Once you do, the renames are: the four classifier passages, the Evaluation-setup prompts paragraph (as a table), and the table headers and captions (e.g. 3.2.1's "Yes/No (question / same line)" → the two Yes/No probes, whose individual names are still open).
+
+  C: Ok, here is the confirmed scheme:
+    | group | name | text after the statement | answer |
+  |---|---|---|---|
+  | quality probes (truth) | *truth rating 1* (training) | `\nThe amount of truth in this statement is ` | digit; graded answers possible, in practice 1 / 0 |
+  | | *truth rating 2* | ` Is this statement true (1) or false (0)? Answer: ` | 1 / 0 |
+  | | *Yes/No 1* | `\nQuestion: Is the statement above true? (Yes/No)\nAnswer:` | Yes / No |
+  | | *Yes/No 2* | ` Is this true? Yes or No? Answer:` | Yes / No |
+  | quality probes (other) | *humour / emotion / surprise rating*, *word count* | `\nThe amount of humor in this statement is ` etc. | digit 0–9 |
+  | recall probes | *subject recall*, *object recall* | `\nThe {noun} in the statement above is "` | the word, teacher-forced |
+
+reasoning: I am clusstering by behavioural changes. The decompositions act differently on the digit vs yes/no probes. Also the details of a probe wheather inline / new line are irrelevant. They are simply two probes for checking generalisation.
+
+C: (transcribed from chat) I've decided on a scheme for probes. The rest should be decided as well.
+
+Answer (26-11-14, Claude Opus 5.5): Applied. Decided [decided: the two C: lines above]: the probe names of Julian's table (truth rating 1 / 2, Yes/No 1 / 2, humour / emotion / surprise rating, word count, subject / object recall; groups: quality probes (truth, other) and recall probes). Also decided ("the rest"): *probe* = the appended text, *prompt* = statement + probe, *verdict* = the answer to a truth probe, and the draft's linear classifiers are no longer called probes. Julian's reasoning for the numbering: the clusters follow behaviour (the decompositions act differently on the digit and the Yes/No probes), and new line vs inline is irrelevant, since the two probes of a format only check generalisation.
+
+Changes in `reports/26-11-04_tpd_truth_paper_draft.typ` (and the diagram helper's label "question: original weights" → "probe: original weights"):
+- Methods: the training text is introduced as a probe; *probe*, *prompt*, *truth rating 1* and *verdict* are defined there. "Verdict prompt" is gone everywhere (Tables 1 and 2: "under truth rating 1"); "question tokens" → "probe tokens" (positions, layer scan, loss list).
+- Section 2: the truth-readout list (truth ratings 1, 2; Yes/No 1, 2; another language), the other-quality readouts (other ratings, recall probes), the cross-product axis "verdict style" → "truth probe", A2 and the "Why two kinds of readout" paragraph, the test bullets ("other-quality questions" → "probes").
+- Evaluation setup: the *Prompts* paragraph → *Probes*, with the groups, Julian's graded-vs-binary point (and the verdict-digit numbers: 99.6% of continuations after "1" mean true; after "0" 2.4% "0.5" hedges, none 0.7–0.9) and new Table `tab-probes` (texts copied from `paper_side_effects.py`, `verdict_lens_analysis.py`, `paper_tests.py`).
+- Results: headers and captions of the site table, scorecard, other-quality and transfer tables; the reading under the site table names the probes ("under truth rating 2 and both Yes/No probes"); subsection 3.7 is now *Other truth probes and out-of-distribution statements*.
+- Linear classifiers: the setup sentence ("We don't use classifiers on activations…"), inspection tests, K0 under status, glossary K0/K1 ("logistic-regression classifiers").
+- Glossary: *both prompts* → *both truth ratings*; the entry *G2 digit questions* renamed *G2 ratings*; B2 "chose truth rating 2"; G0 "eight Yes/No wordings tried; G2 uses Yes/No 1 and 2".
+
+Checks [verified: 26-11-14]: G2 ran both Yes/No probes, T2 included (`~/spd_out/26-10-29_paper_writing/gpu/results/g2_tables_test.md`: columns `question` / `same_line`, T2 subsections for both), so "T2 under all four truth probes" holds. Under the twin interventions only Yes/No 1 ran (the site table says so). Compiles; pages 11 (site table) and 19 (probe table) rendered and checked by eye.
+
+Two choices of mine Julian may want to change [assumed]: (1) the probe-table caption still says in one sentence that truth rating 2 and Yes/No 2 continue on the statement's line, so the last statement token is a bare period. That is not part of the names (Julian: irrelevant for them), but a reader re-running the edits needs it. (2) In the other-quality readout list, recall now reads "the recall probes (subject recall and object recall; but see *Which T*)". *Which T* discusses recall of the stored fact, which was dropped as a readout (26-11-11), so that pointer no longer fits the recall probes as they are and should probably go. I left it in, because it is a content change.
+
+---
+
+26-11-15, Claude Opus 5.5 — *original row in the site table*; I have read the site table and the end of this LOG
+
+Julian asked in chat: "Can you add "original" to the table" (the site-version table `tab-res-site`, which his cursor was on). Added a first row *nothing (original)*: separation share 1 (ν = 0) under every truth probe, other-rating KL 0, next-token KL 0 / 0 (all by definition), and recall 0.87 / 0.89, which the caption already gave as "original 0.87 / 0.89" and the entry *site table on test: VM run and results* (26-11-14) confirms (0.87 → 0.95 subject, 0.89 → 0.80 object). The caption's parenthetical moved into the row; the caption now says that every value of the row except recall holds by definition. Compiles.
+
+---
+
+26-11-15, Claude Opus 5.5 — *Yes/No split into two columns in the site table*; same context as the entry above
+
+Julian asked in chat: "Can you split yes/no 1 and yes/no 2?" The column *Yes/No 1 / Yes/No 2* of `tab-res-site` is now two columns (8 in all); values moved unchanged, Yes/No 2 is "–" under the twin average and the swap (not run there). Compiles; page 12 rendered and checked by eye: the table fits the page width, but the interval cells now wrap onto two lines.
+
+---
+
+26-11-15, Claude Opus 5.5 — *how the scaling dial is built, and what it can show*; context: draft sections *Validating the tests* and *Seeded defects*, `convos/julian/26-11-05_evaluation_categories_LOG.md` section *4. Calibration: seeded re-implementations with a dial*
+
+Julian asked in chat: "How exactly is the re-implementation by construction constructed? Does it need a already trained decomposition?"
+
+**Construction.** Take any decomposition of a layer, $W = \sum_c W_c + \Delta$ with $W_c = U_c V_c^\top$, and a number $k \ge 0$. Replace every component by $(1+k) W_c$ (all 96 of the layer, not only $P$) and the remainder by $\Delta - k \sum_c W_c$. The sum is still $W$, so the model is unchanged on every input; the CI network is untouched, so the CI values and the active set $P$ stay the same. Per position the components now write $(1+k) C$ and $\Delta$ writes $D - kC$: a write of the components that is not part of $y$, cancelled by $\Delta$. No training is involved. Code: not written yet (the draft's status table lists it under *add*) [verified: grep of `spd/` for the construction, 26-11-15, nothing found].
+
+**Yes, it needs a decomposition,** but any one: a trained run (plain, recon, ortho), and formally also an untrained one. What the dial can show depends on the base, see below.
+
+**What the dial does to the tests** [concluded: algebra, one layer on its own inputs]. Under the $P$-swap a layer writes
+$(1+k) C_P(x') + (1+k) C_{R\text{-comps}}(x) + D(x) - k C(x) = y(x) + (1+k)\,[C_P(x') - C_P(x)]$.
+So the dial multiplies $P$'s twin difference by $1+k$, nothing else. Same for every edit of $P$ with $\Delta$ kept (removal: $y - (1+k) C_P$). States with $\Delta$ off (*only P*, *components only*) change more: they write $(1+k) \sum m_c C_c$.
+
+**Consequence for the claim in the draft** [concluded, from the line above]. The draft says the $P$-swap read by the other qualities "must fail increasingly with $k$". It fails only through two routes: (a) $P$'s twin difference of the base already contains content besides $T$, which the dial amplifies; (b) the amplified edit is large enough to disturb the other qualities by its size alone (off-distribution), even if the difference were pure $T$. If the base's $P$ were clean, the dial would be a stronger truth edit, closer to steering than to the re-implementation of the failure list (a write $c$ with content the truth readouts do not read). So the dial validates "the other-quality readouts notice an oversized edit", not "they notice cancelled foreign content". The prediction "fails increasingly" is [assumed], not guaranteed.
+
+**Possible addition** [assumed: proposal, not discussed]: a second seeded defect that writes foreign content by construction: add to $P$ a component $E$ whose write differs between twins in a direction a shared quality reads (e.g. a subject direction), with $\Delta \mapsto \Delta - E$. The model stays the same, the truth readouts under the $P$-swap stay the same, and only the other-quality readouts should move. Exp 4a remains the real-world case.
