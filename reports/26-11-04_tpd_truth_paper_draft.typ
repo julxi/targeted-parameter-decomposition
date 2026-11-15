@@ -379,17 +379,60 @@ So all the truth readouts and all the other-quality readouts can judge a split a
 
 === Seeded defects
 
-Each test is run on splits known to be wrong in the way it should catch (@ca-validate). The scaling dial turns a decomposition into a re-implementation of strength $k$ without changing the model ($W_c |-> (1 + k) W_c$, $Delta |-> Delta - k sum_c W_c$).
+Each test is run on splits known to be wrong in the way it should catch (@ca-validate). The scaling dial turns a decomposition into a re-implementation of strength $k$ without changing the model ($W_c |-> (1 + k) W_c$, $Delta |-> Delta - k sum_c W_c$). Every test on $P$ then sees $(1 + k)$ times $P$'s own edit; under the $P$-swap, for example, a layer writes $y(x) + (1 + k)(p(x') - p(x))$. We dial the seed-1 decomposition of each method at $k = 1, 3, 10$, with $P$ its active set, and read the $P$-swap, the fixed shift and the zero removal by truth rating 1 and by the readouts a re-implementation should disturb (@tab-res-defects-ortho, @tab-res-defects-recon, @tab-res-defects-plain). $k = 0$ is the decomposition as trained; the last column repeats the site version (@tab-res-site).
+
+#let defect-head = ([test], [$k = 0$], [$k = 1$], [$k = 3$], [$k = 10$], [site])
+#let defect-cols = (22%, 1fr, 1fr, 1fr, 1fr, 1fr)
 
 #figure(
   tbl(
-    columns: (auto, auto, auto, auto, auto, auto, auto),
-    [test], [$k = 0$], [$k = 1$], [$k = 3$], [$k = 10$], [Exp 4a], [$P = W$],
-    ..rows(("P-swap, truth readouts", "P-swap, shared other qualities", "fixed shift, other qualities", "P removed (vs random sets)", "R on the other qualities", "cancellation norms, κ"),
-      ("r", "r", "r", "r", "r", "r")),
+    columns: defect-cols,
+    ..defect-head,
+    [$P$-swap, truth rating 1 ($nu$)], [0.31 [0.30, 0.33]], [0.49 [0.47, 0.50]], [0.47 [0.46, 0.49]], [0.53 [0.52, 0.54]], [0.93 [0.93, 0.94]],
+    [$P$-swap, word count (KL)], [0.011], [0.033], [0.110], [0.405], [0.081],
+    [$P$-swap, subject recall (change)], [−0.007], [−0.018], [−0.034], [−0.340], [–],
+    [fixed shift, truth rating 1 (separation left)], [0.95 [0.94, 0.95]], [0.80 [0.79, 0.82]], [0.23 [0.21, 0.25]], [−0.13 [−0.15, −0.11]], [−0.55 [−0.59, −0.52]],
+    [fixed shift, word count (KL)], [0.002], [0.004], [0.013], [0.073], [0.036],
+    [zero removal, next token before the object (KL)], [0.27], [0.70], [2.67], [8.38], [2.28],
   ),
-  caption: [Does each test catch the defect it is meant to catch? Cell: ✓ caught / ✗ missed, with the measured value. Dial values $k$ are placeholders, to be fixed with the thresholds. Expected (@ca-validate): the $P$-swap on the other qualities fails increasingly with $k$, the $P$-swap on the truth readouts may get *easier* (overshoot); $P = W$ is exposed only by its size and by $R$ on the other qualities.],
-) <tab-res-defects>
+  caption: [The scaling dial on ortho (seed 1, $P$ = its active set of 29 components), test split, one run on an H100. $P$-swap on the twins of equal length and opposite verdict (906 statements), the other tests on all 1,794. Truth rating 1: $nu$ (0 = the statement's own score, 1 = its twin's) and the separation share left (1 = untouched, < 0 = inverted), with 95% bootstrap intervals within family. Word count: KL of the digit distribution from the original's. Subject recall: change of the summed probability of the subject's spellings. Next token before the object: mean KL of the next-token distribution from the original's at the statement positions before the object. Site: the site version (@tab-res-site; its twin set has 898 statements: six statements with scores within 0.25 of the decision boundary get the other verdict on the other GPU, which adds four twin pairs here); subject recall was not run under the site swap. A re-implementation is expected to disturb the word count and recall; the fixed shift's prefix KL is not shown, since the shift is close to zero there by construction (twins share every token before the object).],
+) <tab-res-defects-ortho>
+
+#figure(
+  tbl(
+    columns: defect-cols,
+    ..defect-head,
+    [$P$-swap, truth rating 1 ($nu$)], [0.79 [0.78, 0.81]], [0.92 [0.91, 0.94]], [0.84 [0.83, 0.85]], [0.68 [0.67, 0.69]], [0.93 [0.93, 0.94]],
+    [$P$-swap, word count (KL)], [0.033], [0.069], [0.146], [0.216], [0.081],
+    [$P$-swap, subject recall (change)], [+0.008], [+0.020], [+0.025], [−0.386], [–],
+    [fixed shift, truth rating 1 (separation left)], [0.04 [0.00, 0.07]], [−0.66 [−0.69, −0.63]], [−1.08 [−1.11, −1.05]], [−1.18 [−1.20, −1.15]], [−0.55 [−0.59, −0.52]],
+    [fixed shift, word count (KL)], [0.013], [0.039], [0.092], [0.229], [0.036],
+    [zero removal, next token before the object (KL)], [1.75], [4.52], [8.55], [9.73], [2.28],
+  ),
+  caption: [The scaling dial on recon (seed 1, $P$ = its active set), as in @tab-res-defects-ortho.],
+) <tab-res-defects-recon>
+
+#figure(
+  tbl(
+    columns: defect-cols,
+    ..defect-head,
+    [$P$-swap, truth rating 1 ($nu$)], [0.92 [0.91, 0.93]], [0.89 [0.88, 0.91]], [0.77 [0.76, 0.78]], [0.66 [0.65, 0.67]], [0.93 [0.93, 0.94]],
+    [$P$-swap, word count (KL)], [0.113], [0.200], [0.363], [0.789], [0.081],
+    [$P$-swap, subject recall (change)], [−0.038], [−0.064], [−0.164], [−0.358], [–],
+    [fixed shift, truth rating 1 (separation left)], [−0.28 [−0.30, −0.25]], [−0.59 [−0.62, −0.57]], [−0.87 [−0.89, −0.84]], [−0.97 [−1.00, −0.95]], [−0.55 [−0.59, −0.52]],
+    [fixed shift, word count (KL)], [0.043], [0.111], [0.270], [0.639], [0.036],
+    [zero removal, next token before the object (KL)], [0.13], [0.39], [2.10], [8.46], [2.28],
+  ),
+  caption: [The scaling dial on plain (seed 1, $P$ = its active set), as in @tab-res-defects-ortho.],
+) <tab-res-defects-plain>
+
+What the dial shows [concluded: from the three tables, one run each]:
+- *The readouts a re-implementation should disturb catch the dial in all three.* Under the $P$-swap the word-count KL rises with $k$ in every table, to 0.22–0.79 at $k = 10$ against the site swap's 0.081, and subject recall drops by 0.34–0.39 at $k = 10$. Under the fixed shift the word-count KL rises past the site's 0.036 (plain from $k = 1$, recon from $k = 1$ barely (0.039) and clearly from $k = 3$, ortho only at $k = 10$).
+- *The fixed shift read by the truth readout overshoots.* Dialled recon and plain move the verdict further than the shift of the whole site does (separation −0.66 and −0.59 at $k = 1$, against −0.55). Read by the truth readout alone, these splits would look better than the site version.
+- *The $P$-swap read by the truth readout does not.* $nu$ stays at or below the site's 0.93 at every $k$ and falls at large $k$ for recon (from $k = 1$) and plain; only ortho's rises (0.31 to 0.53). The prediction of @ca-validate that the swap read by the verdict may get *easier* with $k$ holds only for ortho.
+- *The zero removal's side effect grows fastest*: the next-token KL before the object reaches 8.4–9.7 at $k = 10$, against the site removal's 2.28.
+- *Plain already disturbs the word count more than the site at $k = 0$* (0.113 against 0.081 under the swap; @res-p-other).
+The dial multiplies each decomposition's own edit of $P$; it shows that these readouts react when $P$'s edit carries more than the site's, not that they detect content foreign to the decomposition. The same holds with $P$ = all components (appendix #ph[table]).
 
 #figure(
   phfig(height: 4cm)[x-axis: dial strength $k$ (log); y-axis: $phi$ of the $P$-swap, on the truth readouts and on the shared other qualities (two lines per decomposition, one panel per method). Shows that the other-quality readout catches what the truth readout misses.],

@@ -89,6 +89,7 @@ All deletable whenever Julian wants a tidy project; their results are recorded w
 | s-aeaa70d8 | 26-10-14 | tiu_last_token (Exp 0) (`.pth` deleted from WandB 26-10-27, tier 2, Julian approved; local copy `~/spd_out/runs/spd-s-aeaa70d8/model_5000.pth`) | finished | bolder experiments |
 | s-bb306810 | 26-10-27 | paper_untrained_L11_17 seed 1 (`steps: 0`, untrained control of the paper analyses; checkpoint not on WandB, on the phase D instance, recreated from `config_paper_untrained.yaml` in seconds) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
 | s-fe6de783 | 26-10-27 | paper_untrained_L11_17 seed 2 (same, `seed: 2`) | finished | `convos/julian/26-10-22_tpd_truth_paper_LOG.md` |
+| s-22600dd8 | 26-11-15 | paper_final_ortho_s4 (fourth ortho seed, the finals' config with seed 4; trained on an H100 SXM next to inference jobs, 1.25 h) | finished, checkpoint not on WandB (`sync_checkpoints_to_wandb: false`, cap); local copy `~/spd_out/runs/spd-s-22600dd8/model_5000.pth` (sha256-checked) | `26-11-15_open_research_LOG.md` |
 
 ## Older runs (before this project's LM work)
 

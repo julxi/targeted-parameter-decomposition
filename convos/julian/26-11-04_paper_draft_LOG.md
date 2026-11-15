@@ -1049,3 +1049,155 @@ So the dial multiplies $P$'s twin difference by $1+k$, nothing else. Same for ev
 **Consequence for the claim in the draft** [concluded, from the line above]. The draft says the $P$-swap read by the other qualities "must fail increasingly with $k$". It fails only through two routes: (a) $P$'s twin difference of the base already contains content besides $T$, which the dial amplifies; (b) the amplified edit is large enough to disturb the other qualities by its size alone (off-distribution), even if the difference were pure $T$. If the base's $P$ were clean, the dial would be a stronger truth edit, closer to steering than to the re-implementation of the failure list (a write $c$ with content the truth readouts do not read). So the dial validates "the other-quality readouts notice an oversized edit", not "they notice cancelled foreign content". The prediction "fails increasingly" is [assumed], not guaranteed.
 
 **Possible addition** [assumed: proposal, not discussed]: a second seeded defect that writes foreign content by construction: add to $P$ a component $E$ whose write differs between twins in a direction a shared quality reads (e.g. a subject direction), with $\Delta \mapsto \Delta - E$. The model stays the same, the truth readouts under the $P$-swap stay the same, and only the other-quality readouts should move. Exp 4a remains the real-world case.
+
+---
+
+26-11-15, Claude Opus 5.5 — *scaling dial: what is to decide before running it*; context: the entry above, `paper_tests.py` (`run`, docstring), `paper_interventions.py` (`ComponentSplit`, `part_of`, `edit_fn`)
+
+Julian asked in chat: "First and foremost, I want to do the test. What do I have to decide for that?"
+
+**Code** [concluded: from reading `part_of` and `edit_fn`]. `paper_tests.py run --target active` already runs every intervention on a component set: $P$ = the active set's writes $p = (xV)U$, $R = y - p$, edit $y' = y - q + q'$. The dial is then $p \mapsto (1+k)p$, i.e. $U \mapsto (1+k)U$ in the `ComponentSplit`, a few lines (a `--dial k` option, recorded in the output name). Swap, twin average, zero, mean and shift (whose train difference scales with $q$) all follow without further change. Per the entry above, that equals the weight construction exactly. Not written yet.
+
+**Decisions** (my recommendation in brackets, all [assumed] until Julian chooses):
+1. *Base decomposition(s).* The dial amplifies the base's own $P$ difference, so the result is a property of the base. [one base first: ortho s1 `s-0c2fa0d7`, the run the site versions used, with the recovery JSON `~/spd_out/26-10-29_paper_writing/gpu/results/rec_check/recovery_s-0c2fa0d7.json`; plain s1 `s-7152548c` next if the first looks informative.]  
+C: Can you explain in bit more detail why those?
+Answer (26-11-15, Claude Opus 5.5): My reasons were weaker than they read. "The run the site versions used" does not matter: the site versions do not use the decomposition (`--run` only supplies the model and the positions). The real criterion: the dial is informative when the base passes the other-quality tests at $k = 0$, so that a failure at $k > 0$ is the dial's doing. Which base passes is unknown, since no $P$ test has run yet. Ortho is the method trained against cancellation, so it is the most likely to start clean [assumed]; plain is the one suspected of re-implementing, so its $k = 0$ may already fail and the dial would add little there. Since the tests are cheap, the better choice is all six trained decompositions (plain `s-7152548c`, `s-46efc525`; recon `s-eeac663f`, `s-edc17041`; ortho `s-0c2fa0d7`, `s-4186f973`): $k = 0$ is then each one's own $P$ test, which the scorecard needs anyway, and the comparison across bases shows how much of the dial's effect comes from the base. Active sets from `~/spd_out/26-10-22_tpd_truth_paper/phase_d/h200_paper_d/recovery/recovery_<run>.json` (all six there; for ortho s1 the H100 re-run in `rec_check/` gave the same active set, `convos/julian/26-10-29_paper_writing_LOG.md`, entry *G1 results: next-token damage yes, Yes/No no, digits mixed*). I would start the script with ortho s1 so that a crash shows early.
+2. *Values of k.* [0, 1, 3, 10, the draft's placeholders; k = 0 is the undialled $P$ test, needed anyway.]  
+C: yeah, that's fine
+3. *Interventions.* [swap and shift:role:1, the two tests the dial is meant to break; zero as a cheap third.]  
+C: why zero and not mean? It's cheap to run both, right?
+Answer (26-11-15, Claude Opus 5.5): No good reason; yes, both are cheap. The mean removal needs the train statistics, one extra pass over the 1,962 training statements per probe, which the shift needs anyway. So: swap, shift:role:1, zero, mean:role (role, as for the site table).
+4. *The other-quality readout under the swap* — the main open point. The code allows only `digit:words` (word count) under twin interventions and blocks recall there by an assert (Julian 26-11-11: few readouts for the swaps). Subject recall is the cleanest quality the twins share. [lift the block for `recall:subject` in this test; truth readouts `verdict` and `second`.] Without it, the dial's "fail" can only show in the word count.  
+C: write the code so the block is generally lifted. I might also rerun the Site versions then. These tests are cheap
+Answer (26-11-15, Claude Opus 5.5): Done, see the entry *dial option and recall under the twin interventions* below.
+5. *Split.* [val: the dial validates the test, it is not a result, and val keeps test untouched for the thresholds.]  
+C: which thresholds?
+Answer (26-11-15, Claude Opus 5.5): The ones the draft promises for the ✓/✗ cells: the scorecard caption says "The thresholds behind ✓ are fixed before the outputs are read", and the seeded-defect table's caption "Dial values $k$ are placeholders, to be fixed with the thresholds". With no pass/fail rule (your comment under 6) there are none, and my reason for val falls away. Then test is the better split: the site table is on test, and the $k = 0$ runs are the decompositions' own $P$ tests, reported on test. Those two captions (and the ✓/✗ legend of both tables) then need rewriting; not done, since it changes how results are presented.
+6. *Pass/fail rule* for the ✓/✗ cells: not needed to run; the curves over k can be read first and the rule fixed before the decompositions' own test runs.  
+C: I don't need a pass/fail rule.
+Answer (26-11-15, Claude Opus 5.5): Noted; see the answer under 5 for what it changes in the draft.
+
+---
+
+26-11-15, Claude Opus 5.5 — *dial option and recall under the twin interventions*; context: the entry above with Julian's comments, `paper_tests.py`, `paper_interventions.py`, `docs/CODING.md`
+
+Julian's comments on the entry above: k = 0, 1, 3, 10 fine; mean as well as zero; "write the code so the block is generally lifted. I might also rerun the Site versions then. These tests are cheap"; no pass/fail rule. Answers in place there (bases, mean, thresholds → test split).
+
+**Code** (not run; no GPU on this machine):
+- `paper_tests.py run --dial k` (default 0; target active only, asserted): `component_split` (`paper_interventions.py`) now takes `dial` and scales the active set's $U$ by $1+k$. Scaling only the active set is exact for every test, because $R$ is computed as $y$ minus the edited part, so the inactive components' scaling would cancel inside $R$ anyway. Output names carry it (`target` = `active-dial<k>`), the JSON summary has a `dial` field.
+- Recall under twin interventions: the assert is gone, for every target. The twin pass runs the twin's statement followed by the row's *own* recall question and answer; only the twin's writes at the statement positions enter the edit, and by causal attention they don't depend on what follows. Consequence: `recall:object` under the swap scores the row's own stated object (it should drop, since the object travels with the swapped writes), not the twin's. `run_cells` asserts that both sequences have the same layout; it will crash loudly if a twin's statement tokenizes to another length under the recall question.
+- `make check`: clean (ruff, basedpyright).
+
+**Run script** `~/spd_out/26-11-04_paper_draft/dial/dial.sh` [assumed: plan, not run]: smoke on ortho s1 (k = 3, val, 2 per dataset, all interventions and readouts: the first GPU run of recall under twin interventions), then on test for each of the six trained decompositions (ortho s1 first) and k ∈ {0, 1, 3, 10}: `zero, mean:role, shift:role:1, twin_average, swap` with every readout, part P. `twin_average` is my addition: cheap, and at k = 0 it is a scorecard test. Not included: part R (the defect table's row "R on the other qualities") and $P = W$ (= the site versions, already run). Copy and launch commands in the script's header.
+
+Open for Julian [assumed]: the draft's ✓/✗ legend and the two captions that promise thresholds (scorecard, seeded-defect table) no longer fit without a pass/fail rule; I have not changed them.
+
+---
+
+26-11-15, Claude Opus 5.5 — *no pass/fail rule confirmed; dial needs a GPU*; same context
+
+C: (transcribed from chat) Exactly. I just want the data and analyse them. Do you need a gpu?
+
+So the dial runs produce data for Julian's analysis, with no ✓/✗ rule [decided: the transcribed line above]. A GPU is needed (Qwen2.5-7B; this machine has none). The `vastai` ssh alias points to the old instance, which refuses connections [verified: ssh, 26-11-15]. Time estimate [assumed: extrapolated from the 26-11-14 site run on the RTX 4090, 48 GB: 4 non-twin interventions × 10 readouts on test took about 7 min, the two twin interventions with 4 readouts about 1 min]: about 8–12 min per (decomposition, k) with model loading, so 3–5 h for the 24 runs.
+
+---
+
+26-11-15, Claude Opus 5.5 — *target all added; dial launched on the H100*; same context
+
+C: (transcribed from chat) Yes, add it but don't use 6 seeds but only seed 1 for all three methods. GPU is up
+
+(Answer to my chat question whether to add P = all components as a third target and run both targets.)
+
+**Code** [concluded: `make check` clean]: `paper_tests.py run --target all` = P is every component of every decomposed layer (672), R = Δ's write $y - C$; no `--recovery`; the dial works with it (`all-dial<k>`). Asserted that the split holds every component.
+
+**Run** [decided: the transcribed line above, for the bases]: `~/spd_out/26-11-04_paper_draft/dial/dial.sh` updated to seed 1 of each method (ortho `s-0c2fa0d7`, recon `s-eeac663f`, plain `s-7152548c`) × target {active, all} × k ∈ {0, 1, 3, 10} = 24 test runs, after two smoke runs (ortho, k = 3, val, 2 per dataset, both targets). Interventions zero, mean:role, shift:role:1, twin_average, swap; all ten readouts; part P. Instance: vast.ai H100 80 GB, power limit 700 W [verified: nvidia-smi], rented by Julian. Working tree synced with `spd-vast --mode sync` (instance at `main` 6607c7d6 from GitHub plus the uncommitted dial code, checked by grep on the instance); active sets copied from `~/spd_out/26-10-22_tpd_truth_paper/phase_d/h200_paper_d/recovery/`. Launched detached 10:32 UTC; outputs on the instance in `/root/spd_out/dial/{smoke,test,logs}`.
+
+C: (transcribed from chat) Ok, I'm gone until 12 UTC. You are in charge to fix any problems that might come up until then. When everything is finished kill the instance. If you come to a problem you don't know how I would want it to be resolved you can also kill the instance and we resume from there later
+
+(First test run, ortho s1 active k = 0, took about 3 min on the H100: 10:39:38 → 10:42:30 UTC [verified: progress file].)
+
+---
+
+26-11-15, Claude Opus 5.5 — *dial run finished, outputs copied, instance destroyed*; same context
+
+**Run** [verified: progress file]: both smoke runs and all 24 test runs exited 0; ~2 min 52 s per run on the H100 (first run 10:39:38 → 10:42:30, last ended 11:49:31 UTC). Smoke check: recall under the swap ran on both targets (the twin-layout assert held); the smoke's twin numbers rest on one pair and mean nothing.
+
+**Outputs** [verified: sha256 of all 83 files identical on the instance and locally]: `~/spd_out/26-11-04_paper_draft/dial/vm/` — `test/` (24 × `tests_<target>_P_test_<run>_<interventions>_<readouts>.{json,npz}`, target = `active`, `active-dial{1,3,10}`, `all`, `all-dial{1,3,10}`; 16.7 MB per npz), `smoke/`, `logs/` (one per run), `progress`, `recovery/`. Copy speed from the instance was 130–270 KB/s, so the 412 MB took ~25 min.
+
+**Instance** vast.ai 60773727 destroyed at Julian's instruction (transcribed above) after the checksum match [verified: `vastai show instances` lists none].
+
+**Spot check, not an analysis** [verified: ortho s1 active, test, from the JSONs]: the dial changes the results monotonically where expected. Swap, verdict ν 0.32 / 0.49 / 0.47 / 0.53 at k = 0 / 1 / 3 / 10; word-count KL under the swap 0.011 / 0.033 / 0.110 / 0.405; subject-recall change under the swap −0.007 / −0.018 / −0.034 / −0.340; zero removal, separation left 0.20 / 0.15 / 0.075 / 0.015. Analysis is Julian's.
+
+---
+
+26-11-15, Claude Opus 5.5 — *dial analysis*; context: the dial outputs `~/spd_out/26-11-04_paper_draft/dial/vm/test/` (24 JSON summaries), the site outputs `site_versions/vm2/test/`, the draft's section 2 (failure modes, seeded defects)
+
+Julian asked in chat: "Can you analyse the data?"
+
+**Files.** `~/spd_out/26-11-04_paper_draft/dial/analysis/`: `extract.py` → `long.csv` (every metric of the 24 dial runs and the 2 site runs, one row per run × readout × intervention × metric), `tables.py` → `tables.md` (tables A–D below in full: truth readouts at k = 0 per probe, φ against the site, other qualities at k = 0, the dial over k). All numbers below are read from those files [verified: one run per cell, test split, 1,794 statements; twin interventions on 906 rows]. Truth metrics carry 95% bootstrap intervals within family (in `long.csv`; widths ±0.01–0.03 for the cells quoted); digit KLs and recall changes have **no intervals**, so differences of 0.01–0.02 there are not interpretable. Abbreviations: TR1/TR2 = truth rating 1/2, YN1/YN2 = Yes/No 1/2; sep = separation share left (1 = untouched); ν = swap fraction (1 = the twin's score); φ = effect as a fraction of the site version's ((1 − sep)/(1 − sep_site) for removals and shift, ν/ν_site for twin interventions).
+
+**Comparability with the site table** [verified: base scores of both runs]: the twin set has 906 rows here, 898 in the site run. On the H100 six statements with |s| ≤ 0.25 get the other verdict than on the RTX 4090 (bf16 noise), which adds 4 pairs; the site's 898 rows are all contained. Negligible.
+
+**1. The dial (the seeded re-implementation): do the tests catch it?**
+
+| split | k | swap ν TR1 | swap word-count KL | swap subject-recall Δ | shift sep TR1 | shift word-count KL |
+|---|---|---|---|---|---|---|
+| site | – | 0.93 | 0.081 | – | −0.55 | 0.036 |
+| ortho active | 0 / 1 / 3 / 10 | 0.32 / 0.49 / 0.47 / 0.53 | 0.011 / 0.033 / 0.110 / 0.405 | −0.007 / −0.018 / −0.034 / −0.340 | 0.95 / 0.81 / 0.23 / −0.13 | 0.002 / 0.004 / 0.013 / 0.073 |
+| recon active | 0 / 1 / 3 / 10 | 0.79 / 0.93 / 0.84 / 0.68 | 0.033 / 0.069 / 0.146 / 0.216 | 0.008 / 0.020 / 0.025 / −0.386 | 0.04 / −0.66 / −1.08 / −1.18 | 0.013 / 0.039 / 0.092 / 0.229 |
+| plain active | 0 / 1 / 3 / 10 | 0.92 / 0.89 / 0.77 / 0.66 | 0.113 / 0.200 / 0.363 / 0.789 | −0.038 / −0.064 / −0.164 / −0.358 | −0.28 / −0.60 / −0.87 / −0.97 | 0.043 / 0.111 / 0.270 / 0.639 |
+
+(P = all: the same pattern; full rows in `tables.md`, table D.)
+- *The other-quality readouts catch it on every base* [verified]: under the swap the word-count KL rises with k on all six splits (plain all flattens at k = 10: 0.48 → 0.44), and subject recall drops by 0.34–0.39 at k = 10 on all six. Under the shift the word-count KL rises too. The word count reacts more than the humour rating (ortho active, swap: humour KL 0.020 → 0.219; plain active 0.134 → 0.167).
+- *The shift's truth readout overshoots, as the draft warned* [verified]: with k the shift moves the verdict further than the site shift does (recon active sep 0.04 → −1.18, against the site's −0.55; verdict flips 0.99–1.00 in both directions from k = 3). A truth-only reading would rate the dialled split better than the whole site.
+- *The swap's truth readout does not overshoot* [verified]: ν stays at or below the site's 0.93 for every split and k, and for recon and plain it falls at large k (plain active 0.92 → 0.66; flips true → false 0.80 → 0.48). The draft's "the P-swap read by the hard verdict may get *easier*" holds for ortho (0.32 → 0.53) and for recon only at k = 1 (0.79 → 0.93), not in general. An oversized swapped write seems to disturb the verdict rather than transcribe it more strongly [assumed: interpretation].
+- *Zero removal under the dial* destroys the statement: next-token KL before the object 0.13–1.9 at k = 0, 8.4–9.7 at k = 10, against 2.28 for the site's zero removal. So the dialled removal fails on side effects at once.
+- Caveat (entry *how the scaling dial is built*): the dial only amplifies the base's own P difference, so it validates that the other-quality readouts notice an oversized edit, not that they notice foreign content.
+
+**2. The decompositions' own P (k = 0): data for the scorecard.** φ under TR1 (site = 1):
+
+| split | zero | mean | shift | twin average | swap |
+|---|---|---|---|---|---|
+| ortho active (29 comp.) | 0.87 | 0.57 | 0.03 | 0.16 | 0.34 |
+| recon active | 0.77 | 0.71 | 0.62 | 0.79 | 0.85 |
+| plain active | 1.07 | 1.07 | 0.82 | 1.44 | 0.99 |
+| ortho all | 0.97 | 0.83 | 0.01 | 0.42 | 0.45 |
+| recon all | 0.93 | 0.81 | 0.76 | 0.88 | 0.92 |
+| plain all | 1.03 | 1.04 | 0.78 | 1.22 | 0.79 |
+
+- *Plain looks like a re-implementation at k = 0* [concluded: overshoot plus side effects beyond the site's, both below]. Its active set does more than the whole site on the truth readouts: the twin average moves ν to 0.64 [0.63, 0.65] against the site's 0.45 [0.43, 0.46], and the mean removal leaves sep −0.00 [−0.01, 0.01] against 0.07. A part can only exceed the whole if the rest pushes back, i.e. R cancels a write of P. And its side effects exceed the site's: swap word-count KL 0.113 against the site's 0.081; mean removal of P = all lowers object recall by 0.52 while the site's mean removal leaves it (+0.01). Removing a part damages the object more than removing everything, which fits Δ writing the negative of something the components write.
+- *Recon is the cleanest* [concluded, one seed]: φ 0.6–0.9 under every intervention and probe, with other-quality effects below the site's (recon active: swap word-count KL 0.033 against 0.081; shift digit KL ≤ 0.061 against ≤ 0.128; recall changes ≤ 0.04 for both targets except zero removal).
+- *Ortho's P is needed but does not carry the twin difference* [verified for the numbers; reading assumed]: removing it kills most of the separation (φ 0.87 zero, 0.57 mean), but shifting, averaging or swapping it moves little (φ 0.03 / 0.16 / 0.34). Even P = all carries only 0.42–0.45 of the twin interventions' effect, so in ortho most of what distinguishes a true statement from its false twin is in Δ. In the draft's failure list this is closest to *a second route* in R or *a lever* in P; the R tests would tell.
+- *All against active*: for ortho and recon P = all moves more than the active set (as expected); for plain the swap moves less with all components (0.74 against 0.92), so plain's inactive components counteract its active ones.
+- *Transfer across probes* [verified: tables A, B]: for most cells φ under TR2, YN1 and YN2 lies within about 0.15 of TR1's. Exceptions: plain active's twin average (TR1 1.44, the others 0.94–1.01), ortho active's twin average (0.16 against 0.20–0.33) and plain's shift (0.55–0.72 against 0.78–0.82). So P's effects mostly transfer across answer formats; plain's overshoot under the twin average is strongest under TR1, the training probe.
+
+**3. Methodological points found on the way.**
+- *The shift's "prefix untouched" is by construction* [verified: train statistics]. The shift's twin difference before the object has norm 0.04–0.27, against 3.5–11 at the object (layers 11, 14, 17), because twins share every token before the object; and by causal attention an edit at the object cannot reach earlier positions. So the prefix KL ≤ 0.001 for every split and every k carries no information. The site-table reading in the draft lists "neither touches the next-token predictions before the object (prefix KL ≤ 0.001 for the shift ...)" as evidence of selectivity; for the shift it should say "by construction", as it already does for the swap. Not changed in the draft.
+- *Missing site references*: the site's twin interventions were run with four readouts only (TR1, TR2, YN1, word count). So under the twin average and the swap there is no site value for YN2, the humour/emotion/surprise ratings or recall, and e.g. plain all's object-recall drop of 0.65 under the swap (the object travels with the swapped writes) cannot be judged yet. A rerun of the site twin interventions with all readouts takes a few minutes on a GPU.
+- *Not run*: random component sets of the same size (φ_rand), part R, seeds 2.
+
+---
+
+26-11-15, Claude Opus 5.5 — *which bases to show in the seeded-defect table*; context: the *dial analysis* entry above, the draft's 3.2.2 (`tab-res-defects`, `fig-res-dial`)
+
+Julian in chat: "I'd like to fill the table in 3.2.2 now. I don't think we need the "Exp 4a" column anymore. The question is, should we show the test results for all three or just one or two?"
+
+**Recommendation** [assumed: proposal]: one base in the table, recon's active set; all six splits in the figure and an appendix table.
+- *Why recon:* the table validates the tests, not the methods. A failure at k > 0 can only be blamed on the dial if the base passes at k = 0. Recon is the base closest to that (φ 0.6–0.9, side effects below the site's). Plain already fails at k = 0, so its dial row only adds to an existing defect; ortho's P carries almost no twin difference (shift φ 0.03), so its dial amplifies a near-zero edit and the shift barely reaches the site even at k = 3.
+- *Why active:* it is the draft's default P (3.2 *Which P*).
+- *Against cherry-picking:* the figure `fig-res-dial` already plans one panel per method; it can show all three with both targets, and `tables.md` (table D) becomes the appendix table. One sentence in the text says the pattern holds on all six splits (true for the other-quality readouts; the truth readouts differ by base, which is itself worth a sentence).
+- *Columns:* k = 0, 1, 3, 10, and the site version (the existing *P = W* column). Exp 4a dropped as Julian proposes.
+- *Rows that can be filled now:* P-swap read by TR1 (ν), P-swap read by the word count and by subject recall, fixed shift read by TR1 (the overshoot row, not in the table yet), fixed shift read by the word count, zero removal read by the prefix next-token KL. *Not run:* removal against random sets, R on the other qualities, cancellation norms / κ. I'd drop those rows until they run (the status table lists them) rather than show empty rows.
+- *Cells:* values, no ✓/✗ (no pass/fail rule); the caption's threshold sentence goes.
+
+---
+
+26-11-15, Claude Opus 5.5 — *seeded-defect tables filled (3.2.2)*; context: the entries above
+
+C: (transcribed from chat) Actually show three tables one for each method. The three changes of yours are fine.
+
+(The three changes: a row for the fixed shift read by truth rating 1; the rows not run dropped; values instead of ✓/✗.)
+
+**Draft, 3.2.2** [decided: the transcribed line above, for the layout; contents concluded]: `tab-res-defects` replaced by `tab-res-defects-ortho`, `-recon`, `-plain` (P = each method's seed-1 active set; columns k = 0, 1, 3, 10, site; Exp 4a column dropped at Julian's earlier request). Rows: P-swap read by truth rating 1 (ν), word count (KL), subject recall (change); fixed shift read by truth rating 1 (separation left) and word count; zero removal read by the next-token KL before the object. Cell values generated by `~/spd_out/26-11-04_paper_draft/dial/analysis/defect_tables.py` from `long.csv`, not typed by hand [verified: values match `tables.md`]. The intro paragraph now states what the dial does to every test ($(1+k)$ times P's own edit). The first caption explains every row, the 906 vs 898 twin sets, the missing site recall under the swap and why the shift's prefix KL is not shown (by construction). A reading below the tables [concluded: from the tables, one run each]: the other-quality readouts catch the dial in all three; the shift's truth readout overshoots for recon and plain; the swap's does not (only ortho's ν rises); the zero removal's side effect grows fastest; plain disturbs the word count more than the site already at k = 0; the dial amplifies P's own edit, not foreign content; "the same holds with P = all" with a placeholder for an appendix table. Compiles; pages 13–14 rendered and checked by eye.
+
+Not changed, for Julian [assumed]: section 2.4 (*Validating the tests*) still lists Exp 4a as a seeded defect and predicts that the swap read by the verdict "may get *easier*" (holds only for ortho); the status table still says "*add:* scaling dial $k$, Exp 4a, $P = W$"; `fig-res-dial` is still a placeholder; the appendix table for P = all does not exist yet.

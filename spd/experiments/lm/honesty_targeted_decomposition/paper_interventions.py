@@ -19,6 +19,12 @@ An intervention replaces the edited part q at the statement tokens of every site
   TwinAverage   q' = (q(x) + q(x')) / 2, both from clean forward passes (fixed values, like a mean)
   Swap          q' = q(x'), from the clean forward pass on the twin x' (an interchange intervention:
                 every site gets the value it has on x', whatever the edits upstream do)
+  SwapClamped   y' = q(x') + [y(x) - q(x)]: the edited part from the twin AND the other part held at
+                its clean value on x, at every site. Under Swap the other part is recomputed, so at
+                later layers it follows what the swapped part wrote earlier (total effect); here it
+                cannot (the direct effect of the part's own writes). Added 26-11-15 to check that the
+                R-swap's effect is not just the recomputed P following R
+                (convos/julian/26-11-15_open_research_LOG.md).
   Shift         q' = q + sign * alpha * d_g, d_g = train mean of q over false minus true statements
                 that have a twin, in the position's group; sign = +1 where the model calls the
                 statement true, -1 where it calls it false (draft: "added for statements the model
@@ -84,8 +90,10 @@ class ComponentSplit:
 Split = SiteSplit | ComponentSplit
 
 
-def component_split(name: str, basis: Basis, components: list[str]) -> ComponentSplit:
-    """The split whose P is the named components ("L<layer>:<index>") of the basis."""
+def component_split(name: str, basis: Basis, components: list[str], dial: float) -> ComponentSplit:
+    """The split whose P is the named components ("L<layer>:<index>") of the basis, their writes
+    scaled by 1 + dial (the scaling dial, paper_tests.py docstring; 0 = the decomposition as is)."""
+    assert dial >= 0, dial
     layer_of = {m: int(m.split(".")[2]) for m in basis.U}
     chosen: dict[str, list[int]] = {m: [] for m in basis.U}
     for nm in components:
@@ -98,10 +106,94 @@ def component_split(name: str, basis: Basis, components: list[str]) -> Component
     }
     return ComponentSplit(
         name,
-        {m: basis.U[m][idx[m]] for m in basis.U},
+        {m: (1 + dial) * basis.U[m][idx[m]] for m in basis.U},
         {m: basis.V[m][:, idx[m]] for m in basis.U},
         tuple(components),
     )
+
+
+SpanKind = Literal["readspan", "writespan", "bothspan", "randspan", "pcaspan", "diffspan"]
+SPAN_KINDS: tuple[SpanKind, ...] = (
+    "readspan",
+    "writespan",
+    "bothspan",
+    "randspan",
+    "pcaspan",
+    "diffspan",
+)
+
+
+def _orth(a: Float[Tensor, "d k"]) -> Float[Tensor, "d k"]:
+    """Orthonormal basis of the column span of a: (d, k') with k' <= k, dropping directions whose
+    singular value is below 1e-6 of the largest (dead components of an "all components" set have
+    near-zero vectors). k may be 0."""
+    if a.shape[1] == 0:
+        return a
+    # on the CPU: cusolver failed to create its handle when the GPU was shared with other jobs
+    # (26-11-15), and these matrices are small
+    u, sv, _ = torch.linalg.svd(a.cpu(), full_matrices=False)
+    return u[:, sv > 1e-6 * sv.max()].contiguous().to(a.device)
+
+
+def span_split(
+    kind: SpanKind,
+    base: ComponentSplit,
+    W: dict[str, Float[Tensor, "d_out d_in"]],
+    pca_V: dict[str, Float[Tensor, "d_in C"]] | None,
+    seed: int,
+    diff_Q: dict[str, Float[Tensor, "d_out K"]] | None = None,
+) -> ComponentSplit:
+    """Model-anchored splits with the dimensions of a component set S (base): P is the ORIGINAL
+    weight matrix W restricted to a subspace, so every edit of P is an edit of what the model itself
+    writes (a swap of P is a subspace interchange intervention on the unsplit model). Per module, with
+    k = |S| in that module, Q_V an orthonormal basis of span{v_c : c in S} (reads) and Q_U of
+    span{u_c : c in S} (writes):
+      readspan   P = W Q_V Q_V^T      what W writes in response to the input directions S reads
+      writespan  P = Q_U Q_U^T W      the part of W's output in the directions S writes to
+      bothspan   P = Q_U Q_U^T W Q_V Q_V^T   W compressed to S's read and write spans
+      randspan   P = Q Q^T W, Q a random k-dim subspace of the output space (CPU generator, seed)
+      pcaspan    P = W Q_k Q_k^T, Q_k the top-k principal directions of the module input (pca_V: the
+                 data-aligned basis, columns in ascending eigenvalue order)
+      diffspan   P = Q_k Q_k^T W, Q_k the top-k principal directions of the site output's difference
+                 between TRAIN twins (diff_Q, ascending order): the simplest truth-specific linear
+                 baseline of the same size, fitted without any decomposition
+    Why: a component set whose own swap moves the verdict while these do not gets its effect from
+    gains W does not have along its own directions (a re-implementation); randspan and pcaspan say
+    what a subspace of the same size does without any training. Returned as a ComponentSplit
+    (p = (x @ V) @ U), so the hooks are the ones every other test uses."""
+    U: dict[str, Tensor] = {}
+    V: dict[str, Tensor] = {}
+    for m in base.U:
+        w = W[m]
+        k = base.U[m].shape[0]
+        assert base.V[m].shape == (w.shape[1], k) and base.U[m].shape == (k, w.shape[0])
+        match kind:
+            case "readspan":
+                qv = _orth(base.V[m])
+                U[m], V[m] = (w @ qv).T.contiguous(), qv
+            case "writespan":
+                qu = _orth(base.U[m].T)
+                U[m], V[m] = qu.T.contiguous(), w.T @ qu
+            case "bothspan":
+                qv, qu = _orth(base.V[m]), _orth(base.U[m].T)
+                U[m], V[m] = (qu @ (qu.T @ (w @ qv))).T.contiguous(), qv
+            case "randspan":
+                # drawn on the CPU so the subspace is the same on every GPU (as T3's random subspaces)
+                g = torch.Generator().manual_seed(seed * 1000 + int(m.split(".")[2]))
+                qu = _orth(torch.randn(w.shape[0], k, generator=g).to(w.device))
+                U[m], V[m] = qu.T.contiguous(), w.T @ qu
+            case "pcaspan":
+                assert pca_V is not None and k <= pca_V[m].shape[1], (m, k)
+                qv = pca_V[m][:, pca_V[m].shape[1] - k :]
+                U[m], V[m] = (w @ qv).T.contiguous(), qv
+            case "diffspan":
+                assert diff_Q is not None and k <= diff_Q[m].shape[1], (m, k)
+                qu = diff_Q[m][:, diff_Q[m].shape[1] - k :]
+                U[m], V[m] = qu.T.contiguous(), w.T @ qu
+        kk = U[m].shape[0]  # < k only if the set's vectors are linearly dependent
+        assert kk <= k and U[m].shape == (kk, w.shape[0]) and V[m].shape == (w.shape[1], kk), m
+    suffix = f"{kind}{seed}" if kind == "randspan" else kind
+    return ComponentSplit(f"{base.name}-{suffix}", U, V, base.components)
 
 
 def part_of(split: Split, part: Part, m: str, x: Tensor, y: Tensor) -> Tensor:
@@ -139,16 +231,22 @@ class Swap:
 
 
 @dataclass(frozen=True)
+class SwapClamped:
+    pass
+
+
+@dataclass(frozen=True)
 class Shift:
     grouping: GroupingName
     alpha: float
 
 
-Intervention = Zero | Mean | TwinAverage | Swap | Shift
+Intervention = Zero | Mean | TwinAverage | Swap | SwapClamped | Shift
 
 
 def parse_intervention(spec: str) -> Intervention:
-    """'zero', 'mean:<grouping>', 'twin_average', 'swap', 'shift:<grouping>:<alpha>'."""
+    """'zero', 'mean:<grouping>', 'twin_average', 'swap', 'swap_clamped',
+    'shift:<grouping>:<alpha>'."""
     match spec.split(":"):
         case ["zero"]:
             return Zero()
@@ -158,6 +256,8 @@ def parse_intervention(spec: str) -> Intervention:
             return TwinAverage()
         case ["swap"]:
             return Swap()
+        case ["swap_clamped"]:
+            return SwapClamped()
         case ["shift", g, a] if g in GROUPINGS:
             return Shift(g, float(a))
         case _:
@@ -174,12 +274,14 @@ def intervention_name(iv: Intervention) -> str:
             return "twin_average"
         case Swap():
             return "swap"
+        case SwapClamped():
+            return "swap_clamped"
         case Shift(grouping=g, alpha=a):
             return f"shift:{g}:{a:g}"
 
 
 def needs_twin(iv: Intervention) -> bool:
-    return isinstance(iv, TwinAverage | Swap)
+    return isinstance(iv, TwinAverage | Swap | SwapClamped)
 
 
 def grouping_of(iv: Intervention) -> GroupingName | None:
@@ -317,7 +419,8 @@ class BatchContext:
     dec: Tensor  # (b, pos) statement positions
     groups: dict[GroupingName, dict[str, Tensor]]  # grouping -> module -> (b, pos) group ids
     sign: Tensor  # (b,) +1 where the model calls the statement true (training prompt), else -1
-    own_clean: dict[str, Tensor] | None  # module -> clean q(x), for TwinAverage
+    own_clean: dict[str, Tensor] | None  # module -> clean q(x), for TwinAverage and SwapClamped
+    own_y: dict[str, Tensor] | None  # module -> clean y(x), for SwapClamped
     twin_clean: dict[str, Tensor] | None  # module -> clean q(x'), for TwinAverage and Swap
 
 
@@ -348,6 +451,11 @@ def edit_fn(
             case Swap():
                 assert ctx.twin_clean is not None
                 target = ctx.twin_clean[m]
+            case SwapClamped():
+                assert ctx.twin_clean is not None and ctx.own_clean is not None
+                assert ctx.own_y is not None
+                # y' = q(x') + [y(x) - q(x)]: target is chosen so that y - q + target gives exactly that
+                target = ctx.twin_clean[m] + (ctx.own_y[m] - ctx.own_clean[m]) - (y - q)
             case Shift(grouping=gr, alpha=a):
                 assert stats is not None
                 d = by_group(stats.groups[gr].diff, m, ctx.groups[gr][m])

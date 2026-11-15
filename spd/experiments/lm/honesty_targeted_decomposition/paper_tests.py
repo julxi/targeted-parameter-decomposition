@@ -28,8 +28,26 @@ Readouts (--readouts, comma-separated):
   Julian ("We have enough tests already"; LOG entry above, 26-11-11).
   Recall is scored teacher-forced on every spelling of recall_variants (as written, first letter's case
   flipped, and "the ..." for the animal subject); per statement p_any = the summed probability of the
-  spellings (disjoint strings, so a probability; asserted <= 1) and recalled = p_any > 0.5. Not with
-  twin interventions (Julian: few readouts for the swaps).
+  spellings (disjoint strings, so a probability; asserted <= 1) and recalled = p_any > 0.5. Under twin
+  interventions the twin pass runs the twin's statement followed by the row's own question and answer:
+  only the twin's writes at the statement positions are used, and by causal attention they do not
+  depend on what follows. So recall:object scores the row's own stated object, not the twin's.
+
+Targets: site (P = the whole down_proj output, no R), active (P = the run's active set), all (P = all
+components of every decomposed layer, R = Delta's write y - C). Model-anchored targets (26-11-15,
+convos/julian/26-11-15_open_research_LOG.md): readspan, writespan, bothspan = the ORIGINAL matrix W
+restricted to the active set's read span, write span, or both; randspan, pcaspan = W restricted to a
+random output subspace / the top input principal directions of the same per-layer size
+(paper_interventions.span_split); diffspan = W restricted to the top principal directions of the
+site output's difference between train twins, same size. Their swaps are subspace interchange interventions on the unsplit
+model, the reference a component set's own swap is read against.
+
+Scaling dial (--dial k, targets active and all): P's writes p become (1 + k) p and R = y - p becomes
+y - (1 + k) p. This is the seeded re-implementation of the draft's *Validating the tests*:
+W_c -> (1 + k) W_c and Delta -> Delta - k sum_c W_c leave every layer's output unchanged, and every
+test on P then sees (1 + k) times P's own edit (e.g. P-swap: y(x) + (1 + k) (p(x') - p(x))). Scaling
+only the active set's U is exact for every test here, since the inactive components sit in R and R is
+computed as y minus the edited part.
 
 Train statistics (mean, shift): on all train statements under each readout's prompt, because the
 statement's last token differs between prompts ('.\\n' merges with a stimulus starting with '\\n',
@@ -67,6 +85,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_common import (
     bootstrap_intervals,
     decomposition_basis,
     load_statements,
+    make_basis,
     make_batches,
     maybe_cap,
     sorted_modules,
@@ -76,6 +95,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_interventions impor
     GROUPINGS,
     MASSIVE_FACTOR,
     N_GROUPS,
+    SPAN_KINDS,
     BatchContext,
     GroupAccumulator,
     GroupingName,
@@ -94,6 +114,7 @@ from spd.experiments.lm.honesty_targeted_decomposition.paper_interventions impor
     parse_intervention,
     part_of,
     site_hooks,
+    span_split,
     to_numpy,
 )
 from spd.experiments.lm.honesty_targeted_decomposition.paper_side_effects import (
@@ -429,6 +450,7 @@ def run_cells(
         assert (tw is not None) == twin
         norm: dict[str, Tensor] = {}
         own: dict[str, Tensor] = {}
+        own_y: dict[str, Tensor] = {}
 
         def capture_own(
             m: str,
@@ -436,10 +458,12 @@ def run_cells(
             y: Tensor,
             norm: dict[str, Tensor] = norm,
             own: dict[str, Tensor] = own,
+            own_y: dict[str, Tensor] = own_y,
         ) -> None:
             norm[m] = y.norm(dim=-1)
             if twin:
                 own[m] = part_of(split, part, m, x, y)
+                own_y[m] = y
 
         with site_hooks(model, modules, capture_own), bf16_autocast(enabled=autocast):
             clean = model(bt.ids)
@@ -465,6 +489,7 @@ def run_cells(
             groups,
             torch.tensor(sign[bt.rows], device=bt.ids.device, dtype=torch.float32),
             own if twin else None,
+            own_y if twin else None,
             twin_clean,
         )
         for ms in measures:
@@ -540,6 +565,35 @@ def train_stats(
         with site_hooks(model, modules, cap_sum), bf16_autocast(enabled=autocast):
             model(bt.ids)
     return TrainStats(median, {gr: a.result() for gr, a in acc.items()})
+
+
+def twin_difference_directions(
+    model: ComponentModel,
+    modules: list[str],
+    pairs: list[tuple[Batch, Batch]],
+    autocast: bool,
+) -> dict[str, Tensor]:
+    """Per module the principal directions (d_out, d_out; columns in ASCENDING eigenvalue order, like
+    the data-aligned basis) of the site output's twin difference y(x') - y(x) at the statement tokens
+    of the given twin batches (uncentred second moment). For the diffspan target."""
+    d_out = {m: int(model.target_weight(m).shape[0]) for m in modules}
+    dev = pairs[0][0].ids.device
+    second = {m: torch.zeros(d_out[m], d_out[m], device=dev, dtype=torch.float64) for m in modules}
+    for own, twin in pairs:
+        assert twin.ids.shape == own.ids.shape and bool((twin.dec == own.dec).all()), "twin layout"
+        ys: list[dict[str, Tensor]] = [{}, {}]
+        for i, ids in enumerate((own.ids, twin.ids)):
+
+            def cap(m: str, _x: Tensor, y: Tensor, d: dict[str, Tensor] = ys[i]) -> None:
+                d[m] = y
+
+            with site_hooks(model, modules, cap), bf16_autocast(enabled=autocast):
+                model(ids)
+        for m in modules:
+            d = (ys[1][m] - ys[0][m])[own.dec].double()
+            second[m] += d.T @ d
+    # eigh on the CPU (d_out is small; cusolver can fail on a GPU shared with other jobs)
+    return {m: torch.linalg.eigh(second[m].cpu())[1].float().contiguous().to(dev) for m in modules}
 
 
 # ---- summaries (pure, numpy) ----
@@ -697,7 +751,17 @@ def show_examples(tok: PreTrainedTokenizer, batches: Sequence[AnyBatch], fams: l
 
 def run(
     run: str,
-    target: Literal["site", "active"],
+    target: Literal[
+        "site",
+        "active",
+        "all",
+        "readspan",
+        "writespan",
+        "bothspan",
+        "randspan",
+        "pcaspan",
+        "diffspan",
+    ],  # fmt: skip
     part: Part,
     split: Literal["val", "test"],
     interventions: str | tuple[str, ...],
@@ -708,11 +772,22 @@ def run(
     batch_size: int = 64,
     device: str = "cuda",
     seed: int = 0,
+    dial: float = 0.0,
+    span_seed: int = 0,
+    span_base: Literal["active", "all"] = "active",
+    span_k: int | None = None,
 ) -> None:
     """--run supplies the model, the data and the decomposed positions (for target site any final run
     gives the same result; the decomposition is not used). target active: P = the run's active set
-    from paper_recovery.py's JSON (--recovery). interventions: comma-separated specs of
-    paper_interventions.parse_intervention, or "" for the originals only (format checks)."""
+    from paper_recovery.py's JSON (--recovery). target all: P = every component (no --recovery).
+    interventions: comma-separated specs of paper_interventions.parse_intervention, or "" for the
+    originals only (format checks). dial: the scaling dial k (module docstring), targets active and
+    all; 0 = the decomposition as trained. targets readspan / writespan / bothspan / randspan /
+    pcaspan: the model-anchored splits of paper_interventions.span_split with the per-layer sizes of
+    the run's active set (--recovery), or with --span_base all of all components of every layer (no
+    --recovery; the split is then named all-<kind>); span_seed draws randspan's subspace. span_k:
+    for the kinds that use only the sizes of the base set (randspan, pcaspan, diffspan), k dimensions
+    in every layer instead (no --recovery; named k<k>-<kind>)."""
     torch.set_grad_enabled(False)
     # fire passes "a,b" as a tuple, but as one string when the items contain ':' (checked 26-11-11)
     iv_specs = [
@@ -733,21 +808,79 @@ def run(
     train_p, second_p = verdict_prompts(lens, tok, task.max_seq_len)
     ros = [parse_readout(s, lens, train_p, second_p) for s in ro_specs]
     assert lens.stimulus.startswith("\n"), "recall readouts reuse the training prompt's statistics"
-    for ro in ros:
-        if isinstance(ro, RecallReadout):
-            assert not any(needs_twin(iv) for iv in ivs), "no recall under twin interventions"
     assert not (target == "site" and part == "R"), "the site has no R part (R = 0)"
     match target:
         case "site":
             assert recovery is None
+            assert dial == 0, "the dial needs a decomposition (target active or all)"
             sp: Split = SiteSplit()
         case "active":
             assert recovery is not None
             rj = json.loads(Path(recovery).read_text())
             assert rj["run"] == run, (rj["run"], run)
             sp = component_split(
-                "active", decomposition_basis(model, run_id), rj["active_set"]["components"]
+                "active" if dial == 0 else f"active-dial{dial:g}",
+                decomposition_basis(model, run_id),
+                rj["active_set"]["components"],
+                dial,
             )
+        case "readspan" | "writespan" | "bothspan" | "randspan" | "pcaspan" | "diffspan":
+            assert target in SPAN_KINDS and dial == 0
+            basis = decomposition_basis(model, run_id)
+            base_name: str = span_base
+            if span_k is not None:
+                assert target in ("randspan", "pcaspan", "diffspan") and recovery is None
+                assert span_base == "active", "span_k replaces the base set"
+                base_name = f"k{span_k}"
+                base_names = [
+                    f"L{int(m.split('.')[2])}:{c}" for m in basis.U for c in range(span_k)
+                ]
+            elif recovery is not None:
+                assert span_base == "active", "--recovery iff span_base active"
+                rj = json.loads(Path(recovery).read_text())
+                assert rj["run"] == run, (rj["run"], run)
+                base_names = rj["active_set"]["components"]
+            else:
+                assert span_base == "all", "--recovery iff span_base active"
+                base_names = [f"L{int(m.split('.')[2])}:{c}" for m in basis.U for c in range(basis.U[m].shape[0])]  # fmt: skip
+            base_sp = component_split(base_name, basis, base_names, 0.0)
+            pca_V = None
+            if target == "pcaspan":
+                pca_V = make_basis(
+                    "data_aligned", model, run_id, train_dirs,
+                    lambda texts: make_batches(texts, tok, task.loss_positions, train_p, batch_size, device),
+                    autocast, seed,
+                ).V  # fmt: skip
+            diff_Q = None
+            if target == "diffspan":
+                # train twins of equal token layout (label twins; the true statement as x): the
+                # directions are fitted on train and tested on the --split twins
+                tr = load_statements("train", train_dirs)
+                tr_partner = twin_partner(tr, load_records(tr, train_dirs))
+                tr_n = np.array([len(_tokenize_jointly([t], lens.stimulus, tok)[0][0]) for t in tr.texts])  # fmt: skip
+                tr_rows = np.flatnonzero((tr_partner >= 0) & tr.labels)
+                tr_rows = tr_rows[tr_n[tr_rows] == tr_n[tr_partner[tr_rows]]]
+                print(f"diffspan: {len(tr_rows)} train twin pairs of equal length")
+                mk = lambda rows: make_batches([tr.texts[i] for i in rows], tok, task.loss_positions, train_p, batch_size, device)  # noqa: E731  # fmt: skip
+                diff_Q = twin_difference_directions(
+                    model, modules, list(zip(mk(tr_rows), mk(tr_partner[tr_rows]), strict=True)), autocast
+                )  # fmt: skip
+            sp = span_split(
+                target,
+                base_sp,
+                {m: model.target_weight(m).float() for m in modules},
+                pca_V,
+                span_seed,
+                diff_Q,
+            )
+        case "all":
+            assert recovery is None
+            basis = decomposition_basis(model, run_id)
+            names = [
+                f"L{int(m.split('.')[2])}:{c}" for m in basis.U for c in range(basis.U[m].shape[0])
+            ]
+            sp = component_split("all" if dial == 0 else f"all-dial{dial:g}", basis, names, dial)
+            assert all(sp.U[m].shape == basis.U[m].shape for m in basis.U), "all = every component"
     print(f"{run_id}: target {sp.name} part {part}, interventions {[intervention_name(iv) for iv in ivs]}, "
           f"readouts {[ro.name for ro in ros]}")  # fmt: skip
 
@@ -804,7 +937,8 @@ def run(
 
     summary: dict[str, Any] = {
         "run": run, "run_id": run_id, "target": sp.name, "part": part, "split": split,
-        "n": len(st), "n_twin_rows": len(twin_rows_all), "interventions": [intervention_name(iv) for iv in ivs],
+        "n": len(st), "n_twin_rows": len(twin_rows_all), "dial": dial,
+        "interventions": [intervention_name(iv) for iv in ivs],
         "components": list(sp.components) if not isinstance(sp, SiteSplit) else None,
         # recorded because outputs before 26-11-14 used 10 and their file names don't show it
         "massive_factor": MASSIVE_FACTOR, "readouts": {},
@@ -848,7 +982,21 @@ def run(
                     qa = [(recall_question(kind, fams[r]), a) for r, _, a in flat]
                     bts = make_recall_batches([st.texts[r] for r, _, _ in flat], [fams[r] for r, _, _ in flat],
                                               qa, tok, task.loss_positions, batch_size, device)  # fmt: skip
-                    tws = [None] * len(bts)
+                    # the twin's statement with the row's own question and answer (module docstring);
+                    # run_cells asserts that both have the same layout
+                    tws = (
+                        make_recall_batches(
+                            [st.texts[partner[r]] for r, _, _ in flat],
+                            [fams[partner[r]] for r, _, _ in flat],
+                            qa,
+                            tok,
+                            task.loss_positions,
+                            batch_size,
+                            device,
+                        )  # fmt: skip
+                        if twin_mode
+                        else [None] * len(bts)
+                    )
                     measures = [recall_measure]
                     stats = stats_for(train_p) if need_stats else None
             print(f"{ro.name} ({'twins' if twin_mode else 'all'}, {len(rows)} rows), examples:")
