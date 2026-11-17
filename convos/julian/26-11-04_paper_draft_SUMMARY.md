@@ -41,6 +41,8 @@ Julian started the paper text: a pre-version in `reports/`, written bit by bit o
 
 ## See also
 
+- See also: [convos/julian/26-11-15_open_research_SUMMARY.md] — a new draft written from scratch on 26-11-17, `reports/26-11-17_tpd_truth_paper_draft.typ`. It splits each matrix into all components against Δ and puts the five-test minimal set (measured for all eight decompositions) in the main text. It does not carry over this draft's evaluation theory. This draft (26-11-04) is unchanged.
+
 - See also: [convos/julian/26-10-29_paper_writing_SUMMARY.md] — the analysis this draft reports (tables, explanations, candidate lessons); analysis questions arising during writing go there.
 - See also: [convos/julian/26-10-22_tpd_truth_paper_SUMMARY.md] — the experiments, methods, tuning and frozen analysis plan.
 - See also: [convos/julian/26-11-05_evaluation_categories_SUMMARY.md] — Julian's fresh, results-independent go at the evaluation categories (C alone / Δ alone on target / non-target); may replace section 2's categories.

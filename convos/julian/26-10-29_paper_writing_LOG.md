@@ -319,6 +319,8 @@ Answer (26-10-30, Claude Opus 5.5): Dropped.
 C: This goes in a different direction. This was evidence for "inactive components still cary function".
 Answer (26-10-30, Claude Opus 5.5): Agreed, that's a separate question; it stays out of this test.
 
+OUTDATED (26-11-17): the *Extra state* bullet above says "all components with CI ≈ 0 removed". The state (`full_without_inactive` in `paper_recovery.py`) removes the components outside the run's fixed functional active set S, at mask 1, with Δ kept. The numbers are correct. See `convos/julian/26-11-15_open_research_LOG.md`, answer *inactive components: what earlier topics already measured*.
+
 **Readouts (stimuli), in three classes. Only the first two test side effects.**
 
 *A. Truth-independent readouts* (the answer is the same for a true and a false statement; reference = the original model's distribution, measured by KL):
