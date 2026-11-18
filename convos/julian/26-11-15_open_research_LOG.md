@@ -757,3 +757,27 @@ C: (transcribed from chat) I don't quite understand why the clamped swaps are su
 - In both, "C is upstream of the truth value" (total effect) and "C's writes are the truth value" (direct effect) come apart. Which one a decomposition should be judged on depends on what we want C to be. It should be a property we state, not one hidden in the choice of intervention.
 
 **Proposal** [assumed; for Julian to decide]: in test 1 of the main text, report three numbers per part: the clamped share (sums to the site, has an ideal), the unclamped number, and the gap between them, labelled as mediated through the other part. Then the claims "recon's Δ feeds C" and "ortho's C acts through Δ" are visible where the methods are compared. Optional run, if indirect effects should be measured properly: swap C only at layers 11–13 and let all of layers 14–17 recompute. This is the version that matches "more realistic".
+
+---
+
+C: (transcribed from chat) Can you create a better figure for this? It should be more conceptual so it's easier to understand the training setup
+
+---
+
+26-11-17, Claude Opus 5.5 — *conceptual setup figure for the 26-11-17 draft*; I have read INDEX.md, the draft and its old diagram file
+
+Julian's selection was `fig-setup` in `reports/26-11-17_tpd_truth_paper_draft.typ` (the token-by-layer grid from `reports/26-11-04_tpd_truth_paper_draft_diagram.typ`). Replaced it with a new figure in `reports/26-11-17_tpd_truth_paper_draft_diagram.typ` (`setup_figure`); the old diagram file is unchanged, still used by the 26-11-04 draft and for `restriction_panels`.
+- (a) one decomposed matrix: $W' = m_1 U_1V_1^top + … + m_96 U_96V_96^top + m_Delta Delta$ drawn as column-times-row icons plus a full-rank Δ block, and the shared CI network giving a sparse CI bar chart; the importance-minimality penalty is shown as a note under the chart.
+- (b) the target stream: statement (W' in the MLPs 11–17) and probe (original W), attention arrow from the statement to the probe, verdict bars (original vs W') with KL; the dashed orange outline for recon/ortho kept; mask rule and the pressure it creates, in one line each.
+- (c) the non-target stream: Pile text, W' at every token, KL at every token; mask rule ($m_Delta = 1$, $m_c$ in [CI, 1]) and the pressure that pushes off-target computation into Δ.
+Colours match `fig-restrictions` (components blue, Δ brick red). Left out on purpose, for readability: the random number of masked layers per position, the adversarial masks and the weight decay (all in the methods text). Bars are illustrative, and the caption says so. Rendered and checked by eye [verified: typst compile, page 2 inspected].
+
+---
+
+C: (transcribed from chat) Can you split (a) and (b) into two figures. (a) can go into the introduction because it's typical tPD. (b) is explicity about this paper
+
+---
+
+26-11-17, Claude Opus 5.5 — *setup figure split into intro and setting figures*; continuing from the entry above
+
+Split as asked. `tpd_figure` (the former panel (a)) is now Figure 1 (`fig-tpd`) in the introduction, referenced from the tPD paragraph. It is made generic: $N$ components instead of 96, and the CI network is "shared by all decomposed matrices" instead of "one for all 7 layers". Its caption describes tPD in general terms: components, Δ, masks, CI network, importance penalty, and the target/non-target pressure. `setup_figure` (`fig-setup`, Setting) keeps both data streams, now labelled (a) target and (b) Pile. I read Julian's "(b)" as both streams, since the Pile stream is also this paper's setup. Its caption now points to `fig-tpd` for the decomposition and states the paper-specific part (`down_proj` of layers 11–17, 96 components per layer) [verified: typst compile, pages 1–2 inspected].

@@ -1,5 +1,6 @@
 #import "template.typ": *
-#import "26-11-04_tpd_truth_paper_draft_diagram.typ": target_panel, nontarget_panel, restriction_panels
+#import "26-11-04_tpd_truth_paper_draft_diagram.typ": restriction_panels
+#import "26-11-17_tpd_truth_paper_draft_diagram.typ": tpd_figure, setup_figure
 
 // Paper draft written from scratch on 2026-11-17 at Julian's request (C: comment at the bottom of
 // convos/julian/26-11-15_open_research_LOG.md): S = all components, the minimal test set in the main
@@ -24,34 +25,36 @@
 
 = Introduction <intro>
 
-Parameter decomposition methods split a network's weights into parts that are meant to correspond to the mechanisms the network uses. Targeted parameter decomposition (tPD; Vigouroux and Sharkey 2026) restricts this to the mechanisms that process a chosen subset of inputs: a few rank-1 *components* must carry the network's behaviour on the target inputs, while a high-rank remainder $Delta$ absorbs everything else.
+Parameter decomposition methods split a network's weights into parts that are meant to correspond to the mechanisms the network uses. Targeted parameter decomposition (tPD; Vigouroux and Sharkey 2026) restricts this to the mechanisms that process a chosen subset of inputs: a few rank-1 *components* must carry the network's behaviour on the target inputs, while a high-rank remainder $Delta$ absorbs everything else (@fig-tpd).
 
-We ask whether tPD can isolate a high-level mechanism in a large language model: the computation behind the model's judgement that a statement is true or false. The target behaviour is the answer of Qwen2.5-7B-Instruct to the question how true a statement is. We compare three methods: plain tPD, and two variants that add a constraint on what the components write at the statement's tokens. We evaluate them with five behavioural tests built on *twins*, pairs of a true and a false statement about the same subject.
+#figure(
+  tpd_figure,
+  kind: image,
+  caption: [Targeted parameter decomposition of one weight matrix. During training, the matrix is replaced by a sum of $N$ rank-1 components and a full-rank remainder $Delta$, each scaled by a mask ($m_1,...,m_N, m_Δ$). A causal-importance (CI) network reads each token's input to the layer and gives every component a value in $[0, 1]$, which sets the component's mask. A penalty on the CI values keeps few components active per token. On the target inputs, $Delta$'s mask is random, so the active components must reproduce the network's behaviour; on other inputs $Delta$ stays on, so computation that is needed only there goes into $Delta$.],
+) <fig-tpd>
 
-The main result is negative, and specific. Each method fails at least one test, and each fails a different one:
-- plain tPD builds its own route to the verdict that the model does not have (a *re-implementation*);
-- recon decomposes the layers faithfully, but much of what it decomposes is the layers' general computation, not the truth judgement;
-- ortho stays targeted, but its components carry a minority of the truth value, and its seeds find different things.
+We ask whether tPD can isolate a high-level mechanism in a large language model: the computation behind the model's judgement that a statement is true or false. The target behaviour is the answer of Qwen2.5-7B-Instruct to the question how true a statement is. We compare three methods: plain tPD, and two variants
+that add a constraint the components writeouts, namely recon (reconstruction loss) and ortho (orthogonality loss). // is that a good formulation?
+We evaluate them with five behavioural tests built on *twins*, pairs of a true and a false statement about the same subject.
 
-A subspace of the model's own outputs, fitted directly to the differences between twins, does better than all three on the central test. A secondary result is about the tests themselves. Several natural tests mislead: removal tests, swaps in which the other part is recomputed, and swaps read only by truth questions. We explain why, and which tests replace them.
+The main result is negative, each method fails at least one test:
+- plain tPD seems to build its own route to the verdict that the model does not have (we call it a *re-implementation*);
+- recon decomposes the layers faithfully, but much of what it decomposes is the layers' general computation, so it's not really targeted;
+- ortho stays targeted, but its components carry a minority of the truth value.
+
+A subspace of the model's own outputs, fitted directly to the differences between twins, does better than all three on the central test. A secondary result is about the tests themselves. Several natural tests mislead: removal tests and swaps read only by truth questions. We explain why, and which tests replace them.
 
 = Setting <setting>
 
 #figure(
-  block(width: 100%)[
-    #set align(left)
-    #text(size: 8pt, weight: "bold")[Target data]
-    #target_panel
-    #v(0.6em)
-    #text(size: 8pt, weight: "bold")[Non-target data]
-    #nontarget_panel
-  ],
-  caption: [The setup of tPD. Blue: layers whose `down_proj` matrix is decomposed, $W' = sum_c m_c U_c V_c^top + m_Delta Delta$, at the statement tokens; grey: original weights; dashed light blue: original weights whose input carries the decomposition's indirect effect; orange: the outputs compared with the original model by KL. The dashed orange outline marks the extra loss of recon and ortho on the components' writes (@fig-restrictions).],
+  setup_figure,
+  kind: image,
+  caption: [How tPD is trained in this paper. The MLP output matrix (`down_proj`) of each of the layers 11–17 is decomposed as in @fig-tpd, with 96 components per layer. (a) On the target data the decomposed matrices replace the original ones only at the statement tokens. The verdict reaches the probe through attention and is compared with the original model's verdict by KL. Because $Delta$'s mask is random, the active components must carry the verdict. (b) On ordinary text the decomposed matrices act at every token with $Delta$ fully on, and the next-token predictions are compared at every token. Computation that the layers need here goes into $Delta$, where it costs no CI. The bars are illustrative.],
 ) <fig-setup>
 
 == Model, task and score
 
-The model is Qwen2.5-7B-Instruct, frozen. It reads a statement followed by a fixed text that asks about it,
+Our  Qwen2.5-7B-Instruct, frozen. It reads a statement followed by a fixed text that asks about it,
 
 #align(center)[`<statement>\nThe amount of truth in this statement is␣`]
 
